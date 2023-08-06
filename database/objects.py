@@ -438,6 +438,51 @@ class DBReplayHistory(Base):
         self.month = time.month
         self.mode  = mode
 
+class DBClient(Base):
+    __tablename__ = "clients"
+
+    user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    executables = Column('executables', String, primary_key=True)
+    adapters = Column('adapters', String, primary_key=True)
+    unique_id = Column('unique_id', String, primary_key=True)
+    disk_signature = Column('disk_signature', String, primary_key=True)
+    banned = Column('banned', Boolean, default=False)
+
+    def __init__(
+        self,
+        user_id: int,
+        executables: str,
+        adapters: str,
+        unique_id: str,
+        disk_signature: str,
+        banned: bool = False
+    ) -> None:
+        self.user_id = user_id
+        self.executables = executables
+        self.adapters = adapters
+        self.unique_id = unique_id
+        self.disk_signature = disk_signature
+        self.banned = banned
+
+class DBLogin(Base):
+    __tablename__ = "logins"
+
+    user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    time = Column('time', DateTime, server_default='now()', primary_key=True)
+    ip = Column('ip', String)
+    version = Column('osu_version', String)
+
+    def __init__(
+        self,
+        user_id: int,
+        ip: str,
+        version: str
+    ) -> None:
+        self.user_id = user_id
+        self.ip = ip
+        self.version = version
+        self.time = datetime.now()
+
 class DBUser(Base):
     __tablename__ = "users"
 
