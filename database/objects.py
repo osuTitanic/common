@@ -272,7 +272,8 @@ class DBBeatmapset(Base):
     added_at             = Column('added_at', DateTime, nullable=True) # only if server is 0 (osu!)
     osz_filesize         = Column('osz_filesize', Integer, default=0)
     osz_filesize_novideo = Column('osz_filesize_novideo', Integer, default=0)
-    query_string         = Column('query_string', String, default='')
+    language_id          = Column('language_id', SmallInteger, default=1)
+    genre_id             = Column('genre_id', SmallInteger, default=1)
 
     favourites = relationship('DBFavourite', back_populates='beatmapset')
     beatmaps   = relationship('DBBeatmap', back_populates='beatmapset')
