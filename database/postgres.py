@@ -1,10 +1,9 @@
 
-from sqlalchemy.exc  import ResourceClosedError
 from sqlalchemy      import create_engine
 from sqlalchemy.orm  import Session
 
-from typing import Generator, List
-from threading import Timer
+from threading import Thread
+from typing import List
 
 from .objects import Base
 
@@ -48,6 +47,16 @@ class Postgres:
             self.pool.remove(session)
             self.pool.append(session := self.session)
 
+        Thread(
+            target=self._renew_session,
+            args=[session],
+            daemon=True
+        ).start()
+
         # TODO: Is there a built-in connection pool?
 
         return session
+
+    def _renew_session(self, session: Session):
+        self.pool.remove(session)
+        self.pool.append(self.session)
