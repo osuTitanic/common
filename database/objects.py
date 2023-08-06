@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import (
     SmallInteger,
@@ -481,6 +482,32 @@ class DBLogin(Base):
         self.user_id = user_id
         self.ip = ip
         self.version = version
+        self.time = datetime.now()
+
+class DBInfringement(Base):
+    __tablename__ = "infringements"
+
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    user_id = Column('user_id', Integer, ForeignKey('users.id'))
+    time = Column('time', DateTime, server_default='now()', primary_key=True)
+    action = Column('action', SmallInteger, default=0) # 0: Ban 1: Mute
+    length = Column('length', DateTime)
+    is_permanent = Column('is_permanent', Boolean, default=False)
+    description = Column('description', String, nullable=True)
+
+    def __init__(
+        self,
+        user_id: int,
+        action: int,
+        length: datetime,
+        description: Optional[str] = None,
+        is_permanent: bool = False,
+    ) -> None:
+        self.user_id = user_id
+        self.action = action
+        self.length = length
+        self.description = description
+        self.is_permanent = is_permanent
         self.time = datetime.now()
 
 class DBUser(Base):
