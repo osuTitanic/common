@@ -94,6 +94,7 @@ class DBScore(Base):
     nKatu          = Column('nkatu', Integer)
     grade          = Column('grade', String, default='N')
     status         = Column('status', SmallInteger, default=-1)
+    pinned         = Column('pinned', Boolean, default=False)
     submitted_at   = Column('submitted_at', DateTime, server_default=func.now())
     bad_flags      = Column('bad_flags', Integer, default=0)
     ac_flags       = Column('ac_flags', Integer, default=0)
