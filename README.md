@@ -40,6 +40,8 @@ I will probably remove the requirement for the `app/` folder in the future, sinc
     - Screenshots
     - Stats
     - Users
+    - Logins
+    - Clients
 - Helpers
     - Geolocation
     - Beatmap Resources
