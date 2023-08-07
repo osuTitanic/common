@@ -49,4 +49,4 @@ def fetch_average(beatmap_hash) -> float:
         .filter(DBRating.map_checksum == beatmap_hash) \
         .first()[0]
 
-    return float(result) if result else None
+    return float(result) if result else 0.0
