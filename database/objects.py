@@ -454,14 +454,14 @@ class DBClient(Base):
     def __init__(
         self,
         user_id: int,
-        executables: str,
+        executable: str,
         adapters: str,
         unique_id: str,
         disk_signature: str,
         banned: bool = False
     ) -> None:
         self.user_id = user_id
-        self.executables = executables
+        self.executables = executable
         self.adapters = adapters
         self.unique_id = unique_id
         self.disk_signature = disk_signature

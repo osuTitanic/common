@@ -6,7 +6,7 @@ import app
 
 def create(
     user_id: int,
-    executables: str,
+    executable: str,
     adapters: str,
     unique_id: str,
     disk_signature: str,
@@ -16,7 +16,7 @@ def create(
         session.add(
             client := DBClient(
                 user_id,
-                executables,
+                executable,
                 adapters,
                 unique_id,
                 disk_signature,
