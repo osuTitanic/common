@@ -19,6 +19,8 @@ from sqlalchemy import (
     Float,
 )
 
+import config
+
 Base = declarative_base()
 
 class DBAchievement(Base):
@@ -315,6 +317,28 @@ class DBBeatmap(Base):
     @property
     def full_name(self):
         return f'{self.beatmapset.artist} - {self.beatmapset.title} [{self.version}]'
+
+    @property
+    def link(self):
+        name = self.full_name \
+                   .replace('(', '[') \
+                   .replace(')', ']')
+
+        return f'({name})[http://{config.DOMAIN_NAME}/b/{self.id}]'
+
+    @property
+    def is_ranked(self) -> bool:
+        return self.status > 0
+
+    @property
+    def awards_pp(self) -> bool:
+        if config.APPROVED_MAP_REWARDS:
+            return self.status > 0
+        return self.status == 1
+
+    @property
+    def approved(self) -> bool:
+        return self.status == 2
 
 class DBBadge(Base):
     __tablename__ = "profile_badges"
