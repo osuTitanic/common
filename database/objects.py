@@ -445,7 +445,7 @@ class DBClient(Base):
     __tablename__ = "clients"
 
     user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
-    executables = Column('executables', String, primary_key=True)
+    executable = Column('executable', String, primary_key=True)
     adapters = Column('adapters', String, primary_key=True)
     unique_id = Column('unique_id', String, primary_key=True)
     disk_signature = Column('disk_signature', String, primary_key=True)
@@ -461,7 +461,7 @@ class DBClient(Base):
         banned: bool = False
     ) -> None:
         self.user_id = user_id
-        self.executables = executable
+        self.executable = executable
         self.adapters = adapters
         self.unique_id = unique_id
         self.disk_signature = disk_signature
