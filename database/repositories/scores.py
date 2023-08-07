@@ -151,15 +151,15 @@ def fetch_score_index(
         if mods != None:
             query = query.filter(DBScore.mods == mods) \
                          .filter(or_(DBScore.status == 3, DBScore.status == 4))
+        else:
+            query = query.filter(DBScore.status == 3)
 
         if country != None:
             query = query.join(DBScore.user) \
-                         .filter(DBScore.status == 3) \
-                         .filter(DBUser.country == country) \
+                         .filter(DBUser.country == country)
 
         if friends != None:
-            query = query.filter(DBScore.status == 3) \
-                         .filter(
+            query = query.filter(
                             or_(
                                 DBScore.user_id.in_(friends),
                                 DBScore.user_id == user_id
@@ -171,6 +171,7 @@ def fetch_score_index(
         if not (result := session.query(subquery.c.rank) \
                                  .filter(subquery.c.user_id == user_id) \
                                  .first()):
+            # No score was found...?
             return -1
 
         return result[-1]
