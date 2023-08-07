@@ -18,6 +18,9 @@ class EventQueue:
         def wrapper(callback: Callable):
             self.events[event_name] = callback
             return callback
+        self.logger.debug(
+            f'Registered new event: "{event_name}"'
+        )
         return wrapper
 
     def submit(self, event: str, *args, **kwargs):
