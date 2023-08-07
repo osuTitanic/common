@@ -34,6 +34,12 @@ def fetch_count(user_id: int, mode: int) -> int:
             .filter(DBScore.status == 3) \
             .count()
 
+def fetch_count_beatmap(beatmap_id: int, mode: int) -> int:
+    return app.session.database.pool_session.query(DBScore) \
+        .filter(DBScore.beatmap_id == beatmap_id) \
+        .filter(DBScore.mode == mode) \
+        .count()
+
 def fetch_top_scores(user_id: int, mode: int, exclude_approved: bool = False) -> List[DBScore]:
     query = app.session.database.pool_session.query(DBScore) \
             .filter(DBScore.user_id == user_id) \
