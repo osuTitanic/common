@@ -1,6 +1,8 @@
 
 from app.common.database.objects import DBPlay
 
+from sqlalchemy import func
+
 import app
 
 def create(
@@ -50,4 +52,11 @@ def update(
 
         session.commit()
 
-# TODO: Create fetch queries
+def fetch_count_for_beatmap(beatmap_id: int) -> int:
+    count = app.session.database.pool_session.query(
+        func.sum(DBPlay.count).label('playcount')) \
+            .group_by(DBPlay.beatmap_id) \
+            .filter(DBPlay.beatmap_id == beatmap_id) \
+            .first()
+
+    return count[0] if count else 0
