@@ -20,8 +20,7 @@ class Postgres:
         )
 
         # TODO: Add config for poolsize
-        self.poolsize = 10
-
+        self.poolsize = 5
         self.pool: List[Session] = [
             self.session for _ in range(self.poolsize)
         ]
@@ -48,7 +47,7 @@ class Postgres:
             self.pool.append(session := self.session)
 
         Thread(
-            target=self._renew_session,
+            target=self.renew_session,
             args=[session],
             daemon=True
         ).start()
@@ -57,6 +56,6 @@ class Postgres:
 
         return session
 
-    def _renew_session(self, session: Session):
+    def renew_session(self, session: Session):
         self.pool.remove(session)
         self.pool.append(self.session)
