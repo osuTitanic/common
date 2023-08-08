@@ -14,6 +14,7 @@ def create(score: DBScore) -> DBScore:
     with app.session.database.session as session:
         session.add(score)
         session.commit()
+        session.refresh(score)
 
     return score
 

@@ -28,6 +28,7 @@ def create(
             )
         )
         session.commit()
+        session.refresh(c)
 
     return c
 

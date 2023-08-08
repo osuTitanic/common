@@ -13,6 +13,7 @@ def create(user_id: int, mode: int) -> DBStats:
             )
         )
         session.commit()
+        session.refresh(stats)
 
     return stats
 

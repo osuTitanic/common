@@ -13,6 +13,7 @@ def create(user_id: int, hidden: bool) -> DBScreenshot:
             )
         )
         session.commit()
+        session.refresh(ss)
 
     return ss
 

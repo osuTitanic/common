@@ -20,6 +20,7 @@ def create(
             )
         )
         session.commit()
+        session.refresh(user)
 
     return user
 
