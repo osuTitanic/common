@@ -42,3 +42,8 @@ def delete(player_id: int) -> None:
         f'bancho:status:{player_id}',
         'action', 'mode', 'mods', 'text', 'beatmap_id', 'beatmap_checksum'
     )
+
+def exists(player_id: int) -> bool:
+    return app.session.redis.exists(
+        f'bancho:status:{player_id}'
+    )
