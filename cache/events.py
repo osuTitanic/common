@@ -13,6 +13,8 @@ class EventQueue:
         self.events: Dict[str, Callable] = {}
         self.logger = logging.getLogger('events')
 
+        # TODO: Refactor to pub/sub method
+
     def register(self, event_name: str):
         """Register an event"""
         def wrapper(callback: Callable):
