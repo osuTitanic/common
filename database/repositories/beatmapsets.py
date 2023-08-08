@@ -24,7 +24,7 @@ def search(
     user_id: int,
     display_mode = DisplayMode.All
 ) -> List[DBBeatmapset]:
-    query = app.session.database.session.query(DBBeatmapset)
+    query = app.session.database.pool_session.query(DBBeatmapset)
 
     if display_mode == DisplayMode.Ranked:
         query = query.filter(DBBeatmapset.status > 0)
