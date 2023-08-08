@@ -39,3 +39,8 @@ def fetch_many(user_id: int) -> List[DBFavourite]:
     return app.session.database.pool_session.query(DBFavourite) \
             .filter(DBFavourite.user_id == user_id) \
             .all()
+
+def fetch_count(user_id: int) -> int:
+    return app.session.database.pool_session.query(DBFavourite) \
+            .filter(DBFavourite.user_id == user_id) \
+            .count()
