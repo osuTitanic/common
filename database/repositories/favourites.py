@@ -7,14 +7,14 @@ import app
 def create(
     user_id: int,
     set_id: int
-) -> DBFavourite:
+) -> Optional[DBFavourite]:
     with app.session.database.session as session:
         # Check if favourite was already set
         if session.query(DBFavourite.user_id) \
             .filter(DBFavourite.user_id == user_id) \
             .filter(DBFavourite.set_id == set_id) \
             .first():
-            return
+            return None
 
         session.add(
             fav := DBFavourite(
