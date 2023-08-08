@@ -9,7 +9,6 @@ def create(
     topic: str,
     read_permissions: int,
     write_permissions: int
-    # TODO: Channel Owner
 ) -> DBChannel:
     with app.session.database.session as session:
         session.add(
