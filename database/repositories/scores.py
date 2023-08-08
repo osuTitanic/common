@@ -35,11 +35,31 @@ def fetch_count(user_id: int, mode: int) -> int:
             .filter(DBScore.status == 3) \
             .count()
 
-def fetch_count_beatmap(beatmap_id: int, mode: int) -> int:
-    return app.session.database.pool_session.query(DBScore) \
+def fetch_count_beatmap(
+    beatmap_id: int,
+    mode: int,
+    mods: Optional[int] = None,
+    country: Optional[str] = None,
+    friends: Optional[List[int]] = None
+) -> int:
+    query = app.session.database.pool_session.query(DBScore) \
         .filter(DBScore.beatmap_id == beatmap_id) \
-        .filter(DBScore.mode == mode) \
-        .count()
+        .filter(DBScore.mode == mode)
+
+    if country != None:
+        query = query.filter(DBUser.country == country) \
+                     .join(DBScore.user)
+
+    if friends != None:
+        query = query.filter(DBScore.user_id.in_(friends))
+
+    if mods != None:
+        query = query.filter(or_(DBScore.status == 3, DBScore.status == 4)) \
+                     .filter(DBScore.mods == mods)
+    else:
+        query = query.filter(DBScore.status == 3)
+
+    return query.count()
 
 def fetch_top_scores(user_id: int, mode: int, exclude_approved: bool = False) -> List[DBScore]:
     query = app.session.database.pool_session.query(DBScore) \
