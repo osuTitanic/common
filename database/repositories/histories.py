@@ -17,7 +17,7 @@ def update_plays(
 ) -> None:
     time = datetime.now()
 
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         updated = session.query(DBPlayHistory) \
                 .filter(DBPlayHistory.user_id == user_id) \
                 .filter(DBPlayHistory.mode == mode) \
@@ -44,7 +44,7 @@ def update_replay_views(
 ) -> None:
     time = datetime.now()
 
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         updated = session.query(DBReplayHistory) \
                     .filter(DBReplayHistory.user_id == user_id) \
                     .filter(DBReplayHistory.mode == mode) \
@@ -76,7 +76,7 @@ def update_rank(
     if global_rank <= 0:
         return
 
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         session.add(
             DBRankHistory(
                 stats.user_id,

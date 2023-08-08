@@ -10,7 +10,7 @@ def create_many(
     achievements: List[bAchievement],
     user_id: int
 ) -> None:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         for a in achievements:
             session.add(
                 DBAchievement(
@@ -24,6 +24,6 @@ def create_many(
         session.commit()
 
 def fetch_many(user_id: int) -> List[DBAchievement]:
-    return app.session.database.pool_session.query(DBAchievement) \
+    return app.session.database.session.query(DBAchievement) \
             .filter(DBAchievement.user_id == user_id) \
             .all()

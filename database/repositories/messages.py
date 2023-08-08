@@ -8,7 +8,7 @@ def create(
     target: str,
     message: str
 ) -> DBMessage:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         session.add(
             msg := DBMessage(
                 sender,

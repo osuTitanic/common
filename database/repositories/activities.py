@@ -10,7 +10,7 @@ def create(
     args: str,
     links: str
 ) -> DBActivity:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         session.add(
             ac := DBActivity(
                 user_id,

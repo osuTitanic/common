@@ -12,7 +12,7 @@ def create(
     set_id: int,
     count: int = 1
 ) -> DBPlay:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         session.add(
             p := DBPlay(
                 user_id,
@@ -33,7 +33,7 @@ def update(
     set_id: int,
     count: int = 1
 ) -> None:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         updated = session.query(DBPlay) \
             .filter(DBPlay.beatmap_id == beatmap_id) \
             .filter(DBPlay.user_id == user_id) \
@@ -53,7 +53,7 @@ def update(
         session.commit()
 
 def fetch_count_for_beatmap(beatmap_id: int) -> int:
-    count = app.session.database.pool_session.query(
+    count = app.session.database.session.query(
         func.sum(DBPlay.count).label('playcount')) \
             .group_by(DBPlay.beatmap_id) \
             .filter(DBPlay.beatmap_id == beatmap_id) \

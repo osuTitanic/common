@@ -5,7 +5,7 @@ from typing import Optional
 import app
 
 def create(user_id: int, hidden: bool) -> DBScreenshot:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         session.add(
             ss := DBScreenshot(
                 user_id,
@@ -18,6 +18,6 @@ def create(user_id: int, hidden: bool) -> DBScreenshot:
     return ss
 
 def fetch_by_id(id: int) -> Optional[DBScreenshot]:
-    return app.session.database.pool_session.query(DBScreenshot) \
+    return app.session.database.session.query(DBScreenshot) \
             .filter(DBScreenshot.id == id) \
             .first()

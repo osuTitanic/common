@@ -10,7 +10,7 @@ def create(
     read_permissions: int,
     write_permissions: int
 ) -> DBChannel:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         session.add(
             chan := DBChannel(
                 name,
@@ -24,6 +24,6 @@ def create(
     return chan
 
 def fetch_all() -> List[DBChannel]:
-    return app.session.database.pool_session \
+    return app.session.database.session \
                       .query(DBChannel) \
                       .all()

@@ -12,7 +12,7 @@ def create(
     set_id: int,
     rating: int
 ) -> DBRating:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         session.add(
             rating := DBRating(
                 user_id,
@@ -26,7 +26,7 @@ def create(
     return rating
 
 def fetch_one(beatmap_hash: str, user_id: int) -> Optional[int]:
-    result = app.session.database.pool_session.query(DBRating.rating) \
+    result = app.session.database.session.query(DBRating.rating) \
             .filter(DBRating.map_checksum == beatmap_hash) \
             .filter(DBRating.user_id == user_id) \
             .first()
@@ -36,14 +36,14 @@ def fetch_one(beatmap_hash: str, user_id: int) -> Optional[int]:
 def fetch_many(beatmap_hash) -> List[int]:
     return [
         rating[0]
-        for rating in app.session.database.pool_session \
+        for rating in app.session.database.session \
             .query(DBRating.rating) \
             .filter(DBRating.map_checksum == beatmap_hash) \
             .all()
     ]
 
 def fetch_average(beatmap_hash) -> float:
-    result = app.session.database.pool_session.query(
+    result = app.session.database.session.query(
         func.avg(DBRating.rating) \
             .label('average')) \
         .filter(DBRating.map_checksum == beatmap_hash) \

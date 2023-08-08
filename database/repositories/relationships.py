@@ -9,7 +9,7 @@ def create(
     target_id: int,
     status: int = 0
 ) -> DBRelationship:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         session.add(
             rel := DBRelationship(
                 user_id,
@@ -26,7 +26,7 @@ def delete(
     target_id: int,
     status: int = 0
 ) -> bool:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         rel = session.query(DBRelationship) \
                 .filter(DBRelationship.user_id == user_id) \
                 .filter(DBRelationship.target_id == target_id) \
@@ -40,21 +40,21 @@ def delete(
         return False
 
 def fetch_many_by_id(user_id: int) -> List[DBRelationship]:
-    return app.session.database.pool_session.query(DBRelationship) \
+    return app.session.database.session.query(DBRelationship) \
                .filter(DBRelationship.user_id == user_id) \
                .all()
 
 def fetch_many_by_target(target_id: int) -> List[DBRelationship]:
-    return app.session.database.pool_session.query(DBRelationship) \
+    return app.session.database.session.query(DBRelationship) \
                .filter(DBRelationship.target_id == target_id) \
                .all()
 
 def fetch_count_by_id(user_id: int) -> int:
-    return app.session.database.pool_session.query(DBRelationship) \
+    return app.session.database.session.query(DBRelationship) \
                .filter(DBRelationship.user_id == user_id) \
                .count()
 
 def fetch_count_by_target(target_id: int) -> int:
-    return app.session.database.pool_session.query(DBRelationship) \
+    return app.session.database.session.query(DBRelationship) \
                .filter(DBRelationship.target_id == target_id) \
                .count()

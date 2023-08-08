@@ -11,7 +11,7 @@ from sqlalchemy import or_, func
 import app
 
 def create(score: DBScore) -> DBScore:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         session.add(score)
         session.commit()
         session.refresh(score)
@@ -19,17 +19,17 @@ def create(score: DBScore) -> DBScore:
     return score
 
 def fetch_by_id(id: int) -> Optional[DBScore]:
-    return app.session.database.pool_session.query(DBScore) \
+    return app.session.database.session.query(DBScore) \
         .filter(DBScore.id == id) \
         .first()
 
 def fetch_by_replay_checksum(checksum: str) -> Optional[DBScore]:
-    return app.session.database.pool_session.query(DBScore) \
+    return app.session.database.session.query(DBScore) \
             .filter(DBScore.replay_md5 == checksum) \
             .first()
 
 def fetch_count(user_id: int, mode: int) -> int:
-    return app.session.database.pool_session.query(DBScore) \
+    return app.session.database.session.query(DBScore) \
             .filter(DBScore.user_id == user_id) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.status == 3) \
@@ -42,7 +42,7 @@ def fetch_count_beatmap(
     country: Optional[str] = None,
     friends: Optional[List[int]] = None
 ) -> int:
-    query = app.session.database.pool_session.query(DBScore) \
+    query = app.session.database.session.query(DBScore) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode)
 
@@ -62,7 +62,7 @@ def fetch_count_beatmap(
     return query.count()
 
 def fetch_top_scores(user_id: int, mode: int, exclude_approved: bool = False) -> List[DBScore]:
-    query = app.session.database.pool_session.query(DBScore) \
+    query = app.session.database.session.query(DBScore) \
             .filter(DBScore.user_id == user_id) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.status == 3)
@@ -83,14 +83,14 @@ def fetch_personal_best(
     mods: Optional[int] = None
 ) -> Optional[DBScore]:
     if mods == None:
-        return app.session.database.pool_session.query(DBScore) \
+        return app.session.database.session.query(DBScore) \
             .filter(DBScore.beatmap_id == beatmap_id) \
             .filter(DBScore.user_id == user_id) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.status == 3) \
             .first()
 
-    return app.session.database.pool_session.query(DBScore) \
+    return app.session.database.session.query(DBScore) \
             .filter(DBScore.beatmap_id == beatmap_id) \
             .filter(DBScore.user_id == user_id) \
             .filter(DBScore.mode == mode) \
@@ -104,7 +104,7 @@ def fetch_range_scores(
     offset: int = 0,
     limit: int = 5
 ) -> List[DBScore]:
-    return app.session.database.pool_session.query(DBScore) \
+    return app.session.database.session.query(DBScore) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status == 3) \
@@ -119,7 +119,7 @@ def fetch_range_scores_country(
     country: str,
     limit: int = 5
 ) -> List[DBScore]:
-    return app.session.database.pool_session.query(DBScore) \
+    return app.session.database.session.query(DBScore) \
             .filter(DBScore.beatmap_id == beatmap_id) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.status == 3) \
@@ -134,7 +134,7 @@ def fetch_range_scores_friends(
     friends: List[int],
     limit: int = 5
 ) -> List[DBScore]:
-    return app.session.database.pool_session.query(DBScore) \
+    return app.session.database.session.query(DBScore) \
             .filter(DBScore.beatmap_id == beatmap_id) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.status == 3) \
@@ -148,7 +148,7 @@ def fetch_range_scores_mods(
     mods: int,
     limit: int = 5
 ) -> List[DBScore]:
-    return app.session.database.pool_session.query(DBScore) \
+    return app.session.database.session.query(DBScore) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
         .filter(or_(DBScore.status == 3, DBScore.status == 4)) \
@@ -165,7 +165,7 @@ def fetch_score_index(
     friends: Optional[List[int]] = None,
     country: Optional[str] = None
 ) -> int:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         query = session.query(DBScore.user_id, DBScore.mods, func.rank() \
                     .over(
                         order_by=DBScore.total_score.desc()
@@ -209,7 +209,7 @@ def fetch_score_index_by_id(
     mode: int,
     mods: Optional[int] = None
 ) -> int:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         query = session.query(DBScore.id, DBScore.mods, func.rank() \
                     .over(
                         order_by=DBScore.total_score.desc()
@@ -239,7 +239,7 @@ def fetch_score_above(
     mode: int,
     total_score: int
 ) -> Optional[DBScore]:
-    return app.session.database.pool_session.query(DBScore) \
+    return app.session.database.session.query(DBScore) \
             .filter(DBScore.beatmap_id == beatmap_id) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.total_score > total_score) \
@@ -252,7 +252,7 @@ def fetch_recent(
     mode: int,
     limit: int = 3
 ) -> List[DBScore]:
-    return app.session.database.pool_session.query(DBScore) \
+    return app.session.database.session.query(DBScore) \
                 .filter(DBScore.user_id == user_id) \
                 .filter(DBScore.mode == mode) \
                 .order_by(DBScore.id.desc()) \
@@ -263,7 +263,7 @@ def fetch_recent_top_scores(
     user_id: int,
     limit: int = 3
 ) -> List[DBScore]:
-    return app.session.database.pool_session.query(DBScore) \
+    return app.session.database.session.query(DBScore) \
                 .filter(DBScore.user_id == user_id) \
                 .filter(DBScore.status == 3) \
                 .order_by(DBScore.id.desc()) \

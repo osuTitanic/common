@@ -33,7 +33,7 @@ class DBAchievement(Base):
     filename    = Column('filename', String)
     unlocked_at = Column('unlocked_at', DateTime, server_default=func.now())
 
-    user = relationship('DBUser', back_populates='achievements')
+    user = relationship('DBUser', back_populates='achievements', lazy='selectin', join_depth=2)
 
     def __init__(self, user_id: int, name: str, category: str, filename: str) -> None:
         self.category = category
@@ -67,7 +67,7 @@ class DBStats(Base):
     c_count   = Column('c_count', Integer, default=0)
     d_count   = Column('d_count', Integer, default=0)
 
-    user = relationship('DBUser', back_populates='stats')
+    user = relationship('DBUser', back_populates='stats', lazy='selectin', join_depth=2)
 
     def __init__(self, user_id: int, mode: int) -> None:
         self.user_id = user_id
@@ -106,8 +106,8 @@ class DBScore(Base):
     processes      = Column('processes',  String, nullable=True)
     failtime       = Column('failtime',  Integer, nullable=True)
 
-    user    = relationship('DBUser', back_populates='scores')
-    beatmap = relationship('DBBeatmap', back_populates='scores')
+    user    = relationship('DBUser', back_populates='scores', lazy='selectin', join_depth=2)
+    beatmap = relationship('DBBeatmap', back_populates='scores', lazy='selectin', join_depth=2)
 
     def __init__(self, **kwargs) -> None:
         self.beatmap_id     = kwargs.get('beatmap_id')
@@ -143,9 +143,9 @@ class DBPlay(Base):
     count        = Column('count', Integer)
     beatmap_file = Column('beatmap_file', String)
 
-    user       = relationship('DBUser', back_populates='plays')
-    beatmap    = relationship('DBBeatmap', back_populates='plays')
-    beatmapset = relationship('DBBeatmapset', back_populates='plays')
+    user       = relationship('DBUser', back_populates='plays', lazy='selectin', join_depth=2)
+    beatmap    = relationship('DBBeatmap', back_populates='plays', lazy='selectin', join_depth=2)
+    beatmapset = relationship('DBBeatmapset', back_populates='plays', lazy='selectin', join_depth=2)
 
     def __init__(self, user_id: int, beatmap_id: int, set_id: int, beatmap_file: str, count: int = 1) -> None:
         self.beatmap_file = beatmap_file
@@ -161,8 +161,8 @@ class DBFavourite(Base):
     set_id     = Column('set_id', Integer, ForeignKey('beatmapsets.id'), primary_key=True)
     created_at = Column('created_at', DateTime, server_default=func.now())
 
-    user       = relationship('DBUser', back_populates='favourites')
-    beatmapset = relationship('DBBeatmapset', back_populates='favourites')
+    user       = relationship('DBUser', back_populates='favourites', lazy='selectin', join_depth=2)
+    beatmapset = relationship('DBBeatmapset', back_populates='favourites', lazy='selectin', join_depth=2)
 
     def __init__(self, user_id: int, set_id: int) -> None:
         self.user_id = user_id
@@ -176,9 +176,9 @@ class DBRating(Base):
     map_checksum = Column('map_checksum', String, ForeignKey('beatmaps.md5'), primary_key=True)
     rating       = Column('rating', SmallInteger)
 
-    user       = relationship('DBUser', back_populates='ratings')
-    beatmap    = relationship('DBBeatmap', back_populates='ratings')
-    beatmapset = relationship('DBBeatmapset', back_populates='ratings')
+    user       = relationship('DBUser', back_populates='ratings', lazy='selectin', join_depth=2)
+    beatmap    = relationship('DBBeatmap', back_populates='ratings', lazy='selectin', join_depth=2)
+    beatmapset = relationship('DBBeatmapset', back_populates='ratings', lazy='selectin', join_depth=2)
 
     def __init__(self, user_id: int, set_id: int, map_checksum: str, rating: int) -> None:
         self.rating  = rating
@@ -194,7 +194,7 @@ class DBScreenshot(Base):
     created_at = Column('created_at', DateTime, server_default=func.now())
     hidden     = Column('hidden', Boolean, default=False)
 
-    user = relationship('DBUser', back_populates='screenshots')
+    user = relationship('DBUser', back_populates='screenshots', lazy='selectin', join_depth=2)
 
     def __init__(self, user_id: int, hidden: bool):
         self.user_id = user_id
@@ -207,7 +207,7 @@ class DBRelationship(Base):
     target_id = Column('target_id', Integer, primary_key=True)
     status    = Column('status', SmallInteger)
 
-    user = relationship('DBUser', back_populates='relationships')
+    user = relationship('DBUser', back_populates='relationships', lazy='selectin', join_depth=2)
 
     def __init__(self, user: int, target: int, status: int) -> None:
         self.user_id = user
@@ -304,10 +304,10 @@ class DBBeatmapset(Base):
     language_id          = Column('language_id', SmallInteger, default=1)
     genre_id             = Column('genre_id', SmallInteger, default=1)
 
-    favourites = relationship('DBFavourite', back_populates='beatmapset')
-    beatmaps   = relationship('DBBeatmap', back_populates='beatmapset')
-    ratings    = relationship('DBRating', back_populates='beatmapset')
-    plays      = relationship('DBPlay', back_populates='beatmapset')
+    favourites = relationship('DBFavourite', back_populates='beatmapset', lazy='selectin', join_depth=2)
+    beatmaps   = relationship('DBBeatmap', back_populates='beatmapset', lazy='selectin', join_depth=2)
+    ratings    = relationship('DBRating', back_populates='beatmapset', lazy='selectin', join_depth=2)
+    plays      = relationship('DBPlay', back_populates='beatmapset', lazy='selectin', join_depth=2)
 
 class DBBeatmap(Base):
     __tablename__ = "beatmaps"
@@ -333,10 +333,10 @@ class DBBeatmap(Base):
     hp        = Column('hp',   Float, default=0.0)
     diff      = Column('diff', Float, default=0.0)
 
-    beatmapset = relationship('DBBeatmapset', back_populates='beatmaps')
-    ratings    = relationship('DBRating', back_populates='beatmap')
-    scores     = relationship('DBScore', back_populates='beatmap')
-    plays      = relationship('DBPlay', back_populates='beatmap')
+    beatmapset = relationship('DBBeatmapset', back_populates='beatmaps', lazy='selectin', join_depth=2)
+    ratings    = relationship('DBRating', back_populates='beatmap', lazy='selectin', join_depth=2)
+    scores     = relationship('DBScore', back_populates='beatmap', lazy='selectin', join_depth=2)
+    plays      = relationship('DBPlay', back_populates='beatmap', lazy='selectin', join_depth=2)
 
     def __repr__(self) -> str:
         return f'<Beatmap ({self.id}) {self.beatmapset.artist} - {self.beatmapset.title} [{self.version}]>'
@@ -377,7 +377,7 @@ class DBBadge(Base):
     badge_url         = Column('badge_url', String, nullable=True)
     badge_description = Column('badge_description', String, nullable=True)
 
-    user = relationship('DBUser', back_populates='badges')
+    user = relationship('DBUser', back_populates='badges', lazy='selectin', join_depth=2)
 
 class DBActivity(Base):
     __tablename__ = "profile_activity"
@@ -390,7 +390,7 @@ class DBActivity(Base):
     activity_args  = Column('activity_args', String, nullable=True)
     activity_links = Column('activity_links', String, nullable=True)
 
-    user = relationship('DBUser', back_populates='activity')
+    user = relationship('DBUser', back_populates='activity', lazy='selectin', join_depth=2)
 
     def __init__(self, user_id: int, mode: int, activity_text: str, activity_args: str, activity_links: str) -> None:
         self.user_id = user_id
@@ -407,7 +407,7 @@ class DBName(Base):
     changed_at = Column('changed_at', DateTime, server_default=func.now())
     name       = Column('name', String)
 
-    user = relationship('DBUser', back_populates='names')
+    user = relationship('DBUser', back_populates='names', lazy='selectin', join_depth=2)
 
 class DBRankHistory(Base):
     __tablename__ = "profile_rank_history"
@@ -421,7 +421,7 @@ class DBRankHistory(Base):
     country_rank = Column('country_rank', Integer)
     score_rank   = Column('score_rank', Integer)
 
-    user = relationship('DBUser', back_populates='rank_history')
+    user = relationship('DBUser', back_populates='rank_history', lazy='selectin', join_depth=2)
 
     def __init__(
         self,
@@ -451,7 +451,7 @@ class DBPlayHistory(Base):
     month   = Column('month', Integer, primary_key=True)
     plays   = Column('plays', Integer, default=0)
 
-    user = relationship('DBUser', back_populates='play_history')
+    user = relationship('DBUser', back_populates='play_history', lazy='selectin', join_depth=2)
 
     def __init__(
         self,
@@ -476,7 +476,7 @@ class DBReplayHistory(Base):
     month        = Column('month', Integer, primary_key=True)
     replay_views = Column('replay_views', Integer, default=0)
 
-    user = relationship('DBUser', back_populates='replay_history')
+    user = relationship('DBUser', back_populates='replay_history', lazy='selectin', join_depth=2)
 
     def __init__(
         self,
@@ -585,20 +585,20 @@ class DBUser(Base):
     userpage_banner  = Column('userpage_banner',  String, nullable=True)
     userpage_title   = Column('userpage_title',   String, nullable=True)
 
-    replay_history = relationship('DBReplayHistory', back_populates='user')
-    relationships  = relationship('DBRelationship', back_populates='user')
-    rank_history   = relationship('DBRankHistory', back_populates='user')
-    play_history   = relationship('DBPlayHistory', back_populates='user')
-    achievements   = relationship('DBAchievement', back_populates='user')
-    screenshots    = relationship('DBScreenshot', back_populates='user')
-    favourites     = relationship('DBFavourite', back_populates='user')
-    activity       = relationship('DBActivity', back_populates='user')
-    ratings        = relationship('DBRating', back_populates='user')
-    scores         = relationship('DBScore', back_populates='user')
-    stats          = relationship('DBStats', back_populates='user')
-    badges         = relationship('DBBadge', back_populates='user')
-    names          = relationship('DBName', back_populates='user')
-    plays          = relationship('DBPlay', back_populates='user')
+    replay_history = relationship('DBReplayHistory', back_populates='user', lazy='selectin', join_depth=2)
+    relationships  = relationship('DBRelationship', back_populates='user', lazy='selectin', join_depth=2)
+    rank_history   = relationship('DBRankHistory', back_populates='user', lazy='selectin', join_depth=2)
+    play_history   = relationship('DBPlayHistory', back_populates='user', lazy='selectin', join_depth=2)
+    achievements   = relationship('DBAchievement', back_populates='user', lazy='selectin', join_depth=2)
+    screenshots    = relationship('DBScreenshot', back_populates='user', lazy='selectin', join_depth=2)
+    favourites     = relationship('DBFavourite', back_populates='user', lazy='selectin', join_depth=2)
+    activity       = relationship('DBActivity', back_populates='user', lazy='selectin', join_depth=2)
+    ratings        = relationship('DBRating', back_populates='user', lazy='selectin', join_depth=2)
+    scores         = relationship('DBScore', back_populates='user', lazy='selectin', join_depth=2)
+    stats          = relationship('DBStats', back_populates='user', lazy='selectin', join_depth=2)
+    badges         = relationship('DBBadge', back_populates='user', lazy='selectin', join_depth=2)
+    names          = relationship('DBName', back_populates='user', lazy='selectin', join_depth=2)
+    plays          = relationship('DBPlay', back_populates='user', lazy='selectin', join_depth=2)
 
     def __init__(
         self,

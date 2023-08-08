@@ -14,7 +14,7 @@ def create(
     playmode: int,
     color: str
 ) -> DBComment:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         session.add(
             c := DBComment(
                 target_id,
@@ -36,7 +36,7 @@ def fetch_many(
     target_id: int,
     type: str
 ) -> List[DBComment]:
-    return app.session.database.pool_session.query(DBComment) \
+    return app.session.database.session.query(DBComment) \
             .filter(DBComment.target_id == target_id) \
             .filter(DBComment.target_type == type) \
             .order_by(DBComment.time.asc()) \

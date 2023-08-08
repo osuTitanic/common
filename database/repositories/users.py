@@ -10,7 +10,7 @@ def create(
     pw_bcrypt: str,
     country: str
 ) -> DBUser:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         session.add(
             user := DBUser(
                 username,
@@ -25,7 +25,7 @@ def create(
     return user
 
 def update(user_id: int, updates: dict) -> int:
-    with app.session.database.session as session:
+    with app.session.database.managed_session() as session:
         rows = session.query(DBUser) \
                .filter(DBUser.id == user_id) \
                .update(updates)
@@ -34,11 +34,11 @@ def update(user_id: int, updates: dict) -> int:
     return rows
 
 def fetch_by_name(username: str) -> Optional[DBUser]:
-    return app.session.database.pool_session.query(DBUser) \
+    return app.session.database.session.query(DBUser) \
         .filter(DBUser.name == username) \
         .first()
 
 def fetch_by_id(id: int) -> Optional[DBUser]:
-    return app.session.database.pool_session.query(DBUser) \
+    return app.session.database.session.query(DBUser) \
         .filter(DBUser.id == id) \
         .first()
