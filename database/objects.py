@@ -31,7 +31,7 @@ class DBAchievement(Base):
     name        = Column('name', String, primary_key=True)
     category    = Column('category', String)
     filename    = Column('filename', String)
-    unlocked_at = Column('unlocked_at', DateTime)
+    unlocked_at = Column('unlocked_at', DateTime, server_default=func.now())
 
     user = relationship('DBUser', back_populates='achievements')
 
