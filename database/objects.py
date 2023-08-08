@@ -225,6 +225,7 @@ class DBComment(Base):
     comment     = Column('comment', String)
     format      = Column('format', String, nullable=True)
     mode        = Column('mode', SmallInteger, default=0)
+    color       = Column('color', String, nullable=True)
 
     def __init__(self, target_id, target_type, user_id, time, comment, format = None, mode = 0, color = None) -> None:
         self.target_id   = target_id
