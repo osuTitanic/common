@@ -36,4 +36,4 @@ def fetch_by_mode(user_id: int,  mode: int) -> Optional[DBStats]:
 def fetch_all(user_id: int) -> List[DBStats]:
     return app.session.database.pool_session.query(DBStats) \
         .filter(DBStats.user_id == user_id) \
-        .first()
+        .all()
