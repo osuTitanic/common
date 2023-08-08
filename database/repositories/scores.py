@@ -258,3 +258,14 @@ def fetch_recent(
                 .order_by(DBScore.id.desc()) \
                 .limit(limit) \
                 .all()
+
+def fetch_recent_top_scores(
+    user_id: int,
+    limit: int = 3
+) -> List[DBScore]:
+    return app.session.database.pool_session.query(DBScore) \
+                .filter(DBScore.user_id == user_id) \
+                .filter(DBScore.status == 3) \
+                .order_by(DBScore.id.desc()) \
+                .limit(limit) \
+                .all()
