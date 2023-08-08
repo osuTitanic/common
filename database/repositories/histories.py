@@ -32,8 +32,7 @@ def update_plays(
                 DBPlayHistory(
                     user_id,
                     mode,
-                    plays=1,
-                    time=time
+                    plays=1
                 )
             )
 
@@ -60,8 +59,7 @@ def update_replay_views(
                 DBReplayHistory(
                     user_id,
                     mode,
-                    replay_views=1,
-                    time=time
+                    replay_views=1
                 )
             )
 
