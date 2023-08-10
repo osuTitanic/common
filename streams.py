@@ -88,12 +88,12 @@ class StreamOut:
 		self.write(bytes(ret))
 
 	def string(self, value: str):
-		string = value.encode()
-		length = len(string) # + 1
-
-		if not string:
+		if not value:
 			self.s8(0x00)
 			return
+
+		string = value.encode()
+		length = len(string) # + 1
 
 		self.s8(0x0b)
 		self.uleb128(length)
