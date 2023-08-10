@@ -94,7 +94,7 @@ class StreamOut:
 		if not string:
 			self.s8(0x00)
 			return
-		
+
 		self.s8(0x0b)
 		self.uleb128(length)
 		self.write(string)
@@ -157,10 +157,10 @@ class StreamIn:
 		if self.endian == ">":
 			return (self.u16() << 8) | self.u8()
 		return self.u8() | (self.u16() << 8)
-	
+
 	def float(self): return struct.unpack(self.endian + "f", self.read(4))[0]
 	def double(self): return struct.unpack(self.endian + "d", self.read(8))[0]
-	
+
 	def bool(self): return bool(self.u8())
 	def char(self): return chr(self.u8())
 	def wchar(self): return chr(self.u16())
