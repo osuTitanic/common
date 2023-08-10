@@ -37,5 +37,4 @@ class Postgres:
             self.logger.fatal('Performing rollback...')
             session.rollback()
         finally:
-            self.logger.debug('Closing session...')
             session.close()
