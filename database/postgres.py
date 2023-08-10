@@ -13,7 +13,7 @@ class Postgres:
             f'postgresql://{username}:{password}@{host}:{port}/{username}',
             max_overflow=30,
             pool_recycle=3600,
-            pool_size=5,
+            pool_size=10,
             echo_pool=None,
             echo=None
         )
