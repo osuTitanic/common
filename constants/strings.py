@@ -24,3 +24,8 @@ MANIA_NOT_SUPPORTED = '\n'.join([
     'Your version of osu! does not support mania.',
     'Please upgrade to version b20121003 or higher!'
 ])
+
+LOGGED_IN_FROM_ANOTHER_LOCATION = '\n'.join([
+    'Another player has logged in to your account, from another location.',
+    'Please change your password immediately, if this login was not authorized by you!'
+])
