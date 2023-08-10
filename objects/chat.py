@@ -6,7 +6,7 @@ class Message:
     sender: str
     content: str
     target: str
-    sender_id: int
+    sender_id: int = 0
 
 @dataclass
 class Channel:
