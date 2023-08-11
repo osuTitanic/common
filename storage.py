@@ -6,6 +6,8 @@ from datetime import timedelta
 from typing import Optional
 from redis import Redis
 
+from .database.repositories import scores
+
 from .helpers.external import Beatmaps
 from .streams import StreamOut
 
@@ -13,7 +15,6 @@ import logging
 import config
 import boto3
 import utils
-import app
 import io
 
 class Storage:
@@ -100,7 +101,7 @@ class Storage:
         if not (replay := self.get_replay(id)):
             return
 
-        score = app.common.database.scores.fetch_by_id(id)
+        score = scores.fetch_by_id(id)
 
         stream = StreamOut()
         stream.u8(score.mode)
