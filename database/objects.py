@@ -351,7 +351,7 @@ class DBBeatmap(Base):
                    .replace('(', '[') \
                    .replace(')', ']')
 
-        return f'({name})[http://{config.DOMAIN_NAME}/b/{self.id}]'
+        return f'({name})[http://osu.{config.DOMAIN_NAME}/b/{self.id}]'
 
     @property
     def is_ranked(self) -> bool:

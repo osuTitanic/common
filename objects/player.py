@@ -1,5 +1,6 @@
 
 from dataclasses import dataclass
+from typing import Optional
 
 from ..constants import (
     ClientStatus,
@@ -35,6 +36,7 @@ class UserPresence:
     longitude: float
     latitude: float
     rank: int
+    city: Optional[str] = None
 
 @dataclass
 class UserStats:

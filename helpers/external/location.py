@@ -18,6 +18,7 @@ class Geolocation:
     country_code: str = 'XX'
     country_index: int = 0
     timezone: str = 'UTC'
+    city: str = 'Unknown'
 
 def download_database():
     app.session.logger.info('Downloading geolite database...')
@@ -63,7 +64,8 @@ def fetch_db(ip: str) -> Optional[Geolocation]:
                 list(COUNTRIES.keys()).index(
                     response.country.iso_code
                 ),
-                response.location.time_zone
+                response.location.time_zone,
+                response.city
             )
     except AddressNotFoundError:
         return
@@ -92,5 +94,6 @@ def fetch_web(ip: str, is_local: bool = False) -> Optional[Geolocation]:
         longitude=float(lines[7]),
         country_code=lines[1],
         country_index=index,
-        timezone=lines[8]
+        timezone=lines[8],
+        city=lines[4]
     )
