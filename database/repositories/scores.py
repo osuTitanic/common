@@ -5,8 +5,10 @@ from app.common.database.objects import (
     DBUser
 )
 
-from typing import Optional, List
+from sqlalchemy.orm import selectinload
 from sqlalchemy import or_, func
+
+from typing import Optional, List
 
 import app
 
@@ -31,6 +33,10 @@ def hide_all(user_id: int) -> int:
 
 def fetch_by_id(id: int) -> Optional[DBScore]:
     return app.session.database.session.query(DBScore) \
+        .options(
+            selectinload(DBScore.beatmap),
+            selectinload(DBScore.user)
+        ) \
         .filter(DBScore.id == id) \
         .first()
 
@@ -95,6 +101,7 @@ def fetch_personal_best(
 ) -> Optional[DBScore]:
     if mods == None:
         return app.session.database.session.query(DBScore) \
+            .options(selectinload(DBScore.user)) \
             .filter(DBScore.beatmap_id == beatmap_id) \
             .filter(DBScore.user_id == user_id) \
             .filter(DBScore.mode == mode) \
@@ -102,6 +109,7 @@ def fetch_personal_best(
             .first()
 
     return app.session.database.session.query(DBScore) \
+            .options(selectinload(DBScore.user)) \
             .filter(DBScore.beatmap_id == beatmap_id) \
             .filter(DBScore.user_id == user_id) \
             .filter(DBScore.mode == mode) \
@@ -116,6 +124,7 @@ def fetch_range_scores(
     limit: int = 5
 ) -> List[DBScore]:
     return app.session.database.session.query(DBScore) \
+        .options(selectinload(DBScore.user)) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status == 3) \
@@ -131,6 +140,7 @@ def fetch_range_scores_country(
     limit: int = 5
 ) -> List[DBScore]:
     return app.session.database.session.query(DBScore) \
+            .options(selectinload(DBScore.user)) \
             .filter(DBScore.beatmap_id == beatmap_id) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.status == 3) \
@@ -146,6 +156,7 @@ def fetch_range_scores_friends(
     limit: int = 5
 ) -> List[DBScore]:
     return app.session.database.session.query(DBScore) \
+            .options(selectinload(DBScore.user)) \
             .filter(DBScore.beatmap_id == beatmap_id) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.status == 3) \
@@ -160,6 +171,7 @@ def fetch_range_scores_mods(
     limit: int = 5
 ) -> List[DBScore]:
     return app.session.database.session.query(DBScore) \
+        .options(selectinload(DBScore.user)) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
         .filter(or_(DBScore.status == 3, DBScore.status == 4)) \
@@ -251,6 +263,7 @@ def fetch_score_above(
     total_score: int
 ) -> Optional[DBScore]:
     return app.session.database.session.query(DBScore) \
+            .options(selectinload(DBScore.user)) \
             .filter(DBScore.beatmap_id == beatmap_id) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.total_score > total_score) \
