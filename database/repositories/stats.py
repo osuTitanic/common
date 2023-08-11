@@ -27,6 +27,24 @@ def update(user_id: int, mode: int, updates: dict) -> int:
 
     return rows
 
+def update_all(user_id: int, updates: dict) -> int:
+    with app.session.database.managed_session() as session:
+        rows = session.query(DBStats) \
+               .filter(DBStats.user_id == user_id) \
+               .update(updates)
+        session.commit()
+
+    return rows
+
+def delete_all(user_id: int) -> int:
+    with app.session.database.managed_session() as session:
+        rows = session.query(DBStats) \
+                .filter(DBStats.user_id == user_id) \
+                .delete()
+        session.commit()
+
+    return rows
+
 def fetch_by_mode(user_id: int,  mode: int) -> Optional[DBStats]:
     return app.session.database.session.query(DBStats) \
         .filter(DBStats.user_id == user_id) \
