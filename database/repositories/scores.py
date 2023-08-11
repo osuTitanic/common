@@ -18,6 +18,17 @@ def create(score: DBScore) -> DBScore:
 
     return score
 
+def hide_all(user_id: int) -> int:
+    with app.session.database.managed_session() as session:
+        rows = session.query(DBScore) \
+                .filter(DBScore.user_id == user_id) \
+                .update({
+                    'status': -1
+                })
+        session.commit()
+
+    return rows
+
 def fetch_by_id(id: int) -> Optional[DBScore]:
     return app.session.database.session.query(DBScore) \
         .filter(DBScore.id == id) \
