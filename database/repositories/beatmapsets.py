@@ -41,7 +41,7 @@ def search(
                      .filter(DBBeatmapset.status > 0)
 
     if query_string == 'Newest':
-        query = query.order_by(DBBeatmapset.id.desc())
+        query = query.order_by(DBBeatmapset.approved_at.desc())
 
     elif query_string == 'Top Rated':
         query = query.join(DBRating) \
