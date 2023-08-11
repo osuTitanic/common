@@ -14,7 +14,7 @@ class RankingType(IntEnum):
     Country     = 4
 
 class ScoreStatus(IntEnum):
-    Hidden    = -1 # TODO: Create 'hidden' attribute instead of setting status to -1
+    Hidden    = -1
     Failed    = 0
     Exited    = 1
     Submitted = 2
