@@ -58,3 +58,10 @@ def fetch_count_by_target(target_id: int) -> int:
     return app.session.database.session.query(DBRelationship) \
                .filter(DBRelationship.target_id == target_id) \
                .count()
+
+def fetch_target_ids(user_id: int) -> List[int]:
+    result = app.session.database.session.query(DBRelationship.target_id) \
+               .filter(DBRelationship.user_id == user_id) \
+               .all()
+
+    return [id[0] for id in result]
