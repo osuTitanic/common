@@ -7,8 +7,10 @@ from app.common.database.objects import (
     DBPlay
 )
 
-from typing import Optional, List
+from sqlalchemy.orm import selectinload
 from sqlalchemy import func, or_
+
+from typing import Optional, List
 
 import app
 
@@ -24,7 +26,11 @@ def search(
     user_id: int,
     display_mode = DisplayMode.All
 ) -> List[DBBeatmapset]:
-    query = app.session.database.session.query(DBBeatmapset)
+    query = app.session.database.session.query(DBBeatmapset) \
+               .options(
+                   selectinload(DBBeatmapset.beatmaps),
+                   selectinload(DBBeatmapset.ratings)
+               )
 
     if display_mode == DisplayMode.Ranked:
         query = query.filter(DBBeatmapset.status > 0)
