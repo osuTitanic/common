@@ -27,6 +27,15 @@ def create(
 
     return client
 
+def update_all(user_id: int, updates: dict) -> int:
+    with app.session.database.managed_session() as session:
+        rows = session.query(DBClient) \
+            .filter(DBClient.user_id == user_id) \
+            .update(updates)
+        session.commit()
+
+    return rows
+
 def fetch_one(
     user_id: int,
     executable: str,
