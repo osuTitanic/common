@@ -40,11 +40,11 @@ def fetch_by_replay_checksum(checksum: str) -> Optional[DBScore]:
             .first()
 
 def fetch_count(user_id: int, mode: int) -> int:
-    return app.session.database.session.query(DBScore.id) \
+    return app.session.database.session.query(func.count(DBScore.id)) \
             .filter(DBScore.user_id == user_id) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.status == 3) \
-            .count()
+            .scalar()
 
 def fetch_count_beatmap(
     beatmap_id: int,
@@ -53,7 +53,7 @@ def fetch_count_beatmap(
     country: Optional[str] = None,
     friends: Optional[List[int]] = None
 ) -> int:
-    query = app.session.database.session.query(DBScore.id) \
+    query = app.session.database.session.query(func.count(DBScore.id)) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode)
 
@@ -70,7 +70,7 @@ def fetch_count_beatmap(
     else:
         query = query.filter(DBScore.status == 3)
 
-    return query.count()
+    return query.scalar()
 
 def fetch_top_scores(user_id: int, mode: int, exclude_approved: bool = False) -> List[DBScore]:
     query = app.session.database.session.query(DBScore) \
