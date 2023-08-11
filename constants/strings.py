@@ -16,7 +16,9 @@ WEB_RESPONSE = '''
     \,__.|.__,/
         (_)
 
-anchor: <a href="https://github.com/Lekuruu/anchor">https://github.com/lekuruu/anchor</a>
+titanic: <a href="https://github.com/osuTitanic/titanic">https://github.com/osuTitanic/titanic</a>
+anchor: <a href="https://github.com/osuTitanic/anchor">https://github.com/osuTitanic/anchor</a>
+deck: <a href="https://github.com/osuTitanic/deck">https://github.com/osuTitanic/deck</a>
 </pre>
 '''
 
