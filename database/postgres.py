@@ -6,6 +6,7 @@ from contextlib      import contextmanager
 from .objects import Base
 
 import logging
+import config
 
 class Postgres:
     def __init__(self, username: str, password: str, host: str, port: int) -> None:
@@ -15,9 +16,11 @@ class Postgres:
             pool_recycle=3600,
             pool_timeout=5,
             pool_size=10,
-            echo_pool='debug',
-            echo='debug'
+            echo_pool='debug' if config.DEBUG else None,
+            echo='debug' if config.DEBUG else None
         )
+
+        self.engine
 
         Base.metadata.create_all(bind=self.engine)
 
