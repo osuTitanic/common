@@ -13,10 +13,10 @@ class Postgres:
             f'postgresql://{username}:{password}@{host}:{port}/{username}',
             max_overflow=30,
             pool_recycle=3600,
-            pool_timeout=15,
+            pool_timeout=5,
             pool_size=10,
-            echo_pool=None,
-            echo=None
+            echo_pool='debug',
+            echo='debug'
         )
 
         Base.metadata.create_all(bind=self.engine)
