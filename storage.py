@@ -220,6 +220,23 @@ class Storage:
             expiry=timedelta(days=1)
         )
 
+    def get_presigned_url(self, bucket: str, key: str, expiration: int = 900) -> Optional[str]:
+        if not config.S3_ENABLED:
+            return
+
+        try:
+            return self.s3.generate_presigned_url(
+                ClientMethod='get_object',
+                Params={
+                    'Bucket': bucket,
+                    'Key': str(key)
+                },
+                ExpiresIn=expiration
+            )
+        except ClientError as e:
+            self.logger.error(f'Failed to generate presigned url: {e}')
+            return
+
     def save_to_cache(self, name: str, content: bytes, expiry=timedelta(weeks=1), override=True) -> bool:
         return self.cache.set(name, content, expiry, nx=(not override))
 
