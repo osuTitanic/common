@@ -12,10 +12,10 @@ class Postgres:
     def __init__(self, username: str, password: str, host: str, port: int) -> None:
         self.engine = create_engine(
             f'postgresql://{username}:{password}@{host}:{port}/{username}',
-            max_overflow=30,
-            pool_recycle=3600,
+            max_overflow=config.POSTGRES_POOLSIZE_OVERFLOW,
+            pool_recycle=900,
             pool_timeout=5,
-            pool_size=10,
+            pool_size=config.POSTGRES_POOLSIZE,
             echo_pool='debug' if config.DEBUG else None,
             echo='debug' if config.DEBUG else None
         )
