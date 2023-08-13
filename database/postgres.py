@@ -17,8 +17,8 @@ class Postgres:
             pool_recycle=900,
             pool_timeout=5,
             pool_size=config.POSTGRES_POOLSIZE,
-            echo_pool='debug' if config.DEBUG else None,
-            echo='debug' if config.DEBUG else None
+            echo_pool=None,
+            echo=None
         )
 
         self.engine
