@@ -13,11 +13,11 @@ from ..constants import (
 @dataclass
 class StatusUpdate:
     action: ClientStatus
-    text: str
-    mods: Mods
-    mode: GameMode
-    beatmap_checksum: str
-    beatmap_id: int
+    text: str = ""
+    mods: Mods = Mods.NoMod
+    mode: GameMode = GameMode.Osu
+    beatmap_checksum: str = ""
+    beatmap_id: int = -1
 
 @dataclass
 class UserQuit:
