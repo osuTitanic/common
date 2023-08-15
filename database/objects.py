@@ -8,7 +8,6 @@ from typing import Optional
 
 from sqlalchemy import (
     SmallInteger,
-    LargeBinary,
     ForeignKey,
     BigInteger,
     DateTime,
@@ -309,6 +308,18 @@ class DBBeatmapset(Base):
     ratings    = relationship('DBRating', back_populates='beatmapset', lazy='selectin', join_depth=2)
     plays      = relationship('DBPlay', back_populates='beatmapset', lazy='selectin', join_depth=2)
 
+    @property
+    def full_name(self):
+        return f'{self.artist} - {self.title} ({self.creator})'
+
+    @property
+    def link(self):
+        name = self.full_name \
+                   .replace('[', '(') \
+                   .replace(']', ')')
+
+        return f'[http://osu.{config.DOMAIN_NAME}/s/{self.id} {name}]'
+
 class DBBeatmap(Base):
     __tablename__ = "beatmaps"
 
@@ -348,10 +359,10 @@ class DBBeatmap(Base):
     @property
     def link(self):
         name = self.full_name \
-                   .replace('(', '[') \
-                   .replace(')', ']')
+                   .replace('[', '(') \
+                   .replace(']', ')')
 
-        return f'({name})[http://osu.{config.DOMAIN_NAME}/b/{self.id}]'
+        return f'[http://osu.{config.DOMAIN_NAME}/b/{self.id} {name}]'
 
     @property
     def is_ranked(self) -> bool:
