@@ -28,10 +28,12 @@ class EventQueue:
     def submit(self, event: str, *args, **kwargs):
         """Push an event to the queue"""
         self.redis.publish(self.name, str((event, args, kwargs)))
+        self.logger.debug(f'Submitted event "{event}" to pubsub channel')
 
     def listen(self) -> Generator:
         """Listen for events from the queue"""
         self.channel.subscribe(self.name)
+        self.logger.info('Listening to pubsub channel...')
 
         for message in self.channel.listen():
             try:
