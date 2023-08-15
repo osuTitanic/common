@@ -16,6 +16,7 @@ class Geolocation:
     latitude: float = 0.0
     longitude: float = 0.0
     country_code: str = 'XX'
+    country_name: str = 'Unknown'
     country_index: int = 0
     timezone: str = 'UTC'
     city: str = 'Unknown'
@@ -61,6 +62,7 @@ def fetch_db(ip: str) -> Optional[Geolocation]:
                 response.location.latitude,
                 response.location.longitude,
                 response.country.iso_code,
+                response.country.name,
                 list(COUNTRIES.keys()).index(
                     response.country.iso_code
                 ),
@@ -93,6 +95,7 @@ def fetch_web(ip: str, is_local: bool = False) -> Optional[Geolocation]:
         latitude=float(lines[6]),
         longitude=float(lines[7]),
         country_code=lines[1],
+        country_name=lines[0],
         country_index=index,
         timezone=lines[8],
         city=lines[4]
