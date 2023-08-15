@@ -8,7 +8,7 @@ from app.common.database.objects import (
 )
 
 from sqlalchemy.orm import selectinload
-from sqlalchemy import func, or_
+from sqlalchemy import func
 
 from typing import Optional, List
 
@@ -61,13 +61,42 @@ def search(
 
     else:
         query = query.join(DBBeatmap) \
-                .filter(or_(
-                    func.lower(DBBeatmapset.artist).contains(query_string.lower()),
-                    func.lower(DBBeatmapset.title).contains(query_string.lower()),
-                    func.lower(DBBeatmap.version).contains(query_string.lower()),
-                    func.lower(DBBeatmapset.creator).contains(query_string.lower()),
-                    func.lower(DBBeatmapset.source).contains(query_string.lower()),
-                    func.lower(DBBeatmapset.tags).contains(query_string.lower())
-                ))
+                    .filter(
+                         func.to_tsvector('english', func.lower(DBBeatmapset.title)) \
+                             .op('@@')(func.plainto_tsquery('english', query_string)) |
+                         func.to_tsvector('english', func.lower(DBBeatmapset.artist)) \
+                             .op('@@')(func.plainto_tsquery('english', query_string)) |
+                         func.to_tsvector('english', func.lower(DBBeatmapset.creator)) \
+                             .op('@@')(func.plainto_tsquery('english', query_string)) |
+                         func.to_tsvector('english', func.lower(DBBeatmap.version)) \
+                             .op('@@')(func.plainto_tsquery('english', query_string)) |
+                         func.to_tsvector('english', func.lower(DBBeatmapset.source)) \
+                             .op('@@')(func.plainto_tsquery('english', query_string)) |
+                         func.to_tsvector('english', func.lower(DBBeatmapset.tags)) \
+                             .op('@@')(func.plainto_tsquery('english', query_string))
+                     ) \
+                     .order_by(DBBeatmap.playcount.desc())
 
     return query.limit(100).all()
+
+def search_one(query_string: str) -> Optional[DBBeatmapset]:
+    query_string = query_string.strip().lower()
+
+    return app.session.database.session.query(DBBeatmapset) \
+            .join(DBBeatmap) \
+            .filter(
+                func.to_tsvector('english', func.lower(DBBeatmapset.title)) \
+                    .op('@@')(func.plainto_tsquery('english', query_string)) |
+                func.to_tsvector('english', func.lower(DBBeatmapset.artist)) \
+                    .op('@@')(func.plainto_tsquery('english', query_string)) |
+                func.to_tsvector('english', func.lower(DBBeatmapset.creator)) \
+                    .op('@@')(func.plainto_tsquery('english', query_string)) |
+                func.to_tsvector('english', func.lower(DBBeatmap.version)) \
+                    .op('@@')(func.plainto_tsquery('english', query_string)) |
+                func.to_tsvector('english', func.lower(DBBeatmapset.source)) \
+                    .op('@@')(func.plainto_tsquery('english', query_string)) |
+                func.to_tsvector('english', func.lower(DBBeatmapset.tags)) \
+                    .op('@@')(func.plainto_tsquery('english', query_string))
+            ) \
+            .order_by(DBBeatmap.playcount.desc()) \
+            .first()
