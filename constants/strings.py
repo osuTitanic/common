@@ -1,6 +1,4 @@
 
-import config
-
 ANCHOR_WEB_RESPONSE = '''
 <pre>
         _-_
@@ -24,7 +22,7 @@ deck: <a href="https://github.com/osuTitanic/deck">https://github.com/osuTitanic
 </pre>
 '''
 
-ANCHOR_ASCII_ART = f'''
+ANCHOR_ASCII_ART = '''
         _-_
        |(_)|
         |||
@@ -39,8 +37,6 @@ ANCHOR_ASCII_ART = f'''
   \ \__/ | \__/ /
     \,__.|.__,/
         (_)
-
-Anchor-{config.VERSION}
 '''
 
 MANIA_NOT_SUPPORTED = '\n'.join([
