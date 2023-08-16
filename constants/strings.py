@@ -1,5 +1,7 @@
 
-WEB_RESPONSE = '''
+import config
+
+ANCHOR_WEB_RESPONSE = '''
 <pre>
         _-_
        |(_)|
@@ -20,6 +22,25 @@ titanic: <a href="https://github.com/osuTitanic/titanic">https://github.com/osuT
 anchor: <a href="https://github.com/osuTitanic/anchor">https://github.com/osuTitanic/anchor</a>
 deck: <a href="https://github.com/osuTitanic/deck">https://github.com/osuTitanic/deck</a>
 </pre>
+'''
+
+ANCHOR_ASCII_ART = f'''
+        _-_
+       |(_)|
+        |||
+        |||
+        |||
+
+        |||
+        |||
+  ^     |^|     ^
+< ^ >   <+>   < ^ >
+ | |    |||    | |
+  \ \__/ | \__/ /
+    \,__.|.__,/
+        (_)
+
+Anchor-{config.VERSION}
 '''
 
 MANIA_NOT_SUPPORTED = '\n'.join([
