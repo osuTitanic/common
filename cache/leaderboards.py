@@ -11,9 +11,6 @@ def update(
     country: str
 ) -> None:
     """Update global, country and score ranks"""
-    if pp <= 0:
-        return
-
     # Global
     app.session.redis.zadd(
         f'bancho:performance:{mode}',
