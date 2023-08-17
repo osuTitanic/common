@@ -19,7 +19,7 @@ class ScoreFrame:
     current_combo: int
     perfect: bool
     hp: int
-    tag_byte: int
+    tag_byte: int = 0
 
 @dataclass
 class ReplayFrame:
