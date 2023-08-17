@@ -1,6 +1,6 @@
 
-from app.common.database.objects import DBUser
-from typing import Optional
+from app.common.database.objects import DBUser, DBStats
+from typing import Optional, List
 
 import app
 
@@ -42,3 +42,10 @@ def fetch_by_id(id: int) -> Optional[DBUser]:
     return app.session.database.session.query(DBUser) \
         .filter(DBUser.id == id) \
         .first()
+
+def fetch_active() -> List[DBUser]:
+    return app.session.database.session.query(DBUser) \
+        .join(DBStats) \
+        .filter(DBUser.restricted == False) \
+        .filter(DBStats.playcount > 0) \
+        .all()
