@@ -69,3 +69,46 @@ class Mods(IntFlag):
             }[mod]
             for mod in self.members
         ])
+
+    @classmethod
+    def from_string(cls, mod_string: str):
+        mods = Mods.NoMod
+
+        # Parse mods into their short forms
+        parsed_mods = [
+            mod_string[idx : idx + 2].upper() for idx in range(0, len(mod_string), 2)
+        ]
+
+        dict = {
+            "NM": Mods.NoMod,
+            "NF": Mods.NoFail,
+            "EZ": Mods.Easy,
+            "HD": Mods.Hidden,
+            "HR": Mods.HardRock,
+            "SD": Mods.SuddenDeath,
+            "DT": Mods.DoubleTime,
+            "RX": Mods.Relax,
+            "HT": Mods.HalfTime,
+            "NC": Mods.Nightcore,
+            "FL": Mods.Flashlight,
+            "AT": Mods.Autoplay,
+            "SO": Mods.SpunOut,
+            "AP": Mods.Autopilot,
+            "PF": Mods.Perfect,
+            "K4": Mods.Key4,
+            "K5": Mods.Key5,
+            "K6": Mods.Key6,
+            "K7": Mods.Key7,
+            "K8": Mods.Key8,
+            "FadeIn": Mods.FadeIn,
+            "Random": Mods.Random
+        }
+
+        for mod in parsed_mods:
+            if not (m := dict.get(mod)):
+                continue
+
+            mods |= m
+
+        return mods
+
