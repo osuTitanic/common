@@ -38,6 +38,9 @@ class Mods(IntFlag):
 
     @property
     def short(self) -> str:
+        if not self:
+            return "NM"
+
         return ''.join([
             {
                 Mods.NoMod: "NM",
