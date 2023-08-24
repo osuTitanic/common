@@ -40,7 +40,7 @@ class Beatmaps:
     def osz_backup(self, set_id: int, no_video: bool = False) -> Optional[Response]:
         self.logger.debug(f'Downloading osz from backup api... ({set_id})')
 
-        response = self.session.get(f'https://proxy.nerinyan.moe/d/{set_id}',
+        response = self.session.get(f'https://api.nerinyan.moe/d/{set_id}',
             stream=True,
             params={
                 'noVideo': no_video
