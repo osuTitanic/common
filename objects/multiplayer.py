@@ -45,4 +45,4 @@ class Match:
 @dataclass
 class MatchJoin:
     match_id: int
-    password: str
+    password: str = ""
