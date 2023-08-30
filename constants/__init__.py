@@ -1,6 +1,6 @@
 
+from .status import SubmissionStatus, LegacyStatus
 from .permissions import Permissions
-from .status import SubmissionStatus
 from .modes import GameMode
 from .flags import BadFlags
 from .grade import Grade

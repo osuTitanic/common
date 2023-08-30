@@ -20,3 +20,21 @@ class SubmissionStatus(IntEnum):
             3:  SubmissionStatus.Ranked,         # Qualified
             4:  SubmissionStatus.Approved        # Loved
         }[status]
+
+class LegacyStatus(IntEnum):
+    NotSubmitted = -1
+    Pending      = 0
+    Unknown      = 1
+    Ranked       = 2
+
+    @classmethod
+    def from_database(cls, status: int):
+        return {
+            -2: LegacyStatus.Pending, # Graveyard
+            -1: LegacyStatus.Ranked,  # WIP
+            0:  LegacyStatus.Pending, # Pending
+            1:  LegacyStatus.Ranked,  # Ranked
+            2:  LegacyStatus.Ranked,  # Approved
+            3:  LegacyStatus.Ranked,  # Qualified
+            4:  LegacyStatus.Ranked   # Loved
+        }[status]
