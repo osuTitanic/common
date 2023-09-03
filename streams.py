@@ -69,6 +69,9 @@ class StreamOut:
 	def header(self, packet: Enum, size: int):
 		self.write(struct.pack(self.endian + 'HxI', packet.value, size))
 
+	def legacy_header(self, packet: Enum, size: int):
+		self.write(struct.pack(self.endian + 'HI', packet.value, size))
+
 	def intlist(self, numbers: List[int]):
 		self.s16(len(numbers))
 		[self.s32(num) for num in numbers]
