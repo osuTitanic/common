@@ -23,6 +23,14 @@ class Slot:
     def has_player(self) -> bool:
         return SlotStatus.HasPlayer & self.status > 0
 
+    @property
+    def is_open(self) -> bool:
+        return self.status == SlotStatus.Open
+
+    @property
+    def is_ready(self) -> bool:
+        return self.status == SlotStatus.Ready
+
 @dataclass
 class Match:
     id: int
