@@ -4,6 +4,8 @@ from typing import List, Optional
 
 from ..constants import ButtonState, ReplayAction
 
+import hashlib
+
 @dataclass
 class ScoreFrame:
     time: int
@@ -20,6 +22,21 @@ class ScoreFrame:
     perfect: bool
     hp: int
     tag_byte: int = 0
+
+    @property
+    def checksum(self) -> str:
+        return hashlib.md5(''.join([
+            str(self.time),
+            'false', # "pass" ?
+            str(self.c300),
+            str(self.c50),
+            str(self.cGeki),
+            str(self.cKatu),
+            str(self.cMiss),
+            str(self.current_combo),
+            str(self.max_combo),
+            str(self.hp),
+        ]).encode()).hexdigest()
 
 @dataclass
 class ReplayFrame:
