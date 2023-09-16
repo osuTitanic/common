@@ -20,11 +20,6 @@ class StatusUpdate:
     beatmap_id: int = -1
 
 @dataclass
-class UserQuit:
-    user_id: int
-    quit_state: QuitState
-
-@dataclass
 class UserPresence:
     user_id: int
     is_irc: bool
@@ -48,3 +43,10 @@ class UserStats:
     playcount: int
     rank: int
     pp: int
+
+@dataclass
+class UserQuit:
+    user_id: int
+    presence: UserPresence
+    stats: UserStats
+    quit_state: QuitState
