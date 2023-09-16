@@ -7,6 +7,7 @@ class Message:
     content: str
     target: str
     sender_id: int = 0
+    is_private: bool = False
 
 @dataclass
 class Channel:
