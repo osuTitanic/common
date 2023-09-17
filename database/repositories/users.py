@@ -49,3 +49,8 @@ def fetch_active() -> List[DBUser]:
         .filter(DBUser.restricted == False) \
         .filter(DBStats.playcount > 0) \
         .all()
+
+def fetch_by_discord_id(id: int) -> Optional[DBUser]:
+    return app.session.database.session.query(DBUser) \
+        .filter(DBUser.discord_id == id) \
+        .first()
