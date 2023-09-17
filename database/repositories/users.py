@@ -6,17 +6,21 @@ import app
 
 def create(
     username: str,
+    safe_name: str,
     email: str,
     pw_bcrypt: str,
-    country: str
-) -> DBUser:
+    country: str,
+    activated: bool = False
+) -> Optional[DBUser]:
     with app.session.database.managed_session() as session:
         session.add(
             user := DBUser(
                 username,
+                safe_name,
                 email,
                 pw_bcrypt,
-                country
+                country,
+                activated
             )
         )
         session.commit()
@@ -36,6 +40,11 @@ def update(user_id: int, updates: dict) -> int:
 def fetch_by_name(username: str) -> Optional[DBUser]:
     return app.session.database.session.query(DBUser) \
         .filter(DBUser.name == username) \
+        .first()
+
+def fetch_by_safe_name(username: str) -> Optional[DBUser]:
+    return app.session.database.session.query(DBUser) \
+        .filter(DBUser.safe_name == username) \
         .first()
 
 def fetch_by_id(id: int) -> Optional[DBUser]:

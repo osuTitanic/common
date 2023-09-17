@@ -615,14 +615,18 @@ class DBUser(Base):
     def __init__(
         self,
         name: str,
+        safe_name: str,
         email: str,
         bcrypt: str,
-        country: str
+        country: str,
+        activated: bool
     ) -> None:
         self.name = name
+        self.safe_name = safe_name
         self.email = email
         self.bcrypt = bcrypt
         self.country = country
+        self.activated = activated
 
     @property
     def is_supporter(self) -> bool:
