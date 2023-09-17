@@ -595,6 +595,7 @@ class DBUser(Base):
     userpage_content = Column('userpage_content', String, nullable=True)
     userpage_banner  = Column('userpage_banner',  String, nullable=True)
     userpage_title   = Column('userpage_title',   String, nullable=True)
+    discord_id       = Column('discord_id',       BigInteger, nullable=True)
 
     replay_history = relationship('DBReplayHistory', back_populates='user', lazy='selectin', join_depth=2)
     relationships  = relationship('DBRelationship', back_populates='user', lazy='selectin', join_depth=2)
