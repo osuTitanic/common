@@ -21,7 +21,8 @@ def create(
                 email,
                 pw_bcrypt,
                 country,
-                activated
+                activated,
+                discord_id
             )
         )
         session.commit()
