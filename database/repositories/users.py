@@ -10,7 +10,8 @@ def create(
     email: str,
     pw_bcrypt: str,
     country: str,
-    activated: bool = False
+    activated: bool = False,
+    discord_id: Optional[int] = None
 ) -> Optional[DBUser]:
     with app.session.database.managed_session() as session:
         session.add(

@@ -619,7 +619,8 @@ class DBUser(Base):
         email: str,
         bcrypt: str,
         country: str,
-        activated: bool
+        activated: bool,
+        discord_id: Optional[int]
     ) -> None:
         self.name = name
         self.safe_name = safe_name
@@ -627,6 +628,7 @@ class DBUser(Base):
         self.bcrypt = bcrypt
         self.country = country
         self.activated = activated
+        self.discord_id = discord_id
 
     @property
     def is_supporter(self) -> bool:
