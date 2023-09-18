@@ -1,5 +1,6 @@
 
 from .status import SubmissionStatus, LegacyStatus
+from .beatmap import BeatmapGenre, BeatmapLanguage
 from .permissions import Permissions
 from .modes import GameMode
 from .flags import BadFlags
