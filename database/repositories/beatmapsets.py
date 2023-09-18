@@ -79,7 +79,7 @@ def search(
 
     return query.limit(100).all()
 
-def search_one(query_string: str) -> Optional[DBBeatmapset]:
+def search_one(query_string: str, offset: int = 0) -> Optional[DBBeatmapset]:
     query_string = query_string.strip().lower()
 
     return app.session.database.session.query(DBBeatmapset) \
@@ -99,4 +99,5 @@ def search_one(query_string: str) -> Optional[DBBeatmapset]:
                     .op('@@')(func.plainto_tsquery('english', query_string))
             ) \
             .order_by(DBBeatmap.playcount.desc()) \
+            .offset(offset) \
             .first()
