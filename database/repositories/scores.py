@@ -78,7 +78,13 @@ def fetch_count_beatmap(
 
     return query.scalar()
 
-def fetch_top_scores(user_id: int, mode: int, exclude_approved: bool = False) -> List[DBScore]:
+def fetch_top_scores(
+    user_id: int,
+    mode: int,
+    exclude_approved: bool = False,
+    limit: int = 100,
+    offset: int = 0
+) -> List[DBScore]:
     query = app.session.database.session.query(DBScore) \
             .filter(DBScore.user_id == user_id) \
             .filter(DBScore.mode == mode) \
@@ -89,8 +95,8 @@ def fetch_top_scores(user_id: int, mode: int, exclude_approved: bool = False) ->
                      .join(DBScore.beatmap)
 
     return query.order_by(DBScore.pp.desc()) \
-                .limit(100) \
-                .offset(0) \
+                .limit(limit) \
+                .offset(offset) \
                 .all()
 
 def fetch_personal_best(
