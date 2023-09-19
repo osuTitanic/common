@@ -220,6 +220,13 @@ class Storage:
             expiry=timedelta(days=1)
         )
 
+    def cache_replay(self, id: int, content: bytes):
+        self.save_to_cache(
+            name=f'osr:{id}',
+            content=content,
+            expiry=timedelta(hours=5)
+        )
+
     def get_presigned_url(self, bucket: str, key: str, expiration: int = 900) -> Optional[str]:
         if not config.S3_ENABLED:
             return
