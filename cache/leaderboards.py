@@ -1,4 +1,6 @@
 
+from ..database.repositories import users
+
 from typing import Optional, Tuple, List
 
 import app
@@ -128,3 +130,35 @@ def top_players(
     )
 
     return [(int(id), score) for id, score in players]
+
+def player_above(
+    user_id: int,
+    mode: int,
+    type: str = 'rscore',
+) -> Tuple[int, str]:
+    """Get a player above your score
+
+    Used in score submission response
+    """
+
+    position = app.session.redis.zrevrank(
+        f'bancho:{type}:{mode}',
+        user_id
+    )
+
+    score = app.session.redis.zscore(
+        f'bancho:{type}:{mode}',
+        user_id
+    )
+
+    if position <= 0 or position is None:
+        return 0, ''
+
+    above_id, above_score = app.session.redis.zrevrange(
+        f'bancho:{type}:{mode}',
+        position-1,
+        position,
+        withscores=True
+    )[0]
+
+    return int(above_score) - int(score), users.fetch_by_id(int(above_id)).name
