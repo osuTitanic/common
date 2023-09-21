@@ -131,8 +131,20 @@ class Storage:
         if (osu := self.get_from_cache(f'osu:{id}')):
             return osu
 
-        if not (osu := self.api.osu(id)):
-            return
+        # Check for custom beatmap files
+
+        if config.S3_ENABLED:
+            osu = self.get_from_s3(str(id), 'beatmaps')
+
+        else:
+            osu = self.get_file_content(f'/beatmaps/{id}')
+
+        if not osu:
+            # Get beatmap file from peppy's servers if not found
+            osu = self.api.osu(id)
+
+            if not osu:
+                return
 
         self.save_to_cache(
             name=f'osu:{id}',
@@ -213,9 +225,22 @@ class Storage:
 
         else:
             self.save_to_file(f'/replays/{id}', content)
-        
+
         self.save_to_cache(
             name=f'osr:{id}',
+            content=content,
+            expiry=timedelta(days=1)
+        )
+
+    def upload_beatmap_file(self, id: int, content: bytes):
+        if config.S3_ENABLED:
+            self.save_to_s3(content, str(id), 'beatmaps')
+
+        else:
+            self.save_to_file(f'/beatmaps/{id}', content)
+
+        self.save_to_cache(
+            name=f'osu:{id}',
             content=content,
             expiry=timedelta(days=1)
         )
