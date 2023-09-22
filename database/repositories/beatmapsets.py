@@ -47,10 +47,9 @@ def search(
         conditions = []
 
         keywords = [
-            f'{word}%' for word in query_string \
+            f'{word}%' for word in query_string.strip() \
                 .replace(' - ', ' ') \
                 .lower() \
-                .strip() \
                 .split()
             if word not in stop_words
         ]
@@ -101,24 +100,39 @@ def search(
                 .all()
 
 def search_one(query_string: str, offset: int = 0) -> Optional[DBBeatmapset]:
-    query_string = query_string.strip().lower()
+    stop_words = ['the', 'and', 'of', 'in', 'to', 'for']
+    conditions = []
+
+    keywords = [
+        f'{word}%' for word in query_string.strip() \
+            .replace(' - ', ' ') \
+            .lower() \
+            .split()
+        if word not in stop_words
+    ]
+
+    searchable_columns = [
+        func.to_tsvector('english', column)
+        for column in [
+            func.lower(DBBeatmapset.title),
+            func.lower(DBBeatmapset.artist),
+            func.lower(DBBeatmapset.creator),
+            func.lower(DBBeatmapset.source),
+            func.lower(DBBeatmapset.tags),
+            func.lower(DBBeatmap.version)
+        ]
+    ]
+
+    for word in keywords:
+        conditions.append(or_(
+            *[
+                col.op('@@')(func.plainto_tsquery('english', word))
+                for col in searchable_columns
+            ]
+        ))
 
     return app.session.database.session.query(DBBeatmapset) \
             .join(DBBeatmap) \
-            .filter(
-                func.to_tsvector('english', func.lower(DBBeatmapset.title)) \
-                    .op('@@')(func.plainto_tsquery('english', query_string)) |
-                func.to_tsvector('english', func.lower(DBBeatmapset.artist)) \
-                    .op('@@')(func.plainto_tsquery('english', query_string)) |
-                func.to_tsvector('english', func.lower(DBBeatmapset.creator)) \
-                    .op('@@')(func.plainto_tsquery('english', query_string)) |
-                func.to_tsvector('english', func.lower(DBBeatmap.version)) \
-                    .op('@@')(func.plainto_tsquery('english', query_string)) |
-                func.to_tsvector('english', func.lower(DBBeatmapset.source)) \
-                    .op('@@')(func.plainto_tsquery('english', query_string)) |
-                func.to_tsvector('english', func.lower(DBBeatmapset.tags)) \
-                    .op('@@')(func.plainto_tsquery('english', query_string))
-            ) \
+            .filter(and_(*conditions)) \
             .order_by(DBBeatmap.playcount.desc()) \
-            .offset(offset) \
             .first()
