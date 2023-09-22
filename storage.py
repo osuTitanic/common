@@ -15,6 +15,7 @@ import logging
 import config
 import boto3
 import utils
+import os
 import io
 
 class Storage:
@@ -252,6 +253,14 @@ class Storage:
             expiry=timedelta(hours=5)
         )
 
+    def remove_replay(self, id: int):
+        self.logger.debug(f'Removing replay with id "{id}"...')
+
+        if not config.S3_ENABLED:
+            return self.remove_file(f'/replays/{id}')
+        else:
+            return self.remove_from_s3('replays', str(id))
+
     def get_presigned_url(self, bucket: str, key: str, expiration: int = 900) -> Optional[str]:
         if not config.S3_ENABLED:
             return
@@ -295,6 +304,18 @@ class Storage:
 
         return True
 
+    def remove_from_s3(self, bucket: str, key: str) -> bool:
+        try:
+            self.s3.delete_object(
+                Bucket=bucket,
+                Key=key
+            )
+        except Exception as e:
+            self.logger.error(f'Failed to remove "{key}" from {bucket}: "{e}"')
+            return False
+
+        return True
+
     def get_from_cache(self, name: str) -> Optional[bytes]:
         return self.cache.get(name)
 
@@ -304,6 +325,15 @@ class Storage:
                 return f.read()
         except Exception as e:
             self.logger.error(f'Failed to read file "{filepath}": {e}')
+
+    def remove_file(self, filepath: str) -> bool:
+        try:
+            os.remove(f'{config.DATA_PATH}/{filepath}')
+        except Exception as e:
+            self.logger.error(f'Failed to file "{filepath}": "{e}"')
+            return False
+
+        return True
 
     def get_from_s3(self, key: str, bucket: str) -> Optional[bytes]:
         buffer = io.BytesIO()
