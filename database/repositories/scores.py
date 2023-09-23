@@ -99,6 +99,22 @@ def fetch_top_scores(
                 .offset(offset) \
                 .all()
 
+def fetch_best(
+    user_id: int,
+    mode: int,
+    exclude_approved: bool = False
+) -> List[DBScore]:
+    query = app.session.database.session.query(DBScore) \
+            .filter(DBScore.user_id == user_id) \
+            .filter(DBScore.mode == mode) \
+            .filter(DBScore.status == 3)
+
+    if exclude_approved:
+        query = query.filter(DBBeatmap.status == 1) \
+                     .join(DBScore.beatmap)
+
+    return query.all()
+
 def fetch_personal_best(
     beatmap_id: int,
     user_id: int,
