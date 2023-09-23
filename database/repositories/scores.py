@@ -113,7 +113,8 @@ def fetch_best(
         query = query.filter(DBBeatmap.status == 1) \
                      .join(DBScore.beatmap)
 
-    return query.all()
+    return query.order_by(DBScore.pp.desc()) \
+                .all()
 
 def fetch_personal_best(
     beatmap_id: int,
