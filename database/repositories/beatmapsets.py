@@ -11,10 +11,57 @@ from sqlalchemy import func, or_, and_, desc
 from sqlalchemy.orm import selectinload
 
 from typing import Optional, List
+from datetime import datetime
 
 import app
 
-# TODO: create
+def create(
+    id: int,
+    title: str,
+    artist: str,
+    creator: str,
+    source: str,
+    tags: str,
+    status: int,
+    has_video: bool,
+    has_storyboard: bool,
+    created_at: datetime,
+    approved_at: datetime,
+    last_update: datetime,
+    language_id: int,
+    genre_id: int,
+    osz_filesize: int = 0,
+    osz_filesize_novideo: int = 0,
+    available: bool = True,
+    server: int = 0
+) -> DBBeatmapset:
+    with app.session.database.managed_session() as session:
+        session.add(
+            s := DBBeatmapset(
+                id,
+                title,
+                artist,
+                creator,
+                source,
+                tags,
+                status,
+                has_video,
+                has_storyboard,
+                created_at,
+                approved_at,
+                last_update,
+                language_id,
+                genre_id,
+                osz_filesize,
+                osz_filesize_novideo,
+                available,
+                server
+            )
+        )
+        session.commit()
+        session.refresh(s)
+
+    return s
 
 def fetch_one(id: int) -> Optional[DBBeatmapset]:
     return app.session.database.session.query(DBBeatmapset) \

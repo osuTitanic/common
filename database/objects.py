@@ -320,6 +320,47 @@ class DBBeatmapset(Base):
 
         return f'[http://osu.{config.DOMAIN_NAME}/s/{self.id} {name}]'
 
+    def __init__(
+        self,
+        id: int,
+        title: str,
+        artist: str,
+        creator: str,
+        source: str,
+        tags: str,
+        status: int,
+        has_video: bool,
+        has_storyboard: bool,
+        created_at: datetime,
+        approved_at: datetime,
+        last_update: datetime,
+        language_id: int,
+        genre_id: int,
+        osz_filesize: int,
+        osz_filesize_novideo: int = 0,
+        available: bool = True,
+        server: int = 0
+    ) -> None:
+        self.id = id
+        self.title = title
+        self.artist = artist
+        self.creator = creator
+        self.source = source
+        self.tags = tags
+        self.status = status
+        self.has_video = has_video
+        self.has_storyboard = has_storyboard
+        self.created_at = created_at
+        self.approved_at = approved_at
+        self.last_update = last_update
+        self.language_id = language_id
+        self.genre_id = genre_id
+        self.osz_filesize = osz_filesize
+        self.osz_filesize_novideo = osz_filesize_novideo
+        self.available = available
+        self.server = server
+        self.added_at = datetime.now()
+
 class DBBeatmap(Base):
     __tablename__ = "beatmaps"
 
@@ -377,6 +418,44 @@ class DBBeatmap(Base):
     @property
     def approved(self) -> bool:
         return self.status == 2
+
+    def __init__(
+        self,
+        id: int,
+        set_id: int,
+        mode: int,
+        md5: str,
+        status: int,
+        version: str,
+        filename: str,
+        created_at: datetime,
+        last_update: datetime,
+        total_length: int,
+        max_combo: int,
+        bpm: float,
+        cs: float,
+        ar: float,
+        od: float,
+        hp: float,
+        diff: float
+    ) -> None:
+        self.id = id
+        self.set_id = set_id
+        self.mode = mode
+        self.md5 = md5
+        self.status = status
+        self.version = version
+        self.filename = filename
+        self.created_at = created_at
+        self.last_update = last_update
+        self.total_length = total_length
+        self.max_combo = max_combo
+        self.bpm = bpm
+        self.cs = cs
+        self.ar = ar
+        self.od = od
+        self.hp = hp
+        self.diff = diff
 
 class DBBadge(Base):
     __tablename__ = "profile_badges"

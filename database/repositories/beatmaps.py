@@ -1,12 +1,57 @@
 
 from app.common.database.objects import DBBeatmap
-from typing import Optional, List
-
 from sqlalchemy.orm import selectinload
+
+from typing import Optional, List
+from datetime import datetime
 
 import app
 
-# TODO: create
+def create(
+    id: int,
+    set_id: int,
+    mode: int,
+    md5: str,
+    status: int,
+    version: str,
+    filename: str,
+    created_at: datetime,
+    last_update: datetime,
+    total_length: int,
+    max_combo: int,
+    bpm: float,
+    cs: float,
+    ar: float,
+    od: float,
+    hp: float,
+    diff: float
+) -> DBBeatmap:
+    with app.session.database.managed_session() as session:
+        session.add(
+            m := DBBeatmap(
+                id,
+                set_id,
+                mode,
+                md5,
+                status,
+                version,
+                filename,
+                created_at,
+                last_update,
+                total_length,
+                max_combo,
+                bpm,
+                cs,
+                ar,
+                od,
+                hp,
+                diff
+            )
+        )
+        session.commit()
+        session.refresh(m)
+
+    return m
 
 def fetch_by_id(id: int) -> Optional[DBBeatmap]:
     return app.session.database.session.query(DBBeatmap) \
