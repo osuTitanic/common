@@ -17,6 +17,7 @@ def create(
             )
         )
         session.commit()
+        session.refresh(msg)
 
     return msg
 

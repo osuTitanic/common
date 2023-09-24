@@ -22,6 +22,7 @@ def create(
             )
         )
         session.commit()
+        session.refresh(rating)
 
     return rating
 

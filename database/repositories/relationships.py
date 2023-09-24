@@ -18,6 +18,7 @@ def create(
             )
         )
         session.commit()
+        session.refresh(rel)
 
     return rel
 

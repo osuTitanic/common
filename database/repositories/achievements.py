@@ -20,7 +20,6 @@ def create_many(
                     a.filename
                 )
             )
-
         session.commit()
 
 def fetch_many(user_id: int) -> List[DBAchievement]:
