@@ -327,6 +327,14 @@ def fetch_recent_top_scores(
                 .limit(limit) \
                 .all()
 
+def fetch_pp_record(mode: int) -> DBScore:
+    with app.session.database.managed_session() as session:
+        return session.query(DBScore) \
+                .filter(DBScore.mode == mode) \
+                .filter(DBScore.status == 3) \
+                .order_by(DBScore.pp.desc()) \
+                .first()
+
 def restore_hidden_scores(user_id: int):
     # This will restore all score status attributes
 
