@@ -327,11 +327,22 @@ def fetch_recent_top_scores(
                 .limit(limit) \
                 .all()
 
-def fetch_pp_record(mode: int) -> DBScore:
+def fetch_pp_record(
+    mode: int,
+    mods: Optional[int] = None
+) -> DBScore:
     with app.session.database.managed_session() as session:
+        if mods == None:
+            return session.query(DBScore) \
+                    .filter(DBScore.mode == mode) \
+                    .filter(DBScore.status == 3) \
+                    .order_by(DBScore.pp.desc()) \
+                    .first()
+
         return session.query(DBScore) \
                 .filter(DBScore.mode == mode) \
                 .filter(DBScore.status == 3) \
+                .filter(DBScore.mods == mods) \
                 .order_by(DBScore.pp.desc()) \
                 .first()
 
