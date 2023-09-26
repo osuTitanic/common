@@ -1,7 +1,7 @@
 
 from app.common.database.objects import DBInfringement
+from datetime import datetime, timedelta
 from typing import Optional, List
-from datetime import datetime
 
 import app
 
@@ -33,7 +33,7 @@ def fetch_recent(user_id: int) -> Optional[DBInfringement]:
                     .order_by(DBInfringement.id.desc()) \
                     .first()
 
-def fetch_recent_by_action(user_id: int, action: int) -> List[DBInfringement]:
+def fetch_recent_by_action(user_id: int, action: int) -> Optional[DBInfringement]:
     return app.session.database.session.query(DBInfringement) \
                     .filter(DBInfringement.user_id == user_id) \
                     .filter(DBInfringement.action == action) \
@@ -52,3 +52,14 @@ def fetch_all_by_action(user_id: int, action: int) -> List[DBInfringement]:
                     .filter(DBInfringement.action == action) \
                     .order_by(DBInfringement.time.desc()) \
                     .all()
+
+def delete_by_id(id: int) -> None:
+    app.session.database.session.query(DBInfringement) \
+                    .filter(DBInfringement.id == id) \
+                    .delete()
+
+def delete_old(user_id: int, delete_after=timedelta(weeks=5)) -> None:
+    app.session.database.session.query(DBInfringement) \
+                    .filter(DBInfringement.user_id == user_id) \
+                    .filter(DBInfringement.time < datetime.now() - delete_after) \
+                    .delete()
