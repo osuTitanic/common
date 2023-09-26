@@ -11,7 +11,8 @@ def create(
     pw_bcrypt: str,
     country: str,
     activated: bool = False,
-    discord_id: Optional[int] = None
+    discord_id: Optional[int] = None,
+    permissions: int = 1
 ) -> Optional[DBUser]:
     with app.session.database.managed_session() as session:
         session.add(
@@ -22,7 +23,8 @@ def create(
                 pw_bcrypt,
                 country,
                 activated,
-                discord_id
+                discord_id,
+                permissions
             )
         )
         session.commit()

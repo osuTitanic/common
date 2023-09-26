@@ -699,7 +699,8 @@ class DBUser(Base):
         bcrypt: str,
         country: str,
         activated: bool,
-        discord_id: Optional[int]
+        discord_id: Optional[int],
+        permissions: int = 1
     ) -> None:
         self.name = name
         self.safe_name = safe_name
@@ -708,6 +709,7 @@ class DBUser(Base):
         self.country = country
         self.activated = activated
         self.discord_id = discord_id
+        self.permissions = permissions
 
     @property
     def is_supporter(self) -> bool:
