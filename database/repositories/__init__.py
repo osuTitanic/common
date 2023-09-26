@@ -1,6 +1,7 @@
 
 from . import (
     relationships,
+    infringements,
     achievements,
     beatmapsets,
     screenshots,
