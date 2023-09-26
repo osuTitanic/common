@@ -150,8 +150,11 @@ def player_above(
         f'bancho:{type}:{mode}',
         user_id
     )
+    
+    if position is None:
+        return 0, ''
 
-    if position <= 0 or position is None:
+    if position <= 0:
         return 0, ''
 
     above_id, above_score = app.session.redis.zrevrange(
