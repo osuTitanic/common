@@ -58,8 +58,15 @@ def delete_by_id(id: int) -> None:
                     .filter(DBInfringement.id == id) \
                     .delete()
 
-def delete_old(user_id: int, delete_after=timedelta(weeks=5)) -> None:
-    app.session.database.session.query(DBInfringement) \
+def delete_old(user_id: int, delete_after=timedelta(weeks=5), remove_permanent=False) -> int:
+    if not remove_permanent:
+        return app.session.database.session.query(DBInfringement) \
+                        .filter(DBInfringement.user_id == user_id) \
+                        .filter(DBInfringement.time < datetime.now() - delete_after) \
+                        .filter(DBInfringement.is_permanent == False) \
+                        .delete()
+
+    return app.session.database.session.query(DBInfringement) \
                     .filter(DBInfringement.user_id == user_id) \
                     .filter(DBInfringement.time < datetime.now() - delete_after) \
                     .delete()
