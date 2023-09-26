@@ -634,7 +634,7 @@ class DBInfringement(Base):
     user_id = Column('user_id', Integer, ForeignKey('users.id'))
     time = Column('time', DateTime, server_default='now()', primary_key=True)
     action = Column('action', SmallInteger, default=0) # 0: Ban 1: Mute
-    length = Column('length', DateTime)
+    length = Column('length', DateTime, nullable=True)
     is_permanent = Column('is_permanent', Boolean, default=False)
     description = Column('description', String, nullable=True)
 
