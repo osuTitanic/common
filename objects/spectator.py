@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-from ..constants import ButtonState, ReplayAction
+from ..constants import ButtonState, ReplayAction, GameMode
 
 import hashlib
 
@@ -37,6 +37,42 @@ class ScoreFrame:
             str(self.max_combo),
             str(self.hp),
         ]).encode()).hexdigest()
+
+    def total_hits(self, mode: GameMode) -> int:
+        if mode == GameMode.CatchTheBeat:
+            return self.c50 + self.c100 + self.c300 + self.cMiss + self.cKatu
+
+        elif mode == GameMode.OsuMania:
+            return self.c300 + self.c100 + self.c50 + self.cGeki + self.cKatu + self.cMiss
+
+        return self.c50 + self.c100 + self.c300 + self.cMiss
+
+    def accuracy(self, mode: GameMode) -> float:
+        if self.total_hits(mode) == 0:
+            return 0.0
+
+        if mode == GameMode.Osu:
+            return (
+                ((self.c300 * 300.0) + (self.c100 * 100.0) + (self.c50 * 50.0))
+                / (self.total_hits(mode) * 300.0)
+            )
+
+        elif mode == GameMode.Taiko:
+            return ((self.c100 * 0.5) + self.c300) / self.total_hits(mode)
+
+        elif mode == GameMode.CatchTheBeat:
+            return (self.c300 + self.c100 + self.c50) / self.total_hits(mode)
+
+        elif mode == GameMode.OsuMania:
+            return  (
+                        (
+                          (self.c50 * 50.0) + (self.c100 * 100.0) + (self.cKatu * 200.0) + ((self.c300 + self.cGeki) * 300.0)
+                        )
+                        / (self.total_hits(mode) * 300.0)
+                    )
+
+        else:
+            return 0.0
 
 @dataclass
 class ReplayFrame:
