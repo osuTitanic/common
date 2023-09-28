@@ -6,6 +6,7 @@ from sqlalchemy.sql import func
 from datetime import datetime
 from typing import Optional
 
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import (
     SmallInteger,
     ForeignKey,
@@ -15,7 +16,7 @@ from sqlalchemy import (
     Integer,
     Column,
     String,
-    Float,
+    Float
 )
 
 import config
@@ -653,6 +654,50 @@ class DBInfringement(Base):
         self.is_permanent = is_permanent
         self.time = datetime.now()
 
+class DBMatch(Base):
+    __tablename__ = "mp_matches"
+
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    bancho_id = Column('bancho_id', SmallInteger)
+    name = Column('name', String)
+    creator_id = Column('creator_id', Integer, ForeignKey('users.id'))
+    created_at = Column('created_at', DateTime)
+    ended_at = Column('ended_at', DateTime, nullable=True)
+
+    creator = relationship('DBUser', back_populates='matches', lazy='selectin', join_depth=2)
+    events = relationship('DBMatchEvent', back_populates='match', lazy='selectin', join_depth=2)
+
+    def __init__(
+        self,
+        name: str,
+        creator_id: int,
+        bancho_id: int
+    ) -> None:
+        self.name = name
+        self.bancho_id = bancho_id
+        self.creator_id = creator_id
+        self.created_at = datetime.now()
+
+class DBMatchEvent(Base):
+    __tablename__ = "mp_events"
+
+    match_id = Column('match_id', Integer, ForeignKey('mp_matches.id'), primary_key=True)
+    time = Column('time', DateTime, server_default='now()', primary_key=True)
+    type = Column('type', SmallInteger)
+    data = Column('data', JSONB)
+
+    match = relationship('DBMatch', back_populates='events', lazy='selectin', join_depth=2)
+
+    def __init__(
+        self,
+        match_id: int,
+        type: int,
+        data: dict
+    ) -> None:
+        self.match_id = match_id
+        self.type = type
+        self.data = data
+
 class DBUser(Base):
     __tablename__ = "users"
 
@@ -686,6 +731,7 @@ class DBUser(Base):
     activity       = relationship('DBActivity', back_populates='user', lazy='selectin', join_depth=2)
     ratings        = relationship('DBRating', back_populates='user', lazy='selectin', join_depth=2)
     scores         = relationship('DBScore', back_populates='user', lazy='selectin', join_depth=2)
+    matches        = relationship('DBMatch', back_populates='creator', lazy='selectin', join_depth=2)
     stats          = relationship('DBStats', back_populates='user', lazy='selectin', join_depth=2)
     badges         = relationship('DBBadge', back_populates='user', lazy='selectin', join_depth=2)
     names          = relationship('DBName', back_populates='user', lazy='selectin', join_depth=2)
