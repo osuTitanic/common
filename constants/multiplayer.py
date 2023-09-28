@@ -32,3 +32,12 @@ class SlotTeam(IntEnum):
     Neutral = 0
     Blue    = 1
     Red     = 2
+
+class EventType(IntEnum):
+    Join = 0
+    Leave = 1
+    Kick = 2
+    Host = 3
+    Disband = 4
+    Start = 5
+    Result = 6

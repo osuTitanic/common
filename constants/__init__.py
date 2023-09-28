@@ -29,6 +29,7 @@ from .multiplayer import (
     MatchTeamTypes,
     SlotStatus,
     MatchType,
+    EventType,
     SlotTeam
 )
 
