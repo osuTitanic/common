@@ -2,7 +2,13 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-from ..constants import ButtonState, ReplayAction, GameMode
+from ..constants import (
+    ReplayAction,
+    ButtonState,
+    GameMode,
+    Grade,
+    Mods
+)
 
 import hashlib
 
@@ -73,6 +79,37 @@ class ScoreFrame:
 
         else:
             return 0.0
+
+    def grade(self, mode: GameMode, mods: Mods) -> Grade:
+        r300 = self.c300 / self.total_hits(mode)
+        r50 = self.c50 / self.total_hits(mode)
+
+        if r300 == 1:
+            return (
+                Grade.XH
+                if Mods.Hidden in mods
+                or Mods.Flashlight in mods
+                else Grade.X
+            )
+
+        if r300 > 0.9 and r50 <= 0.01 and self.cMiss == 0:
+            return (
+                Grade.SH
+                if Mods.Hidden in mods
+                or Mods.Flashlight in mods
+                else Grade.S
+            )
+
+        if (r300 > 0.8 and self.cMiss == 0) or (r300 > 0.9):
+            return Grade.A
+
+        if (r300 > 0.7 and self.cMiss == 0) or (r300 > 0.8):
+            return Grade.B
+
+        if (r300 > 0.6):
+            return Grade.C
+
+        return Grade.D
 
 @dataclass
 class ReplayFrame:
