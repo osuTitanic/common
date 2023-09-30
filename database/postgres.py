@@ -38,7 +38,7 @@ class Postgres:
         try:
             yield session
         except Exception as e:
-            self.logger.fatal(f'Transaction failed: {e}')
+            self.logger.fatal(f'Transaction failed: {e}', exc_info=e)
             self.logger.fatal('Performing rollback...')
             session.rollback()
         finally:
