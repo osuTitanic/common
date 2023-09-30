@@ -654,6 +654,29 @@ class DBInfringement(Base):
         self.is_permanent = is_permanent
         self.time = datetime.now()
 
+class DBReport(Base):
+    __tablename__ = "reports"
+
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    target_id = Column('target_id', Integer, ForeignKey('users.id'))
+    sender_id = Column('sender_id', Integer, ForeignKey('users.id'))
+    time = Column('time', DateTime, server_default='now()')
+    reason = Column('reason', String, nullable=True)
+    resolved = Column('resolved', Boolean, default=False)
+
+    # TODO: Relationships
+
+    def __init__(
+        self,
+        target_id: int,
+        sender_id: int,
+        reason: Optional[str]
+    ) -> None:
+        self.target_id = target_id
+        self.sender_id = sender_id
+        self.reason = reason
+        self.time = datetime.now()
+
 class DBMatch(Base):
     __tablename__ = "mp_matches"
 
@@ -756,6 +779,10 @@ class DBUser(Base):
         self.activated = activated
         self.discord_id = discord_id
         self.permissions = permissions
+
+    @property
+    def link(self) -> str:
+        return f'[http://osu.{config.DOMAIN_NAME}/u/{self.id} {self.name}]'
 
     @property
     def is_supporter(self) -> bool:
