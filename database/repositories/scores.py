@@ -276,9 +276,32 @@ def fetch_score_index_by_id(
         if not (result := session.query(subquery.c.rank) \
                                   .filter(subquery.c.id == score_id) \
                                   .first()):
-            return -1
+            return 0
 
         return result[-1]
+
+def fetch_score_index_by_tscore(
+    total_score: int,
+    beatmap_id: int,
+    mode: int
+) -> int:
+    closest_score = app.session.database.session.query(DBScore) \
+            .filter(DBScore.total_score > total_score) \
+            .filter(DBScore.beatmap_id == beatmap_id) \
+            .filter(DBScore.mode == mode) \
+            .filter(DBScore.status == 3) \
+            .order_by(func.abs(DBScore.total_score - total_score)) \
+            .first()
+
+    if not closest_score:
+        return 1
+
+    # Fetch score rank for closest score
+    return fetch_score_index_by_id(
+        closest_score.id,
+        beatmap_id,
+        mode
+    ) + 1
 
 def fetch_score_above(
     beatmap_id: int,
