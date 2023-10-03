@@ -13,7 +13,7 @@ class Beatmaps:
 
         self.session = Session()
         self.session.headers = {
-            'User-Agent': f'deck-{config.VERSION}'
+            'User-Agent': 'osuTitanic/titanic'
         }
 
     def log_error(self, url: str, status_code: int) -> None:
