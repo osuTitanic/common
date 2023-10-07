@@ -2,6 +2,7 @@
 from app.common.database.objects import DBPlay
 
 from sqlalchemy import func
+from typing import List
 
 import app
 
@@ -61,3 +62,9 @@ def fetch_count_for_beatmap(beatmap_id: int) -> int:
             .first()
 
     return count[0] if count else 0
+
+def fetch_most_played(limit: int = 5) -> List[DBPlay]:
+    return app.session.database.session.query(DBPlay) \
+                .order_by(DBPlay.count.desc()) \
+                .limit(limit) \
+                .all()
