@@ -1,5 +1,6 @@
 
 from app.common.database.objects import DBMessage
+from typing import List
 
 import app
 
@@ -21,4 +22,9 @@ def create(
 
     return msg
 
-# TODO: Create fetch queries
+def fetch_recent(target: str = '#osu', limit: int = 10) -> List[DBMessage]:
+    return app.session.database.session.query(DBMessage) \
+            .filter(DBMessage.target == target) \
+            .order_by(DBMessage.id.desc()) \
+            .limit(limit) \
+            .all()
