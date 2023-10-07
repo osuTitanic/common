@@ -7,6 +7,7 @@ from . import (
     screenshots,
     activities,
     favourites,
+    usercount,
     histories,
     beatmaps,
     channels,

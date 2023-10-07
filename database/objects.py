@@ -721,6 +721,16 @@ class DBMatchEvent(Base):
         self.type = type
         self.data = data
 
+class DBUserCount(Base):
+    __tablename__ = "user_count"
+
+    time = Column('time', DateTime, primary_key=True, server_default='now()')
+    count = Column('count', Integer, default=0)
+
+    def __init__(self, count: int) -> None:
+        self.time = datetime.now()
+        self.count = count
+
 class DBUser(Base):
     __tablename__ = "users"
 
