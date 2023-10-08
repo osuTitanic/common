@@ -1,9 +1,9 @@
 
 from app.common.database.objects import DBUserCount
 
-from sqlalchemy import desc, and_
+from datetime import datetime, timedelta
 from typing import List, Optional
-from datetime import datetime
+from sqlalchemy import desc, and_
 
 import app
 
@@ -27,3 +27,13 @@ def fetch_last() -> Optional[DBUserCount]:
     return app.session.database.session.query(DBUserCount) \
                 .order_by(desc(DBUserCount.time)) \
                 .first()
+
+def delete_old(delta: timedelta = timedelta(weeks=5)) -> int:
+    """Delete usercount entries that are older than the given delta (default ~1 month)"""
+    with app.session.database.managed_session() as session:
+        rows = session.query(DBUserCount) \
+                .filter(DBUserCount.time <= (datetime.now() - delta)) \
+                .delete()
+        session.commit()
+
+    return rows
