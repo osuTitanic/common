@@ -1,7 +1,7 @@
 
 from app.common.database.objects import DBUser, DBStats
+from sqlalchemy import func, or_, and_
 from typing import Optional, List
-from sqlalchemy import func
 
 import app
 
@@ -45,6 +45,16 @@ def update(user_id: int, updates: dict) -> int:
 def fetch_by_name(username: str) -> Optional[DBUser]:
     return app.session.database.session.query(DBUser) \
         .filter(DBUser.name == username) \
+        .first()
+
+def fetch_by_name_extended(query: str) -> Optional[DBUser]:
+    """Used for searching users"""
+    return app.session.database.session.query(DBUser) \
+        .filter(or_(
+            DBUser.name.ilike(query),
+            DBUser.name.ilike(f'%{query}%')
+        )) \
+        .order_by(func.length(DBUser.name).asc()) \
         .first()
 
 def fetch_by_safe_name(username: str) -> Optional[DBUser]:
