@@ -1,6 +1,7 @@
 
 from app.common.database.objects import DBUser, DBStats
 from typing import Optional, List
+from sqlalchemy import func
 
 import app
 
@@ -67,3 +68,13 @@ def fetch_by_discord_id(id: int) -> Optional[DBUser]:
     return app.session.database.session.query(DBUser) \
         .filter(DBUser.discord_id == id) \
         .first()
+
+def fetch_count(exclude_restricted=True) -> int:
+    query = app.session.database.session.query(
+        func.count(DBUser.id)
+    )
+
+    if exclude_restricted:
+        query = query.filter(DBUser.restricted == False)
+
+    return query.scalar()

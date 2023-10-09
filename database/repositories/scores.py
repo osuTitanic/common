@@ -52,6 +52,11 @@ def fetch_count(user_id: int, mode: int) -> int:
             .filter(DBScore.status == 3) \
             .scalar()
 
+def fetch_total_count() -> int:
+    return app.session.database.session.query(func.count(DBScore.id)) \
+            .filter(DBScore.status != -1) \
+            .scalar()
+
 def fetch_count_beatmap(
     beatmap_id: int,
     mode: int,

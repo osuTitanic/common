@@ -1,6 +1,7 @@
 
 from app.common.database.objects import DBBeatmap
 from sqlalchemy.orm import selectinload
+from sqlalchemy import func
 
 from typing import Optional, List
 from datetime import datetime
@@ -75,3 +76,8 @@ def fetch_by_set(set_id: int) -> List[DBBeatmap]:
     return app.session.database.session.query(DBBeatmap) \
                 .filter(DBBeatmap.set_id == set_id) \
                 .all()
+
+def fetch_count() -> int:
+    return app.session.database.session \
+            .query(func.count(DBBeatmap.id)) \
+            .scalar()
