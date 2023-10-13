@@ -289,6 +289,7 @@ class DBBeatmapset(Base):
     artist               = Column('artist', String, nullable=True)
     creator              = Column('creator', String, nullable=True)
     source               = Column('source', String, nullable=True)
+    description          = Column('description', String, nullable=True)
     tags                 = Column('tags', String, nullable=True, default='')
     status               = Column('submission_status', Integer, default=3)
     has_video            = Column('has_video', Boolean, default=False)
