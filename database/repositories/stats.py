@@ -83,6 +83,9 @@ def restore(user_id: int) -> None:
                 .filter(DBScore.status == 1) \
                 .scalar()
 
+            if not fail_times:
+                fail_times = 0
+
             map_times = session.query(
                 DBScore,
                 func.sum(DBBeatmap.total_length)
