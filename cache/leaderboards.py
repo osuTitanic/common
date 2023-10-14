@@ -10,16 +10,16 @@ def update(
     mode: int,
     pp: float,
     score: int,
-    country: str
+    country: str,
+    total_score: int
 ) -> None:
-    """Update global, country and score ranks"""
-    # Global
+    """Update performance, country and score ranks"""
+    # Performance
     app.session.redis.zadd(
         f'bancho:performance:{mode}',
         {user_id: pp}
     )
 
-    # Country
     app.session.redis.zadd(
         f'bancho:performance:{mode}:{country}',
         {user_id: pp}
@@ -28,10 +28,26 @@ def update(
     if score <= 0:
         return
 
-    # Score
+    # Ranked Score
     app.session.redis.zadd(
         f'bancho:rscore:{mode}',
         {user_id: score}
+    )
+
+    app.session.redis.zadd(
+        f'bancho:rscore:{mode}:{country}',
+        {user_id: score}
+    )
+
+    # Total Score
+    app.session.redis.zadd(
+        f'bancho:tscore:{mode}',
+        {user_id: total_score}
+    )
+
+    app.session.redis.zadd(
+        f'bancho:tscore:{mode}:{country}',
+        {user_id: total_score}
     )
 
 def remove(
@@ -52,6 +68,21 @@ def remove(
 
         app.session.redis.zrem(
             f'bancho:rscore:{mode}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:rscore:{mode}:{country}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:tscore:{mode}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:tscore:{mode}:{country}',
             user_id
         )
 
@@ -89,6 +120,41 @@ def score_rank(
     )
     return (rank + 1 if rank is not None else 0)
 
+def total_score_rank(
+    user_id: int,
+    mode: int
+) -> int:
+    """Get total score rank"""
+    rank = app.session.redis.zrevrank(
+        f'bancho:tscore:{mode}',
+        user_id
+    )
+    return (rank + 1 if rank is not None else 0)
+
+def score_rank_country(
+    user_id: int,
+    mode: int,
+    country: str
+) -> int:
+    """Get score rank by country"""
+    rank = app.session.redis.zrevrank(
+        f'bancho:rscore:{mode}:{country}',
+        user_id
+    )
+    return (rank + 1 if rank is not None else 0)
+
+def total_score_rank_country(
+    user_id: int,
+    mode: int,
+    country: str
+) -> int:
+    """Get total score rank by country"""
+    rank = app.session.redis.zrevrank(
+        f'bancho:tscore:{mode}:{country}',
+        user_id
+    )
+    return (rank + 1 if rank is not None else 0)
+
 def performance(
     user_id: int,
     mode: int
@@ -107,6 +173,17 @@ def score(
     """Get player's ranked score"""
     score = app.session.redis.zscore(
         f'bancho:rscore:{mode}',
+        user_id
+    )
+    return score if score is not None else 0
+
+def total_score(
+    user_id: int,
+    mode: int
+) -> int:
+    """Get player's total score"""
+    score = app.session.redis.zscore(
+        f'bancho:tscore:{mode}',
         user_id
     )
     return score if score is not None else 0
@@ -136,11 +213,9 @@ def player_above(
     mode: int,
     type: str = 'rscore',
 ) -> Tuple[int, str]:
-    """Get a player above your score
-
-    Used in score submission response
+    """Get a player above your ranked score, used in score submission response.\n
+    Returns: Tuple[score, username]
     """
-
     position = app.session.redis.zrevrank(
         f'bancho:{type}:{mode}',
         user_id
