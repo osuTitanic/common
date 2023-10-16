@@ -2,6 +2,8 @@
 from app.common.database.objects import DBUser, DBStats
 from datetime import datetime, timedelta
 from typing import Optional, List
+
+from sqlalchemy.orm import selectinload
 from sqlalchemy import func, or_
 
 import app
@@ -73,9 +75,10 @@ def fetch_all(restricted: bool = False) -> List[DBUser]:
         .filter(DBUser.restricted == restricted) \
         .all()
 
-def fetch_active(delta: timedelta = timedelta(days=30)) -> List[DBUser]:
+def fetch_active(delta: timedelta = timedelta(days=30), *preload) -> List[DBUser]:
     return app.session.database.session.query(DBUser) \
         .join(DBStats) \
+        .options(selectinload(*preload)) \
         .filter(DBUser.restricted == False) \
         .filter(DBStats.playcount > 0) \
         .filter(
