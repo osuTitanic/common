@@ -15,3 +15,12 @@ class GameMode(IntEnum):
             GameMode.CatchTheBeat: 'CatchTheBeat',
             GameMode.OsuMania: 'osu!mania'
         }[self]
+
+    @property
+    def alias(self) -> str:
+        return {
+            GameMode.Osu: 'osu',
+            GameMode.Taiko: 'taiko',
+            GameMode.CatchTheBeat: 'fruits',
+            GameMode.OsuMania: 'mania'
+        }[self]
