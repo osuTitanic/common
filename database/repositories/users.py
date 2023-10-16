@@ -1,7 +1,8 @@
 
 from app.common.database.objects import DBUser, DBStats
-from sqlalchemy import func, or_, and_
+from datetime import datetime, timedelta
 from typing import Optional, List
+from sqlalchemy import func, or_
 
 import app
 
@@ -70,6 +71,20 @@ def fetch_by_id(id: int) -> Optional[DBUser]:
 def fetch_all(restricted: bool = False) -> List[DBUser]:
     return app.session.database.session.query(DBUser) \
         .filter(DBUser.restricted == restricted) \
+        .all()
+
+def fetch_active(delta: timedelta = timedelta(days=30)) -> List[DBUser]:
+    return app.session.database.session.query(DBUser) \
+        .join(DBStats) \
+        .filter(DBUser.restricted == False) \
+        .filter(DBStats.playcount > 0) \
+        .filter(
+            # Remove inactive users from query, if they are not in the top 100
+            or_(
+                DBUser.latest_activity >= (datetime.now() - delta),
+                DBStats.rank >= 100
+            )
+        ) \
         .all()
 
 def fetch_by_discord_id(id: int) -> Optional[DBUser]:
