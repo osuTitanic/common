@@ -246,11 +246,11 @@ class Storage:
             expiry=timedelta(days=1)
         )
 
-    def cache_replay(self, id: int, content: bytes):
+    def cache_replay(self, id: int, content: bytes, time=timedelta(hours=1)):
         self.save_to_cache(
             name=f'osr:{id}',
             content=content,
-            expiry=timedelta(hours=5)
+            expiry=time
         )
 
     def remove_replay(self, id: int):
