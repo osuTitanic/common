@@ -71,8 +71,6 @@ def fetch_db(ip: str) -> Optional[Geolocation]:
             )
     except AddressNotFoundError:
         return
-    except Exception as e:
-        app.session.logger.warning(e)
 
 def fetch_web(ip: str, is_local: bool = False) -> Optional[Geolocation]:
     response = app.session.requests.get(f'http://ip-api.com/line/{ip if not is_local else ""}')
