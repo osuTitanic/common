@@ -17,12 +17,12 @@ def update(
     # Performance
     app.session.redis.zadd(
         f'bancho:performance:{mode}',
-        {user_id: pp}
+        {user_id: float(pp)}
     )
 
     app.session.redis.zadd(
         f'bancho:performance:{mode}:{country}',
-        {user_id: pp}
+        {user_id: float(pp)}
     )
 
     if score <= 0:
