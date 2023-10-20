@@ -2,8 +2,8 @@
 from logging.handlers import TimedRotatingFileHandler
 from logging import StreamHandler, Formatter
 
+import app.session
 import logging
-import app
 import os
 
 class ColorFormatter(Formatter):
