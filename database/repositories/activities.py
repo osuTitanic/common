@@ -26,9 +26,10 @@ def create(
 
     return ac
 
-def fetch_recent(user_id: int, until: timedelta = timedelta(days=30)):
+def fetch_recent(user_id: int, mode: int, until: timedelta = timedelta(days=30)):
     return app.session.database.session.query(DBActivity) \
                 .filter(DBActivity.time > datetime.now() - until) \
                 .filter(DBActivity.user_id == user_id) \
+                .filter(DBActivity.mode == mode) \
                 .order_by(DBActivity.id.desc()) \
                 .all()
