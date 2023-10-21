@@ -1,5 +1,6 @@
 
 from app.common.database.objects import DBActivity
+from datetime import datetime, timedelta
 
 import app
 
@@ -25,4 +26,9 @@ def create(
 
     return ac
 
-# TODO: fetch_many
+def fetch_recent(user_id: int, until: timedelta = timedelta(days=30)):
+    return app.session.database.session.query(DBActivity) \
+                .filter(DBActivity.time > datetime.now() - until) \
+                .filter(DBActivity.user_id == user_id) \
+                .order_by(DBActivity.id.desc()) \
+                .all()
