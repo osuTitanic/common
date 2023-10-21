@@ -3,6 +3,7 @@ from ..database.repositories import users
 
 from typing import Optional, Tuple, List
 
+import redis
 import app
 
 def update(
@@ -14,16 +15,24 @@ def update(
     total_score: int
 ) -> None:
     """Update performance, country and score ranks"""
-    # Performance
-    app.session.redis.zadd(
-        f'bancho:performance:{mode}',
-        {user_id: float(pp)}
-    )
+    try:
+        # Performance
+        app.session.redis.zadd(
+            f'bancho:performance:{mode}',
+            {user_id: float(pp)}
+        )
 
-    app.session.redis.zadd(
-        f'bancho:performance:{mode}:{country}',
-        {user_id: float(pp)}
-    )
+        app.session.redis.zadd(
+            f'bancho:performance:{mode}:{country}',
+            {user_id: float(pp)}
+        )
+    except redis.ResponseError as e:
+        # I am sometimes getting "value is not a valid float"
+        # as an exception and I don't know why...
+        # This will stay here as long as I haven't figured out the issue.
+        app.session.logger.error(
+            f'Got redis.ResponseError: "{e}".\nuser_id: {user_id}\npp: {pp}'
+        )
 
     if score <= 0:
         return
