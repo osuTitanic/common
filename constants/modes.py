@@ -7,6 +7,18 @@ class GameMode(IntEnum):
     CatchTheBeat = 2
     OsuMania     = 3
 
+    @classmethod
+    def from_alias(cls, input: str):
+        if input not in ('osu', 'taiko', 'fruits', 'mania'):
+            return
+
+        return {
+            'osu': GameMode.Osu,
+            'taiko': GameMode.Taiko,
+            'fruits': GameMode.CatchTheBeat,
+            'mania': GameMode.OsuMania
+        }[input]
+
     @property
     def formatted(self) -> str:
         return {
