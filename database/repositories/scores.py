@@ -5,8 +5,8 @@ from app.common.database.objects import (
     DBUser
 )
 
+from sqlalchemy import or_, and_, func
 from sqlalchemy.orm import selectinload
-from sqlalchemy import or_, func
 
 from typing import Optional, List, Dict
 
@@ -103,6 +103,40 @@ def fetch_top_scores(
                 .limit(limit) \
                 .offset(offset) \
                 .all()
+
+def fetch_leader_scores(
+    user_id: int,
+    mode: int,
+    limit: int = 50,
+    offset: int = 0
+) -> List[DBScore]:
+    with app.session.database.managed_session() as session:
+        # Find the maximum total score for each beatmap
+        subquery = session.query(
+                DBScore.beatmap_id,
+                DBScore.mode,
+                func.max(DBScore.total_score).label('max_total_score')
+            ) \
+            .filter(DBScore.mode == mode) \
+            .group_by(DBScore.beatmap_id, DBScore.mode) \
+            .subquery()
+
+        # Get scores where the user has the highest total score
+        leader_scores = session.query(DBScore) \
+            .join(subquery, and_(
+                DBScore.beatmap_id == subquery.c.beatmap_id,
+                DBScore.mode == subquery.c.mode,
+                DBScore.total_score == subquery.c.max_total_score
+            )) \
+            .filter(DBScore.user_id == user_id) \
+            .filter(DBScore.mode == mode) \
+            .filter(DBScore.status == 3) \
+            .order_by(DBScore.id.desc()) \
+            .limit(limit) \
+            .offset(offset) \
+            .all()
+
+    return leader_scores
 
 def fetch_best(
     user_id: int,
