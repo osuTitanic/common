@@ -8,6 +8,7 @@ from app.common.database.objects import (
 )
 
 from datetime import datetime
+from typing import List
 
 import app
 
@@ -89,3 +90,15 @@ def update_rank(
             )
         )
         session.commit()
+
+def fetch_rank_history(
+    user_id: int,
+    mode: int,
+    until: datetime
+) -> List[DBRankHistory]:
+    return app.session.database.session.query(DBRankHistory) \
+            .filter(DBRankHistory.user_id == user_id) \
+            .filter(DBRankHistory.mode == mode) \
+            .filter(DBRankHistory.time > until) \
+            .order_by(DBRankHistory.time.desc()) \
+            .all()
