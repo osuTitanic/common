@@ -84,6 +84,24 @@ def update_replay_views(
 
         session.commit()
 
+def fetch_replay_history(
+    user_id: int,
+    mode: int,
+    until: datetime
+) -> List[DBPlayHistory]:
+    return app.session.database.session.query(DBReplayHistory) \
+            .filter(DBReplayHistory.user_id == user_id) \
+            .filter(DBReplayHistory.mode == mode) \
+            .filter(
+                DBReplayHistory.year >= until.year,
+                DBReplayHistory.month >= until.month,
+            ) \
+            .order_by(
+                DBReplayHistory.year.desc(),
+                DBReplayHistory.month.desc()
+            ) \
+            .all()
+
 def update_rank(
     stats: DBStats,
     country: str
