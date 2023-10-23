@@ -39,6 +39,24 @@ def update_plays(
 
         session.commit()
 
+def fetch_plays_history(
+    user_id: int,
+    mode: int,
+    until: datetime
+) -> List[DBPlayHistory]:
+    return app.session.database.session.query(DBPlayHistory) \
+            .filter(DBPlayHistory.user_id == user_id) \
+            .filter(DBPlayHistory.mode == mode) \
+            .filter(
+                DBPlayHistory.year >= until.year,
+                DBPlayHistory.month >= until.month,
+            ) \
+            .order_by(
+                DBPlayHistory.year.desc(),
+                DBPlayHistory.month.desc()
+            ) \
+            .all()
+
 def update_replay_views(
     user_id: int,
     mode: int
