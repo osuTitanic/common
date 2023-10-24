@@ -48,3 +48,8 @@ LOGGED_IN_FROM_ANOTHER_LOCATION = '\n'.join([
     'Another player has logged in to your account, from another location.',
     'Please change your password immediately, if this login was not authorized by you!'
 ])
+
+UNSUPPORTED_VERSION = '\n'.join([
+    "This version of osu! you are using is not compatible with this server.",
+  "Please downgrade to one of our supported builds, or ask an admin for permission!"
+])
