@@ -50,6 +50,9 @@ LOGGED_IN_FROM_ANOTHER_LOCATION = '\n'.join([
 ])
 
 UNSUPPORTED_VERSION = '\n'.join([
-    "This version of osu! you are using is not compatible with this server.",
-  "Please downgrade to one of our supported builds, or ask an admin for permission!"
+    'This version of osu! you are using is not compatible with this server.',
+    'Please downgrade to one of our supported builds, or ask an admin for permission'
 ])
+
+MAINTENANCE_MODE = 'Bancho is currently in maintenance mode. Please check back later!'
+MAINTENANCE_MODE_ADMIN = 'Bancho is currently in maintenance mode. Type !system maintenance off to disable it.'
