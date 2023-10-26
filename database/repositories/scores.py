@@ -9,6 +9,7 @@ from sqlalchemy import or_, and_, func
 from sqlalchemy.orm import selectinload
 
 from typing import Optional, List, Dict
+from datetime import datetime
 
 import app
 
@@ -366,6 +367,20 @@ def fetch_recent(
                 .filter(DBScore.mode == mode) \
                 .order_by(DBScore.id.desc()) \
                 .limit(limit) \
+                .all()
+
+def fetch_recent_until(
+    user_id: int,
+    mode: int,
+    until: datetime,
+    min_status: int = 2
+) -> List[DBScore]:
+    return app.session.database.session.query(DBScore) \
+                .filter(DBScore.submitted_at > until) \
+                .filter(DBScore.status >= min_status) \
+                .filter(DBScore.user_id == user_id) \
+                .filter(DBScore.mode == mode) \
+                .order_by(DBScore.id.desc()) \
                 .all()
 
 def fetch_recent_all(
