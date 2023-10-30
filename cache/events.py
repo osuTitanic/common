@@ -3,7 +3,6 @@ from typing import Dict, Generator, Callable
 from redis import Redis
 
 import logging
-import time
 
 class EventQueue:
     def __init__(self, name: str, connection: Redis) -> None:
