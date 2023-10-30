@@ -233,6 +233,7 @@ def search_extended(
             ))
 
     query = app.session.database.session.query(DBBeatmapset) \
+            .options(selectinload(DBBeatmapset.beatmaps)) \
             .join(DBBeatmap) \
             .join(DBRating) \
             .filter(and_(*conditions)) \
