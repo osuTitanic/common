@@ -33,3 +33,13 @@ class BeatmapLanguage(IntEnum):
     Russian = 12
     Polish = 13
     Other = 14
+
+class BeatmapSortBy(IntEnum):
+    Title = 0
+    Artist = 1
+    Creator = 2
+    Difficulty = 3
+    RankedAsc = 4
+    RankedDesc = 5
+    Rating = 6
+    Plays = 7

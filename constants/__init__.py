@@ -1,6 +1,6 @@
 
 from .status import SubmissionStatus, LegacyStatus, DatabaseStatus
-from .beatmap import BeatmapGenre, BeatmapLanguage
+from .beatmap import BeatmapGenre, BeatmapLanguage, BeatmapSortBy
 from .permissions import Permissions
 from .user import Playstyle
 from .modes import GameMode
