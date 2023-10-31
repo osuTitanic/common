@@ -255,9 +255,6 @@ def search_extended(
     if language is not None:
         query = query.filter(DBBeatmapset.language_id == language)
 
-    if mode is not None:
-        query = query.filter(DBBeatmap.mode == mode)
-
     if status is not None:
         query = query.filter(DBBeatmapset.status == status)
 
@@ -266,6 +263,11 @@ def search_extended(
 
     if has_video:
         query = query.filter(DBBeatmapset.has_video == True)
+
+    if mode is not None:
+        query = query.filter(
+            DBBeatmapset.beatmaps.any(DBBeatmap.mode == mode)
+        )
 
     if (played is not None and
        user_id is not None):
