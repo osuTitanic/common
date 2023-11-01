@@ -39,7 +39,20 @@ class BeatmapSortBy(IntEnum):
     Artist = 1
     Creator = 2
     Difficulty = 3
-    RankedAsc = 4
-    RankedDesc = 5
-    Rating = 6
-    Plays = 7
+    Ranked = 4
+    Rating = 5
+    Plays = 6
+    Created = 7
+
+class BeatmapCategory(IntEnum):
+    Any = 0
+    Leaderboard = 1
+    Ranked = 2
+    Qualified = 3
+    Loved = 4
+    Approved = 5
+    Pending = 6
+
+class BeatmapOrder(IntEnum):
+    Descending = 0
+    Ascending = 1

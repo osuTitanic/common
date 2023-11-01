@@ -1,12 +1,19 @@
 
 from .status import SubmissionStatus, LegacyStatus, DatabaseStatus
-from .beatmap import BeatmapGenre, BeatmapLanguage, BeatmapSortBy
 from .permissions import Permissions
 from .user import Playstyle
 from .modes import GameMode
 from .flags import BadFlags
 from .grade import Grade
 from .mods import Mods
+
+from .beatmap import (
+    BeatmapLanguage,
+    BeatmapCategory,
+    BeatmapSortBy,
+    BeatmapOrder,
+    BeatmapGenre
+)
 
 from .bancho import (
     AvatarExtension,
