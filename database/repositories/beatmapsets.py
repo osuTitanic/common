@@ -1,5 +1,11 @@
 
-from app.common.constants import DisplayMode, BeatmapSortBy
+from app.common.constants import (
+    BeatmapCategory,
+    BeatmapSortBy,
+    BeatmapOrder,
+    DisplayMode
+)
+
 from app.common.database.objects import (
     DBBeatmapset,
     DBBeatmap,
@@ -7,8 +13,8 @@ from app.common.database.objects import (
     DBPlay
 )
 
-from sqlalchemy import func, or_, and_, desc
 from sqlalchemy.orm import selectinload
+from sqlalchemy import func, or_, and_
 
 from typing import Optional, List
 from datetime import datetime
@@ -191,14 +197,18 @@ def search_extended(
     played: Optional[bool],
     user_id: Optional[int],
     mode: Optional[int],
-    status: Optional[int],
+    order: BeatmapOrder,
+    category: BeatmapCategory,
     sort: BeatmapSortBy,
     has_storyboard: bool,
     has_video: bool,
     offset: int = 0,
     limit: int = 50
 ) -> List[DBBeatmapset]:
-    conditions = []
+    query = app.session.database.session.query(DBBeatmapset) \
+            .options(selectinload(DBBeatmapset.beatmaps)) \
+            .group_by(DBBeatmapset.id) \
+            .join(DBBeatmap)
 
     if query_string:
         stop_words = ['the', 'and', 'of', 'in', 'to', 'for']
@@ -232,22 +242,26 @@ def search_extended(
                 ]
             ))
 
-    query = app.session.database.session.query(DBBeatmapset) \
-            .options(selectinload(DBBeatmapset.beatmaps)) \
-            .join(DBBeatmap) \
-            .join(DBRating) \
-            .filter(and_(*conditions)) \
-            .group_by(DBBeatmapset.id) \
-            .order_by({
-                BeatmapSortBy.Title: DBBeatmapset.title.asc(),
-                BeatmapSortBy.Artist: DBBeatmapset.artist.asc(),
-                BeatmapSortBy.Creator: DBBeatmapset.creator.asc(),
-                BeatmapSortBy.RankedAsc: DBBeatmapset.approved_at.asc(),
-                BeatmapSortBy.RankedDesc: DBBeatmapset.approved_at.desc(),
-                BeatmapSortBy.Difficulty: func.max(DBBeatmap.diff).desc(),
-                BeatmapSortBy.Rating: func.avg(DBRating.rating).desc(),
-                BeatmapSortBy.Plays: func.sum(DBBeatmap.playcount).desc(),
-            }[sort])
+        query = query.filter(and_(*conditions))
+
+    if sort == BeatmapSortBy.Rating:
+        query = query.join(DBRating)
+
+    order_type = {
+        BeatmapSortBy.Created: DBBeatmapset.id,
+        BeatmapSortBy.Title: DBBeatmapset.title,
+        BeatmapSortBy.Artist: DBBeatmapset.artist,
+        BeatmapSortBy.Creator: DBBeatmapset.creator,
+        BeatmapSortBy.Ranked: DBBeatmapset.approved_at,
+        BeatmapSortBy.Difficulty: func.max(DBBeatmap.diff),
+        BeatmapSortBy.Rating: func.avg(DBRating.rating),
+        BeatmapSortBy.Plays: func.sum(DBBeatmap.playcount),
+    }[sort]
+
+    query = query.order_by(
+        order_type.asc() if order == BeatmapOrder.Ascending else
+        order_type.desc()
+    )
     
     if genre is not None:
         query = query.filter(DBBeatmapset.genre_id == genre)
@@ -255,8 +269,8 @@ def search_extended(
     if language is not None:
         query = query.filter(DBBeatmapset.language_id == language)
 
-    if status is not None:
-        query = query.filter(DBBeatmapset.status == status)
+    if mode is not None:
+        query = query.filter(DBBeatmapset.beatmaps.any(DBBeatmap.mode == mode))
 
     if has_storyboard:
         query = query.filter(DBBeatmapset.has_storyboard == True)
@@ -264,15 +278,20 @@ def search_extended(
     if has_video:
         query = query.filter(DBBeatmapset.has_video == True)
 
-    if mode is not None:
-        query = query.filter(
-            DBBeatmapset.beatmaps.any(DBBeatmap.mode == mode)
-        )
-
     if (played is not None and
        user_id is not None):
         query = query.join(DBPlay) \
                      .filter(DBPlay.user_id == user_id)
+
+    if category > BeatmapCategory.Any:
+        query = query.filter({
+            BeatmapCategory.Leaderboard: (DBBeatmapset.status > 0),
+            BeatmapCategory.Pending: (DBBeatmapset.status == 0),
+            BeatmapCategory.Ranked: (DBBeatmapset.status == 1),
+            BeatmapCategory.Approved: (DBBeatmapset.status == 2),
+            BeatmapCategory.Qualified: (DBBeatmapset.status == 3),
+            BeatmapCategory.Loved: (DBBeatmapset.status == 4),
+        }[category])
 
     return query.offset(offset) \
                 .limit(limit) \
