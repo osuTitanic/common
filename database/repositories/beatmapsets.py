@@ -206,7 +206,11 @@ def search_extended(
     limit: int = 50
 ) -> List[DBBeatmapset]:
     query = app.session.database.session.query(DBBeatmapset) \
-            .options(selectinload(DBBeatmapset.beatmaps)) \
+            .options(
+                selectinload(DBBeatmapset.beatmaps),
+                selectinload(DBBeatmapset.ratings),
+                selectinload(DBBeatmapset.favourites)
+            ) \
             .group_by(DBBeatmapset.id) \
             .join(DBBeatmap)
 
