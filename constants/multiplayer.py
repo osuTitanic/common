@@ -41,3 +41,4 @@ class EventType(IntEnum):
     Disband = 4
     Start = 5
     Result = 6
+    Abort = 7
