@@ -8,3 +8,4 @@ class Permissions(IntFlag):
     Supporter     = 4
     Friend        = 8
     Admin         = 16
+    Tournament    = 32
