@@ -189,6 +189,8 @@ class Storage:
         return mp3
 
     def get_achievement(self, filename: str) -> Optional[bytes]:
+        # TODO: Move to stern
+
         if config.S3_ENABLED:
             return self.get_from_s3(f'images/achievements/{filename}', 'assets')
 
