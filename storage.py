@@ -206,7 +206,7 @@ class Storage:
         self.save_to_cache(
             name=f'avatar:{id}',
             content=content,
-            expiry=timedelta(hours=1)
+            expiry=timedelta(weeks=1)
         )
 
     def upload_screenshot(self, id: int, content: bytes):
