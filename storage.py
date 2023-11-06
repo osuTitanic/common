@@ -168,7 +168,7 @@ class Storage:
         self.save_to_cache(
             name=f'mt:{id}',
             content=image,
-            expiry=timedelta(hours=1)
+            expiry=timedelta(weeks=3)
         )
 
         return image
