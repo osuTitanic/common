@@ -1,9 +1,9 @@
 
+from ..constants import COUNTRIES as countries
 from ..database.repositories import users
 
 from typing import Optional, Tuple, List
 
-import redis
 import app
 
 def update(
@@ -208,6 +208,38 @@ def top_players(
     )
 
     return [(int(id), score) for id, score in players]
+
+def top_countries(
+    mode: int,
+    type: str = 'performance'
+) -> List[Tuple[str, float]]:
+    total_scores = []
+
+    for country in countries.keys():
+        if country == 'XX':
+            continue
+
+        scores = app.session.redis.zrevrangebyscore(
+            f'bancho:{type}:{mode}:{country.lower()}',
+            '+inf',
+            '-inf',
+            withscores=True
+        )
+
+        if not scores:
+            continue
+
+        total_scores.append((
+            country,
+            sum(score for member, score in scores)
+        ))
+
+    total_scores.sort(
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    return total_scores
 
 def player_above(
     user_id: int,
