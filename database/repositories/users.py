@@ -107,6 +107,6 @@ def fetch_count(exclude_restricted=True) -> int:
 
 def fetch_many(user_ids: int, *options) -> List[DBUser]:
     return app.session.database.session.query(DBUser) \
-              .options(selectinload(*options)) \
+              .options(*[selectinload(item) for item in options]) \
               .filter(DBUser.id.in_(user_ids)) \
               .all()
