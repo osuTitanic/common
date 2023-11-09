@@ -241,6 +241,16 @@ def top_countries(
 
     return total_scores
 
+def player_count(
+    mode: int,
+    type: str = 'performance'
+) -> int:
+    return app.session.redis.zcount(
+        f'bancho:{type}:{mode}',
+        '-inf',
+        '+inf'
+    )
+
 def player_above(
     user_id: int,
     mode: int,
