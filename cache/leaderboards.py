@@ -209,37 +209,65 @@ def top_players(
 
     return [(int(id), score) for id, score in players]
 
-def top_countries(
-    mode: int,
-    type: str = 'performance'
-) -> List[Tuple[str, float]]:
-    total_scores = []
+def top_countries(mode: int) -> List[dict]:
+    """Get a list of the top countries"""
+    country_rankings = []
 
     for country in countries.keys():
         if country == 'XX':
             continue
 
-        scores = app.session.redis.zrevrangebyscore(
-            f'bancho:{type}:{mode}:{country.lower()}',
+        country_performance = app.session.redis.zrevrangebyscore(
+            f'bancho:performance:{mode}:{country.lower()}',
             '+inf',
             '-inf',
             withscores=True
         )
 
-        if not scores:
+        if not country_performance:
             continue
 
-        total_scores.append((
-            country,
-            sum(score for member, score in scores)
-        ))
+        country_rscore = app.session.redis.zrevrangebyscore(
+            f'bancho:rscore:{mode}:{country.lower()}',
+            '+inf',
+            '-inf',
+            withscores=True
+        )
 
-    total_scores.sort(
-        key=lambda x: x[1],
+        if not country_rscore:
+            continue
+
+        country_tscore = app.session.redis.zrevrangebyscore(
+            f'bancho:tscore:{mode}:{country.lower()}',
+            '+inf',
+            '-inf',
+            withscores=True
+        )
+
+        if not country_tscore:
+            continue
+
+        total_performance = sum(score for member, score in country_performance)
+        total_rscore = sum(score for member, score in country_rscore)
+        total_tscore = sum(score for member, score in country_tscore)
+        total_users = len(country_performance)
+        average_pp = total_performance / total_users
+
+        country_rankings.append({
+            'name': country.lower(),
+            'total_performance': total_performance,
+            'total_rscore': total_rscore,
+            'total_tscore': total_tscore,
+            'total_users': total_users,
+            'average_pp': average_pp
+        })
+
+    country_rankings.sort(
+        key=lambda x: x['total_performance'],
         reverse=True
     )
 
-    return total_scores
+    return country_rankings
 
 def player_count(
     mode: int,
