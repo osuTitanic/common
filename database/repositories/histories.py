@@ -113,6 +113,12 @@ def update_rank(
     if global_rank <= 0:
         return
 
+    if country_rank <= 0:
+        return
+
+    if score_rank <= 0:
+        return
+
     with app.session.database.managed_session() as session:
         session.add(
             DBRankHistory(
