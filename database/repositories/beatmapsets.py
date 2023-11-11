@@ -13,6 +13,8 @@ from app.common.database.objects import (
     DBPlay
 )
 
+from ...helpers.caching import ttl_cache
+
 from sqlalchemy.orm import selectinload
 from sqlalchemy import func, or_, and_
 
@@ -69,6 +71,7 @@ def create(
 
     return s
 
+@ttl_cache(ttl=60*60)
 def fetch_one(id: int) -> Optional[DBBeatmapset]:
     return app.session.database.session.query(DBBeatmapset) \
                 .filter(DBBeatmapset.id == id) \
