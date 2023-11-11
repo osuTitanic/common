@@ -1,6 +1,6 @@
 
+from app.common.database.objects import DBScore
 from app.common.constants import GameMode
-from app.common.database import DBScore
 
 from akatsuki_pp_py import (
     PerformanceAttributes,
