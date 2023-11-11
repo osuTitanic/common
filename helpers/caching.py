@@ -1,29 +1,26 @@
 
-from functools import lru_cache, update_wrapper
-from typing import Callable, Any
-from math import floor
+from datetime import timedelta, datetime
+from functools import lru_cache, wraps
+from typing import Callable, List
 
-import time
+class HashableList(List):
+    def __eq__(self, __value: object) -> bool:
+        return super().__eq__(__value)
 
 def ttl_cache(maxsize: int = 128, typed: bool = False, ttl: int = -1):
-    if ttl <= 0:
-        ttl = 65536
-
-    hash_gen = _ttl_hash_gen(ttl)
+    ttl = 0x10000 if ttl <= 0 else ttl
 
     def wrapper(func: Callable) -> Callable:
-        @lru_cache(maxsize, typed)
-        def ttl_func(ttl_hash,  *args, **kwargs):
+        func = lru_cache(maxsize=maxsize, typed=typed)(func)
+        func.lifetime = timedelta(seconds=ttl)
+        func.expiration = datetime.utcnow() + func.lifetime
+
+        @wraps(func)
+        def wrapped_func(*args, **kwargs):
+            # Check func expiration
+            if datetime.utcnow() > func.expiration:
+                func.cache_clear()
+                func.expiration = datetime.utcnow() + func.lifetime
             return func(*args, **kwargs)
-
-        def wrapped(*args, **kwargs) -> Any:
-            th = next(hash_gen)
-            return ttl_func(th, *args, **kwargs)
-        return update_wrapper(wrapped, func)
+        return wrapped_func
     return wrapper
-
-def _ttl_hash_gen(seconds: int):
-    start_time = time.time()
-
-    while True:
-        yield floor((time.time() - start_time) / seconds)
