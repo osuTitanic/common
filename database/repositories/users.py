@@ -107,7 +107,7 @@ def fetch_count(exclude_restricted=True) -> int:
 
     return query.scalar()
 
-@ttl_cache(typed=True, ttl=2*60)
+@ttl_cache(ttl=2*60)
 def fetch_many(user_ids: tuple, *options) -> List[DBUser]:
     return app.session.database.session.query(DBUser) \
               .options(*[selectinload(item) for item in options]) \
