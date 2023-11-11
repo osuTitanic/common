@@ -200,8 +200,10 @@ def top_players(
 
     `returns`: List[Tuple[player_id, score/pp]]
     """
-    players = app.session.redis.zrevrange(
+    players = app.session.redis.zrevrangebyscore(
         f'bancho:{type}:{mode}{f":{country}" if country else ""}',
+        '+inf',
+        '1',
         offset,
         range,
         withscores=True
@@ -220,7 +222,7 @@ def top_countries(mode: int) -> List[dict]:
         country_performance = app.session.redis.zrevrangebyscore(
             f'bancho:performance:{mode}:{country.lower()}',
             '+inf',
-            '-inf',
+            '1',
             withscores=True
         )
 
@@ -230,7 +232,7 @@ def top_countries(mode: int) -> List[dict]:
         country_rscore = app.session.redis.zrevrangebyscore(
             f'bancho:rscore:{mode}:{country.lower()}',
             '+inf',
-            '-inf',
+            '1',
             withscores=True
         )
 
@@ -240,7 +242,7 @@ def top_countries(mode: int) -> List[dict]:
         country_tscore = app.session.redis.zrevrangebyscore(
             f'bancho:tscore:{mode}:{country.lower()}',
             '+inf',
-            '-inf',
+            '1',
             withscores=True
         )
 
@@ -275,7 +277,7 @@ def player_count(
 ) -> int:
     return app.session.redis.zcount(
         f'bancho:{type}:{mode}',
-        '-inf',
+        '1',
         '+inf'
     )
 
