@@ -1,11 +1,7 @@
 
 from datetime import timedelta, datetime
 from functools import lru_cache, wraps
-from typing import Callable, List
-
-class HashableList(List):
-    def __eq__(self, __value: object) -> bool:
-        return super().__eq__(__value)
+from typing import Callable
 
 def ttl_cache(maxsize: int = 128, typed: bool = False, ttl: int = -1):
     ttl = 0x10000 if ttl <= 0 else ttl
