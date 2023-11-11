@@ -6,6 +6,8 @@ from typing import Optional, List
 from sqlalchemy.orm import selectinload
 from sqlalchemy import func, or_
 
+from ...helpers.caching import ttl_cache
+
 import app
 
 def create(
@@ -105,7 +107,8 @@ def fetch_count(exclude_restricted=True) -> int:
 
     return query.scalar()
 
-def fetch_many(user_ids: int, *options) -> List[DBUser]:
+@ttl_cache(ttl=10*60)
+def fetch_many(user_ids: tuple, *options) -> List[DBUser]:
     return app.session.database.session.query(DBUser) \
               .options(*[selectinload(item) for item in options]) \
               .filter(DBUser.id.in_(user_ids)) \
