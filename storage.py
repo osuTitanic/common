@@ -10,11 +10,11 @@ from .database.repositories import scores
 
 from .helpers.external import Beatmaps
 from .streams import StreamOut
+from .helpers import replays
 
 import logging
 import config
 import boto3
-import utils
 import os
 import io
 
@@ -100,7 +100,7 @@ class Storage:
         stream.s32(score.client_version)
         stream.string(score.beatmap.md5)
         stream.string(score.user.name)
-        stream.string(utils.compute_score_checksum(score))
+        stream.string(replays.compute_score_checksum(score))
         stream.u16(score.n300)
         stream.u16(score.n100)
         stream.u16(score.n50)
@@ -112,7 +112,7 @@ class Storage:
         stream.bool(score.perfect)
         stream.s32(score.mods)
         stream.string('') # TODO: HP Graph
-        stream.s64(utils.get_ticks(score.submitted_at))
+        stream.s64(replays.get_ticks(score.submitted_at))
         stream.s32(len(replay))
         stream.write(replay)
         stream.s32(score.id)
