@@ -1,6 +1,8 @@
 
 from app.common.database.objects import DBPlay
 
+from ...helpers.caching import ttl_cache
+
 from sqlalchemy import func
 from typing import List
 
@@ -63,6 +65,7 @@ def fetch_count_for_beatmap(beatmap_id: int) -> int:
 
     return count[0] if count else 0
 
+@ttl_cache(ttl=5*60)
 def fetch_most_played(limit: int = 5) -> List[DBPlay]:
     return app.session.database.session.query(DBPlay) \
             .order_by(DBPlay.count.desc()) \
