@@ -285,7 +285,7 @@ def fetch_score_index(
                                  .filter(subquery.c.user_id == user_id) \
                                  .first()):
             # No score was found...?
-            return -1
+            return 0
 
         return result[-1]
 
