@@ -10,10 +10,6 @@ from ...helpers.caching import ttl_cache
 
 import app
 
-def _chunks(list, size):
-    size = max(1, size)
-    return (list[i:i+size] for i in range(0, len(list), size))
-
 def create(
     username: str,
     safe_name: str,
@@ -113,11 +109,7 @@ def fetch_count(exclude_restricted=True) -> int:
 
 @ttl_cache(ttl=10*60)
 def fetch_many(user_ids: tuple, *options) -> List[DBUser]:
-    batches = _chunks(user_ids, 3)
     return app.session.database.session.query(DBUser) \
               .options(*[selectinload(item) for item in options]) \
-              .filter(or_(
-                  DBUser.id.in_(batch)
-                  for batch in batches
-              )) \
+              .filter(DBUser.id.in_(user_ids)) \
               .all()
