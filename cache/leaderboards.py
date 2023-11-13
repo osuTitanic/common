@@ -12,9 +12,10 @@ def update(
     pp: float,
     score: int,
     country: str,
-    total_score: int
+    total_score: int,
+    ppv1: float
 ) -> None:
-    """Update performance, country and score ranks"""
+    """Update ppv1, ppv2, country and score ranks"""
     # Performance
     app.session.redis.zadd(
         f'bancho:performance:{mode}',
@@ -25,9 +26,6 @@ def update(
         f'bancho:performance:{mode}:{country.lower()}',
         {user_id: float(pp)}
     )
-
-    if score <= 0:
-        return
 
     # Ranked Score
     app.session.redis.zadd(
@@ -49,6 +47,17 @@ def update(
     app.session.redis.zadd(
         f'bancho:tscore:{mode}:{country.lower()}',
         {user_id: total_score}
+    )
+
+    # PPV1
+    app.session.redis.zadd(
+        f'bancho:ppv1:{mode}',
+        {user_id: ppv1}
+    )
+
+    app.session.redis.zadd(
+        f'bancho:ppv1:{mode}:{country.lower()}',
+        {user_id: ppv1}
     )
 
 def remove(
