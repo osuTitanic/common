@@ -107,6 +107,17 @@ def global_rank(
     )
     return (rank + 1 if rank is not None else 0)
 
+def ppv1_rank(
+    user_id: int,
+    mode: int
+) -> int:
+    """Get ppv1 rank"""
+    rank = app.session.redis.zrevrank(
+        f'bancho:ppv1:{mode}',
+        user_id
+    )
+    return (rank + 1 if rank is not None else 0)
+
 def country_rank(
     user_id: int,
     mode: int,
@@ -149,6 +160,18 @@ def score_rank_country(
     """Get score rank by country"""
     rank = app.session.redis.zrevrank(
         f'bancho:rscore:{mode}:{country.lower()}',
+        user_id
+    )
+    return (rank + 1 if rank is not None else 0)
+
+def ppv1_country_rank(
+    user_id: int,
+    mode: int,
+    country: str
+) -> int:
+    """Get country ppv1 rank"""
+    rank = app.session.redis.zrevrank(
+        f'bancho:ppv1:{mode}:{country.lower()}',
         user_id
     )
     return (rank + 1 if rank is not None else 0)
