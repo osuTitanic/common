@@ -109,6 +109,7 @@ def update_rank(
     country_rank = leaderboards.country_rank(stats.user_id, stats.mode, country)
     global_rank = leaderboards.global_rank(stats.user_id, stats.mode)
     score_rank = leaderboards.score_rank(stats.user_id, stats.mode)
+    ppv1_rank = leaderboards.ppv1_rank(stats.user_id, stats.mode)
 
     if global_rank <= 0:
         return
@@ -119,6 +120,9 @@ def update_rank(
     if score_rank <= 0:
         return
 
+    if ppv1_rank <= 0:
+        return
+
     with app.session.database.managed_session() as session:
         session.add(
             DBRankHistory(
@@ -126,9 +130,11 @@ def update_rank(
                 stats.mode,
                 stats.rscore,
                 stats.pp,
+                stats.ppv1,
                 global_rank,
                 country_rank,
-                score_rank
+                score_rank,
+                ppv1_rank
             )
         )
         session.commit()
