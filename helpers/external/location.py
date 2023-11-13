@@ -67,7 +67,7 @@ def fetch_db(ip: str) -> Optional[Geolocation]:
                     response.country.iso_code
                 ),
                 response.location.time_zone,
-                response.city
+                response.city.name
             )
     except AddressNotFoundError:
         return
