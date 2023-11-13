@@ -1,103 +1,61 @@
 
-from dataclasses import dataclass
-from functools import reduce
-from operator import mul
-
-from ...constants import Mods
+from ...database.repositories import scores
+from ...database.objects import DBScore
 
 from datetime import datetime
 from typing import List
 
 import math
 
-__all__ = (
-    'calculate_weighted_ppv1',
-    'calculate_ppv1',
-    'Score',
-    'Mods'
-)
-
-@dataclass
-class Score:
-    rank: int
-    acc: float
-    mods: Mods
-    full_combo: bool
-    submission_time: datetime
-    beatmap_difficulty: float
-    beatmap_playcount: int
-
-factors = {
-    Mods.HardRock: 1.25,
-    Mods.Nightcore: 1.35,
-    Mods.DoubleTime: 1.2,
-    Mods.Flashlight: 1.15,
-    Mods.Hidden: 1.05,
-    Mods.NoFail: 0.95,
-    Mods.SpunOut: 0.90,
-    Mods.Autopilot: 0.5,
-    Mods.Relax: 0.5,
-    Mods.HalfTime: 0.25,
-    Mods.Easy: 0.3,
-    Mods.Autoplay: 0.0
-}
-
 def calculate_weight(pps: List[float]) -> float:
+    """Calculate the sum of weighted pp for each score"""
     pps.sort(reverse=True)
     return sum(pp * 0.95**index for index, pp in enumerate(pps))
 
 def calculate_ppv1(
-    score: Score,
+    score: DBScore,
     age_falloff: int = 365,
     rank_falloff: int = 500,
-    populariy_falloff: int = 100000,
-    difficulty_multiplier: int = 45
+    populariy_falloff: int = 1000
 ) -> float:
-    score_age = (datetime.now() - score.submission_time).days
-    populariy_factor = math.log(score.beatmap_playcount, populariy_falloff)
-
-    # Multiply based on beatmap star rating
-    score.beatmap_difficulty *= difficulty_multiplier
+    """Calculate ppv1, by using the score's pp as a difficulty factor"""
+    score_age = (datetime.now() - score.submitted_at.replace(tzinfo=None)).days
+    populariy_factor = math.log(score.beatmap.playcount, populariy_falloff)
 
     age_factor = (
         math.log(-1 * score_age + (age_falloff + 1), age_falloff + 1) + 0.01
         if score_age <= age_falloff else 0.01
     )
 
-    rank_factor = (
-        min(1, (-1 * math.log(score.rank, rank_falloff) + 1) + 0.01)
-        if score.rank <= rank_falloff else 0.01
+    score_rank = scores.fetch_score_index_by_tscore(
+        score.total_score,
+        score.beatmap.id,
+        score.mode
     )
 
-    mod_factors = [
-        factor for mod, factor in factors.items()
-        if mod in score.mods
-    ]
-
-    mods_factor = (
-        reduce(mul, mod_factors)
-        if mod_factors else 1
+    rank_factor = (
+        min(1, (-1 * math.log(score_rank, rank_falloff) + 1) + 0.01)
+        if score_rank <= rank_falloff else 0.01
     )
 
     acc_bonus = 1.2 if score.acc == 1 else 1
-    fc_bonus = 1.15 if score.full_combo and score.acc < 1 else 1
+    fc_bonus = 1.15 if score.perfect and score.acc < 1 else 1
 
-    return (score.beatmap_difficulty * score.acc * populariy_factor * age_factor * rank_factor * mods_factor * acc_bonus * fc_bonus)
+    return (score.pp * score.acc * populariy_factor * age_factor * rank_factor * acc_bonus * fc_bonus)
 
 def calculate_weighted_ppv1(
-    scores: List[Score],
+    scores: List[DBScore],
     age_falloff: int = 365,
     rank_falloff: int = 500,
-    populariy_falloff: int = 100000,
-    difficulty_multiplier: int = 45
+    populariy_falloff: int = 1000
 ) -> float:
+    """Calculate weighted ppv1 with from a list of scores"""
     return calculate_weight([
         calculate_ppv1(
             score,
             age_falloff,
             rank_falloff,
-            populariy_falloff,
-            difficulty_multiplier
+            populariy_falloff
         )
         for score in scores
     ])
