@@ -11,7 +11,7 @@ from ...helpers.caching import ttl_cache
 import app
 
 def _chunks(list, size):
-    n = max(1, n)
+    size = max(1, size)
     return (list[i:i+size] for i in range(0, len(list), size))
 
 def create(
