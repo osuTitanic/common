@@ -6,7 +6,7 @@ from typing import Optional
 import pickle
 import app
 
-def set_user_attributes(user: DBUser) -> None:
+def set_user(user: DBUser) -> None:
     app.session.redis.set(
         f'bancho:user:{user.id}',
         pickle.dumps(user),
