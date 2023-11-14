@@ -4,7 +4,7 @@ import app
 def set(count: int) -> None:
     app.session.redis.set(
         'bancho:users',
-        count
+        max(0, count)
     )
 
 def get() -> int:
@@ -14,13 +14,7 @@ def get() -> int:
     return int(count)
 
 def increment(amount: int = 1) -> None:
-    app.session.redis.incr(
-        'bancho:users',
-        amount
-    )
+    set(get() + amount)
 
 def decrement(amount: int = 1) -> None:
-    app.session.redis.decr(
-        'bancho:users',
-        amount
-    )
+    set(get() - amount)
