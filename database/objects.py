@@ -837,3 +837,26 @@ class DBUser(Base):
             return self.supporter_end.timestamp() - datetime.now().timestamp()
         return 0
 
+    # NOTE: These are required attributes for Flask-Login.
+    #       I am not sure if you can implement them differently...
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_authenticated(self):
+        return self.is_active
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.id
+
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
