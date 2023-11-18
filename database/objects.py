@@ -739,6 +739,31 @@ class DBUserCount(Base):
         self.time = datetime.now()
         self.count = count
 
+class DBVerification(Base):
+    __tablename__ = "verifications"
+
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    token = Column('token', String)
+    value = Column('value', String)
+    user_id = Column('user_id', Integer, ForeignKey('users.id'))
+    sent_at = Column('sent_at', DateTime, server_default='now()')
+    type = Column('type', SmallInteger, default=0)
+
+    user = relationship('DBUser', back_populates='verifications', lazy='selectin', join_depth=2)
+
+    def __init__(
+        self,
+        token: str,
+        user_id: int,
+        type: int = 0,
+        value: Optional[str] = None
+    ) -> None:
+        self.token = token
+        self.user_id = user_id
+        self.type = type
+        self.value = value
+        self.sent_at = datetime.now()
+
 class DBUser(Base):
     __tablename__ = "users"
 
@@ -769,6 +794,7 @@ class DBUser(Base):
 
     replay_history = relationship('DBReplayHistory', back_populates='user', lazy='selectin', join_depth=2)
     relationships  = relationship('DBRelationship', back_populates='user', lazy='selectin', join_depth=2)
+    verifications  = relationship('DBVerification', back_populates='user', lazy='selectin', join_depth=2)
     rank_history   = relationship('DBRankHistory', back_populates='user', lazy='selectin', join_depth=2)
     play_history   = relationship('DBPlayHistory', back_populates='user', lazy='selectin', join_depth=2)
     achievements   = relationship('DBAchievement', back_populates='user', lazy='selectin', join_depth=2)
@@ -854,9 +880,3 @@ class DBUser(Base):
 
     def get_id(self):
         return self.id
-
-    def __eq__(self, other):
-        return self.id == other.id
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
