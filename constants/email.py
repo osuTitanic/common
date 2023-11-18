@@ -11,7 +11,7 @@ https://osu.{domain}/account/verification?id={verification_id}&token={verificati
 
 See you in game!
 
----
+--
 {signature}
 """
 
@@ -23,7 +23,7 @@ If that was not you, please REPLY IMMEDIATELY and RESET YOUR PASSWORD, as your a
 
 You can reset your password here: https://osu.{domain}/account/settings#password
 
----
+--
 {signature}
 """
 
@@ -37,6 +37,6 @@ To use the new password, you need to activate it by clicking the link provided b
 
 https://osu.{domain}/account/verification?id={verification_id}&token={verification_token}&type=password
 
----
+--
 {signature}
 """
