@@ -744,7 +744,6 @@ class DBVerification(Base):
 
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     token = Column('token', String)
-    value = Column('value', String)
     user_id = Column('user_id', Integer, ForeignKey('users.id'))
     sent_at = Column('sent_at', DateTime, server_default='now()')
     type = Column('type', SmallInteger, default=0)
@@ -755,13 +754,11 @@ class DBVerification(Base):
         self,
         token: str,
         user_id: int,
-        type: int = 0,
-        value: Optional[str] = None
+        type: int = 0
     ) -> None:
         self.token = token
         self.user_id = user_id
         self.type = type
-        self.value = value
         self.sent_at = datetime.now()
 
 class DBUser(Base):

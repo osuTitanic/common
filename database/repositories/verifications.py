@@ -6,7 +6,7 @@ import random
 import string
 import app
 
-def create(user_id: int, type: int, token_size: int = 32, value: Optional[str] = None) -> DBVerification:
+def create(user_id: int, type: int, token_size: int = 32) -> DBVerification:
     with app.session.database.managed_session() as session:
         session.add(
             v := DBVerification(
@@ -15,8 +15,7 @@ def create(user_id: int, type: int, token_size: int = 32, value: Optional[str] =
                     string.digits, k=token_size
                 )),
                 user_id,
-                type,
-                value
+                type
             )
         )
         session.commit()
