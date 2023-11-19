@@ -1,76 +1,84 @@
 
 from ..constants import COUNTRIES as countries
 from ..database.repositories import users
+from ..constants import Grade as Grades
+from ..database.objects import DBStats
 
 from typing import Optional, Tuple, List
 
 import app
 
-def update(
-    user_id: int,
-    mode: int,
-    pp: float,
-    score: int,
-    country: str,
-    total_score: int,
-    ppv1: float,
-    playcount: int
-) -> None:
+def update(stats: DBStats, country: str) -> None:
     """Update ppv1, ppv2, country and score ranks"""
     # Performance
     app.session.redis.zadd(
-        f'bancho:performance:{mode}',
-        {user_id: float(pp)}
+        f'bancho:performance:{stats.mode}',
+        {stats.user_id: float(stats.pp)}
     )
 
     app.session.redis.zadd(
-        f'bancho:performance:{mode}:{country.lower()}',
-        {user_id: float(pp)}
+        f'bancho:performance:{stats.mode}:{country.lower()}',
+        {stats.user_id: float(stats.pp)}
     )
 
     # Ranked Score
     app.session.redis.zadd(
-        f'bancho:rscore:{mode}',
-        {user_id: score}
+        f'bancho:rscore:{stats.mode}',
+        {stats.user_id: stats.rscore}
     )
 
     app.session.redis.zadd(
-        f'bancho:rscore:{mode}:{country.lower()}',
-        {user_id: score}
+        f'bancho:rscore:{stats.mode}:{country.lower()}',
+        {stats.user_id: stats.rscore}
     )
 
     # Total Score
     app.session.redis.zadd(
-        f'bancho:tscore:{mode}',
-        {user_id: total_score}
+        f'bancho:tscore:{stats.mode}',
+        {stats.user_id: stats.tscore}
     )
 
     app.session.redis.zadd(
-        f'bancho:tscore:{mode}:{country.lower()}',
-        {user_id: total_score}
+        f'bancho:tscore:{stats.mode}:{country.lower()}',
+        {stats.user_id: stats.tscore}
     )
 
     # PPV1
     app.session.redis.zadd(
-        f'bancho:ppv1:{mode}',
-        {user_id: ppv1}
+        f'bancho:ppv1:{stats.mode}',
+        {stats.user_id: stats.ppv1}
     )
 
     app.session.redis.zadd(
-        f'bancho:ppv1:{mode}:{country.lower()}',
-        {user_id: ppv1}
+        f'bancho:ppv1:{stats.mode}:{country.lower()}',
+        {stats.user_id: stats.ppv1}
     )
 
     # Playcount
     app.session.redis.zadd(
-        f'bancho:playcount:{mode}',
-        {user_id: playcount}
+        f'bancho:playcount:{stats.mode}',
+        {stats.user_id: stats.playcount}
     )
 
     app.session.redis.zadd(
-        f'bancho:playcount:{mode}:{country.lower()}',
-        {user_id: playcount}
+        f'bancho:playcount:{stats.mode}:{country.lower()}',
+        {stats.user_id: stats.playcount}
     )
+
+    # Grades
+    for grade in Grades:
+        if grade in (Grades.F, Grades.N):
+            continue
+
+        app.session.redis.zadd(
+            f'bancho:ranks:{grade.name.lower()}:{stats.mode}',
+            {stats.user_id: getattr(stats, f'{grade.name.lower()}_count')}
+        )
+
+        app.session.redis.zadd(
+            f'bancho:ranks:{grade.name.lower()}:{stats.mode}:{country.lower()}',
+            {stats.user_id: getattr(stats, f'{grade.name.lower()}_count')}
+        )
 
 def remove(
     user_id: int,
@@ -117,6 +125,18 @@ def remove(
             f'bancho:playcount:{mode}:{country.lower()}',
             user_id
         )
+
+        for grade in Grades:
+            app.session.redis.zrem(
+                f'bancho:ranks:{grade.name.lower()}:{mode}',
+                user_id
+            )
+
+            app.session.redis.zrem(
+                f'bancho:ranks:{grade.name.lower()}:{country.lower()}',
+                user_id
+            )
+
 
 def global_rank(
     user_id: int,
