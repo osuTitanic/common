@@ -18,6 +18,7 @@ ANCHOR_WEB_RESPONSE = '''
 
 titanic: <a href="https://github.com/osuTitanic/titanic">https://github.com/osuTitanic/titanic</a>
 anchor: <a href="https://github.com/osuTitanic/anchor">https://github.com/osuTitanic/anchor</a>
+stern: <a href="https://github.com/osuTitanic/stern">https://github.com/osuTitanic/stern</a>
 deck: <a href="https://github.com/osuTitanic/deck">https://github.com/osuTitanic/deck</a>
 </pre>
 '''
