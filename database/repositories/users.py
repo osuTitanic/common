@@ -72,6 +72,11 @@ def fetch_by_id(id: int) -> Optional[DBUser]:
         .filter(DBUser.id == id) \
         .first()
 
+def fetch_by_email(email: str) -> Optional[DBUser]:
+    return app.session.database.session.query(DBUser) \
+        .filter(DBUser.email == email) \
+        .first()
+
 def fetch_all(restricted: bool = False) -> List[DBUser]:
     return app.session.database.session.query(DBUser) \
         .filter(DBUser.restricted == restricted) \
