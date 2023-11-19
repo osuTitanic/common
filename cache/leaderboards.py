@@ -13,7 +13,8 @@ def update(
     score: int,
     country: str,
     total_score: int,
-    ppv1: float
+    ppv1: float,
+    playcount: int
 ) -> None:
     """Update ppv1, ppv2, country and score ranks"""
     # Performance
@@ -60,6 +61,17 @@ def update(
         {user_id: ppv1}
     )
 
+    # Playcount
+    app.session.redis.zadd(
+        f'bancho:playcount:{mode}',
+        {user_id: playcount}
+    )
+
+    app.session.redis.zadd(
+        f'bancho:playcount:{mode}:{country.lower()}',
+        {user_id: playcount}
+    )
+
 def remove(
     user_id: int,
     country: str
@@ -93,6 +105,16 @@ def remove(
 
         app.session.redis.zrem(
             f'bancho:tscore:{mode}:{country.lower()}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:playcount:{mode}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:playcount:{mode}:{country.lower()}',
             user_id
         )
 
@@ -220,6 +242,17 @@ def total_score(
         user_id
     )
     return score if score is not None else 0
+
+def playcount(
+    user_id: int,
+    mode: int
+) -> int:
+    """Get total playcount of player"""
+    playcount = app.session.redis.zscore(
+        f'bancho:playcount:{mode}',
+        user_id
+    )
+    return playcount if playcount is not None else 0
 
 def top_players(
     mode: int,
