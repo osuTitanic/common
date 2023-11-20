@@ -65,21 +65,6 @@ def update(stats: DBStats, country: str) -> None:
         {stats.user_id: stats.playcount}
     )
 
-    # Grades
-    for grade in Grades:
-        if grade in (Grades.F, Grades.N):
-            continue
-
-        app.session.redis.zadd(
-            f'bancho:ranks:{grade.name.lower()}:{stats.mode}',
-            {stats.user_id: getattr(stats, f'{grade.name.lower()}_count')}
-        )
-
-        app.session.redis.zadd(
-            f'bancho:ranks:{grade.name.lower()}:{stats.mode}:{country.lower()}',
-            {stats.user_id: getattr(stats, f'{grade.name.lower()}_count')}
-        )
-
 def remove(
     user_id: int,
     country: str
@@ -125,18 +110,6 @@ def remove(
             f'bancho:playcount:{mode}:{country.lower()}',
             user_id
         )
-
-        for grade in Grades:
-            app.session.redis.zrem(
-                f'bancho:ranks:{grade.name.lower()}:{mode}',
-                user_id
-            )
-
-            app.session.redis.zrem(
-                f'bancho:ranks:{grade.name.lower()}:{country.lower()}',
-                user_id
-            )
-
 
 def global_rank(
     user_id: int,
