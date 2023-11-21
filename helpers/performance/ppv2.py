@@ -49,6 +49,6 @@ def calculate_ppv2(score: DBScore) -> Optional[float]:
 
     if score.mode == 1:
         # Remove the color attribute
-        pp = pp / result.difficulty.color
+        pp = pp / max(1, result.difficulty.color)
 
     return pp
