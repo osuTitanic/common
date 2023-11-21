@@ -502,6 +502,11 @@ class DBName(Base):
 
     user = relationship('DBUser', back_populates='names', lazy='selectin', join_depth=2)
 
+    def __init__(self, user_id: int, name: str) -> None:
+        self.user_id = user_id
+        self.name = name
+        self.changed_at = datetime.now()
+
 class DBRankHistory(Base):
     __tablename__ = "profile_rank_history"
 
