@@ -2,11 +2,7 @@
 from app.common.database.objects import DBScore
 from app.common.constants import GameMode
 
-from akatsuki_pp_py import (
-    PerformanceAttributes,
-    Calculator,
-    Beatmap
-)
+from akatsuki_pp_py import Calculator, Beatmap
 
 from typing import Optional
 
@@ -21,7 +17,7 @@ def total_hits(score: DBScore) -> int:
 
     return score.n50 + score.n100 + score.n300 + score.nMiss
 
-def calculate_ppv2(score: DBScore) -> Optional[PerformanceAttributes]:
+def calculate_ppv2(score: DBScore) -> Optional[float]:
     beatmap_file = app.session.storage.get_beatmap(score.beatmap_id)
 
     if not beatmap_file:
@@ -46,6 +42,13 @@ def calculate_ppv2(score: DBScore) -> Optional[PerformanceAttributes]:
         passed_objects = total_hits(score)
     )
 
-    pp = calc.performance(bm)
+    if not (result := calc.performance(bm)):
+        return
+
+    pp = result.pp
+
+    if score.mode == 1:
+        # Remove the color attribute
+        pp = pp / result.difficulty.color
 
     return pp
