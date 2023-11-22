@@ -16,6 +16,7 @@ from sqlalchemy import (
     Integer,
     Column,
     String,
+    Index,
     Float
 )
 
@@ -68,6 +69,8 @@ class DBStats(Base):
     c_count   = Column('c_count', Integer, default=0)
     d_count   = Column('d_count', Integer, default=0)
 
+    Index('stats_id_idx', user_id)
+
     user = relationship('DBUser', back_populates='stats', lazy='selectin', join_depth=2)
 
     def __init__(self, user_id: int, mode: int) -> None:
@@ -109,6 +112,9 @@ class DBScore(Base):
 
     user    = relationship('DBUser', back_populates='scores', lazy='selectin', join_depth=2)
     beatmap = relationship('DBBeatmap', back_populates='scores', lazy='selectin', join_depth=2)
+
+    Index('idx_beatmap_mode_status', beatmap_id, mode, status)
+    Index('idx_beatmap_user_mode_status', beatmap_id, mode, user_id, status)
 
     def __init__(self, **kwargs) -> None:
         self.beatmap_id     = kwargs.get('beatmap_id')
@@ -306,6 +312,8 @@ class DBBeatmapset(Base):
     language_id          = Column('language_id', SmallInteger, default=1)
     genre_id             = Column('genre_id', SmallInteger, default=1)
 
+    Index('beatmapsets_id_idx', id)
+
     favourites = relationship('DBFavourite', back_populates='beatmapset', lazy='selectin', join_depth=2)
     beatmaps   = relationship('DBBeatmap', back_populates='beatmapset', lazy='selectin', join_depth=2)
     ratings    = relationship('DBRating', back_populates='beatmapset', lazy='selectin', join_depth=2)
@@ -387,6 +395,10 @@ class DBBeatmap(Base):
     od        = Column('od',   Float, default=0.0)
     hp        = Column('hp',   Float, default=0.0)
     diff      = Column('diff', Float, default=0.0)
+
+    Index('beatmaps_id_idx', id)
+    Index('beatmaps_md5_idx', md5)
+    Index('beatmaps_filename_idx', filename)
 
     beatmapset = relationship('DBBeatmapset', back_populates='beatmaps', lazy='selectin', join_depth=2)
     ratings    = relationship('DBRating', back_populates='beatmap', lazy='selectin', join_depth=2)
@@ -793,6 +805,9 @@ class DBUser(Base):
     userpage_twitter   = Column('userpage_twitter', String, nullable=True)
     userpage_location  = Column('userpage_location', String, nullable=True)
     userpage_interests = Column('userpage_interests', String, nullable=True)
+
+    Index('users_id_idx', id)
+    Index('users_name_idx', name)
 
     replay_history = relationship('DBReplayHistory', back_populates='user', lazy='selectin', join_depth=2)
     relationships  = relationship('DBRelationship', back_populates='user', lazy='selectin', join_depth=2)
