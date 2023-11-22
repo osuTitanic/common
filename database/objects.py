@@ -107,8 +107,10 @@ class DBScore(Base):
     ac_flags       = Column('ac_flags', Integer, default=0)
 
     replay_md5     = Column('replay_md5', String, nullable=True)
-    processes      = Column('processes',  String, nullable=True)
     failtime       = Column('failtime',  Integer, nullable=True)
+
+    # NOTE: This was removed, because of privacy reasons
+    # processes = Column('processes',  String, nullable=True)
 
     user    = relationship('DBUser', back_populates='scores', lazy='selectin', join_depth=2)
     beatmap = relationship('DBBeatmap', back_populates='scores', lazy='selectin', join_depth=2)
@@ -137,7 +139,6 @@ class DBScore(Base):
         self.nKatu          = kwargs.get('nKatu')
         self.grade          = kwargs.get('grade')
         self.status         = kwargs.get('status')
-        self.processes      = kwargs.get('processes')
         self.failtime       = kwargs.get('failtime')
         self.replay_md5     = kwargs.get('replay_md5')
 
