@@ -81,3 +81,12 @@ def fetch_count() -> int:
     return app.session.database.session \
             .query(func.count(DBBeatmap.id)) \
             .scalar()
+
+def update(beatmap_id: int, updates: dict) -> int:
+    with app.session.database.managed_session() as session:
+        rows = session.query(DBBeatmap) \
+            .filter(DBBeatmap.id == beatmap_id) \
+            .update(updates)
+        session.commit()
+
+    return rows
