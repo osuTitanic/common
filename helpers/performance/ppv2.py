@@ -1,6 +1,6 @@
 
 from app.common.database.objects import DBScore
-from app.common.constants import GameMode
+from app.common.constants import GameMode, Modsd
 
 from akatsuki_pp_py import Calculator, Beatmap
 
@@ -45,10 +45,11 @@ def calculate_ppv2(score: DBScore) -> Optional[float]:
     if not (result := calc.performance(bm)):
         return
 
+    mods = Mods(score.mods)
     pp = result.pp
 
-    if score.mode == 1:
-        # Remove the color attribute
+    if score.mode == 1 and Mods.Relax in score.mods:
+        # Remove the color attribute when playing relax
         pp = pp / max(1, result.difficulty.color)
 
     return pp
