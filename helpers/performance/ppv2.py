@@ -48,7 +48,7 @@ def calculate_ppv2(score: DBScore) -> Optional[float]:
     mods = Mods(score.mods)
     pp = result.pp
 
-    if score.mode == 1 and Mods.Relax in score.mods:
+    if score.mode == 1 and Mods.Relax in mods:
         # Remove the color attribute when playing relax
         pp = pp / max(1, result.difficulty.color)
 
