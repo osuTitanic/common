@@ -21,6 +21,15 @@ def create(score: DBScore) -> DBScore:
 
     return score
 
+def update(score_id: int, updates: dict) -> int:
+    with app.session.database.session as session:
+        rows = session.query(DBScore) \
+            .filter(DBScore.id == score_id) \
+            .update(updates)
+        session.commit()
+
+    return rows
+
 def hide_all(user_id: int) -> int:
     with app.session.database.managed_session() as session:
         rows = session.query(DBScore) \
