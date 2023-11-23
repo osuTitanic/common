@@ -1,6 +1,6 @@
 
 from app.common.database.objects import DBScore
-from app.common.constants import GameMode, Modsd
+from app.common.constants import GameMode, Mods
 
 from akatsuki_pp_py import Calculator, Beatmap
 
