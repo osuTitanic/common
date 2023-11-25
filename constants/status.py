@@ -10,6 +10,10 @@ class DatabaseStatus(IntEnum):
     Qualified = 3
     Loved     = 4
 
+    @classmethod
+    def values(cls) -> list:
+        return list(cls._value2member_map_.keys())
+
 class SubmissionStatus(IntEnum):
     NotSubmitted   = -1
     Pending        = 0
