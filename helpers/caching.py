@@ -17,7 +17,11 @@ def ttl_cache(maxsize: int = 128, typed: bool = False, ttl: int = -1):
             if datetime.utcnow() > func.expiration:
                 func.cache_clear()
                 func.expiration = datetime.utcnow() + func.lifetime
-            return func(*args, **kwargs)
+
+            if (result := func(*args, **kwargs)) == None:
+                func.cache_clear()
+
+            return result
 
         def cache_clear():
             func.cache_clear()
