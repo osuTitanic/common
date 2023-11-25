@@ -27,6 +27,18 @@ def calculate_ppv2(score: DBScore) -> Optional[float]:
         return
 
     bm = Beatmap(bytes=beatmap_file)
+    mods = Mods(score.mods)
+
+    if Mods.Nightcore in mods and not Mods.DoubleTime in mods:
+        # NC somehow only appears with DT enabled at the same time...?
+        # https://github.com/ppy/osu-api/wiki#mods
+        mods |= Mods.DoubleTime
+
+    if Mods.Perfect in mods and not Mods.SuddenDeath in mods:
+        # The same seems to be the case for PF & SD
+        mods |= Mods.SuddenDeath
+
+    score.mods = mods.value
 
     calc = Calculator(
         mode           = score.mode,
@@ -45,7 +57,6 @@ def calculate_ppv2(score: DBScore) -> Optional[float]:
     if not (result := calc.performance(bm)):
         return
 
-    mods = Mods(score.mods)
     pp = result.pp
 
     if score.mode == 1 and Mods.Relax in mods:
