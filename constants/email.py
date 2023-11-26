@@ -40,3 +40,39 @@ https://osu.{domain}/account/verification?id={verification_id}&token={verificati
 --
 {signature}
 """
+
+PASSWORD_CHANGED = """\
+Hi {username},
+
+You are receiving this notification because your account password was changed.
+If that was not you, please REPLY IMMEDIATELY and RESET YOUR PASSWORD, as your account may be in danger.
+
+You can reset your password here: https://osu.{domain}/account/settings#password
+
+--
+{signature}
+"""
+
+EMAIL_CHANGED = """\
+Hi {username},
+
+You are receiving this notification because you (or someone else) changed the email of your account.
+If that was not you, please REPLY IMMEDIATELY, as your account may be in danger.
+
+--
+{signature}
+"""
+
+REACTIVATE_ACCOUNT = """\
+Hi {username},
+
+Your account was deactivated, because you have changed your email address.
+In order to play again, you will have to re-activate your account, by clicking the link below.
+
+https://osu.{domain}/account/verification?id={verification_id}&token={verification_token}
+
+If that was not you, please ignore this email.
+
+--
+{signature}
+"""
