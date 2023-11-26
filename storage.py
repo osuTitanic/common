@@ -1,6 +1,7 @@
 
 from boto3_type_annotations.s3 import Client
 from botocore.exceptions import ClientError
+from typing import List
 
 from datetime import timedelta
 from typing import Optional
@@ -339,3 +340,16 @@ class Storage:
             return
 
         return buffer.getvalue()
+
+    def list(self, key: str) -> List[str]:
+        """Get a list of filenames from the specified bucket/directory."""
+        if not config.S3_ENABLED:
+            return self.list_directory(key)
+        else:
+            return self.list_bucket(key)
+
+    def list_directory(self, dir: str) -> List[str]:
+        return os.listdir(f'{config.DATA_PATH}/{dir}')
+
+    def list_bucket(self, bucket: str) -> List[str]:
+        return [object['Key'] for object in self.s3.list_objects(Bucket=bucket)['Contents']]
