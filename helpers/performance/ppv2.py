@@ -43,7 +43,6 @@ def calculate_ppv2(score: DBScore) -> Optional[float]:
     calc = Calculator(
         mode           = score.mode,
         mods           = score.mods,
-        acc            = score.acc,
         n_geki         = score.nGeki,
         n_katu         = score.nKatu,
         n300           = score.n300,
