@@ -3,8 +3,8 @@ from app.common.database.objects import DBScore
 from app.common.constants import GameMode, Mods
 from typing import Optional
 
-from akatsuki_pp_py import Calculator as RelaxCalculator
-from akatsuki_pp_py import Beatmap as RelaxBeatmap
+from titanic_pp_py import Calculator as RelaxCalculator
+from titanic_pp_py import Beatmap as RelaxBeatmap
 from rosu_pp_py import Calculator, Beatmap
 
 import math
