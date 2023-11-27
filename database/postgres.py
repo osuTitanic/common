@@ -21,7 +21,7 @@ class Postgres:
             echo=None
         )
 
-        self.engine
+        self.engine.dispose(close=False)
 
         Base.metadata.create_all(bind=self.engine)
 
