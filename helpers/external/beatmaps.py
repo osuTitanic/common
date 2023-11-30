@@ -22,7 +22,7 @@ class Beatmaps:
     def osz(self, set_id: int, no_video: bool = False) -> Optional[Response]:
         self.logger.debug(f'Downloading osz... ({set_id})')
 
-        response = self.session.get(f'https://osu.direct/d/{set_id}{"?noVideo=" if no_video else ""}', stream=True)
+        response = self.session.get(f'https://api.osu.direct/d/{set_id}{"?noVideo=" if no_video else ""}', stream=True)
 
         if not response.ok:
             self.log_error(response.url, response.status_code)
@@ -57,7 +57,7 @@ class Beatmaps:
         self.logger.debug(f'Downloading beatmap... ({beatmap_id})')
 
         try:
-            response = self.session.get(f'https://osu.direct/api/osu/{beatmap_id}')
+            response = self.session.get(f'https://api.osu.direct/osu/{beatmap_id}')
 
             if not response.ok:
                 self.log_error(response.url, response.status_code)
