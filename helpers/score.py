@@ -6,26 +6,25 @@ def calculate_difficulty_multiplier(beatmap: DBBeatmap):
     return round(
         (beatmap.hp + beatmap.cs + beatmap.od + min(0, max(16, beatmap.max_combo / beatmap.total_length * 8))) / 38 * 5
     )
-
-def calculate_mod_multiplier(mods: int):
+def calculate_mod_multiplier(mods: Mods):
     multiplier = 1.00
-    if mods & Mods.Easy:
+    if Mods.Easy in mods:
         multiplier *= 0.50
-    if mods & Mods.NoFail:
+    if Mods.NoFail in mods:
         multiplier *= 0.50
-    if mods & Mods.HalfTime:
+    if Mods.HalfTime in mods:
         multiplier *= 0.3
-    if mods & Mods.HardRock:
+    if Mods.HardRock in mods:
         multiplier *= 1.06
-    if mods & Mods.Hidden:
+    if Mods.Hidden in mods:
         multiplier *= 1.06
-    if mods & Mods.HardRock:
+    if Mods.HardRock in mods:
         multiplier *= 1.06
-    if mods & Mods.DoubleTime or mods & Mods.Nightcore:
+    if Mods.DoubleTime in mods or Mods.Nightcore in mods:
         multiplier *= 1.12
-    if mods & Mods.Flashlight:
+    if Mods.Flashlight in mods:
         multiplier *= 1.12
-    if mods & Mods.Relax:
+    if Mods.Relax in mods:
         multiplier *= 0.7
     return multiplier
     
@@ -34,7 +33,7 @@ def calculate_rx_score(score: DBScore) -> int:
     avg_hit = (300*(score.n300/total_hits)) + (100*(score.n100/total_hits)) + (50*(score.n50/total_hits))
     final_score = score.total_score - (avg_hit * score.max_combo)
 
-    mod_multiplier = calculate_mod_multiplier(score.mods)
+    mod_multiplier = calculate_mod_multiplier(Mods(score.mods))
     difficulty_multiplier = calculate_difficulty_multiplier(score.beatmap)
 
     for combo in range(1, score.max_combo):
