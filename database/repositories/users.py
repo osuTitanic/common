@@ -112,6 +112,11 @@ def fetch_count(exclude_restricted=True) -> int:
 
     return query.scalar()
 
+def fetch_username(user_id: int) -> Optional[str]:
+    return app.session.database.session.query(DBUser.name) \
+            .filter(DBUser.id == user_id) \
+            .scalar()
+
 @ttl_cache(ttl=10*60)
 def fetch_many(user_ids: tuple, *options) -> List[DBUser]:
     return app.session.database.session.query(DBUser) \
