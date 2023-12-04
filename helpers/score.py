@@ -32,7 +32,7 @@ def calculate_mod_multiplier(mods: Mods) -> float:
 
     multiplier = functools.reduce(
         (lambda acc, mod: acc * multipliers[mod]),
-        (mod for mod in mods if mod in multipliers.keys()),
+        (mod for mod in mods.members if mod in multipliers),
         1.00
     )
 
