@@ -32,7 +32,8 @@ def calculate_mod_multiplier(mods: Mods) -> float:
 
     multiplier = functools.reduce(
         (lambda acc, mod: acc * multipliers[mod]),
-        mods, 1.00
+        (mod for mod in mods if mod in multipliers),
+        1.00
     )
 
     return 1.00 * multiplier
@@ -45,6 +46,9 @@ def calculate_rx_score(score: DBScore, beatmap: DBBeatmap) -> int:
         score.n50 +
         score.nMiss
     )
+
+    if total_hits <= 0:
+        return 0
 
     avg_hit = (
         (300 * (score.n300 / total_hits)) +
