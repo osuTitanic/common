@@ -3,9 +3,7 @@ from app.common.database.objects import DBScore
 from app.common.constants import GameMode, Mods
 from typing import Optional
 
-from titanic_pp_py import Calculator as RelaxCalculator
-from titanic_pp_py import Beatmap as RelaxBeatmap
-from rosu_pp_py import Calculator, Beatmap
+from titanic_pp_py import Calculator, Beatmap
 
 import math
 import app
@@ -41,50 +39,33 @@ def calculate_ppv2(score: DBScore) -> Optional[float]:
 
     score.mods = mods.value
 
-    if Mods.Relax in mods or Mods.Autopilot in mods:
-        # Use titanic-pp-rs for relax/autopilot
-        bm = RelaxBeatmap(bytes=beatmap_file)
-        calc = RelaxCalculator(
-            mode           = score.mode,
-            mods           = score.mods,
-            n_geki         = score.nGeki,
-            n_katu         = score.nKatu,
-            n300           = score.n300,
-            n100           = score.n100,
-            n50            = score.n50,
-            n_misses       = score.nMiss,
-            combo          = score.max_combo,
-            passed_objects = total_hits(score)
-        )
-    else:
-        # Use rosu-pp-py for vn
-        bm = Beatmap(bytes=beatmap_file)
-        calc = Calculator(
-            mode           = score.mode,
-            mods           = score.mods,
-            n_geki         = score.nGeki,
-            n_katu         = score.nKatu,
-            n300           = score.n300,
-            n100           = score.n100,
-            n50            = score.n50,
-            n_misses       = score.nMiss,
-            combo          = score.max_combo,
-            passed_objects = total_hits(score)
-        )
+    bm = Beatmap(bytes=beatmap_file)
 
-    # TODO: Merge rosu-pp with titanic-pp-rs
+    calc = Calculator(
+        mode           = score.mode,
+        mods           = score.mods,
+        n_geki         = score.nGeki,
+        n_katu         = score.nKatu,
+        n300           = score.n300,
+        n100           = score.n100,
+        n50            = score.n50,
+        n_misses       = score.nMiss,
+        combo          = score.max_combo,
+        passed_objects = total_hits(score)
+    )
 
     if not (result := calc.performance(bm)):
+        app.session.logger.error(
+            'pp calculation failed: No result'
+        )
         return
 
     if math.isnan(result.pp):
+        app.session.logger.error(
+            'pp calculation failed: NaN pp'
+        )
         return 0.0
 
-    pp = result.pp
+    app.session.logger.debug(f"Calculated pp: {result}")
 
-    if score.mode == 1 and Mods.Relax in mods:
-        # Remove the color attribute when playing relax
-        # TODO: Add taiko rx nerf in titanic-pp-rs
-        pp = pp / max(1, result.difficulty.color)
-
-    return pp
+    return result.pp
