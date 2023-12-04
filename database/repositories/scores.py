@@ -128,6 +128,7 @@ def fetch_leader_scores(
                 func.max(DBScore.total_score).label('max_total_score')
             ) \
             .filter(DBScore.mode == mode) \
+            .filter(DBScore.status == 3) \
             .group_by(DBScore.beatmap_id, DBScore.mode) \
             .subquery()
 
