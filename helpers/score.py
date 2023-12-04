@@ -2,6 +2,8 @@
 from ..database.objects import DBBeatmap, DBScore
 from ..constants.mods import Mods
 
+import functools
+
 def calculate_difficulty_multiplier(beatmap: DBBeatmap, total_hits: int):
     """Get the beatmap difficulty multiplier for score calculations"""
     return round(
@@ -10,27 +12,27 @@ def calculate_difficulty_multiplier(beatmap: DBBeatmap, total_hits: int):
 
 def calculate_mod_multiplier(mods: Mods) -> float:
     """Get the mod multiplier for score calculations"""
-    multiplier = 1.00
-    if Mods.Easy in mods:
-        multiplier *= 0.50
-    if Mods.NoFail in mods:
-        multiplier *= 0.50
-    if Mods.HalfTime in mods:
-        multiplier *= 0.3
-    if Mods.HardRock in mods:
-        multiplier *= 1.06
-    if Mods.Hidden in mods:
-        multiplier *= 1.06
-    if Mods.HardRock in mods:
-        multiplier *= 1.06
-    if Mods.DoubleTime in mods or Mods.Nightcore in mods:
-        multiplier *= 1.12
-    if Mods.Flashlight in mods:
-        multiplier *= 1.12
-    if Mods.Relax in mods:
-        multiplier *= 0.7
-    return multiplier
-    
+    multipliers = {
+        Mods.Easy: 0.50,
+        Mods.NoFail: 0.50,
+        Mods.HalfTime: 0.3,
+        Mods.HardRock: 1.06,
+        Mods.Hidden: 1.06,
+        Mods.DoubleTime: 1.12,
+        Mods.Nightcore: 1.12,
+        Mods.Flashlight: 1.12,
+        Mods.Relax: 0.65,
+        Mods.Autopilot: 0.65
+    }
+
+    multiplier = functools.reduce(
+        (lambda acc, mod: acc * multipliers[mod]),
+        mods,
+        1.00
+    )
+
+    return 1.00 * multiplier
+
 def calculate_rx_score(score: DBScore) -> int:
     """Recalculate the total score for relax plays"""
     total_hits = score.n300 + score.n100 + score.n50 + score.nMiss
