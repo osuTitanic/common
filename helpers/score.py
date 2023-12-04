@@ -2,10 +2,10 @@
 from ..database.objects import DBBeatmap, DBScore
 from ..constants.mods import Mods
 
-def calculate_difficulty_multiplier(beatmap: DBBeatmap):
+def calculate_difficulty_multiplier(beatmap: DBBeatmap, total_hits: int):
     """Get the beatmap difficulty multiplier for score calculations"""
     return round(
-        (beatmap.hp + beatmap.cs + beatmap.od + min(0, max(16, beatmap.max_combo / beatmap.total_length * 8))) / 38 * 5
+        (beatmap.hp + beatmap.cs + beatmap.od + min(0, max(16, total_hits / beatmap.total_length * 8))) / 38 * 5
     )
 
 def calculate_mod_multiplier(mods: Mods) -> float:
@@ -38,7 +38,7 @@ def calculate_rx_score(score: DBScore) -> int:
     final_score = score.total_score - (avg_hit * score.max_combo)
 
     mod_multiplier = calculate_mod_multiplier(Mods(score.mods))
-    difficulty_multiplier = calculate_difficulty_multiplier(score.beatmap)
+    difficulty_multiplier = calculate_difficulty_multiplier(score.beatmap, total_hits)
 
     for combo in range(1, score.max_combo):
         final_score += avg_hit * (1 + (combo * difficulty_multiplier * mod_multiplier / 25))
