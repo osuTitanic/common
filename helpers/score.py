@@ -37,7 +37,7 @@ def calculate_mod_multiplier(mods: Mods) -> float:
 
     return 1.00 * multiplier
 
-def calculate_rx_score(score: DBScore) -> int:
+def calculate_rx_score(score: DBScore, beatmap: DBBeatmap) -> int:
     """Calculate the total score for relax plays"""
     total_hits = (
         score.n300 +
@@ -57,7 +57,7 @@ def calculate_rx_score(score: DBScore) -> int:
     )
 
     mod_multiplier = calculate_mod_multiplier(Mods(score.mods))
-    difficulty_multiplier = calculate_difficulty_multiplier(score.beatmap, total_hits)
+    difficulty_multiplier = calculate_difficulty_multiplier(beatmap, total_hits)
 
     for combo in range(1, score.max_combo):
         final_score += avg_hit * (
