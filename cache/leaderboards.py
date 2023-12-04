@@ -356,7 +356,7 @@ def player_above(
         f'bancho:{type}:{mode}',
         user_id
     )
-    
+
     if position is None:
         return 0, ''
 
@@ -370,4 +370,4 @@ def player_above(
         withscores=True
     )[0]
 
-    return int(above_score) - int(score), users.fetch_by_id(int(above_id)).name
+    return int(above_score) - int(score), users.fetch_username(int(above_id))
