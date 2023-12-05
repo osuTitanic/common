@@ -52,7 +52,12 @@ LOGGED_IN_FROM_ANOTHER_LOCATION = '\n'.join([
 
 UNSUPPORTED_VERSION = '\n'.join([
     'This version of osu! you are using is not compatible with this server.',
-    'Please downgrade to one of our supported builds, or ask an admin for permission'
+    'Please downgrade to one of our supported builds, or ask an admin for permission!'
+])
+
+UNSUPPORTED_HASH = '\n'.join([
+    'This version of osu! you are using is not compatible with this server.',
+    'Please download one of the clients on the website!'
 ])
 
 MAINTENANCE_MODE = 'Bancho is currently in maintenance mode. Please check back later!'
