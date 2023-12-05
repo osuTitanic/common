@@ -109,9 +109,6 @@ class DBScore(Base):
     replay_md5     = Column('replay_md5', String, nullable=True)
     failtime       = Column('failtime',  Integer, nullable=True)
 
-    # NOTE: This was removed, because of privacy reasons
-    # processes = Column('processes',  String, nullable=True)
-
     user    = relationship('DBUser', back_populates='scores', lazy='selectin', join_depth=2)
     beatmap = relationship('DBBeatmap', back_populates='scores', lazy='selectin', join_depth=2)
 
