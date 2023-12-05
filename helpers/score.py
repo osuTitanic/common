@@ -56,16 +56,16 @@ def calculate_rx_score(score: DBScore, beatmap: DBBeatmap) -> int:
         (50 * (score.n50 / total_hits))
     )
 
-    final_score = (
-        score.total_score - (avg_hit * score.max_combo)
-    )
-
     mod_multiplier = calculate_mod_multiplier(Mods(score.mods))
     difficulty_multiplier = calculate_difficulty_multiplier(beatmap, total_hits)
 
-    for combo in range(1, score.max_combo):
-        final_score += avg_hit * (
+    combo_multipliers = [
+        avg_hit * (
             1 + (combo * difficulty_multiplier * mod_multiplier / 25)
         )
+        for combo in range(1, score.max_combo)
+    ]
+
+    final_score = sum(combo_multipliers)
 
     return round(final_score)
