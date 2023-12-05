@@ -7,7 +7,12 @@ from copy import copy
 
 import app
 
-def update(player_id: int, status: bStatusUpdate) -> None:
+def update(player_id: int, status: bStatusUpdate, client_hash: str) -> None:
+    app.session.redis.hset(
+        f'bancho:status:{player_id}',
+        'hash', client_hash
+    )
+
     status = copy(status)
 
     status.action = status.action.value
