@@ -182,8 +182,8 @@ class DBRating(Base):
     rating       = Column('rating', SmallInteger)
 
     user       = relationship('DBUser', back_populates='ratings', lazy='selectin', join_depth=2)
-    beatmap    = relationship('DBBeatmap', back_populates='ratings', lazy='selectin', join_depth=2)
-    beatmapset = relationship('DBBeatmapset', back_populates='ratings', lazy='selectin', join_depth=2)
+    beatmap    = relationship('DBBeatmap', back_populates='ratings', join_depth=2)
+    beatmapset = relationship('DBBeatmapset', back_populates='ratings', join_depth=2)
 
     def __init__(self, user_id: int, set_id: int, map_checksum: str, rating: int) -> None:
         self.rating  = rating
@@ -312,10 +312,10 @@ class DBBeatmapset(Base):
 
     Index('beatmapsets_id_idx', id)
 
-    favourites = relationship('DBFavourite', back_populates='beatmapset', lazy='selectin', join_depth=2)
-    beatmaps   = relationship('DBBeatmap', back_populates='beatmapset', lazy='selectin', join_depth=2)
-    ratings    = relationship('DBRating', back_populates='beatmapset', lazy='selectin', join_depth=2)
-    plays      = relationship('DBPlay', back_populates='beatmapset', lazy='selectin', join_depth=2)
+    favourites = relationship('DBFavourite', back_populates='beatmapset', join_depth=2)
+    beatmaps   = relationship('DBBeatmap', back_populates='beatmapset', join_depth=2)
+    ratings    = relationship('DBRating', back_populates='beatmapset', join_depth=2)
+    plays      = relationship('DBPlay', back_populates='beatmapset', join_depth=2)
 
     @property
     def full_name(self):
@@ -399,9 +399,9 @@ class DBBeatmap(Base):
     Index('beatmaps_filename_idx', filename)
 
     beatmapset = relationship('DBBeatmapset', back_populates='beatmaps', lazy='selectin', join_depth=2)
-    ratings    = relationship('DBRating', back_populates='beatmap', lazy='selectin', join_depth=2)
-    scores     = relationship('DBScore', back_populates='beatmap', lazy='selectin', join_depth=2)
-    plays      = relationship('DBPlay', back_populates='beatmap', lazy='selectin', join_depth=2)
+    ratings    = relationship('DBRating', back_populates='beatmap', join_depth=2)
+    scores     = relationship('DBScore', back_populates='beatmap', join_depth=2)
+    plays      = relationship('DBPlay', back_populates='beatmap', join_depth=2)
 
     def __repr__(self) -> str:
         return f'<Beatmap ({self.id}) {self.beatmapset.artist} - {self.beatmapset.title} [{self.version}]>'
