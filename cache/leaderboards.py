@@ -111,6 +111,16 @@ def remove(
             user_id
         )
 
+        app.session.redis.zrem(
+            f'bancho:ppv1:{mode}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:ppv1:{mode}:{country.lower()}',
+            user_id
+        )
+
 def global_rank(
     user_id: int,
     mode: int
