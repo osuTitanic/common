@@ -496,7 +496,7 @@ def restore_hidden_scores(user_id: int):
                     .filter(DBScore.user_id == user_id) \
                     .filter(DBScore.mods == mods) \
                     .filter(DBScore.status == -1) \
-                    .order_by(DBScore.total_score) \
+                    .order_by(DBScore.pp.desc()) \
                     .first()
 
                 if not best_score:
