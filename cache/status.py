@@ -42,6 +42,17 @@ def get(player_id: int) -> Optional[bStatusUpdate]:
         text=status[b'text'].decode(),
     )
 
+def client_hash(player_id: int) -> Optional[str]:
+    hash = app.session.redis.hget(
+        f'bancho:status:{player_id}',
+        'hash'
+    )
+
+    if not hash:
+        return
+
+    return hash.decode()
+
 def delete(player_id: int) -> None:
     app.session.redis.hdel(
         f'bancho:status:{player_id}',
