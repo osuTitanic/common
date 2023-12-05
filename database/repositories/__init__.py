@@ -17,6 +17,7 @@ from . import (
     ratings,
     scores,
     logins,
+    names,
     stats,
     plays,
     users,
