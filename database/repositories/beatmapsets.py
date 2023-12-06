@@ -98,7 +98,6 @@ def search(
                      .order_by(func.sum(DBBeatmap.playcount).desc())
 
     else:
-        stop_words = ['the', 'and', 'of', 'in', 'to', 'for']
         conditions = []
 
         keywords = [
@@ -106,11 +105,10 @@ def search(
                 .replace(' - ', ' ') \
                 .lower() \
                 .split()
-            if word not in stop_words
         ]
 
         searchable_columns = [
-            func.to_tsvector('english', column)
+            func.to_tsvector('simple', column)
             for column in [
                 func.lower(DBBeatmapset.title),
                 func.lower(DBBeatmapset.artist),
@@ -124,7 +122,7 @@ def search(
         for word in keywords:
             conditions.append(or_(
                 *[
-                    col.op('@@')(func.plainto_tsquery('english', word))
+                    col.op('@@')(func.plainto_tsquery('simple', word))
                     for col in searchable_columns
                 ]
             ))
