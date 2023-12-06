@@ -56,7 +56,7 @@ def client_hash(player_id: int) -> Optional[str]:
 def delete(player_id: int) -> None:
     app.session.redis.hdel(
         f'bancho:status:{player_id}',
-        'action', 'mode', 'mods', 'text', 'beatmap_id', 'beatmap_checksum'
+        'action', 'mode', 'mods', 'text', 'beatmap_id', 'beatmap_checksum', 'hash'
     )
 
 def exists(player_id: int) -> bool:
