@@ -71,7 +71,6 @@ def create(
 
     return s
 
-@ttl_cache(ttl=60*60)
 def fetch_one(id: int) -> Optional[DBBeatmapset]:
     return app.session.database.session.query(DBBeatmapset) \
                 .filter(DBBeatmapset.id == id) \

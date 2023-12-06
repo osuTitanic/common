@@ -117,7 +117,6 @@ def fetch_username(user_id: int) -> Optional[str]:
             .filter(DBUser.id == user_id) \
             .scalar()
 
-@ttl_cache(ttl=10*60)
 def fetch_many(user_ids: tuple, *options) -> List[DBUser]:
     return app.session.database.session.query(DBUser) \
               .options(*[selectinload(item) for item in options]) \
