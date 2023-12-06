@@ -84,7 +84,7 @@ def restore(user_id: int) -> None:
                 .scalar()
 
             fail_times = (fail_times / 1000) \
-                if fail_times > 0 else 0
+                if fail_times else 0
 
             map_times = session.query(
                 DBScore,
