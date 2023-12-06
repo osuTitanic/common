@@ -399,7 +399,7 @@ class DBBeatmap(Base):
     Index('beatmaps_filename_idx', filename)
 
     beatmapset = relationship('DBBeatmapset', back_populates='beatmaps', lazy='selectin', join_depth=2)
-    ratings    = relationship('DBRating', back_populates='beatmap', lazy='selectin' join_depth=2)
+    ratings    = relationship('DBRating', back_populates='beatmap', lazy='selectin', join_depth=2)
     scores     = relationship('DBScore', back_populates='beatmap', join_depth=2)
     plays      = relationship('DBPlay', back_populates='beatmap', join_depth=2)
 
