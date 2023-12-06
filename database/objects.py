@@ -314,7 +314,7 @@ class DBBeatmapset(Base):
 
     favourites = relationship('DBFavourite', back_populates='beatmapset', join_depth=2)
     beatmaps   = relationship('DBBeatmap', back_populates='beatmapset', join_depth=2)
-    ratings    = relationship('DBRating', back_populates='beatmapset', join_depth=2)
+    ratings    = relationship('DBRating', back_populates='beatmapset', lazy='selectin', join_depth=2)
     plays      = relationship('DBPlay', back_populates='beatmapset', join_depth=2)
 
     @property
