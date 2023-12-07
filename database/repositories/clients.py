@@ -1,6 +1,7 @@
 
 from app.common.database.objects import DBClient
 from typing import List, Optional
+from sqlalchemy import or_
 
 import app
 
@@ -88,4 +89,10 @@ def fetch_many(
             .filter(DBClient.user_id == user_id) \
             .limit(limit) \
             .offset(offset) \
+            .all()
+
+def fetch_all(user_id: int) -> List[DBClient]:
+    """Fetch every client from user id"""
+    return app.session.database.session.query(DBClient) \
+            .filter(DBClient.user_id == user_id) \
             .all()
