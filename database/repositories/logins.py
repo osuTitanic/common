@@ -1,5 +1,6 @@
 
 from app.common.database.objects import DBLogin
+from datetime import datetime
 from typing import List
 
 import app
@@ -31,6 +32,16 @@ def fetch_many(
             .order_by(DBLogin.time.desc()) \
             .limit(limit) \
             .offset(offset) \
+            .all()
+
+def fetch_many_until(
+    user_id: int,
+    until: datetime
+) -> List[DBLogin]:
+    return app.session.database.session.query(DBLogin) \
+            .filter(DBLogin.user_id == user_id) \
+            .filter(DBLogin.time > until) \
+            .order_by(DBLogin.time.desc()) \
             .all()
 
 def fetch_many_by_ip(
