@@ -21,7 +21,7 @@ class ScoreStatus(IntEnum):
     Best      = 3
     Mods      = 4
 
-class DisplayMode(Enum):
+class DisplayMode(IntEnum):
     Ranked    = 0
     Pending   = 2
     All       = 4
