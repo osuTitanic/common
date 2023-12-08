@@ -153,7 +153,6 @@ def search(
                 .all()
 
 def search_one(query_string: str, offset: int = 0) -> Optional[DBBeatmapset]:
-    stop_words = ['the', 'and', 'of', 'in', 'to', 'for']
     conditions = []
 
     keywords = [
@@ -161,7 +160,6 @@ def search_one(query_string: str, offset: int = 0) -> Optional[DBBeatmapset]:
             .replace(' - ', ' ') \
             .lower() \
             .split()
-        if word not in stop_words
     ]
 
     searchable_columns = [
@@ -215,7 +213,6 @@ def search_extended(
             .join(DBBeatmap)
 
     if query_string:
-        stop_words = ['the', 'and', 'of', 'in', 'to', 'for']
         conditions = []
 
         keywords = [
@@ -223,7 +220,6 @@ def search_extended(
                 .replace(' - ', ' ') \
                 .lower() \
                 .split()
-            if word not in stop_words
         ]
 
         searchable_columns = [
