@@ -165,7 +165,7 @@ def search_one(query_string: str, offset: int = 0) -> Optional[DBBeatmapset]:
     ]
 
     searchable_columns = [
-        func.to_tsvector('english', column)
+        func.to_tsvector('simple', column)
         for column in [
             func.lower(DBBeatmapset.title),
             func.lower(DBBeatmapset.artist),
@@ -179,7 +179,7 @@ def search_one(query_string: str, offset: int = 0) -> Optional[DBBeatmapset]:
     for word in keywords:
         conditions.append(or_(
             *[
-                col.op('@@')(func.plainto_tsquery('english', word))
+                col.op('@@')(func.plainto_tsquery('simple', word))
                 for col in searchable_columns
             ]
         ))
@@ -227,7 +227,7 @@ def search_extended(
         ]
 
         searchable_columns = [
-            func.to_tsvector('english', column)
+            func.to_tsvector('simple', column)
             for column in [
                 func.lower(DBBeatmapset.title),
                 func.lower(DBBeatmapset.artist),
@@ -241,7 +241,7 @@ def search_extended(
         for word in keywords:
             conditions.append(or_(
                 *[
-                    col.op('@@')(func.plainto_tsquery('english', word))
+                    col.op('@@')(func.plainto_tsquery('simple', word))
                     for col in searchable_columns
                 ]
             ))
