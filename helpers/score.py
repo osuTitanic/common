@@ -46,15 +46,24 @@ def calculate_rx_score(score: DBScore, beatmap: DBBeatmap) -> int:
         score.n50 +
         score.nMiss
     )
+    
+    original_score = (
+        (score.n300 * 300) +
+        (score.n100 * 100) +
+        (score.n50 * 50)
+    )
 
     if total_hits <= 0:
         return 0
+
+    # Account for slider ticks inflating score
+    slider_factor = beatmap.max_combo / total_hits
 
     avg_hit = (
         (300 * (score.n300 / total_hits)) +
         (100 * (score.n100 / total_hits)) +
         (50 * (score.n50 / total_hits))
-    )
+    ) / slider_factor
 
     mod_multiplier = calculate_mod_multiplier(Mods(score.mods))
     difficulty_multiplier = calculate_difficulty_multiplier(beatmap, total_hits)
@@ -66,6 +75,6 @@ def calculate_rx_score(score: DBScore, beatmap: DBBeatmap) -> int:
         for combo in range(1, score.max_combo)
     ]
 
-    final_score = sum(combo_multipliers)
+    final_score = original_score + sum(combo_multipliers)
 
     return round(final_score)
