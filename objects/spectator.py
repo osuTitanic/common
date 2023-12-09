@@ -12,7 +12,7 @@ from ..constants import (
 
 import hashlib
 
-@dataclass
+@dataclass(slots=True)
 class ScoreFrame:
     time: int
     id: int
@@ -111,7 +111,7 @@ class ScoreFrame:
 
         return Grade.D
 
-@dataclass
+@dataclass(slots=True)
 class ReplayFrame:
     button_state: ButtonState
     taiko_byte: int
@@ -119,7 +119,7 @@ class ReplayFrame:
     mouse_y: float
     time: int
 
-@dataclass
+@dataclass(slots=True)
 class ReplayFrameBundle:
     extra: int
     action: ReplayAction

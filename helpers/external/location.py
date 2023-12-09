@@ -10,7 +10,7 @@ from typing import Optional
 import config
 import app
 
-@dataclass
+@dataclass(slots=True)
 class Geolocation:
     ip: str = '127.0.0.1'
     latitude: float = 0.0

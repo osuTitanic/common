@@ -12,7 +12,7 @@ from ..constants import (
     Mods
 )
 
-@dataclass
+@dataclass(slots=True)
 class Slot:
     player_id: int
     status: SlotStatus
@@ -31,7 +31,7 @@ class Slot:
     def is_ready(self) -> bool:
         return self.status == SlotStatus.Ready
 
-@dataclass
+@dataclass(slots=True)
 class Match:
     id: int
     in_progress: bool
@@ -50,7 +50,7 @@ class Match:
     freemod: bool
     seed: int
 
-@dataclass
+@dataclass(slots=True)
 class MatchJoin:
     match_id: int
     password: str = ""

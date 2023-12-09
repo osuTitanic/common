@@ -19,10 +19,10 @@ def update(player_id: int, status: bStatusUpdate, client_hash: str) -> None:
     status.mode = status.mode.value
     status.mods = status.mods.value
 
-    for key, value in status.__dict__.items():
+    for key in status.__dataclass_fields__.keys():
         app.session.redis.hset(
             f'bancho:status:{player_id}',
-            key, value
+            key, getattr(status, key)
         )
 
 def get(player_id: int) -> Optional[bStatusUpdate]:

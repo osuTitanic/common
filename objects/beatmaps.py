@@ -4,7 +4,7 @@ from typing import List
 
 from app.common.constants import Grade
 
-@dataclass
+@dataclass(slots=True)
 class BeatmapInfo:
     index: int
     beatmap_id: int
@@ -17,11 +17,11 @@ class BeatmapInfo:
     mania_rank: Grade
     checksum: str
 
-@dataclass
+@dataclass(slots=True)
 class BeatmapInfoReply:
     beatmaps: List[BeatmapInfo]
 
-@dataclass
+@dataclass(slots=True)
 class BeatmapInfoRequest:
     filenames: List[str]
     beatmap_ids: List[int]

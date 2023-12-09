@@ -10,7 +10,7 @@ from ..constants import (
     Mods
 )
 
-@dataclass
+@dataclass(slots=True)
 class StatusUpdate:
     action: ClientStatus
     text: str = ""
@@ -19,7 +19,7 @@ class StatusUpdate:
     beatmap_checksum: str = ""
     beatmap_id: int = -1
 
-@dataclass
+@dataclass(slots=True)
 class UserPresence:
     user_id: int
     is_irc: bool
@@ -33,7 +33,7 @@ class UserPresence:
     rank: int
     city: Optional[str] = None
 
-@dataclass
+@dataclass(slots=True)
 class UserStats:
     user_id: int
     status: StatusUpdate
@@ -44,7 +44,7 @@ class UserStats:
     rank: int
     pp: int
 
-@dataclass
+@dataclass(slots=True)
 class UserQuit:
     user_id: int
     presence: UserPresence
