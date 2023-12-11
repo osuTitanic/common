@@ -19,6 +19,9 @@ def calculate_ppv1(
     populariy_falloff: int = 1000
 ) -> float:
     """Calculate ppv1, by using the score's pp as a difficulty factor"""
+    if score.beatmap.playcount <= 0:
+        return 0
+
     score_age = (datetime.now() - score.submitted_at.replace(tzinfo=None)).days
     populariy_factor = math.log(score.beatmap.playcount, populariy_falloff)
 
