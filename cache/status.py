@@ -8,21 +8,20 @@ from copy import copy
 import app
 
 def update(player_id: int, status: bStatusUpdate, client_hash: str) -> None:
-    app.session.redis.hset(
-        f'bancho:status:{player_id}',
-        'hash', client_hash
-    )
-
     status = copy(status)
 
-    status.action = status.action.value
-    status.mode = status.mode.value
-    status.mods = status.mods.value
-
-    for key in status.__dataclass_fields__.keys():
+    for key, value in {
+        'beatmap_checksum': status.beatmap_checksum,
+        'beatmap_id': status.beatmap_id,
+        'action': status.action.value,
+        'mods': status.mods.value,
+        'mode': status.mode.value,
+        'hash': client_hash,
+        'text': status.text
+    }.items():
         app.session.redis.hset(
             f'bancho:status:{player_id}',
-            key, getattr(status, key)
+            key, value
         )
 
 def get(player_id: int) -> Optional[bStatusUpdate]:
