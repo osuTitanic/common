@@ -233,7 +233,7 @@ def score(
         f'bancho:rscore:{mode}',
         user_id
     )
-    return score if score is not None else 0
+    return round(score) if score is not None else 0
 
 def total_score(
     user_id: int,
