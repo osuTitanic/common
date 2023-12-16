@@ -117,6 +117,11 @@ def fetch_username(user_id: int) -> Optional[str]:
             .filter(DBUser.id == user_id) \
             .scalar()
 
+def fetch_user_id(username: str) -> Optional[int]:
+    return app.session.database.session.query(DBUser.id) \
+            .filter(DBUser.name == username) \
+            .scalar()
+
 def fetch_many(user_ids: tuple, *options) -> List[DBUser]:
     return app.session.database.session.query(DBUser) \
               .options(*[selectinload(item) for item in options]) \
