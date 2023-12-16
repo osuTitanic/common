@@ -54,15 +54,15 @@ def update(stats: DBStats, country: str) -> None:
         {stats.user_id: stats.ppv1}
     )
 
-    # Playcount
+    # Accuracy
     app.session.redis.zadd(
-        f'bancho:playcount:{stats.mode}',
-        {stats.user_id: stats.playcount}
+        f'bancho:acc:{stats.mode}',
+        {stats.user_id: stats.acc}
     )
 
     app.session.redis.zadd(
-        f'bancho:playcount:{stats.mode}:{country.lower()}',
-        {stats.user_id: stats.playcount}
+        f'bancho:acc:{stats.mode}:{country.lower()}',
+        {stats.user_id: stats.acc}
     )
 
 def remove(
@@ -102,22 +102,22 @@ def remove(
         )
 
         app.session.redis.zrem(
-            f'bancho:playcount:{mode}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:playcount:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
             f'bancho:ppv1:{mode}',
             user_id
         )
 
         app.session.redis.zrem(
             f'bancho:ppv1:{mode}:{country.lower()}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:acc:{mode}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:acc:{mode}:{country.lower()}',
             user_id
         )
 
@@ -246,16 +246,16 @@ def total_score(
     )
     return score if score is not None else 0
 
-def playcount(
+def accuracy(
     user_id: int,
     mode: int
-) -> int:
-    """Get total playcount of player"""
-    playcount = app.session.redis.zscore(
-        f'bancho:playcount:{mode}',
+) -> float:
+    """Get player's accuracy"""
+    acc = app.session.redis.zscore(
+        f'bancho:acc:{mode}',
         user_id
     )
-    return playcount if playcount is not None else 0
+    return acc if acc is not None else 0
 
 def top_players(
     mode: int,
