@@ -30,11 +30,11 @@ class Postgres:
 
     @property
     def session(self) -> Session:
-        return self.sessionmaker()
+        return self.sessionmaker(bind=self.engine)
 
     @contextmanager
     def managed_session(self):
-        session = self.sessionmaker()
+        session = self.sessionmaker(bind=self.engine)
         try:
             yield session
         except Exception as e:
