@@ -22,11 +22,16 @@ class Postgres:
         )
 
         self.engine.dispose()
-
         Base.metadata.create_all(bind=self.engine)
 
+        self.sessionmaker = sessionmaker(
+            bind=self.engine,
+            autoflush=False,
+            autocommit=False,
+            expire_on_commit=False
+        )
+
         self.logger = logging.getLogger('postgres')
-        self.sessionmaker = sessionmaker(bind=self.engine)
 
     @property
     def session(self) -> Session:
