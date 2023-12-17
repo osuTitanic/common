@@ -24,6 +24,6 @@ def create(
     return chan
 
 def fetch_all() -> List[DBChannel]:
-    return app.session.database.session \
-                      .query(DBChannel) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBChannel) \
                       .all()

@@ -41,28 +41,33 @@ def delete(
         return False
 
 def fetch_many_by_id(user_id: int) -> List[DBRelationship]:
-    return app.session.database.session.query(DBRelationship) \
-               .filter(DBRelationship.user_id == user_id) \
-               .all()
+    with app.session.database.managed_session() as session:
+        return session.query(DBRelationship) \
+            .filter(DBRelationship.user_id == user_id) \
+            .all()
 
 def fetch_many_by_target(target_id: int) -> List[DBRelationship]:
-    return app.session.database.session.query(DBRelationship) \
-               .filter(DBRelationship.target_id == target_id) \
-               .all()
+    with app.session.database.managed_session() as session:
+        return session.query(DBRelationship) \
+            .filter(DBRelationship.target_id == target_id) \
+            .all()
 
 def fetch_count_by_id(user_id: int) -> int:
-    return app.session.database.session.query(DBRelationship) \
-               .filter(DBRelationship.user_id == user_id) \
-               .count()
+    with app.session.database.managed_session() as session:
+        return session.query(DBRelationship) \
+            .filter(DBRelationship.user_id == user_id) \
+            .count()
 
 def fetch_count_by_target(target_id: int) -> int:
-    return app.session.database.session.query(DBRelationship) \
-               .filter(DBRelationship.target_id == target_id) \
-               .count()
+    with app.session.database.managed_session() as session:
+        return session.query(DBRelationship) \
+            .filter(DBRelationship.target_id == target_id) \
+            .count()
 
 def fetch_target_ids(user_id: int) -> List[int]:
-    result = app.session.database.session.query(DBRelationship.target_id) \
-               .filter(DBRelationship.user_id == user_id) \
-               .all()
+    with app.session.database.managed_session() as session:
+        result = session.query(DBRelationship.target_id) \
+            .filter(DBRelationship.user_id == user_id) \
+            .all()
 
     return [id[0] for id in result]

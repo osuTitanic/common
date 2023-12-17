@@ -57,16 +57,18 @@ def update(
         session.commit()
 
 def fetch_count_for_beatmap(beatmap_id: int) -> int:
-    count = app.session.database.session.query(
-        func.sum(DBPlay.count).label('playcount')) \
-            .group_by(DBPlay.beatmap_id) \
-            .filter(DBPlay.beatmap_id == beatmap_id) \
-            .first()
+    with app.session.database.managed_session() as session:
+        count = session.query(
+            func.sum(DBPlay.count).label('playcount')) \
+                .group_by(DBPlay.beatmap_id) \
+                .filter(DBPlay.beatmap_id == beatmap_id) \
+                .first()
 
     return count[0] if count else 0
 
 def fetch_most_played(limit: int = 5) -> List[DBPlay]:
-    return app.session.database.session.query(DBPlay) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBPlay) \
             .order_by(DBPlay.count.desc()) \
             .limit(limit) \
             .all()
@@ -76,7 +78,8 @@ def fetch_most_played_by_user(
     limit: int = 15,
     offset: int = 0
 ) -> List[DBPlay]:
-    return app.session.database.session.query(DBPlay) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBPlay) \
             .filter(DBPlay.user_id == user_id) \
             .order_by(DBPlay.count.desc()) \
             .limit(limit) \

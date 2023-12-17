@@ -15,18 +15,20 @@ def create(count: int) -> DBUserCount:
     return uc
 
 def fetch_range(_until: datetime, _from: datetime) -> List[DBUserCount]:
-    return app.session.database.session.query(DBUserCount) \
-                .filter(and_(
-                    DBUserCount.time <= _from,
-                    DBUserCount.time >= _until
-                )) \
-                .order_by(desc(DBUserCount.time)) \
-                .all()
+    with app.session.database.managed_session() as session:
+        return session.query(DBUserCount) \
+            .filter(and_(
+                DBUserCount.time <= _from,
+                DBUserCount.time >= _until
+            )) \
+            .order_by(desc(DBUserCount.time)) \
+            .all()
 
 def fetch_last() -> Optional[DBUserCount]:
-    return app.session.database.session.query(DBUserCount) \
-                .order_by(desc(DBUserCount.time)) \
-                .first()
+    with app.session.database.managed_session() as session:
+        return session.query(DBUserCount) \
+            .order_by(desc(DBUserCount.time)) \
+            .first()
 
 def delete_old(delta: timedelta = timedelta(weeks=5)) -> int:
     """Delete usercount entries that are older than the given delta (default ~1 month)"""

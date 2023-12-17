@@ -25,14 +25,16 @@ def create(
     return m
 
 def fetch_by_id(id: int) -> Optional[DBMatch]:
-    return app.session.database.session.query(DBMatch) \
-        .filter(DBMatch.id == id) \
-        .first()
+    with app.session.database.managed_session() as session:
+        return session.query(DBMatch) \
+            .filter(DBMatch.id == id) \
+            .first()
 
 def fetch_by_bancho_id(id: int) -> Optional[DBMatch]:
-    return app.session.database.session.query(DBMatch) \
-        .filter(DBMatch.bancho_id == id) \
-        .first()
+    with app.session.database.managed_session() as session:
+        return session.query(DBMatch) \
+            .filter(DBMatch.bancho_id == id) \
+            .first()
 
 def update(id: int, updates: dict) -> None:
     with app.session.database.managed_session() as session:

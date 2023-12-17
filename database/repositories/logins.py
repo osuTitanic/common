@@ -27,7 +27,8 @@ def fetch_many(
     limit: int = 50,
     offset: int = 0
 ) -> List[DBLogin]:
-    return app.session.database.session.query(DBLogin) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBLogin) \
             .filter(DBLogin.user_id == user_id) \
             .order_by(DBLogin.time.desc()) \
             .limit(limit) \
@@ -38,7 +39,8 @@ def fetch_many_until(
     user_id: int,
     until: datetime
 ) -> List[DBLogin]:
-    return app.session.database.session.query(DBLogin) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBLogin) \
             .filter(DBLogin.user_id == user_id) \
             .filter(DBLogin.time > until) \
             .order_by(DBLogin.time.desc()) \
@@ -49,7 +51,8 @@ def fetch_many_by_ip(
     limit: int = 50,
     offset: int = 0
 ) -> List[DBLogin]:
-    return app.session.database.session.query(DBLogin) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBLogin) \
             .filter(DBLogin.ip == ip) \
             .order_by(DBLogin.time.desc()) \
             .limit(limit) \
@@ -61,7 +64,8 @@ def fetch_many_by_version(
     limit: int = 50,
     offset: int = 0
 ) -> List[DBLogin]:
-    return app.session.database.session.query(DBLogin) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBLogin) \
             .filter(DBLogin.version == version) \
             .order_by(DBLogin.time.desc()) \
             .limit(limit) \

@@ -12,11 +12,13 @@ def create(user_id: int, old_name: str) -> DBName:
     return name
 
 def fetch_one(id: int):
-    return app.session.database.session.query(DBName) \
-                .filter(DBName.id == id) \
-                .all()
+    with app.session.database.managed_session() as session:
+        return session.query(DBName) \
+            .filter(DBName.id == id) \
+            .first()
 
 def fetch_all(user_id: int):
-    return app.session.database.session.query(DBName) \
-                .filter(DBName.user_id == user_id) \
-                .all()
+    with app.session.database.managed_session() as session:
+        return session.query(DBName) \
+            .filter(DBName.user_id == user_id) \
+            .all()

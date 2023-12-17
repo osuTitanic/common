@@ -28,35 +28,40 @@ def create(
     return i
 
 def fetch_recent(user_id: int) -> Optional[DBInfringement]:
-    return app.session.database.session.query(DBInfringement) \
-                    .filter(DBInfringement.user_id == user_id) \
-                    .order_by(DBInfringement.id.desc()) \
-                    .first()
+    with app.session.database.managed_session() as session:
+        return session.query(DBInfringement) \
+            .filter(DBInfringement.user_id == user_id) \
+            .order_by(DBInfringement.id.desc()) \
+            .first()
 
 def fetch_recent_by_action(user_id: int, action: int) -> Optional[DBInfringement]:
-    return app.session.database.session.query(DBInfringement) \
-                    .filter(DBInfringement.user_id == user_id) \
-                    .filter(DBInfringement.action == action) \
-                    .order_by(DBInfringement.id.desc()) \
-                    .first()
+    with app.session.database.managed_session() as session:
+        return session.query(DBInfringement) \
+            .filter(DBInfringement.user_id == user_id) \
+            .filter(DBInfringement.action == action) \
+            .order_by(DBInfringement.id.desc()) \
+            .first()
 
 def fetch_all(user_id: int) -> List[DBInfringement]:
-    return app.session.database.session.query(DBInfringement) \
-                    .filter(DBInfringement.user_id == user_id) \
-                    .order_by(DBInfringement.id.desc()) \
-                    .all()
+    with app.session.database.managed_session() as session:
+        return session.query(DBInfringement) \
+            .filter(DBInfringement.user_id == user_id) \
+            .order_by(DBInfringement.id.desc()) \
+            .all()
 
 def fetch_all_by_action(user_id: int, action: int) -> List[DBInfringement]:
-    return app.session.database.session.query(DBInfringement) \
-                    .filter(DBInfringement.user_id == user_id) \
-                    .filter(DBInfringement.action == action) \
-                    .order_by(DBInfringement.time.desc()) \
-                    .all()
+    with app.session.database.managed_session() as session:
+        return session.query(DBInfringement) \
+            .filter(DBInfringement.user_id == user_id) \
+            .filter(DBInfringement.action == action) \
+            .order_by(DBInfringement.time.desc()) \
+            .all()
 
 def delete_by_id(id: int) -> None:
-    app.session.database.session.query(DBInfringement) \
-                    .filter(DBInfringement.id == id) \
-                    .delete()
+    with app.session.database.managed_session() as session:
+        session.query(DBInfringement) \
+            .filter(DBInfringement.id == id) \
+            .delete()
 
 def delete_old(user_id: int, delete_after=timedelta(weeks=5), remove_permanent=False) -> int:
     if not remove_permanent:

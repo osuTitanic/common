@@ -54,16 +54,18 @@ def delete_all(user_id: int) -> int:
 
     return rows
 
-def fetch_by_mode(user_id: int,  mode: int) -> Optional[DBStats]:
-    return app.session.database.session.query(DBStats) \
-        .filter(DBStats.user_id == user_id) \
-        .filter(DBStats.mode == mode) \
-        .first()
+def fetch_by_mode(user_id: int, mode: int) -> Optional[DBStats]:
+    with app.session.database.managed_session() as session:
+        return session.query(DBStats) \
+            .filter(DBStats.user_id == user_id) \
+            .filter(DBStats.mode == mode) \
+            .first()
 
 def fetch_all(user_id: int) -> List[DBStats]:
-    return app.session.database.session.query(DBStats) \
-        .filter(DBStats.user_id == user_id) \
-        .all()
+    with app.session.database.managed_session() as session:
+        return session.query(DBStats) \
+            .filter(DBStats.user_id == user_id) \
+            .all()
 
 def restore(user_id: int) -> None:
     with app.session.database.managed_session() as session:

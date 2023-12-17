@@ -55,32 +55,36 @@ def create(
     return m
 
 def fetch_by_id(id: int) -> Optional[DBBeatmap]:
-    return app.session.database.session.query(DBBeatmap) \
-                .options(selectinload(DBBeatmap.beatmapset)) \
-                .filter(DBBeatmap.id == id) \
-                .first()
+    with app.session.database.managed_session() as session:
+        return session.query(DBBeatmap) \
+            .options(selectinload(DBBeatmap.beatmapset)) \
+            .filter(DBBeatmap.id == id) \
+            .first()
 
 def fetch_by_file(filename: str) -> Optional[DBBeatmap]:
-    return app.session.database.session.query(DBBeatmap) \
-                .options(selectinload(DBBeatmap.beatmapset)) \
-                .filter(DBBeatmap.filename == filename) \
-                .first()
+    with app.session.database.managed_session() as session:
+        return session.query(DBBeatmap) \
+            .options(selectinload(DBBeatmap.beatmapset)) \
+            .filter(DBBeatmap.filename == filename) \
+            .first()
 
 def fetch_by_checksum(checksum: str) -> Optional[DBBeatmap]:
-    return app.session.database.session.query(DBBeatmap) \
-                .options(selectinload(DBBeatmap.beatmapset)) \
-                .filter(DBBeatmap.md5 == checksum) \
-                .first()
+    with app.session.database.managed_session() as session:
+        return session.query(DBBeatmap) \
+            .options(selectinload(DBBeatmap.beatmapset)) \
+            .filter(DBBeatmap.md5 == checksum) \
+            .first()
 
 def fetch_by_set(set_id: int) -> List[DBBeatmap]:
-    return app.session.database.session.query(DBBeatmap) \
-                .filter(DBBeatmap.set_id == set_id) \
-                .all()
+    with app.session.database.managed_session() as session:
+        return session.query(DBBeatmap) \
+            .filter(DBBeatmap.set_id == set_id) \
+            .all()
 
 def fetch_count() -> int:
-    return app.session.database.session \
-            .query(func.count(DBBeatmap.id)) \
-            .scalar()
+    with app.session.database.managed_session() as session:
+        return session.query(func.count(DBBeatmap.id)) \
+                      .scalar()
 
 def update(beatmap_id: int, updates: dict) -> int:
     with app.session.database.managed_session() as session:

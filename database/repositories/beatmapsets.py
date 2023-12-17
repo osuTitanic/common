@@ -72,85 +72,86 @@ def create(
     return s
 
 def fetch_one(id: int) -> Optional[DBBeatmapset]:
-    return app.session.database.session.query(DBBeatmapset) \
-                .filter(DBBeatmapset.id == id) \
-                .first()
+    with app.session.database.managed_session() as session:
+        return session.query(DBBeatmapset) \
+                    .filter(DBBeatmapset.id == id) \
+                    .first()
 
 def search(
     query_string: str,
     user_id: int,
     display_mode = DisplayMode.All
 ) -> List[DBBeatmapset]:
-    session = app.session.database.session
-    query = session.query(DBBeatmapset)
+    with app.session.database.managed_session() as session:
+        query = session.query(DBBeatmapset)
 
-    if query_string == 'Newest':
-        query = query.order_by(DBBeatmapset.created_at.desc())
+        if query_string == 'Newest':
+            query = query.order_by(DBBeatmapset.created_at.desc())
 
-    elif query_string == 'Top Rated':
-        query = query.join(DBRating) \
-                     .group_by(DBBeatmapset.id) \
-                     .order_by(func.avg(DBRating.rating).desc())
+        elif query_string == 'Top Rated':
+            query = query.join(DBRating) \
+                         .group_by(DBBeatmapset.id) \
+                         .order_by(func.avg(DBRating.rating).desc())
 
-    elif query_string == 'Most Played':
-        query = query.join(DBBeatmap) \
-                     .group_by(DBBeatmapset.id) \
-                     .order_by(func.sum(DBBeatmap.playcount).desc())
+        elif query_string == 'Most Played':
+            query = query.join(DBBeatmap) \
+                         .group_by(DBBeatmapset.id) \
+                         .order_by(func.sum(DBBeatmap.playcount).desc())
 
-    else:
-        conditions = []
+        else:
+            conditions = []
 
-        keywords = [
-            f'{word}%' for word in query_string.strip() \
-                .replace(' - ', ' ') \
-                .lower() \
-                .split()
-        ]
-
-        searchable_columns = [
-            func.to_tsvector('simple', column)
-            for column in [
-                func.lower(DBBeatmapset.title),
-                func.lower(DBBeatmapset.artist),
-                func.lower(DBBeatmapset.creator),
-                func.lower(DBBeatmapset.source),
-                func.lower(DBBeatmapset.tags),
-                func.lower(DBBeatmap.version)
+            keywords = [
+                f'{word}%' for word in query_string.strip() \
+                    .replace(' - ', ' ') \
+                    .lower() \
+                    .split()
             ]
-        ]
 
-        for word in keywords:
-            conditions.append(or_(
-                *[
-                    col.op('@@')(func.plainto_tsquery('simple', word))
-                    for col in searchable_columns
+            searchable_columns = [
+                func.to_tsvector('simple', column)
+                for column in [
+                    func.lower(DBBeatmapset.title),
+                    func.lower(DBBeatmapset.artist),
+                    func.lower(DBBeatmapset.creator),
+                    func.lower(DBBeatmapset.source),
+                    func.lower(DBBeatmapset.tags),
+                    func.lower(DBBeatmap.version)
                 ]
-            ))
+            ]
 
-        query = query.join(DBBeatmap) \
-                .filter(and_(*conditions)) \
-                .order_by(DBBeatmap.playcount.desc())
+            for word in keywords:
+                conditions.append(or_(
+                    *[
+                        col.op('@@')(func.plainto_tsquery('simple', word))
+                        for col in searchable_columns
+                    ]
+                ))
 
-    if display_mode == DisplayMode.Ranked:
-        query = query.filter(DBBeatmapset.status > 0)
+            query = query.join(DBBeatmap) \
+                    .filter(and_(*conditions)) \
+                    .order_by(DBBeatmap.playcount.desc())
 
-    elif display_mode == DisplayMode.Pending:
-        query = query.filter(DBBeatmapset.status == 0)
+        if display_mode == DisplayMode.Ranked:
+            query = query.filter(DBBeatmapset.status > 0)
 
-    elif display_mode == DisplayMode.Graveyard:
-        query = query.filter(DBBeatmapset.status == -1)
+        elif display_mode == DisplayMode.Pending:
+            query = query.filter(DBBeatmapset.status == 0)
 
-    elif display_mode == DisplayMode.Played:
-        query = query.join(DBPlay) \
-                     .filter(DBPlay.user_id == user_id) \
-                     .filter(DBBeatmapset.status > 0)
+        elif display_mode == DisplayMode.Graveyard:
+            query = query.filter(DBBeatmapset.status == -1)
 
-    return query.limit(100) \
-                .options(
-                        selectinload(DBBeatmapset.beatmaps),
-                        selectinload(DBBeatmapset.ratings)
-                ) \
-                .all()
+        elif display_mode == DisplayMode.Played:
+            query = query.join(DBPlay) \
+                         .filter(DBPlay.user_id == user_id) \
+                         .filter(DBBeatmapset.status > 0)
+
+        return query.limit(100) \
+                    .options(
+                            selectinload(DBBeatmapset.beatmaps),
+                            selectinload(DBBeatmapset.ratings)
+                    ) \
+                    .all()
 
 def search_one(query_string: str, offset: int = 0) -> Optional[DBBeatmapset]:
     conditions = []
@@ -182,11 +183,12 @@ def search_one(query_string: str, offset: int = 0) -> Optional[DBBeatmapset]:
             ]
         ))
 
-    return app.session.database.session.query(DBBeatmapset) \
-            .join(DBBeatmap) \
-            .filter(and_(*conditions)) \
-            .order_by(DBBeatmap.playcount.desc()) \
-            .first()
+    with app.session.database.managed_session() as session:
+        return session.query(DBBeatmapset) \
+                .join(DBBeatmap) \
+                .filter(and_(*conditions)) \
+                .order_by(DBBeatmap.playcount.desc()) \
+                .first()
 
 def search_extended(
     query_string: Optional[str],
@@ -203,96 +205,97 @@ def search_extended(
     offset: int = 0,
     limit: int = 50
 ) -> List[DBBeatmapset]:
-    query = app.session.database.session.query(DBBeatmapset) \
-            .options(
-                selectinload(DBBeatmapset.beatmaps),
-                selectinload(DBBeatmapset.ratings),
-                selectinload(DBBeatmapset.favourites)
-            ) \
-            .group_by(DBBeatmapset.id) \
-            .join(DBBeatmap)
+    with app.session.database.managed_session() as session:
+        query = session.query(DBBeatmapset) \
+                .options(
+                    selectinload(DBBeatmapset.beatmaps),
+                    selectinload(DBBeatmapset.ratings),
+                    selectinload(DBBeatmapset.favourites)
+                ) \
+                .group_by(DBBeatmapset.id) \
+                .join(DBBeatmap)
 
-    if query_string:
-        conditions = []
+        if query_string:
+            conditions = []
 
-        keywords = [
-            f'%{word}%' for word in query_string.strip() \
-                .replace(' - ', ' ') \
-                .lower() \
-                .split()
-        ]
-
-        searchable_columns = [
-            func.to_tsvector('simple', column)
-            for column in [
-                func.lower(DBBeatmapset.title),
-                func.lower(DBBeatmapset.artist),
-                func.lower(DBBeatmapset.creator),
-                func.lower(DBBeatmapset.source),
-                func.lower(DBBeatmapset.tags),
-                func.lower(DBBeatmap.version)
+            keywords = [
+                f'%{word}%' for word in query_string.strip() \
+                    .replace(' - ', ' ') \
+                    .lower() \
+                    .split()
             ]
-        ]
 
-        for word in keywords:
-            conditions.append(or_(
-                *[
-                    col.op('@@')(func.plainto_tsquery('simple', word))
-                    for col in searchable_columns
+            searchable_columns = [
+                func.to_tsvector('simple', column)
+                for column in [
+                    func.lower(DBBeatmapset.title),
+                    func.lower(DBBeatmapset.artist),
+                    func.lower(DBBeatmapset.creator),
+                    func.lower(DBBeatmapset.source),
+                    func.lower(DBBeatmapset.tags),
+                    func.lower(DBBeatmap.version)
                 ]
-            ))
-
-        query = query.filter(and_(*conditions))
-
-    if sort == BeatmapSortBy.Rating:
-        query = query.join(DBRating)
-
-    order_type = {
-        BeatmapSortBy.Created: DBBeatmapset.id,
-        BeatmapSortBy.Title: DBBeatmapset.title,
-        BeatmapSortBy.Artist: DBBeatmapset.artist,
-        BeatmapSortBy.Creator: DBBeatmapset.creator,
-        BeatmapSortBy.Ranked: DBBeatmapset.approved_at,
-        BeatmapSortBy.Difficulty: func.max(DBBeatmap.diff),
-        BeatmapSortBy.Rating: func.avg(DBRating.rating),
-        BeatmapSortBy.Plays: func.sum(DBBeatmap.playcount),
-    }[sort]
-
-    query = query.order_by(
-        order_type.asc() if order == BeatmapOrder.Ascending else
-        order_type.desc()
-    )
+            ]
     
-    if genre is not None:
-        query = query.filter(DBBeatmapset.genre_id == genre)
+            for word in keywords:
+                conditions.append(or_(
+                    *[
+                        col.op('@@')(func.plainto_tsquery('simple', word))
+                        for col in searchable_columns
+                    ]
+                ))
 
-    if language is not None:
-        query = query.filter(DBBeatmapset.language_id == language)
+            query = query.filter(and_(*conditions))
 
-    if mode is not None:
-        query = query.filter(DBBeatmapset.beatmaps.any(DBBeatmap.mode == mode))
+        if sort == BeatmapSortBy.Rating:
+            query = query.join(DBRating)
 
-    if has_storyboard:
-        query = query.filter(DBBeatmapset.has_storyboard == True)
+        order_type = {
+            BeatmapSortBy.Created: DBBeatmapset.id,
+            BeatmapSortBy.Title: DBBeatmapset.title,
+            BeatmapSortBy.Artist: DBBeatmapset.artist,
+            BeatmapSortBy.Creator: DBBeatmapset.creator,
+            BeatmapSortBy.Ranked: DBBeatmapset.approved_at,
+            BeatmapSortBy.Difficulty: func.max(DBBeatmap.diff),
+            BeatmapSortBy.Rating: func.avg(DBRating.rating),
+            BeatmapSortBy.Plays: func.sum(DBBeatmap.playcount),
+        }[sort]
 
-    if has_video:
-        query = query.filter(DBBeatmapset.has_video == True)
+        query = query.order_by(
+            order_type.asc() if order == BeatmapOrder.Ascending else
+            order_type.desc()
+        )
 
-    if (played is not None and
-       user_id is not None):
-        query = query.join(DBPlay) \
-                     .filter(DBPlay.user_id == user_id)
+        if genre is not None:
+            query = query.filter(DBBeatmapset.genre_id == genre)
 
-    if category > BeatmapCategory.Any:
-        query = query.filter({
-            BeatmapCategory.Leaderboard: (DBBeatmapset.status > 0),
-            BeatmapCategory.Pending: (DBBeatmapset.status == 0),
-            BeatmapCategory.Ranked: (DBBeatmapset.status == 1),
-            BeatmapCategory.Approved: (DBBeatmapset.status == 2),
-            BeatmapCategory.Qualified: (DBBeatmapset.status == 3),
-            BeatmapCategory.Loved: (DBBeatmapset.status == 4),
-        }[category])
+        if language is not None:
+            query = query.filter(DBBeatmapset.language_id == language)
 
-    return query.offset(offset) \
-                .limit(limit) \
-                .all()
+        if mode is not None:
+            query = query.filter(DBBeatmapset.beatmaps.any(DBBeatmap.mode == mode))
+
+        if has_storyboard:
+            query = query.filter(DBBeatmapset.has_storyboard == True)
+
+        if has_video:
+            query = query.filter(DBBeatmapset.has_video == True)
+
+        if (played is not None and
+           user_id is not None):
+            query = query.join(DBPlay) \
+                         .filter(DBPlay.user_id == user_id)
+
+        if category > BeatmapCategory.Any:
+            query = query.filter({
+                BeatmapCategory.Leaderboard: (DBBeatmapset.status > 0),
+                BeatmapCategory.Pending: (DBBeatmapset.status == 0),
+                BeatmapCategory.Ranked: (DBBeatmapset.status == 1),
+                BeatmapCategory.Approved: (DBBeatmapset.status == 2),
+                BeatmapCategory.Qualified: (DBBeatmapset.status == 3),
+                BeatmapCategory.Loved: (DBBeatmapset.status == 4),
+            }[category])
+
+        return query.offset(offset) \
+                    .limit(limit) \
+                    .all()

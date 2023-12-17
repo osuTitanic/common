@@ -13,10 +13,10 @@ class Postgres:
         self.engine = create_engine(
             f'postgresql://{username}:{password}@{host}:{port}/{username}',
             max_overflow=config.POSTGRES_POOLSIZE_OVERFLOW,
+            pool_size=config.POSTGRES_POOLSIZE,
             pool_pre_ping=True,
             pool_recycle=900,
             pool_timeout=5,
-            pool_size=config.POSTGRES_POOLSIZE,
             echo_pool=None,
             echo=None
         )

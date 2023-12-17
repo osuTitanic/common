@@ -1,6 +1,7 @@
 
 from app.common.database.objects import DBActivity
 from datetime import datetime, timedelta
+from typing import List
 
 import app
 
@@ -26,10 +27,15 @@ def create(
 
     return ac
 
-def fetch_recent(user_id: int, mode: int, until: timedelta = timedelta(days=30)):
-    return app.session.database.session.query(DBActivity) \
-                .filter(DBActivity.time > datetime.now() - until) \
-                .filter(DBActivity.user_id == user_id) \
-                .filter(DBActivity.mode == mode) \
-                .order_by(DBActivity.id.desc()) \
-                .all()
+def fetch_recent(
+    user_id: int,
+    mode: int,
+    until: timedelta = timedelta(days=30)
+) -> List[DBActivity]:
+    with app.session.database.managed_session() as session:
+        return session.query(DBActivity) \
+            .filter(DBActivity.time > datetime.now() - until) \
+            .filter(DBActivity.user_id == user_id) \
+            .filter(DBActivity.mode == mode) \
+            .order_by(DBActivity.id.desc()) \
+            .all()

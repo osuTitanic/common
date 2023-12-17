@@ -32,11 +32,9 @@ def create(
 
     return c
 
-def fetch_many(
-    target_id: int,
-    type: str
-) -> List[DBComment]:
-    return app.session.database.session.query(DBComment) \
+def fetch_many(target_id: int, type: str) -> List[DBComment]:
+    with app.session.database.managed_session() as session:
+        return session.query(DBComment) \
             .filter(DBComment.target_id == target_id) \
             .filter(DBComment.target_type == type) \
             .order_by(DBComment.time.asc()) \

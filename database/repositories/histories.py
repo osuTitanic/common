@@ -44,7 +44,8 @@ def fetch_plays_history(
     mode: int,
     until: datetime
 ) -> List[DBPlayHistory]:
-    return app.session.database.session.query(DBPlayHistory) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBPlayHistory) \
             .filter(DBPlayHistory.user_id == user_id) \
             .filter(DBPlayHistory.mode == mode) \
             .filter(
@@ -88,8 +89,9 @@ def fetch_replay_history(
     user_id: int,
     mode: int,
     until: datetime
-) -> List[DBPlayHistory]:
-    return app.session.database.session.query(DBReplayHistory) \
+) -> List[DBReplayHistory]:
+    with app.session.database.managed_session() as session:
+        return session.query(DBReplayHistory) \
             .filter(DBReplayHistory.user_id == user_id) \
             .filter(DBReplayHistory.mode == mode) \
             .filter(
@@ -144,7 +146,8 @@ def fetch_rank_history(
     mode: int,
     until: datetime
 ) -> List[DBRankHistory]:
-    return app.session.database.session.query(DBRankHistory) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBRankHistory) \
             .filter(DBRankHistory.user_id == user_id) \
             .filter(DBRankHistory.mode == mode) \
             .filter(DBRankHistory.time > until) \

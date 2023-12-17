@@ -24,22 +24,25 @@ def create(
     return m
 
 def fetch_last(match_id: int) -> Optional[DBMatchEvent]:
-    return app.session.database.session.query(DBMatchEvent) \
-        .filter(DBMatchEvent.match_id == match_id) \
-        .order_by(DBMatchEvent.time.desc()) \
-        .first()
+    with app.session.database.managed_session() as session:
+        return session.query(DBMatchEvent) \
+            .filter(DBMatchEvent.match_id == match_id) \
+            .order_by(DBMatchEvent.time.desc()) \
+            .first()
 
 def fetch_last_by_type(match_id: int, type: int) -> Optional[DBMatchEvent]:
-    return app.session.database.session.query(DBMatchEvent) \
-        .filter(DBMatchEvent.match_id == match_id) \
-        .filter(DBMatchEvent.type == type) \
-        .order_by(DBMatchEvent.time.desc()) \
-        .first()
+    with app.session.database.managed_session() as session:
+        return session.query(DBMatchEvent) \
+            .filter(DBMatchEvent.match_id == match_id) \
+            .filter(DBMatchEvent.type == type) \
+            .order_by(DBMatchEvent.time.desc()) \
+            .first()
 
 def fetch_all(match_id: int) -> List[DBMatchEvent]:
-    return app.session.database.session.query(DBMatchEvent) \
-        .filter(DBMatchEvent.match_id == match_id) \
-        .all()
+    with app.session.database.managed_session() as session:
+        return session.query(DBMatchEvent) \
+            .filter(DBMatchEvent.match_id == match_id) \
+            .all()
 
 def delete_all(match_id: int) -> None:
     with app.session.database.managed_session() as session:

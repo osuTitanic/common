@@ -45,7 +45,8 @@ def fetch_one(
     disk_signature: str
 ) -> Optional[DBClient]:
     """Fetch one client where all hardware attributes need to match"""
-    return app.session.database.session.query(DBClient) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBClient) \
             .filter(DBClient.user_id == user_id) \
             .filter(DBClient.executable == executable) \
             .filter(DBClient.adapters == adapters) \
@@ -60,7 +61,8 @@ def fetch_without_executable(
     disk_signature: str
 ) -> Optional[DBClient]:
     """Fetch one client with matching hardware and user id"""
-    return app.session.database.session.query(DBClient) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBClient) \
             .filter(DBClient.user_id == user_id) \
             .filter(DBClient.adapters == adapters) \
             .filter(DBClient.unique_id == unique_id) \
@@ -73,7 +75,8 @@ def fetch_hardware_only(
     disk_signature: str
 ) -> List[DBClient]:
     """Fetch clients only by hardware attributes. Useful for multi-account detection."""
-    return app.session.database.session.query(DBClient) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBClient) \
             .filter(DBClient.adapters == adapters) \
             .filter(DBClient.unique_id == unique_id) \
             .filter(DBClient.disk_signature == disk_signature) \
@@ -85,7 +88,8 @@ def fetch_many(
     offset: int = 0
 ) -> List[DBClient]:
     """Fetch every client from user id"""
-    return app.session.database.session.query(DBClient) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBClient) \
             .filter(DBClient.user_id == user_id) \
             .limit(limit) \
             .offset(offset) \
@@ -93,6 +97,7 @@ def fetch_many(
 
 def fetch_all(user_id: int) -> List[DBClient]:
     """Fetch every client from user id"""
-    return app.session.database.session.query(DBClient) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBClient) \
             .filter(DBClient.user_id == user_id) \
             .all()

@@ -23,7 +23,8 @@ def create(
     return msg
 
 def fetch_recent(target: str = '#osu', limit: int = 10) -> List[DBMessage]:
-    return app.session.database.session.query(DBMessage) \
+    with app.session.database.managed_session() as session:
+        return session.query(DBMessage) \
             .filter(DBMessage.target == target) \
             .order_by(DBMessage.id.desc()) \
             .limit(limit) \
