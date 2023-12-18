@@ -43,8 +43,11 @@ class Postgres:
         try:
             yield session
         except Exception as e:
-            self.logger.fatal(f'Transaction failed: {e}', exc_info=e)
-            self.logger.fatal('Performing rollback...')
-            session.rollback()
+            exception_name = e.__class__.__name__
+
+            if exception_name != 'HTTPException':
+                self.logger.fatal(f'Transaction failed: {e}', exc_info=e)
+                self.logger.fatal('Performing rollback...')
+                session.rollback()
         finally:
             session.close()
