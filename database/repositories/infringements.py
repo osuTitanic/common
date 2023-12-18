@@ -46,6 +46,18 @@ def fetch_recent_by_action(user_id: int, action: int, session: Session | None = 
         .first()
 
 @session_wrapper
+def fetch_recent_until(
+    user_id: int,
+    until: timedelta = timedelta(days=30),
+    session: Session | None = None
+) -> List[DBInfringement]:
+    return session.query(DBInfringement) \
+        .filter(DBInfringement.user_id == user_id) \
+        .filter(DBInfringement.time > (datetime.now() - until)) \
+        .order_by(DBInfringement.id.desc()) \
+        .all()
+
+@session_wrapper
 def fetch_all(user_id: int, session: Session | None = None) -> List[DBInfringement]:
     return session.query(DBInfringement) \
         .filter(DBInfringement.user_id == user_id) \
