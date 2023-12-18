@@ -846,39 +846,16 @@ class DBUser(Base):
         self.discord_id = discord_id
         self.permissions = permissions
 
+    def __repr__(self) -> str:
+        return f'<DBUser "{self.name}" ({self.id})>'
+
     @property
     def link(self) -> str:
         return f'[http://osu.{config.DOMAIN_NAME}/u/{self.id} {self.name}]'
 
     @property
     def is_supporter(self) -> bool:
-        if config.FREE_SUPPORTER:
-            return True
-
-        if self.remaining_supporter > 0:
-            return True
-        else:
-            # Remove supporter
-            self.supporter_end = None
-            self.permissions -= 4
-
-            # Update database
-            instance = app.session.database.session
-            instance.query(DBUser) \
-                    .filter(DBUser.id == self.id) \
-                    .update({
-                        'supporter_end': None,
-                        'permissions': self.permissions
-                    })
-            instance.commit()
-
-        return False
-
-    @property
-    def remaining_supporter(self):
-        if self.supporter_end:
-            return self.supporter_end.timestamp() - datetime.now().timestamp()
-        return 0
+        return True # TODO
 
     # NOTE: These are required attributes for Flask-Login.
     #       I am not sure if you can implement them differently...
