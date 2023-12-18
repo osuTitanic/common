@@ -1,29 +1,32 @@
 
+from __future__ import annotations
+
 from app.common.database.objects import DBAchievement
 from app.common.objects import bAchievement
+from .wrapper import session_wrapper
 
+from sqlalchemy.orm import Session
 from typing import List
 
-import app
-
+@session_wrapper
 def create_many(
     achievements: List[bAchievement],
-    user_id: int
+    user_id: int,
+    session: Session | None = None
 ) -> None:
-    with app.session.database.managed_session() as session:
-        for a in achievements:
-            session.add(
-                DBAchievement(
-                    user_id,
-                    a.name,
-                    a.category,
-                    a.filename
-                )
+    for a in achievements:
+        session.add(
+            DBAchievement(
+                user_id,
+                a.name,
+                a.category,
+                a.filename
             )
-        session.commit()
+        )
+    session.commit()
 
-def fetch_many(user_id: int) -> List[DBAchievement]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBAchievement) \
-            .filter(DBAchievement.user_id == user_id) \
-            .all()
+@session_wrapper
+def fetch_many(user_id: int, session: Session | None = None) -> List[DBAchievement]:
+    return session.query(DBAchievement) \
+        .filter(DBAchievement.user_id == user_id) \
+        .all()

@@ -1,4 +1,6 @@
 
+from __future__ import annotations
+
 from app.common.cache import leaderboards
 from app.common.database.objects import (
     DBReplayHistory,
@@ -7,106 +9,113 @@ from app.common.database.objects import (
     DBStats
 )
 
+from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
-import app
+from .wrapper import session_wrapper
 
+@session_wrapper
 def update_plays(
     user_id: int,
-    mode: int
+    mode: int,
+    session: Session | None = None
 ) -> None:
     time = datetime.now()
 
-    with app.session.database.managed_session() as session:
-        updated = session.query(DBPlayHistory) \
-                .filter(DBPlayHistory.user_id == user_id) \
-                .filter(DBPlayHistory.mode == mode) \
-                .filter(DBPlayHistory.year == time.year) \
-                .filter(DBPlayHistory.month == time.month) \
-                .update({
-                    'plays': DBPlayHistory.plays + 1
-                })
+    updated = session.query(DBPlayHistory) \
+            .filter(DBPlayHistory.user_id == user_id) \
+            .filter(DBPlayHistory.mode == mode) \
+            .filter(DBPlayHistory.year == time.year) \
+            .filter(DBPlayHistory.month == time.month) \
+            .update({
+                'plays': DBPlayHistory.plays + 1
+            })
 
-        if not updated:
-            session.add(
-                DBPlayHistory(
-                    user_id,
-                    mode,
-                    plays=1
-                )
+    if not updated:
+        session.add(
+            DBPlayHistory(
+                user_id,
+                mode,
+                plays=1
             )
+        )
 
-        session.commit()
+    session.commit()
 
+@session_wrapper
 def fetch_plays_history(
     user_id: int,
     mode: int,
-    until: datetime
+    until: datetime,
+    session: Session | None = None
 ) -> List[DBPlayHistory]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBPlayHistory) \
-            .filter(DBPlayHistory.user_id == user_id) \
-            .filter(DBPlayHistory.mode == mode) \
-            .filter(
-                DBPlayHistory.year >= until.year,
-                DBPlayHistory.month >= until.month,
-            ) \
-            .order_by(
-                DBPlayHistory.year.desc(),
-                DBPlayHistory.month.desc()
-            ) \
-            .all()
+    return session.query(DBPlayHistory) \
+        .filter(DBPlayHistory.user_id == user_id) \
+        .filter(DBPlayHistory.mode == mode) \
+        .filter(
+            DBPlayHistory.year >= until.year,
+            DBPlayHistory.month >= until.month,
+        ) \
+        .order_by(
+            DBPlayHistory.year.desc(),
+            DBPlayHistory.month.desc()
+        ) \
+        .all()
 
+@session_wrapper
 def update_replay_views(
     user_id: int,
-    mode: int
+    mode: int,
+    session: Session | None = None
 ) -> None:
     time = datetime.now()
 
-    with app.session.database.managed_session() as session:
-        updated = session.query(DBReplayHistory) \
-                    .filter(DBReplayHistory.user_id == user_id) \
-                    .filter(DBReplayHistory.mode == mode) \
-                    .filter(DBReplayHistory.year == time.year) \
-                    .filter(DBReplayHistory.month == time.month) \
-                    .update({
-                        'replay_views': DBReplayHistory.replay_views + 1
-                    })
+    updated = session.query(DBReplayHistory) \
+                .filter(DBReplayHistory.user_id == user_id) \
+                .filter(DBReplayHistory.mode == mode) \
+                .filter(DBReplayHistory.year == time.year) \
+                .filter(DBReplayHistory.month == time.month) \
+                .update({
+                    'replay_views': DBReplayHistory.replay_views + 1
+                })
 
-        if not updated:
-            session.add(
-                DBReplayHistory(
-                    user_id,
-                    mode,
-                    replay_views=1
-                )
+    if not updated:
+        session.add(
+            DBReplayHistory(
+                user_id,
+                mode,
+                replay_views=1
             )
+        )
 
-        session.commit()
+    session.commit()
 
+@session_wrapper
 def fetch_replay_history(
     user_id: int,
     mode: int,
-    until: datetime
+    until: datetime,
+    session: Session | None = None
 ) -> List[DBReplayHistory]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBReplayHistory) \
-            .filter(DBReplayHistory.user_id == user_id) \
-            .filter(DBReplayHistory.mode == mode) \
-            .filter(
-                DBReplayHistory.year >= until.year,
-                DBReplayHistory.month >= until.month,
-            ) \
-            .order_by(
-                DBReplayHistory.year.desc(),
-                DBReplayHistory.month.desc()
-            ) \
-            .all()
+    return session.query(DBReplayHistory) \
+        .filter(DBReplayHistory.user_id == user_id) \
+        .filter(DBReplayHistory.mode == mode) \
+        .filter(
+            DBReplayHistory.year >= until.year,
+            DBReplayHistory.month >= until.month,
+        ) \
+        .order_by(
+            DBReplayHistory.year.desc(),
+            DBReplayHistory.month.desc()
+        ) \
+        .all()
 
+@session_wrapper
 def update_rank(
     stats: DBStats,
-    country: str
+    country: str,
+    session: Session | None = None
 ) -> None:
     country_rank = leaderboards.country_rank(stats.user_id, stats.mode, country)
     global_rank = leaderboards.global_rank(stats.user_id, stats.mode)
@@ -125,31 +134,31 @@ def update_rank(
     if ppv1_rank <= 0:
         return
 
-    with app.session.database.managed_session() as session:
-        session.add(
-            DBRankHistory(
-                stats.user_id,
-                stats.mode,
-                stats.rscore,
-                stats.pp,
-                stats.ppv1,
-                global_rank,
-                country_rank,
-                score_rank,
-                ppv1_rank
-            )
+    session.add(
+        DBRankHistory(
+            stats.user_id,
+            stats.mode,
+            stats.rscore,
+            stats.pp,
+            stats.ppv1,
+            global_rank,
+            country_rank,
+            score_rank,
+            ppv1_rank
         )
-        session.commit()
+    )
+    session.commit()
 
+@session_wrapper
 def fetch_rank_history(
     user_id: int,
     mode: int,
-    until: datetime
+    until: datetime,
+    session: Session | None = None
 ) -> List[DBRankHistory]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBRankHistory) \
-            .filter(DBRankHistory.user_id == user_id) \
-            .filter(DBRankHistory.mode == mode) \
-            .filter(DBRankHistory.time > until) \
-            .order_by(DBRankHistory.time.desc()) \
-            .all()
+    return session.query(DBRankHistory) \
+        .filter(DBRankHistory.user_id == user_id) \
+        .filter(DBRankHistory.mode == mode) \
+        .filter(DBRankHistory.time > until) \
+        .order_by(DBRankHistory.time.desc()) \
+        .all()

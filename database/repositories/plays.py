@@ -1,87 +1,90 @@
 
+from __future__ import annotations
+
 from app.common.database.objects import DBPlay
 
-from ...helpers.caching import ttl_cache
-
+from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
 
-import app
+from .wrapper import session_wrapper
 
+@session_wrapper
 def create(
     beatmap_file: str,
     beatmap_id: int,
     user_id: int,
     set_id: int,
-    count: int = 1
+    count: int = 1,
+    session: Session | None = None
 ) -> DBPlay:
-    with app.session.database.managed_session() as session:
-        session.add(
-            p := DBPlay(
-                user_id,
-                beatmap_id,
-                set_id,
-                beatmap_file,
-                count
-            )
+    session.add(
+        p := DBPlay(
+            user_id,
+            beatmap_id,
+            set_id,
+            beatmap_file,
+            count
         )
-        session.commit()
-        session.refresh(p)
-
+    )
+    session.commit()
+    session.refresh(p)
     return p
 
+@session_wrapper
 def update(
     beatmap_file: str,
     beatmap_id: int,
     user_id: int,
     set_id: int,
-    count: int = 1
+    count: int = 1,
+    session: Session | None = None
 ) -> None:
-    with app.session.database.managed_session() as session:
-        updated = session.query(DBPlay) \
+    updated = session.query(DBPlay) \
+        .filter(DBPlay.beatmap_id == beatmap_id) \
+        .filter(DBPlay.user_id == user_id) \
+        .update({
+            'count': DBPlay.count + count
+        })
+
+    if not updated:
+        create(
+            beatmap_file,
+            beatmap_id,
+            user_id,
+            set_id,
+            count
+        )
+
+    session.commit()
+
+@session_wrapper
+def fetch_count_for_beatmap(beatmap_id: int, session: Session | None = None) -> int:
+    count = session.query(
+        func.sum(DBPlay.count).label('playcount')) \
+            .group_by(DBPlay.beatmap_id) \
             .filter(DBPlay.beatmap_id == beatmap_id) \
-            .filter(DBPlay.user_id == user_id) \
-            .update({
-                'count': DBPlay.count + count
-            })
-
-        if not updated:
-            create(
-                beatmap_file,
-                beatmap_id,
-                user_id,
-                set_id,
-                count
-            )
-
-        session.commit()
-
-def fetch_count_for_beatmap(beatmap_id: int) -> int:
-    with app.session.database.managed_session() as session:
-        count = session.query(
-            func.sum(DBPlay.count).label('playcount')) \
-                .group_by(DBPlay.beatmap_id) \
-                .filter(DBPlay.beatmap_id == beatmap_id) \
-                .first()
+            .first()
 
     return count[0] if count else 0
 
-def fetch_most_played(limit: int = 5) -> List[DBPlay]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBPlay) \
-            .order_by(DBPlay.count.desc()) \
-            .limit(limit) \
-            .all()
+@session_wrapper
+def fetch_most_played(limit: int = 5, session: Session | None = None) -> List[DBPlay]:
+    return session.query(DBPlay) \
+        .order_by(DBPlay.count.desc()) \
+        .limit(limit) \
+        .all()
 
+@session_wrapper
 def fetch_most_played_by_user(
     user_id: int,
     limit: int = 15,
-    offset: int = 0
+    offset: int = 0,
+    session: Session | None = None
 ) -> List[DBPlay]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBPlay) \
-            .filter(DBPlay.user_id == user_id) \
-            .order_by(DBPlay.count.desc()) \
-            .limit(limit) \
-            .offset(offset) \
-            .all()
+    return session.query(DBPlay) \
+        .filter(DBPlay.user_id == user_id) \
+        .order_by(DBPlay.count.desc()) \
+        .limit(limit) \
+        .offset(offset) \
+        .all()

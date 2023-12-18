@@ -1,23 +1,26 @@
 
+from __future__ import annotations
+
 from app.common.database.objects import DBLog
+from sqlalchemy.orm import Session
 
-import app
+from .wrapper import session_wrapper
 
+@session_wrapper
 def create(
     message: str,
     level: str,
-    type: str
+    type: str,
+    session: Session | None = None
 ) -> DBLog:
-    with app.session.database.managed_session() as session:
-        session.add(
-            log := DBLog(
-                message,
-                level,
-                type
-            )
+    session.add(
+        log := DBLog(
+            message,
+            level,
+            type
         )
-        session.commit()
-
+    )
+    session.commit()
     return log
 
 # TODO: Create fetch queries

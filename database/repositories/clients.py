@@ -1,103 +1,112 @@
 
+from __future__ import annotations
+
 from app.common.database.objects import DBClient
+from sqlalchemy.orm import Session
 from typing import List, Optional
-from sqlalchemy import or_
 
-import app
+from .wrapper import session_wrapper
 
+@session_wrapper
 def create(
     user_id: int,
     executable: str,
     adapters: str,
     unique_id: str,
     disk_signature: str,
-    banned: bool = False
+    banned: bool = False,
+    session: Session | None = None
 ) -> DBClient:
-    with app.session.database.managed_session() as session:
-        session.add(
-            client := DBClient(
-                user_id,
-                executable,
-                adapters,
-                unique_id,
-                disk_signature,
-                banned
-            )
+    session.add(
+        client := DBClient(
+            user_id,
+            executable,
+            adapters,
+            unique_id,
+            disk_signature,
+            banned
         )
-        session.commit()
-
+    )
+    session.commit()
     return client
 
-def update_all(user_id: int, updates: dict) -> int:
-    with app.session.database.managed_session() as session:
-        rows = session.query(DBClient) \
-            .filter(DBClient.user_id == user_id) \
-            .update(updates)
-        session.commit()
-
+@session_wrapper
+def update_all(
+    user_id: int,
+    updates: dict,
+    session: Session | None = None
+) -> int:
+    rows = session.query(DBClient) \
+        .filter(DBClient.user_id == user_id) \
+        .update(updates)
+    session.commit()
     return rows
 
+@session_wrapper
 def fetch_one(
     user_id: int,
     executable: str,
     adapters: str,
     unique_id: str,
-    disk_signature: str
+    disk_signature: str,
+    session: Session | None = None
 ) -> Optional[DBClient]:
     """Fetch one client where all hardware attributes need to match"""
-    with app.session.database.managed_session() as session:
-        return session.query(DBClient) \
-            .filter(DBClient.user_id == user_id) \
-            .filter(DBClient.executable == executable) \
-            .filter(DBClient.adapters == adapters) \
-            .filter(DBClient.unique_id == unique_id) \
-            .filter(DBClient.disk_signature == disk_signature) \
-            .first()
+    return session.query(DBClient) \
+        .filter(DBClient.user_id == user_id) \
+        .filter(DBClient.executable == executable) \
+        .filter(DBClient.adapters == adapters) \
+        .filter(DBClient.unique_id == unique_id) \
+        .filter(DBClient.disk_signature == disk_signature) \
+        .first()
 
+@session_wrapper
 def fetch_without_executable(
     user_id: int,
     adapters: str,
     unique_id: str,
-    disk_signature: str
+    disk_signature: str,
+    session: Session | None = None
 ) -> Optional[DBClient]:
     """Fetch one client with matching hardware and user id"""
-    with app.session.database.managed_session() as session:
-        return session.query(DBClient) \
-            .filter(DBClient.user_id == user_id) \
-            .filter(DBClient.adapters == adapters) \
-            .filter(DBClient.unique_id == unique_id) \
-            .filter(DBClient.disk_signature == disk_signature) \
-            .first()
+    return session.query(DBClient) \
+        .filter(DBClient.user_id == user_id) \
+        .filter(DBClient.adapters == adapters) \
+        .filter(DBClient.unique_id == unique_id) \
+        .filter(DBClient.disk_signature == disk_signature) \
+        .first()
 
+@session_wrapper
 def fetch_hardware_only(
     adapters: str,
     unique_id: str,
-    disk_signature: str
+    disk_signature: str,
+    session: Session | None = None
 ) -> List[DBClient]:
     """Fetch clients only by hardware attributes. Useful for multi-account detection."""
-    with app.session.database.managed_session() as session:
-        return session.query(DBClient) \
-            .filter(DBClient.adapters == adapters) \
-            .filter(DBClient.unique_id == unique_id) \
-            .filter(DBClient.disk_signature == disk_signature) \
-            .all()
+    return session.query(DBClient) \
+        .filter(DBClient.adapters == adapters) \
+        .filter(DBClient.unique_id == unique_id) \
+        .filter(DBClient.disk_signature == disk_signature) \
+        .all()
 
+@session_wrapper
 def fetch_many(
     user_id: int,
     limit: int = 50,
-    offset: int = 0
+    offset: int = 0,
+    session: Session | None = None
 ) -> List[DBClient]:
     """Fetch every client from user id"""
-    with app.session.database.managed_session() as session:
-        return session.query(DBClient) \
-            .filter(DBClient.user_id == user_id) \
-            .limit(limit) \
-            .offset(offset) \
-            .all()
+    return session.query(DBClient) \
+        .filter(DBClient.user_id == user_id) \
+        .limit(limit) \
+        .offset(offset) \
+        .all()
 
-def fetch_all(user_id: int) -> List[DBClient]:
+@session_wrapper
+def fetch_all(user_id: int, session: Session | None = None) -> List[DBClient]:
     """Fetch every client from user id"""
-    with app.session.database.managed_session() as session:
-        return session.query(DBClient) \
-            .filter(DBClient.user_id == user_id) \
-            .all()
+    return session.query(DBClient) \
+        .filter(DBClient.user_id == user_id) \
+        .all()

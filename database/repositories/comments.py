@@ -1,9 +1,13 @@
 
+from __future__ import annotations
+
 from app.common.database.objects import DBComment
+from sqlalchemy.orm import Session
 from typing import List
 
-import app
+from .wrapper import session_wrapper
 
+@session_wrapper
 def create(
     target_id: int,
     target: str,
@@ -12,30 +16,33 @@ def create(
     content: str,
     comment_format: str,
     playmode: int,
-    color: str
+    color: str,
+    session: Session | None = None
 ) -> DBComment:
-    with app.session.database.managed_session() as session:
-        session.add(
-            c := DBComment(
-                target_id,
-                target,
-                user_id,
-                time,
-                content,
-                comment_format,
-                playmode,
-                color
-            )
+    session.add(
+        c := DBComment(
+            target_id,
+            target,
+            user_id,
+            time,
+            content,
+            comment_format,
+            playmode,
+            color
         )
-        session.commit()
-        session.refresh(c)
-
+    )
+    session.commit()
+    session.refresh(c)
     return c
 
-def fetch_many(target_id: int, type: str) -> List[DBComment]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBComment) \
-            .filter(DBComment.target_id == target_id) \
-            .filter(DBComment.target_type == type) \
-            .order_by(DBComment.time.asc()) \
-            .all()
+@session_wrapper
+def fetch_many(
+    target_id: int,
+    type: str,
+    session: Session | None = None
+) -> List[DBComment]:
+    return session.query(DBComment) \
+        .filter(DBComment.target_id == target_id) \
+        .filter(DBComment.target_type == type) \
+        .order_by(DBComment.time.asc()) \
+        .all()

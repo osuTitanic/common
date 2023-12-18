@@ -1,31 +1,38 @@
 
+from __future__ import annotations
+
 from app.common.database.objects import DBMessage
+from sqlalchemy.orm import Session
 from typing import List
 
-import app
+from .wrapper import session_wrapper
 
+@session_wrapper
 def create(
     sender: str,
     target: str,
-    message: str
+    message: str,
+    session: Session | None = None
 ) -> DBMessage:
-    with app.session.database.managed_session() as session:
-        session.add(
-            msg := DBMessage(
-                sender,
-                target,
-                message
-            )
+    session.add(
+        msg := DBMessage(
+            sender,
+            target,
+            message
         )
-        session.commit()
-        session.refresh(msg)
-
+    )
+    session.commit()
+    session.refresh(msg)
     return msg
 
-def fetch_recent(target: str = '#osu', limit: int = 10) -> List[DBMessage]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBMessage) \
-            .filter(DBMessage.target == target) \
-            .order_by(DBMessage.id.desc()) \
-            .limit(limit) \
-            .all()
+@session_wrapper
+def fetch_recent(
+    target: str = '#osu',
+    limit: int = 10,
+    session: Session | None = None
+) -> List[DBMessage]:
+    return session.query(DBMessage) \
+        .filter(DBMessage.target == target) \
+        .order_by(DBMessage.id.desc()) \
+        .limit(limit) \
+        .all()

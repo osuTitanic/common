@@ -1,77 +1,86 @@
 
+from __future__ import annotations
+
 from app.common.database.objects import DBInfringement
 from datetime import datetime, timedelta
+from sqlalchemy.orm import Session
 from typing import Optional, List
 
-import app
+from .wrapper import session_wrapper
 
+@session_wrapper
 def create(
     user_id: int,
     action: int,
     length: datetime,
     description: Optional[str] = None,
-    is_permanent: bool = False
+    is_permanent: bool = False,
+    session: Session | None = None
 ) -> DBInfringement:
-    with app.session.database.managed_session() as session:
-        session.add(
-            i := DBInfringement(
-                user_id,
-                action,
-                length,
-                description,
-                is_permanent
-            )
+    session.add(
+        i := DBInfringement(
+            user_id,
+            action,
+            length,
+            description,
+            is_permanent
         )
-        session.commit()
-        session.refresh(i)
-
+    )
+    session.commit()
+    session.refresh(i)
     return i
 
-def fetch_recent(user_id: int) -> Optional[DBInfringement]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBInfringement) \
-            .filter(DBInfringement.user_id == user_id) \
-            .order_by(DBInfringement.id.desc()) \
-            .first()
+@session_wrapper
+def fetch_recent(user_id: int, session: Session | None = None) -> Optional[DBInfringement]:
+    return session.query(DBInfringement) \
+        .filter(DBInfringement.user_id == user_id) \
+        .order_by(DBInfringement.id.desc()) \
+        .first()
 
-def fetch_recent_by_action(user_id: int, action: int) -> Optional[DBInfringement]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBInfringement) \
-            .filter(DBInfringement.user_id == user_id) \
-            .filter(DBInfringement.action == action) \
-            .order_by(DBInfringement.id.desc()) \
-            .first()
+@session_wrapper
+def fetch_recent_by_action(user_id: int, action: int, session: Session | None = None) -> Optional[DBInfringement]:
+    return session.query(DBInfringement) \
+        .filter(DBInfringement.user_id == user_id) \
+        .filter(DBInfringement.action == action) \
+        .order_by(DBInfringement.id.desc()) \
+        .first()
 
-def fetch_all(user_id: int) -> List[DBInfringement]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBInfringement) \
-            .filter(DBInfringement.user_id == user_id) \
-            .order_by(DBInfringement.id.desc()) \
-            .all()
+@session_wrapper
+def fetch_all(user_id: int, session: Session | None = None) -> List[DBInfringement]:
+    return session.query(DBInfringement) \
+        .filter(DBInfringement.user_id == user_id) \
+        .order_by(DBInfringement.id.desc()) \
+        .all()
 
-def fetch_all_by_action(user_id: int, action: int) -> List[DBInfringement]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBInfringement) \
-            .filter(DBInfringement.user_id == user_id) \
-            .filter(DBInfringement.action == action) \
-            .order_by(DBInfringement.time.desc()) \
-            .all()
+@session_wrapper
+def fetch_all_by_action(user_id: int, action: int, session: Session | None = None) -> List[DBInfringement]:
+    return session.query(DBInfringement) \
+        .filter(DBInfringement.user_id == user_id) \
+        .filter(DBInfringement.action == action) \
+        .order_by(DBInfringement.time.desc()) \
+        .all()
 
-def delete_by_id(id: int) -> None:
-    with app.session.database.managed_session() as session:
-        session.query(DBInfringement) \
-            .filter(DBInfringement.id == id) \
-            .delete()
+@session_wrapper
+def delete_by_id(id: int, session: Session | None = None) -> None:
+    session.query(DBInfringement) \
+        .filter(DBInfringement.id == id) \
+        .delete()
 
-def delete_old(user_id: int, delete_after=timedelta(weeks=5), remove_permanent=False) -> int:
+@session_wrapper
+def delete_old(
+    user_id: int,
+    delete_after=timedelta(weeks=5),
+    remove_permanent=False,
+    session: Session | None = None
+) -> int:
     if not remove_permanent:
-        return app.session.database.session.query(DBInfringement) \
-                        .filter(DBInfringement.user_id == user_id) \
-                        .filter(DBInfringement.time < datetime.now() - delete_after) \
-                        .filter(DBInfringement.is_permanent == False) \
-                        .delete()
+        return session.query(DBInfringement) \
+                .filter(DBInfringement.user_id == user_id) \
+                .filter(DBInfringement.time < datetime.now() - delete_after) \
+                .filter(DBInfringement.is_permanent == False) \
+                .delete()
 
-    return app.session.database.session.query(DBInfringement) \
-                    .filter(DBInfringement.user_id == user_id) \
-                    .filter(DBInfringement.time < datetime.now() - delete_after) \
-                    .delete()
+    return session.query(DBInfringement) \
+                .filter(DBInfringement.user_id == user_id) \
+                .filter(DBInfringement.time < datetime.now() - delete_after) \
+                .delete()

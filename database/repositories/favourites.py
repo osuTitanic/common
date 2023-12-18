@@ -1,62 +1,67 @@
 
+from __future__ import annotations
+
 from app.common.database.objects import DBFavourite
+from sqlalchemy.orm import Session
 from typing import List, Optional
 
-import app
+from .wrapper import session_wrapper
 
+@session_wrapper
 def create(
     user_id: int,
-    set_id: int
+    set_id: int,
+    session: Session | None = None
 ) -> Optional[DBFavourite]:
-    with app.session.database.managed_session() as session:
-        # Check if favourite was already set
-        if session.query(DBFavourite.user_id) \
-            .filter(DBFavourite.user_id == user_id) \
-            .filter(DBFavourite.set_id == set_id) \
-            .first():
-            return None
+    # Check if favourite was already set
+    if session.query(DBFavourite.user_id) \
+        .filter(DBFavourite.user_id == user_id) \
+        .filter(DBFavourite.set_id == set_id) \
+        .first():
+        return None
 
-        session.add(
-            fav := DBFavourite(
-                user_id,
-                set_id
-            )
+    session.add(
+        fav := DBFavourite(
+            user_id,
+            set_id
         )
-        session.commit()
+    )
+    session.commit()
 
     return fav
 
+@session_wrapper
 def fetch_one(
     user_id: int,
-    set_id: int
+    set_id: int,
+    session: Session | None = None
 ) -> Optional[DBFavourite]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBFavourite) \
-            .filter(DBFavourite.user_id == user_id) \
-            .filter(DBFavourite.set_id == set_id) \
-            .first()
+    return session.query(DBFavourite) \
+        .filter(DBFavourite.user_id == user_id) \
+        .filter(DBFavourite.set_id == set_id) \
+        .first()
 
-def fetch_many(user_id: int) -> List[DBFavourite]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBFavourite) \
-            .filter(DBFavourite.user_id == user_id) \
-            .all()
+@session_wrapper
+def fetch_many(user_id: int, session: Session | None = None) -> List[DBFavourite]:
+    return session.query(DBFavourite) \
+        .filter(DBFavourite.user_id == user_id) \
+        .all()
 
-def fetch_many_by_set(set_id: int, limit: int = 5) -> List[DBFavourite]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBFavourite) \
-            .filter(DBFavourite.set_id == set_id) \
-            .limit(limit) \
-            .all()
+@session_wrapper
+def fetch_many_by_set(set_id: int, limit: int = 5, session: Session | None = None) -> List[DBFavourite]:
+    return session.query(DBFavourite) \
+        .filter(DBFavourite.set_id == set_id) \
+        .limit(limit) \
+        .all()
 
-def fetch_count(user_id: int) -> int:
-    with app.session.database.managed_session() as session:
-        return session.query(DBFavourite) \
-            .filter(DBFavourite.user_id == user_id) \
-            .count()
+@session_wrapper
+def fetch_count(user_id: int, session: Session | None = None) -> int:
+    return session.query(DBFavourite) \
+        .filter(DBFavourite.user_id == user_id) \
+        .count()
 
-def fetch_count_by_set(set_id: int) -> int:
-    with app.session.database.managed_session() as session:
-        return session.query(DBFavourite) \
-            .filter(DBFavourite.set_id == set_id) \
-            .count()
+@session_wrapper
+def fetch_count_by_set(set_id: int, session: Session | None = None) -> int:
+    return session.query(DBFavourite) \
+        .filter(DBFavourite.set_id == set_id) \
+        .count()

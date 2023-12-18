@@ -1,29 +1,32 @@
 
+from __future__ import annotations
+
 from app.common.database.objects import DBChannel
+from sqlalchemy.orm import Session
 from typing import List
 
-import app
+from .wrapper import session_wrapper
 
+@session_wrapper
 def create(
     name: str,
     topic: str,
     read_permissions: int,
-    write_permissions: int
+    write_permissions: int,
+    session: Session | None = None
 ) -> DBChannel:
-    with app.session.database.managed_session() as session:
-        session.add(
-            chan := DBChannel(
-                name,
-                topic,
-                read_permissions,
-                write_permissions
-            )
+    session.add(
+        chan := DBChannel(
+            name,
+            topic,
+            read_permissions,
+            write_permissions
         )
-        session.commit()
-
+    )
+    session.commit()
     return chan
 
-def fetch_all() -> List[DBChannel]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBChannel) \
-                      .all()
+@session_wrapper
+def fetch_all(session: Session | None = None) -> List[DBChannel]:
+    return session.query(DBChannel) \
+                  .all()

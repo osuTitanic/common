@@ -1,54 +1,57 @@
 
+from __future__ import annotations
+
 from app.common.database.repositories import events
 from app.common.database.objects import DBMatch
 
+from sqlalchemy.orm import Session
 from typing import Optional
 
-import app
+from .wrapper import session_wrapper
 
+@session_wrapper
 def create(
     name: str,
     bancho_id: int,
     creator_id: int,
+    session: Session | None = None
 ) -> DBMatch:
-    with app.session.database.managed_session() as session:
-        session.add(
-            m := DBMatch(
-                name,
-                creator_id,
-                bancho_id
-            )
+    session.add(
+        m := DBMatch(
+            name,
+            creator_id,
+            bancho_id
         )
-        session.commit()
-        session.refresh(m)
-
+    )
+    session.commit()
+    session.refresh(m)
     return m
 
-def fetch_by_id(id: int) -> Optional[DBMatch]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBMatch) \
-            .filter(DBMatch.id == id) \
-            .first()
+@session_wrapper
+def fetch_by_id(id: int, session: Session | None = None) -> Optional[DBMatch]:
+    return session.query(DBMatch) \
+        .filter(DBMatch.id == id) \
+        .first()
 
-def fetch_by_bancho_id(id: int) -> Optional[DBMatch]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBMatch) \
-            .filter(DBMatch.bancho_id == id) \
-            .first()
+@session_wrapper
+def fetch_by_bancho_id(id: int, session: Session | None = None) -> Optional[DBMatch]:
+    return session.query(DBMatch) \
+        .filter(DBMatch.bancho_id == id) \
+        .first()
 
-def update(id: int, updates: dict) -> None:
-    with app.session.database.managed_session() as session:
-        session.query(DBMatch) \
-            .filter(DBMatch.id == id) \
-            .update(updates)
-        session.commit()
+@session_wrapper
+def update(id: int, updates: dict, session: Session | None = None) -> None:
+    session.query(DBMatch) \
+        .filter(DBMatch.id == id) \
+        .update(updates)
+    session.commit()
 
-def delete(id: int) -> None:
+@session_wrapper
+def delete(id: int, session: Session | None = None) -> None:
     # Delete events first
     events.delete_all(id)
 
-    with app.session.database.managed_session() as session:
-        session.query(DBMatch) \
-            .filter(DBMatch.id == id) \
-            .delete()
-        session.commit()
+    session.query(DBMatch) \
+        .filter(DBMatch.id == id) \
+        .delete()
+    session.commit()

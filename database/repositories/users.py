@@ -1,13 +1,16 @@
 
+from __future__ import annotations
+
 from app.common.database.objects import DBUser, DBStats
 from datetime import datetime, timedelta
 from typing import Optional, List
 
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, Session
 from sqlalchemy import func, or_
 
-import app
+from .wrapper import session_wrapper
 
+@session_wrapper
 def create(
     username: str,
     safe_name: str,
@@ -16,122 +19,125 @@ def create(
     country: str,
     activated: bool = False,
     discord_id: Optional[int] = None,
-    permissions: int = 1
+    permissions: int = 1,
+    session: Session | None = None
 ) -> Optional[DBUser]:
-    with app.session.database.managed_session() as session:
-        session.add(
-            user := DBUser(
-                username,
-                safe_name,
-                email,
-                pw_bcrypt,
-                country,
-                activated,
-                discord_id,
-                permissions
-            )
+    session.add(
+        user := DBUser(
+            username,
+            safe_name,
+            email,
+            pw_bcrypt,
+            country,
+            activated,
+            discord_id,
+            permissions
         )
-        session.commit()
-        session.refresh(user)
-
+    )
+    session.commit()
+    session.refresh(user)
     return user
 
-def update(user_id: int, updates: dict) -> int:
-    with app.session.database.managed_session() as session:
-        rows = session.query(DBUser) \
-               .filter(DBUser.id == user_id) \
-               .update(updates)
+@session_wrapper
+def update(
+    user_id: int,
+    updates: dict,
+    session: Session | None = None
+) -> int:
+    rows = session.query(DBUser) \
+           .filter(DBUser.id == user_id) \
+           .update(updates)
     return rows
 
-def fetch_by_name(username: str) -> Optional[DBUser]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBUser) \
-            .filter(DBUser.name == username) \
-            .first()
+@session_wrapper
+def fetch_by_name(username: str, session: Session | None = None) -> Optional[DBUser]:
+    return session.query(DBUser) \
+        .filter(DBUser.name == username) \
+        .first()
 
-def fetch_by_name_extended(query: str) -> Optional[DBUser]:
+@session_wrapper
+def fetch_by_name_extended(query: str, session: Session | None = None) -> Optional[DBUser]:
     """Used for searching users"""
-    with app.session.database.managed_session() as session:
-        return session.query(DBUser) \
-            .filter(or_(
-                DBUser.name.ilike(query),
-                DBUser.name.ilike(f'%{query}%')
-            )) \
-            .order_by(func.length(DBUser.name).asc()) \
-            .first()
+    return session.query(DBUser) \
+        .filter(or_(
+            DBUser.name.ilike(query),
+            DBUser.name.ilike(f'%{query}%')
+        )) \
+        .order_by(func.length(DBUser.name).asc()) \
+        .first()
 
-def fetch_by_safe_name(username: str) -> Optional[DBUser]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBUser) \
-            .filter(DBUser.safe_name == username) \
-            .first()
+@session_wrapper
+def fetch_by_safe_name(username: str, session: Session | None = None) -> Optional[DBUser]:
+    return session.query(DBUser) \
+        .filter(DBUser.safe_name == username) \
+        .first()
 
-def fetch_by_id(id: int) -> Optional[DBUser]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBUser) \
-            .filter(DBUser.id == id) \
-            .first()
+@session_wrapper
+def fetch_by_id(id: int, session: Session | None = None) -> Optional[DBUser]:
+    return session.query(DBUser) \
+        .filter(DBUser.id == id) \
+        .first()
 
-def fetch_by_email(email: str) -> Optional[DBUser]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBUser) \
-            .filter(DBUser.email == email) \
-            .first()
+@session_wrapper
+def fetch_by_email(email: str, session: Session | None = None) -> Optional[DBUser]:
+    return session.query(DBUser) \
+        .filter(DBUser.email == email) \
+        .first()
 
-def fetch_all(restricted: bool = False) -> List[DBUser]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBUser) \
-            .filter(DBUser.restricted == restricted) \
-            .all()
+@session_wrapper
+def fetch_all(restricted: bool = False, session: Session | None = None) -> List[DBUser]:
+    return session.query(DBUser) \
+        .filter(DBUser.restricted == restricted) \
+        .all()
 
-def fetch_active(delta: timedelta = timedelta(days=30), *preload) -> List[DBUser]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBUser) \
-            .join(DBStats) \
-            .options(selectinload(*preload)) \
-            .filter(DBUser.restricted == False) \
-            .filter(DBStats.playcount > 0) \
-            .filter(
-                # Remove inactive users from query, if they are not in the top 100
-                or_(
-                    DBUser.latest_activity >= (datetime.now() - delta),
-                    DBStats.rank >= 100
-                )
-            ) \
-            .all()
+@session_wrapper
+def fetch_active(delta: timedelta = timedelta(days=30), session: Session | None = None) -> List[DBUser]:
+    return session.query(DBUser) \
+        .join(DBStats) \
+        .options(selectinload(DBStats)) \
+        .filter(DBUser.restricted == False) \
+        .filter(DBStats.playcount > 0) \
+        .filter(
+            # Remove inactive users from query, if they are not in the top 100
+            or_(
+                DBUser.latest_activity >= (datetime.now() - delta),
+                DBStats.rank >= 100
+            )
+        ) \
+        .all()
 
-def fetch_by_discord_id(id: int) -> Optional[DBUser]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBUser) \
-            .filter(DBUser.discord_id == id) \
-            .first()
+@session_wrapper
+def fetch_by_discord_id(id: int, session: Session | None = None) -> Optional[DBUser]:
+    return session.query(DBUser) \
+        .filter(DBUser.discord_id == id) \
+        .first()
 
-def fetch_count(exclude_restricted=True) -> int:
-    with app.session.database.managed_session() as session:
-        query = session.query(
-            func.count(DBUser.id)
-        )
+@session_wrapper
+def fetch_count(exclude_restricted=True, session: Session | None = None) -> int:
+    query = session.query(
+        func.count(DBUser.id)
+    )
 
-        if exclude_restricted:
-            query = query.filter(DBUser.restricted == False)
+    if exclude_restricted:
+        query = query.filter(DBUser.restricted == False)
 
-        return query.scalar()
+    return query.scalar()
 
-def fetch_username(user_id: int) -> Optional[str]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBUser.name) \
-                .filter(DBUser.id == user_id) \
-                .scalar()
+@session_wrapper
+def fetch_username(user_id: int, session: Session | None = None) -> Optional[str]:
+    return session.query(DBUser.name) \
+            .filter(DBUser.id == user_id) \
+            .scalar()
 
-def fetch_user_id(username: str) -> Optional[int]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBUser.id) \
-                .filter(DBUser.name == username) \
-                .scalar()
+@session_wrapper
+def fetch_user_id(username: str, session: Session | None = None) -> Optional[int]:
+    return session.query(DBUser.id) \
+            .filter(DBUser.name == username) \
+            .scalar()
 
-def fetch_many(user_ids: tuple, *options) -> List[DBUser]:
-    with app.session.database.managed_session() as session:
-        return session.query(DBUser) \
-                  .options(*[selectinload(item) for item in options]) \
-                  .filter(DBUser.id.in_(user_ids)) \
-                  .all()
+@session_wrapper
+def fetch_many(user_ids: tuple, *options, session: Session | None = None) -> List[DBUser]:
+    return session.query(DBUser) \
+              .options(*[selectinload(item) for item in options]) \
+              .filter(DBUser.id.in_(user_ids)) \
+              .all()

@@ -1,24 +1,26 @@
 
+from __future__ import annotations
+
 from app.common.database.objects import DBName
+from sqlalchemy.orm import Session
 from typing import List
 
-import app
+from .wrapper import session_wrapper
 
-def create(user_id: int, old_name: str) -> DBName:
-    with app.session.database.session as session:
-        session.add(name := DBName(user_id, old_name))
-        session.commit()
-
+@session_wrapper
+def create(user_id: int, old_name: str, session: Session | None = None) -> DBName:
+    session.add(name := DBName(user_id, old_name))
+    session.commit()
     return name
 
-def fetch_one(id: int):
-    with app.session.database.managed_session() as session:
-        return session.query(DBName) \
-            .filter(DBName.id == id) \
-            .first()
+@session_wrapper
+def fetch_one(id: int, session: Session | None = None) -> DBName:
+    return session.query(DBName) \
+        .filter(DBName.id == id) \
+        .first()
 
-def fetch_all(user_id: int):
-    with app.session.database.managed_session() as session:
-        return session.query(DBName) \
-            .filter(DBName.user_id == user_id) \
-            .all()
+@session_wrapper
+def fetch_all(user_id: int, session: Session | None = None) -> List[DBName]:
+    return session.query(DBName) \
+        .filter(DBName.user_id == user_id) \
+        .all()
