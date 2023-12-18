@@ -63,10 +63,10 @@ class Mods(IntFlag):
                 Mods.Key6: "K6",
                 Mods.Key7: "K7",
                 Mods.Key8: "K8",
-                Mods.KeyMod: "",
-                Mods.FadeIn: "FadeIn",
-                Mods.Random: "Random",
+                Mods.FadeIn: "FI",
+                Mods.Random: "RD",
                 Mods.SpeedMods: "",
+                Mods.KeyMod: "",
                 Mods.LastMod: "",
                 Mods.FreeModAllowed: ""
             }[mod]
@@ -103,8 +103,8 @@ class Mods(IntFlag):
             "K6": Mods.Key6,
             "K7": Mods.Key7,
             "K8": Mods.Key8,
-            "FadeIn": Mods.FadeIn,
-            "Random": Mods.Random
+            "FI": Mods.FadeIn,
+            "RD": Mods.Random
         }
 
         for mod in parsed_mods:
