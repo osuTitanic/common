@@ -47,6 +47,7 @@ def update(
     rows = session.query(DBUser) \
            .filter(DBUser.id == user_id) \
            .update(updates)
+    session.commit()
     return rows
 
 @session_wrapper
