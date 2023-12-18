@@ -65,6 +65,37 @@ def update(stats: DBStats, country: str) -> None:
         {stats.user_id: stats.acc}
     )
 
+def remove_country(
+    user_id: int,
+    country: str
+) -> None:
+    """Remove player from country leaderboards"""
+    for mode in range(4):
+        app.session.redis.zrem(
+            f'bancho:performance:{mode}:{country.lower()}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:rscore:{mode}:{country.lower()}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:tscore:{mode}:{country.lower()}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:ppv1:{mode}:{country.lower()}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:acc:{mode}:{country.lower()}',
+            user_id
+        )
+
 def remove(
     user_id: int,
     country: str
