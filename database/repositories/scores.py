@@ -459,13 +459,13 @@ def fetch_pp_record(
     if mods == None:
         return session.query(DBScore) \
                 .filter(DBScore.mode == mode) \
-                .filter(DBScore.status == 3) \
+                .filter(DBScore.status > 2) \
                 .order_by(DBScore.pp.desc()) \
                 .first()
 
     return session.query(DBScore) \
             .filter(DBScore.mode == mode) \
-            .filter(DBScore.status == 3) \
+            .filter(DBScore.status > 2) \
             .filter(DBScore.mods == mods) \
             .order_by(DBScore.pp.desc()) \
             .first()
