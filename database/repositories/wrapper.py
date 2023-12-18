@@ -17,7 +17,7 @@ def session_wrapper(func):
 
         with app.session.database.managed_session() as session:
             # Get new session for this function
-            kwargs.update({'session': session})
+            kwargs['session'] = session
             return func(*args, **kwargs)
 
     return wrapper
