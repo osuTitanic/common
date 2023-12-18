@@ -94,7 +94,6 @@ def fetch_all(restricted: bool = False, session: Session | None = None) -> List[
 def fetch_active(delta: timedelta = timedelta(days=30), session: Session | None = None) -> List[DBUser]:
     return session.query(DBUser) \
         .join(DBStats) \
-        .options(selectinload(DBStats)) \
         .filter(DBUser.restricted == False) \
         .filter(DBStats.playcount > 0) \
         .filter(
