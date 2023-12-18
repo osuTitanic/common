@@ -1,11 +1,15 @@
 
+from __future__ import annotations
+
 from ...database.repositories import scores
 from ...database.objects import DBScore
 
+from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
 import math
+import app
 
 def calculate_weight(pps: List[float]) -> float:
     """Calculate the sum of weighted pp for each score"""
@@ -16,7 +20,8 @@ def calculate_ppv1(
     score: DBScore,
     age_falloff: int = 365,
     rank_falloff: int = 500,
-    populariy_falloff: int = 1000
+    populariy_falloff: int = 1000,
+    session: Session | None = None
 ) -> float:
     """Calculate ppv1, by using the score's pp as a difficulty factor"""
     if score.beatmap.playcount <= 0:
@@ -33,7 +38,8 @@ def calculate_ppv1(
     score_rank = scores.fetch_score_index_by_tscore(
         score.total_score,
         score.beatmap.id,
-        score.mode
+        score.mode,
+        session
     )
 
     rank_factor = (
@@ -53,12 +59,14 @@ def calculate_weighted_ppv1(
     populariy_falloff: int = 1000
 ) -> float:
     """Calculate weighted ppv1 with from a list of scores"""
-    return calculate_weight([
-        calculate_ppv1(
-            score,
-            age_falloff,
-            rank_falloff,
-            populariy_falloff
-        )
-        for score in scores
-    ])
+    with app.session.database.managed_session() as session:
+        return calculate_weight([
+            calculate_ppv1(
+                score,
+                age_falloff,
+                rank_falloff,
+                populariy_falloff,
+                session
+            )
+            for score in scores
+        ])
