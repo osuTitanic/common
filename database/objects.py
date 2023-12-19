@@ -797,6 +797,7 @@ class DBUser(Base):
     irc_token          = Column('irc_token', String, server_default="encode(gen_random_bytes(5), 'hex')")
     userpage_about     = Column('userpage_about', String, nullable=True)
     userpage_signature = Column('userpage_signature', String, nullable=True)
+    userpage_title     = Column('userpage_title', String, nullable=True)
     userpage_banner    = Column('userpage_banner', String, nullable=True)
     userpage_website   = Column('userpage_website', String, nullable=True)
     userpage_discord   = Column('userpage_discord', String, nullable=True)
