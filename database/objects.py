@@ -163,7 +163,7 @@ class DBFavourite(Base):
     set_id     = Column('set_id', Integer, ForeignKey('beatmapsets.id'), primary_key=True)
     created_at = Column('created_at', DateTime, server_default=func.now())
 
-    user       = relationship('DBUser', back_populates='favourites')
+    user       = relationship('DBUser', back_populates='favourites', lazy='selectin')
     beatmapset = relationship('DBBeatmapset', back_populates='favourites', lazy='selectin')
 
     def __init__(self, user_id: int, set_id: int) -> None:
