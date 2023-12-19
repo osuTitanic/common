@@ -71,7 +71,7 @@ class DBStats(Base):
 
     Index('stats_id_idx', user_id)
 
-    user = relationship('DBUser', back_populates='stats', lazy='selectin', join_depth=2)
+    user = relationship('DBUser', back_populates='stats')
 
     def __init__(self, user_id: int, mode: int) -> None:
         self.user_id = user_id
