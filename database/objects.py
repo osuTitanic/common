@@ -790,6 +790,9 @@ class DBGroupEntry(Base):
     group_id = Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True)
     user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
 
+    group = relationship('DBUser', back_populates='entries')
+    user = relationship('DBUser', back_populates='groups')
+
 class DBNotification(Base):
     __tablename__ = "notifications"
 
@@ -799,6 +802,8 @@ class DBNotification(Base):
     header = Column('header', String)
     content = Column('content', String)
     link = Column('link', String)
+
+    user = relationship('DBUser', back_populates='notifications')
 
 class DBUser(Base):
     __tablename__ = "users"
@@ -837,6 +842,7 @@ class DBUser(Base):
     replay_history = relationship('DBReplayHistory', back_populates='user', join_depth=2)
     relationships  = relationship('DBRelationship', back_populates='user', lazy='selectin', join_depth=2)
     verifications  = relationship('DBVerification', back_populates='user', join_depth=2)
+    notifications  = relationship('DBNotification', back_populates='user')
     rank_history   = relationship('DBRankHistory', back_populates='user', join_depth=2)
     play_history   = relationship('DBPlayHistory', back_populates='user', join_depth=2)
     achievements   = relationship('DBAchievement', back_populates='user', lazy='selectin', join_depth=2)
@@ -846,8 +852,9 @@ class DBUser(Base):
     ratings        = relationship('DBRating', back_populates='user', join_depth=2)
     scores         = relationship('DBScore', back_populates='user', join_depth=2)
     matches        = relationship('DBMatch', back_populates='creator', join_depth=2)
-    stats          = relationship('DBStats', back_populates='user', lazy='selectin', join_depth=2)
+    groups         = relationship('DBGroupEntry', back_populates='user')
     badges         = relationship('DBBadge', back_populates='user', lazy='selectin', join_depth=2)
+    stats          = relationship('DBStats', back_populates='user', lazy='selectin', join_depth=2)
     names          = relationship('DBName', back_populates='user', lazy='selectin', join_depth=2)
     plays          = relationship('DBPlay', back_populates='user', join_depth=2)
 
