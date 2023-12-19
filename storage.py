@@ -151,6 +151,9 @@ class Storage:
         if (image := self.get_from_cache(f'mt:{id}')):
             return image
 
+        if not (id.replace('l', '')).isdigit():
+            return
+
         set_id = int(id.replace('l', ''))
         large = 'l' in id
 
