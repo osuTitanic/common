@@ -790,6 +790,16 @@ class DBGroupEntry(Base):
     group_id = Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True)
     user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
 
+class DBNotification(Base):
+    __tablename__ = "notifications"
+
+    id = Column('id', BigInteger, primary_key=True, autoincrement=True)
+    user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    type = Column('type', SmallInteger)
+    header = Column('header', String)
+    content = Column('content', String)
+    link = Column('link', String)
+
 class DBUser(Base):
     __tablename__ = "users"
 
