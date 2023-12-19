@@ -784,13 +784,15 @@ class DBGroup(Base):
     color = Column('color', String)
     bancho_permissions = Column('bancho_permissions', SmallInteger, nullable=True)
 
+    entries = relationship('DBGroupEntry', back_populates='group')
+
 class DBGroupEntry(Base):
     __tablename__ = "groups_entries"
 
     group_id = Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True)
     user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
 
-    group = relationship('DBUser', back_populates='entries')
+    group = relationship('DBGroup', back_populates='entries')
     user = relationship('DBUser', back_populates='groups')
 
 class DBNotification(Base):
@@ -839,24 +841,24 @@ class DBUser(Base):
     Index('users_id_idx', id)
     Index('users_name_idx', name)
 
-    replay_history = relationship('DBReplayHistory', back_populates='user', join_depth=2)
+    replay_history = relationship('DBReplayHistory', back_populates='user')
     relationships  = relationship('DBRelationship', back_populates='user', lazy='selectin', join_depth=2)
     verifications  = relationship('DBVerification', back_populates='user', join_depth=2)
     notifications  = relationship('DBNotification', back_populates='user')
-    rank_history   = relationship('DBRankHistory', back_populates='user', join_depth=2)
-    play_history   = relationship('DBPlayHistory', back_populates='user', join_depth=2)
-    achievements   = relationship('DBAchievement', back_populates='user', lazy='selectin', join_depth=2)
-    screenshots    = relationship('DBScreenshot', back_populates='user', join_depth=2)
-    favourites     = relationship('DBFavourite', back_populates='user', lazy='selectin', join_depth=2)
-    activity       = relationship('DBActivity', back_populates='user', join_depth=2)
-    ratings        = relationship('DBRating', back_populates='user', join_depth=2)
-    scores         = relationship('DBScore', back_populates='user', join_depth=2)
+    rank_history   = relationship('DBRankHistory', back_populates='user')
+    play_history   = relationship('DBPlayHistory', back_populates='user')
+    achievements   = relationship('DBAchievement', back_populates='user', lazy='selectin')
+    screenshots    = relationship('DBScreenshot', back_populates='user')
+    favourites     = relationship('DBFavourite', back_populates='user', lazy='selectin')
+    activity       = relationship('DBActivity', back_populates='user')
+    ratings        = relationship('DBRating', back_populates='user')
+    scores         = relationship('DBScore', back_populates='user')
     matches        = relationship('DBMatch', back_populates='creator', join_depth=2)
     groups         = relationship('DBGroupEntry', back_populates='user')
     badges         = relationship('DBBadge', back_populates='user', lazy='selectin', join_depth=2)
     stats          = relationship('DBStats', back_populates='user', lazy='selectin', join_depth=2)
     names          = relationship('DBName', back_populates='user', lazy='selectin', join_depth=2)
-    plays          = relationship('DBPlay', back_populates='user', join_depth=2)
+    plays          = relationship('DBPlay', back_populates='user')
 
     def __init__(
         self,
