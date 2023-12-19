@@ -774,6 +774,22 @@ class DBVerification(Base):
         self.type = type
         self.sent_at = datetime.now()
 
+class DBGroup(Base):
+    __tablename__ = "groups"
+
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    name = Column('name', String)
+    short_name = Column('short_name', String)
+    description = Column('description', String)
+    color = Column('color', String)
+    bancho_permissions = Column('bancho_permissions', SmallInteger, nullable=True)
+
+class DBGroupEntry(Base):
+    __tablename__ = "groups_entries"
+
+    group_id = Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True)
+    user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+
 class DBUser(Base):
     __tablename__ = "users"
 
