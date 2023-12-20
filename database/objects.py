@@ -781,7 +781,7 @@ class DBGroup(Base):
     short_name = Column('short_name', String)
     description = Column('description', String, nullable=True)
     color = Column('color', String)
-    bancho_permissions = Column('bancho_permissions', SmallInteger, nullable=True)
+    bancho_permissions = Column('bancho_permissions', SmallInteger, nullable=True, default=0)
     hidden = Column(Boolean, default=False)
 
     entries = relationship('DBGroupEntry', back_populates='group')
@@ -804,6 +804,7 @@ class DBNotification(Base):
     header = Column('header', String)
     content = Column('content', String)
     link = Column('link', String)
+    read = Column('read', Boolean, default=False)
 
     user = relationship('DBUser', back_populates='notifications')
 
