@@ -15,6 +15,7 @@ from . import (
     comments,
     clients,
     ratings,
+    groups,
     scores,
     logins,
     names,
