@@ -14,6 +14,15 @@ def fetch_one(id: int, session: Session | None = None) -> DBGroup | None:
         .first()
 
 @session_wrapper
+def fetch_all(include_hidden: bool = False, session: Session | None = None) -> List[DBGroup]:
+    if include_hidden:
+        return session.query(DBGroup).all()
+
+    return session.query(DBGroup) \
+        .filter(DBGroup.hidden == False) \
+        .all()
+
+@session_wrapper
 def fetch_group_users(group_id: int, session: Session | None = None) -> List[DBUser]:
     return session.query(DBUser) \
         .join(DBGroupEntry) \
