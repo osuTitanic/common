@@ -792,7 +792,7 @@ class DBGroupEntry(Base):
     group_id = Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True)
     user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
 
-    group = relationship('DBGroup', back_populates='entries')
+    group = relationship('DBGroup', back_populates='entries', lazy='selectin')
     user = relationship('DBUser', back_populates='groups')
 
 class DBNotification(Base):
