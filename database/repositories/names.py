@@ -24,3 +24,15 @@ def fetch_all(user_id: int, session: Session | None = None) -> List[DBName]:
     return session.query(DBName) \
         .filter(DBName.user_id == user_id) \
         .all()
+
+@session_wrapper
+def fetch_by_name(name: str, session: Session | None = None) -> DBName | None:
+    return session.query(DBName) \
+        .filter(DBName.name == name) \
+        .first()
+
+@session_wrapper
+def fetch_by_name_extended(name: str, session: Session | None = None) -> DBName | None:
+    return session.query(DBName) \
+        .filter(DBName.name.ilike(f'%{name}%')) \
+        .first()
