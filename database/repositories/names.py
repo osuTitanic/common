@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from app.common.database.objects import DBName
 from sqlalchemy.orm import Session
+from sqlalchemy import func, or_
 from typing import List
 
 from .wrapper import session_wrapper
@@ -34,5 +35,9 @@ def fetch_by_name(name: str, session: Session | None = None) -> DBName | None:
 @session_wrapper
 def fetch_by_name_extended(name: str, session: Session | None = None) -> DBName | None:
     return session.query(DBName) \
-        .filter(DBName.name.ilike(f'%{name}%')) \
+        .filter(or_(
+            DBName.name.ilike(name),
+            DBName.name.ilike(f'%{name}%')
+        )) \
+        .order_by(func.length(DBName.name).asc()) \
         .first()
