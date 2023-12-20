@@ -95,7 +95,8 @@ class Beatmaps:
         response = self.session.get(f'https://b.ppy.sh/thumb/{set_id}{"l" if large else ""}.jpg')
 
         if not response.ok:
-            self.log_error(response.url, response.status_code)
+            if response.status_code != 404:
+                self.log_error(response.url, response.status_code)
             return
 
         return response.content
