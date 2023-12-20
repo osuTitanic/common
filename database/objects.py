@@ -782,6 +782,7 @@ class DBGroup(Base):
     description = Column('description', String)
     color = Column('color', String)
     bancho_permissions = Column('bancho_permissions', SmallInteger, nullable=True)
+    hidden = Column(Boolean, default=False)
 
     entries = relationship('DBGroupEntry', back_populates='group')
 
