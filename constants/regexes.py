@@ -13,5 +13,5 @@ EMAIL = re.compile(
 )
 
 USERNAME = re.compile(
-    r'^[a-zA-Z0-9|^\-{}_|\[\] ]+$'
+    r'^[a-zA-Z0-9|^\-{}_|\[\] ぁ-んァ-ン]+$'
 )
