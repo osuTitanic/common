@@ -779,7 +779,7 @@ class DBGroup(Base):
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     name = Column('name', String)
     short_name = Column('short_name', String)
-    description = Column('description', String)
+    description = Column('description', String, nullable=True)
     color = Column('color', String)
     bancho_permissions = Column('bancho_permissions', SmallInteger, nullable=True)
     hidden = Column(Boolean, default=False)
