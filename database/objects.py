@@ -855,7 +855,7 @@ class DBUser(Base):
     ratings        = relationship('DBRating', back_populates='user')
     scores         = relationship('DBScore', back_populates='user')
     matches        = relationship('DBMatch', back_populates='creator')
-    groups         = relationship('DBGroupEntry', back_populates='user')
+    groups         = relationship('DBGroupEntry', back_populates='user', lazy='selectin')
     badges         = relationship('DBBadge', back_populates='user', lazy='selectin')
     stats          = relationship('DBStats', back_populates='user', lazy='selectin')
     names          = relationship('DBName', back_populates='user', lazy='selectin')
