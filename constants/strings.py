@@ -57,7 +57,7 @@ UNSUPPORTED_VERSION = '\n'.join([
 
 UNSUPPORTED_HASH = '\n'.join([
     'This version of osu! you are using is not compatible with this server.',
-    'Please download one of the clients on the website!'
+    'Please download one of the clients on the website, or ask an admin for permission!'
 ])
 
 MAINTENANCE_MODE = 'Bancho is currently in maintenance mode. Please check back later!'
