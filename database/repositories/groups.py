@@ -70,7 +70,7 @@ def fetch_user_groups(
         .all()
 
 @session_wrapper
-def get_permissions(
+def get_player_permissions(
     user_id: int,
     session: Session | None = None
 ) -> int:
