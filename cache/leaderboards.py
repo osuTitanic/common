@@ -1,10 +1,11 @@
 
+from __future__ import annotations
+
 from ..constants import COUNTRIES as countries
 from ..database.repositories import users
-from ..constants import Grade as Grades
 from ..database.objects import DBStats
 
-from typing import Optional, Tuple, List
+from typing import Tuple, List
 
 import app
 
@@ -293,7 +294,7 @@ def top_players(
     offset: int = 0,
     range: int = 50,
     type: str = 'performance',
-    country: Optional[str] = None
+    country: str | None = None
 ) -> List[Tuple[int, float]]:
     """Get a list of top players
 
@@ -372,10 +373,11 @@ def top_countries(mode: int) -> List[dict]:
 
 def player_count(
     mode: int,
-    type: str = 'performance'
+    type: str = 'performance',
+    country: str | None = None
 ) -> int:
     return app.session.redis.zcount(
-        f'bancho:{type}:{mode}',
+        f'bancho:{type}:{mode}{f":{country.lower()}" if country else ""}',
         '1',
         '+inf'
     )
