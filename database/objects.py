@@ -873,7 +873,7 @@ class DBUser(Base):
         country: str,
         activated: bool,
         discord_id: Optional[int],
-        permissions: int = 1
+        permissions: int = 5
     ) -> None:
         self.name = name
         self.safe_name = safe_name
