@@ -821,7 +821,6 @@ class DBUser(Base):
     permissions        = Column('permissions', Integer, default=1)
     country            = Column('country', String)
     silence_end        = Column('silence_end', DateTime, nullable=True)
-    supporter_end      = Column('supporter_end', DateTime, nullable=True)
     created_at         = Column('created_at', DateTime, server_default=func.now())
     latest_activity    = Column('latest_activity', DateTime, server_default=func.now())
     restricted         = Column('restricted', Boolean, default=False)
@@ -890,7 +889,8 @@ class DBUser(Base):
 
     @property
     def is_supporter(self) -> bool:
-        return True # TODO
+        # NOTE: Supporter related code has been removed
+        return True
 
     # NOTE: These are required attributes for Flask-Login.
     #       I am not sure if you can implement them differently...
