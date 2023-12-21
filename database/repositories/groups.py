@@ -68,3 +68,13 @@ def fetch_user_groups(
         .filter(DBGroup.hidden == False) \
         .order_by(DBGroup.id.asc()) \
         .all()
+
+@session_wrapper
+def get_permissions(
+    user_id: int,
+    session: Session | None = None
+) -> int:
+    return session.query(func.sum(DBGroup.bancho_permissions)) \
+        .join(DBGroupEntry) \
+        .filter(DBGroupEntry.user_id == user_id) \
+        .scalar() or 0
