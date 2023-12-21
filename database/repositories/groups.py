@@ -24,6 +24,17 @@ def create_entry(
     return ge
 
 @session_wrapper
+def delete_entry(
+    user_id: int,
+    group_id: int,
+    session: Session | None = None
+) -> int:
+    return session.query(DBGroupEntry) \
+        .filter(DBGroupEntry.group_id == group_id) \
+        .filter(DBGroupEntry.user_id == user_id) \
+        .delete()
+
+@session_wrapper
 def fetch_one(id: int, session: Session | None = None) -> DBGroup | None:
     return session.query(DBGroup) \
         .filter(DBGroup.id == id) \
