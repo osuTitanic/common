@@ -2,10 +2,26 @@
 from __future__ import annotations
 
 from app.common.database.objects import DBGroup, DBGroupEntry, DBUser
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List
 
 from .wrapper import session_wrapper
+
+@session_wrapper
+def create_entry(
+    user_id: int,
+    group_id: int,
+    session: Session | None = None
+) -> DBGroupEntry:
+    session.add(
+        ge := DBGroupEntry(
+            user_id,
+            group_id
+        )
+    )
+    session.commit()
+    return ge
 
 @session_wrapper
 def fetch_one(id: int, session: Session | None = None) -> DBGroup | None:

@@ -795,6 +795,10 @@ class DBGroupEntry(Base):
     group = relationship('DBGroup', back_populates='entries', lazy='selectin')
     user = relationship('DBUser', back_populates='groups')
 
+    def __init__(self, user_id: int, group_id: int) -> None:
+        self.group_id = group_id
+        self.user_id = user_id
+
 class DBNotification(Base):
     __tablename__ = "notifications"
 
