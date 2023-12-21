@@ -16,10 +16,13 @@ def fetch_one(id: int, session: Session | None = None) -> DBGroup | None:
 @session_wrapper
 def fetch_all(include_hidden: bool = False, session: Session | None = None) -> List[DBGroup]:
     if include_hidden:
-        return session.query(DBGroup).all()
+        return session.query(DBGroup) \
+            .order_by(DBGroup.id.asc()) \
+            .all()
 
     return session.query(DBGroup) \
         .filter(DBGroup.hidden == False) \
+        .order_by(DBGroup.id.asc()) \
         .all()
 
 @session_wrapper
@@ -27,6 +30,7 @@ def fetch_group_users(group_id: int, session: Session | None = None) -> List[DBU
     return session.query(DBUser) \
         .join(DBGroupEntry) \
         .filter(DBGroupEntry.group_id == group_id) \
+        .order_by(DBUser.id.asc()) \
         .all()
 
 @session_wrapper
@@ -39,10 +43,12 @@ def fetch_user_groups(
         return session.query(DBGroup) \
             .join(DBGroupEntry) \
             .filter(DBGroupEntry.user_id == user_id) \
+            .order_by(DBGroup.id.asc()) \
             .all()
 
     return session.query(DBGroup) \
         .join(DBGroupEntry) \
         .filter(DBGroupEntry.user_id == user_id) \
         .filter(DBGroup.hidden == False) \
+        .order_by(DBGroup.id.asc()) \
         .all()
