@@ -1,5 +1,6 @@
 
 from . import (
+    notifications,
     relationships,
     infringements,
     achievements,

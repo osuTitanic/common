@@ -1,10 +1,11 @@
 
+from __future__ import annotations
+
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from datetime import datetime
-from typing import Optional
 
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import (
@@ -664,7 +665,7 @@ class DBInfringement(Base):
         user_id: int,
         action: int,
         length: datetime,
-        description: Optional[str] = None,
+        description: str | None = None,
         is_permanent: bool = False,
     ) -> None:
         self.user_id = user_id
@@ -690,7 +691,7 @@ class DBReport(Base):
         self,
         target_id: int,
         sender_id: int,
-        reason: Optional[str]
+        reason: str | None
     ) -> None:
         self.target_id = target_id
         self.sender_id = sender_id
@@ -809,8 +810,26 @@ class DBNotification(Base):
     content = Column('content', String)
     link = Column('link', String)
     read = Column('read', Boolean, default=False)
+    time = Column('time', DateTime, server_default='now()')
 
     user = relationship('DBUser', back_populates='notifications')
+
+    def __init__(
+        self,
+        user_id: int,
+        type: int,
+        header: str,
+        content: str,
+        link: str | None,
+        read: bool
+    ) -> None:
+        self.user_id = user_id
+        self.content = content
+        self.header = header
+        self.type = type
+        self.link = link
+        self.read = read
+        self.time = datetime.now()
 
 class DBUser(Base):
     __tablename__ = "users"
@@ -872,7 +891,7 @@ class DBUser(Base):
         bcrypt: str,
         country: str,
         activated: bool,
-        discord_id: Optional[int],
+        discord_id: int | None,
         permissions: int = 5
     ) -> None:
         self.name = name
