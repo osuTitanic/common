@@ -1,11 +1,13 @@
 
+from __future__ import annotations
+
 from app.common.constants import COUNTRIES
 
 from geoip2.errors import AddressNotFoundError
 from geoip2.database import Reader
 
 from dataclasses import dataclass
-from typing import Optional
+from functools import cache
 
 import config
 import app
@@ -34,6 +36,7 @@ def download_database():
     with open(f'{config.DATA_PATH}/geolite.mmdb', 'wb') as f:
         f.write(response.content)
 
+@cache
 def fetch_geolocation(ip: str, is_local: bool = False) -> Geolocation:
     try:
         if is_local:
@@ -52,7 +55,7 @@ def fetch_geolocation(ip: str, is_local: bool = False) -> Geolocation:
 
     return Geolocation()
 
-def fetch_db(ip: str) -> Optional[Geolocation]:
+def fetch_db(ip: str) -> Geolocation | None:
     try:
         with Reader(f'{config.DATA_PATH}/geolite.mmdb') as reader:
             response = reader.city(ip)
@@ -72,7 +75,7 @@ def fetch_db(ip: str) -> Optional[Geolocation]:
     except AddressNotFoundError:
         return
 
-def fetch_web(ip: str, is_local: bool = False) -> Optional[Geolocation]:
+def fetch_web(ip: str, is_local: bool = False) -> Geolocation | None:
     response = app.session.requests.get(f'http://ip-api.com/line/{ip if not is_local else ""}')
 
     if not response.ok:
