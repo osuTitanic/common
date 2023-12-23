@@ -122,16 +122,12 @@ def update_rank(
     score_rank = leaderboards.score_rank(stats.user_id, stats.mode)
     ppv1_rank = leaderboards.ppv1_rank(stats.user_id, stats.mode)
 
-    if global_rank <= 0:
-        return
-
-    if country_rank <= 0:
-        return
-
-    if score_rank <= 0:
-        return
-
-    if ppv1_rank <= 0:
+    if any(
+        global_rank <= 0,
+        country_rank <= 0,
+        score_rank <= 0,
+        ppv1_rank <= 0,
+    ):
         return
 
     session.add(
