@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBRelationship
+from app.common.database.objects import DBRelationship, DBUser
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -75,3 +75,16 @@ def fetch_target_ids(user_id: int, session: Session | None = None) -> List[int]:
         .all()
 
     return [id[0] for id in result]
+
+@session_wrapper
+def fetch_users(
+    user_id: int,
+    status: int = 0,
+    session: Session | None = None
+) -> List[DBUser]:
+    return session.query(DBUser) \
+            .join(DBRelationship, DBUser.id == DBRelationship.target_id) \
+            .filter(DBRelationship.user_id == user_id) \
+            .filter(DBRelationship.status == status) \
+            .order_by(DBRelationship.user_id.asc()) \
+            .all()
