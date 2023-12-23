@@ -206,11 +206,12 @@ class DBScreenshot(Base):
 class DBRelationship(Base):
     __tablename__ = "relationships"
 
-    user_id   = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
-    target_id = Column('target_id', Integer, primary_key=True)
-    status    = Column('status', SmallInteger)
+    user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    target_id = Column('target_id', Integer, ForeignKey('users.id'), primary_key=True)
+    status = Column('status', SmallInteger)
 
-    user = relationship('DBUser', back_populates='relationships')
+    user = relationship('DBUser', back_populates='relationships', foreign_keys=[user_id])
+    target = relationship('DBUser', back_populates='target_relationships', foreign_keys=[target_id])
 
     def __init__(self, user: int, target: int, status: int) -> None:
         self.user_id = user
@@ -864,24 +865,25 @@ class DBUser(Base):
     Index('users_id_idx', id)
     Index('users_name_idx', name)
 
+    target_relationships = relationship('DBRelationship', back_populates='target', foreign_keys='DBRelationship.target_id')
     replay_history = relationship('DBReplayHistory', back_populates='user')
-    relationships  = relationship('DBRelationship', back_populates='user', lazy='selectin', join_depth=2)
-    verifications  = relationship('DBVerification', back_populates='user')
-    notifications  = relationship('DBNotification', back_populates='user')
-    rank_history   = relationship('DBRankHistory', back_populates='user')
-    play_history   = relationship('DBPlayHistory', back_populates='user')
-    achievements   = relationship('DBAchievement', back_populates='user', lazy='selectin')
-    screenshots    = relationship('DBScreenshot', back_populates='user')
-    favourites     = relationship('DBFavourite', back_populates='user', lazy='selectin')
-    activity       = relationship('DBActivity', back_populates='user')
-    ratings        = relationship('DBRating', back_populates='user')
-    scores         = relationship('DBScore', back_populates='user')
-    matches        = relationship('DBMatch', back_populates='creator')
-    groups         = relationship('DBGroupEntry', back_populates='user', lazy='selectin')
-    badges         = relationship('DBBadge', back_populates='user', lazy='selectin')
-    stats          = relationship('DBStats', back_populates='user', lazy='selectin')
-    names          = relationship('DBName', back_populates='user', lazy='selectin')
-    plays          = relationship('DBPlay', back_populates='user')
+    relationships = relationship('DBRelationship', back_populates='user', foreign_keys='DBRelationship.user_id', lazy='selectin', join_depth=2)
+    verifications = relationship('DBVerification', back_populates='user')
+    notifications = relationship('DBNotification', back_populates='user')
+    rank_history = relationship('DBRankHistory', back_populates='user')
+    play_history = relationship('DBPlayHistory', back_populates='user')
+    achievements = relationship('DBAchievement', back_populates='user', lazy='selectin')
+    screenshots = relationship('DBScreenshot', back_populates='user')
+    favourites = relationship('DBFavourite', back_populates='user', lazy='selectin')
+    activity = relationship('DBActivity', back_populates='user')
+    ratings = relationship('DBRating', back_populates='user')
+    matches = relationship('DBMatch', back_populates='creator')
+    scores = relationship('DBScore', back_populates='user')
+    groups = relationship('DBGroupEntry', back_populates='user', lazy='selectin')
+    badges = relationship('DBBadge', back_populates='user', lazy='selectin')
+    stats = relationship('DBStats', back_populates='user', lazy='selectin')
+    names = relationship('DBName', back_populates='user', lazy='selectin')
+    plays = relationship('DBPlay', back_populates='user')
 
     def __init__(
         self,
