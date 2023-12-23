@@ -46,14 +46,17 @@ def fetch_count(
     session: Session | None = None
 ) -> int:
     if read is None:
-        return session.query(func.count(DBNotification)) \
+        count = session.query(func.count(DBNotification.id)) \
             .filter(DBNotification.user_id == user_id) \
             .scalar()
 
-    return session.query(func.count(DBNotification)) \
-        .filter(DBNotification.user_id == user_id) \
-        .filter(DBNotification.read == read) \
-        .scalar()
+    else:
+        count = session.query(func.count(DBNotification.id)) \
+            .filter(DBNotification.user_id == user_id) \
+            .filter(DBNotification.read == read) \
+            .scalar()
+
+    return count or 0
 
 @session_wrapper
 def fetch_all(
