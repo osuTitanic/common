@@ -761,7 +761,7 @@ class DBVerification(Base):
     sent_at = Column('sent_at', DateTime, server_default='now()')
     type = Column('type', SmallInteger, default=0)
 
-    user = relationship('DBUser', back_populates='verifications')
+    user = relationship('DBUser', back_populates='verifications', lazy='selectin')
 
     def __init__(
         self,
