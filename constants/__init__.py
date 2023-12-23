@@ -1,5 +1,6 @@
 
 from .status import SubmissionStatus, LegacyStatus, DatabaseStatus
+from .notifications import NotificationType
 from .permissions import Permissions
 from .user import Playstyle
 from .modes import GameMode
