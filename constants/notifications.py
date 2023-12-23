@@ -6,5 +6,4 @@ class NotificationType(IntEnum):
     Achievement = 1
     Chat = 2
     News = 3
-
-# TODO
+    Other = 4
