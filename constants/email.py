@@ -9,6 +9,9 @@ Before you can play you need to activate your account, by clicking the link belo
 
 https://osu.{domain}/account/verification?id={verification_id}&token={verification_token}
 
+We would also recommend joining our discord server:
+https://discord.gg/qupv72e7YH
+
 See you in game!
 
 --
