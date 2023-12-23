@@ -15,3 +15,7 @@ EMAIL = re.compile(
 USERNAME = re.compile(
     r'^[a-zA-Z0-9|^\-{}_|\[\] ]+$'
 )
+
+DISCORD_USERNAME = re.compile(
+    r'^[a-z0-9_-]{3,15}$'
+)
