@@ -57,7 +57,7 @@ def fetch_geolocation(ip: str, is_local: bool = False) -> Geolocation:
 
 def fetch_db(ip: str) -> Geolocation | None:
     try:
-        with Reader(f'{config.DATA_PATH}/geolite.mmdb') as reader:
+        with Reader(f'./app/common/geolite.mmdb') as reader:
             response = reader.city(ip)
 
             return Geolocation(
