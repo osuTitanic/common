@@ -85,7 +85,7 @@ def get_player_permissions(
     user_id: int,
     session: Session | None = None
 ) -> int:
-    return session.query(func.sum(DBGroup.bancho_permissions)) \
+    return session.query(func.bit_or(DBGroup.bancho_permissions)) \
         .join(DBGroupEntry) \
         .filter(DBGroupEntry.user_id == user_id) \
         .scalar() or 0
