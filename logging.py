@@ -2,7 +2,7 @@
 from logging.handlers import TimedRotatingFileHandler
 from logging import StreamHandler, Formatter
 
-import app.session
+import app.session as session
 import logging
 import os
 
@@ -36,5 +36,5 @@ os.makedirs('logs', exist_ok=True)
 Console = StreamHandler()
 Console.setFormatter(ColorFormatter())
 
-File = TimedRotatingFileHandler(f'logs/{app.session.logger.name}.log', when='D', backupCount=5)
+File = TimedRotatingFileHandler(f'logs/{session.logger.name}.log', when='D', backupCount=5)
 File.setFormatter(Formatter('[%(asctime)s] - <%(name)s> %(levelname)s: %(message)s'))
