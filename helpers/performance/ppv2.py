@@ -66,6 +66,12 @@ def calculate_ppv2(score: DBScore) -> Optional[float]:
         )
         return 0.0
 
+    if math.isinf(result.pp):
+        app.session.logger.error(
+            'pp calculation failed: Inf pp'
+        )
+        return 0.0
+
     app.session.logger.debug(f"Calculated pp: {result}")
 
     return result.pp
