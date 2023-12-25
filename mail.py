@@ -13,7 +13,7 @@ import app
 
 client = SendGridAPIClient(config.SENDGRID_API_KEY)
 
-def sendgrid(subject: str, message: str, email: str) -> Response:
+def sendgrid(subject: str, message: str, email: str):
     message = Mail(
         from_email=config.SENDGRID_EMAIL,
         to_emails=email,
@@ -21,23 +21,35 @@ def sendgrid(subject: str, message: str, email: str) -> Response:
         html_content=message.replace('\n', '<br>')
     )
 
-    return client.send(message)
+    response = client.send(message)
 
-def mailgun(subject: str, message: str, email: str) -> Response:
+    if response.status_code != 200:
+        app.session.logger.warning(
+            f'Failed to send email: {response.body}'
+        )
+
+    return response
+
+def mailgun(subject: str, message: str, email: str):
     response = app.session.requests.post(
         f'https://api.mailgun.net/v3/{config.MAILGUN_DOMAIN}/messages',
         auth=('api', config.MAILGUN_API_KEY),
         data={
             'from': f'Titanic <{config.MAILGUN_EMAIL}>',
-            'to': email,
+            'to': [email],
             'subject': subject,
             'html': message
         }
     )
+    
+    if not response.ok:
+        app.session.logger.warning(
+            f'Failed to send email: {response.text}'
+        )
 
     return response
 
-def send(subject: str, message: str, email: str) -> Response | None:
+def send(subject: str, message: str, email: str):
     if not config.EMAILS_ENABLED:
         app.session.logger.warning(f'Failed to send email: Emails are disabled.')
         return
