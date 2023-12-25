@@ -32,7 +32,7 @@ def sendgrid(subject: str, message: str, email: str):
 
 def mailgun(subject: str, message: str, email: str):
     response = app.session.requests.post(
-        f'https://api.mailgun.net/v3/{config.MAILGUN_DOMAIN}/messages',
+        f'https://{config.MAILGUN_URL}/v3/{config.MAILGUN_DOMAIN}/messages',
         auth=('api', config.MAILGUN_API_KEY),
         data={
             'from': f'Titanic <{config.MAILGUN_EMAIL}>',
@@ -41,7 +41,7 @@ def mailgun(subject: str, message: str, email: str):
             'html': message
         }
     )
-    
+
     if not response.ok:
         app.session.logger.warning(
             f'Failed to send email: {response.text}'
