@@ -38,7 +38,7 @@ def mailgun(subject: str, message: str, email: str):
             'from': f'Titanic <{config.MAILGUN_EMAIL}>',
             'to': [email],
             'subject': subject,
-            'html': message
+            'html': message.replace('\n', '<br>')
         }
     )
 
