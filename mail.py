@@ -1,14 +1,19 @@
 
+from __future__ import annotations
+
 from .database.objects import DBVerification, DBUser
 from .constants import email
 
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+from requests import Response
+
 import config
+import app
 
 client = SendGridAPIClient(config.SENDGRID_API_KEY)
 
-def send(subject: str, message: str, email: str):
+def sendgrid(subject: str, message: str, email: str) -> Response:
     message = Mail(
         from_email=config.SENDGRID_EMAIL,
         to_emails=email,
@@ -17,6 +22,31 @@ def send(subject: str, message: str, email: str):
     )
 
     return client.send(message)
+
+def mailgun(subject: str, message: str, email: str) -> Response:
+    response = app.session.requests.post(
+        f'https://api.mailgun.net/v3/{config.MAILGUN_DOMAIN}/messages',
+        auth=('api', config.MAILGUN_API_KEY),
+        data={
+            'from': f'Titanic <{config.MAILGUN_EMAIL}>',
+            'to': email,
+            'subject': subject,
+            'html': message
+        }
+    )
+
+    return response
+
+def send(subject: str, message: str, email: str) -> Response | None:
+    if not config.EMAILS_ENABLED:
+        app.session.logger.warning(f'Failed to send email: Emails are disabled.')
+        return
+
+    if config.SENDGRID_API_KEY:
+        return sendgrid(subject, message, email)
+
+    if config.MAILGUN_API_KEY:
+        return mailgun(subject, message, email)
 
 def send_welcome_email(verification: DBVerification, user: DBUser):
     message = email.WELCOME.format(
