@@ -1,5 +1,6 @@
 
 import re
+import re
 
 OSU_VERSION = re.compile(
     r"^b(?P<date>\d{1,8})"
@@ -22,4 +23,8 @@ DISCORD_USERNAME = re.compile(
 
 URL = re.compile(
     r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+)
+
+OSU_USER_AGENT = re.compile(
+    r"^osu!*|Mozilla/\d+\.\d+ \(compatible; Clever Internet Suite \d+\.\d+\)$"
 )
