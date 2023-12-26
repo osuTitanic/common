@@ -85,15 +85,9 @@ def fetch_hardware_only(
 ) -> List[DBClient]:
     """Fetch clients only by hardware attributes. Useful for multi-account detection."""
     return session.query(DBClient) \
-        .filter(DBClient.adapters == adapters) \
-        .filter(DBClient.unique_id == unique_id) \
         .filter(DBClient.disk_signature == disk_signature) \
-        .filter(
-            # Remove "unknown" values (linux/wine)
-            DBClient.disk_signature != "ad921d60486366258809553a3db49a4a",
-            DBClient.unique_id != "ad921d60486366258809553a3db49a4a",
-            DBClient.adapters != "b4ec3c4334a0249dae95c284ec5983df"
-        ) \
+        .filter(DBClient.unique_id == unique_id) \
+        .filter(DBClient.adapters == adapters) \
         .all()
 
 @session_wrapper
