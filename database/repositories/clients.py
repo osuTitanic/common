@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from app.common.database.objects import DBClient
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from typing import List
 
 from .wrapper import session_wrapper
@@ -85,9 +86,11 @@ def fetch_hardware_only(
 ) -> List[DBClient]:
     """Fetch clients only by hardware attributes. Useful for multi-account detection."""
     return session.query(DBClient) \
-        .filter(DBClient.disk_signature == disk_signature) \
-        .filter(DBClient.unique_id == unique_id) \
-        .filter(DBClient.adapters == adapters) \
+        .filter(or_(
+            DBClient.adapters == adapters,
+            DBClient.unique_id == unique_id,
+            DBClient.disk_signature == disk_signature
+        )) \
         .all()
 
 @session_wrapper
