@@ -60,5 +60,11 @@ UNSUPPORTED_HASH = '\n'.join([
     'Please download one of the clients on the website, or ask an admin for permission!'
 ])
 
+MULTIACCOUNTING_DETECTED = '\n'.join([
+    'Our systems have detected that you are multiaccounting.',
+    'If you attempt to submit any scores, you will most likely be banned.',
+    'If you believe this is a mistake, please contact an admin!'
+])
+
 MAINTENANCE_MODE = 'Bancho is currently in maintenance mode. Please check back later!'
 MAINTENANCE_MODE_ADMIN = 'Bancho is currently in maintenance mode. Type !system maintenance off to disable it.'
