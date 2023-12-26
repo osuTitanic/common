@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from app.common.database.objects import DBClient
 from sqlalchemy.orm import Session
+from typing import List
 
 from .wrapper import session_wrapper
 
@@ -87,6 +88,12 @@ def fetch_hardware_only(
         .filter(DBClient.adapters == adapters) \
         .filter(DBClient.unique_id == unique_id) \
         .filter(DBClient.disk_signature == disk_signature) \
+        .filter(
+            # Remove "unknown" values (linux/wine)
+            DBClient.disk_signature != "ad921d60486366258809553a3db49a4a",
+            DBClient.unique_id != "ad921d60486366258809553a3db49a4a",
+            DBClient.adapters != "b4ec3c4334a0249dae95c284ec5983df"
+        ) \
         .all()
 
 @session_wrapper
@@ -99,8 +106,8 @@ def fetch_many(
     """Fetch every client from user id"""
     return session.query(DBClient) \
         .filter(DBClient.user_id == user_id) \
-        .limit(limit) \
         .offset(offset) \
+        .limit(limit) \
         .all()
 
 @session_wrapper
