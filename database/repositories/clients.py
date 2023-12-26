@@ -88,8 +88,7 @@ def fetch_hardware_only(
     return session.query(DBClient) \
         .filter(or_(
             DBClient.adapters == adapters,
-            DBClient.unique_id == unique_id,
-            DBClient.disk_signature == disk_signature
+            DBClient.unique_id == unique_id
         )) \
         .all()
 
