@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from app.common.database import DBReport
 from sqlalchemy.orm import Session
-from typing import Optional, List
+from typing import List
 
 from .wrapper import session_wrapper
 
@@ -11,7 +11,7 @@ from .wrapper import session_wrapper
 def create(
     target_id: int,
     sender_id: int,
-    reason: Optional[str] = None,
+    reason: str | None = None,
     session: Session | None = None
 ) -> DBReport:
     session.add(
@@ -26,13 +26,13 @@ def create(
     return r
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session | None = None) -> Optional[DBReport]:
+def fetch_by_id(id: int, session: Session | None = None) -> DBReport | None:
     return session.query(DBReport) \
         .filter(DBReport.id == id) \
         .first()
 
 @session_wrapper
-def fetch_last_by_sender(sender_id: int, session: Session | None = None) -> Optional[DBReport]:
+def fetch_last_by_sender(sender_id: int, session: Session | None = None) -> DBReport | None:
     return session.query(DBReport) \
         .filter(DBReport.sender_id == sender_id) \
         .filter(DBReport.resolved == False) \
@@ -40,7 +40,7 @@ def fetch_last_by_sender(sender_id: int, session: Session | None = None) -> Opti
         .first()
 
 @session_wrapper
-def fetch_last(target_id: int, session: Session | None = None) -> Optional[DBReport]:
+def fetch_last(target_id: int, session: Session | None = None) -> DBReport | None:
     return session.query(DBReport) \
         .filter(DBReport.target_id == target_id) \
         .filter(DBReport.resolved == False) \
@@ -68,7 +68,7 @@ def fetch_by_sender_to_target(
     sender_id: int,
     target_id: int,
     session: Session | None = None
-) -> Optional[DBReport]:
+) -> DBReport | None:
     return session.query(DBReport) \
         .filter(DBReport.target_id == target_id) \
         .filter(DBReport.sender_id == sender_id) \

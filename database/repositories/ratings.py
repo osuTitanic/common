@@ -4,8 +4,8 @@ from __future__ import annotations
 from app.common.database.objects import DBRating
 
 from sqlalchemy.orm import Session
-from typing import List, Optional
 from sqlalchemy import func
+from typing import List
 
 from .wrapper import session_wrapper
 
@@ -30,7 +30,7 @@ def create(
     return rating
 
 @session_wrapper
-def fetch_one(beatmap_hash: str, user_id: int, session: Session | None = None) -> Optional[int]:
+def fetch_one(beatmap_hash: str, user_id: int, session: Session | None = None) -> int | None:
     result = session.query(DBRating.rating) \
         .filter(DBRating.map_checksum == beatmap_hash) \
         .filter(DBRating.user_id == user_id) \

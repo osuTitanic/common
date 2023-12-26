@@ -19,8 +19,8 @@ from sqlalchemy.orm import selectinload, Session
 from sqlalchemy import func, or_, and_
 from .wrapper import session_wrapper
 
-from typing import Optional, List
 from datetime import datetime
+from typing import List
 
 @session_wrapper
 def create(
@@ -71,7 +71,7 @@ def create(
     return s
 
 @session_wrapper
-def fetch_one(id: int, session: Session | None = None) -> Optional[DBBeatmapset]:
+def fetch_one(id: int, session: Session | None = None) -> DBBeatmapset | None:
     return session.query(DBBeatmapset) \
             .filter(DBBeatmapset.id == id) \
             .first()
@@ -157,7 +157,7 @@ def search_one(
     query_string: str,
     offset: int = 0,
     session: Session | None = None
-) -> Optional[DBBeatmapset]:
+) -> DBBeatmapset | None:
     conditions = []
 
     keywords = [
@@ -196,12 +196,12 @@ def search_one(
 
 @session_wrapper
 def search_extended(
-    query_string: Optional[str],
-    genre: Optional[int],
-    language: Optional[int],
-    played: Optional[bool],
-    user_id: Optional[int],
-    mode: Optional[int],
+    query_string: str | None,
+    genre: int | None,
+    language: int | None,
+    played: bool | None,
+    user_id: int | None,
+    mode: int | None,
     order: BeatmapOrder,
     category: BeatmapCategory,
     sort: BeatmapSortBy,
@@ -241,7 +241,7 @@ def search_extended(
                 func.lower(DBBeatmap.version)
             ]
         ]
-    
+
         for word in keywords:
             conditions.append(or_(
                 *[

@@ -1,10 +1,11 @@
 
+from __future__ import annotations
+
 from boto3_type_annotations.s3 import Client
 from botocore.exceptions import ClientError
 from typing import List
 
 from datetime import timedelta
-from typing import Optional
 from redis import Redis
 
 from .database.repositories import scores
@@ -39,7 +40,7 @@ class Storage:
 
         self.api = Beatmaps()
 
-    def get_avatar(self, id: str) -> Optional[bytes]:
+    def get_avatar(self, id: str) -> bytes | None:
         if (image := self.get_from_cache(f'avatar:{id}')):
             return image
 
@@ -59,7 +60,7 @@ class Storage:
 
         return image
     
-    def get_screenshot(self, id: int) -> Optional[bytes]:
+    def get_screenshot(self, id: int) -> bytes | None:
         if config.S3_ENABLED:
             if not (image := self.get_from_s3(str(id), 'screenshots')):
                 return
@@ -70,7 +71,7 @@ class Storage:
 
         return image
     
-    def get_replay(self, id: int) -> Optional[bytes]:
+    def get_replay(self, id: int) -> bytes | None:
         if (replay := self.get_from_cache(f'osr:{id}')):
             return replay
 
@@ -90,7 +91,7 @@ class Storage:
 
         return replay
     
-    def get_full_replay(self, id: int) -> Optional[bytes]:
+    def get_full_replay(self, id: int) -> bytes | None:
         if not (replay := self.get_replay(id)):
             return
 
@@ -120,7 +121,7 @@ class Storage:
 
         return stream.get()
 
-    def get_beatmap(self, id: int) -> Optional[bytes]:
+    def get_beatmap(self, id: int) -> bytes | None:
         if (osu := self.get_from_cache(f'osu:{id}')):
             return osu
 
@@ -147,7 +148,7 @@ class Storage:
 
         return osu
 
-    def get_background(self, id: str) -> Optional[bytes]:
+    def get_background(self, id: str) -> bytes | None:
         if (image := self.get_from_cache(f'mt:{id}')):
             return image
 
@@ -168,7 +169,7 @@ class Storage:
 
         return image
 
-    def get_mp3(self, set_id: int) -> Optional[bytes]:
+    def get_mp3(self, set_id: int) -> bytes | None:
         if (mp3 := self.get_from_cache(f'mp3:{set_id}')):
             return mp3
 
@@ -183,13 +184,13 @@ class Storage:
 
         return mp3
 
-    def get_release_file(self, filename: str) -> Optional[bytes]:
+    def get_release_file(self, filename: str) -> bytes | None:
         if config.S3_ENABLED:
             return self.get_from_s3(filename, 'release')
         else:
             return self.get_file_content(f'/release/{filename}')
 
-    def get_patch_file(self, filename: str) -> Optional[bytes]:
+    def get_patch_file(self, filename: str) -> bytes | None:
         if config.S3_ENABLED:
             return self.get_from_s3(filename, 'patches')
         else:
@@ -256,7 +257,7 @@ class Storage:
         else:
             return self.remove_from_s3('replays', str(id))
 
-    def get_presigned_url(self, bucket: str, key: str, expiration: int = 900) -> Optional[str]:
+    def get_presigned_url(self, bucket: str, key: str, expiration: int = 900) -> str | None:
         if not config.S3_ENABLED:
             return
 
@@ -311,10 +312,10 @@ class Storage:
 
         return True
 
-    def get_from_cache(self, name: str) -> Optional[bytes]:
+    def get_from_cache(self, name: str) -> bytes | None:
         return self.cache.get(name)
 
-    def get_file_content(self, filepath: str) -> Optional[bytes]:
+    def get_file_content(self, filepath: str) -> bytes | None:
         try:
             with open(f'{config.DATA_PATH}/{filepath}', 'rb') as f:
                 return f.read()
@@ -330,7 +331,7 @@ class Storage:
 
         return True
 
-    def get_from_s3(self, key: str, bucket: str) -> Optional[bytes]:
+    def get_from_s3(self, key: str, bucket: str) -> bytes | None:
         buffer = io.BytesIO()
 
         try:

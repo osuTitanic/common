@@ -4,7 +4,7 @@ from __future__ import annotations
 from app.common.database.objects import DBInfringement
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from typing import Optional, List
+from typing import List
 
 from .wrapper import session_wrapper
 
@@ -13,7 +13,7 @@ def create(
     user_id: int,
     action: int,
     length: datetime,
-    description: Optional[str] = None,
+    description: str | None = None,
     is_permanent: bool = False,
     session: Session | None = None
 ) -> DBInfringement:
@@ -31,14 +31,14 @@ def create(
     return i
 
 @session_wrapper
-def fetch_recent(user_id: int, session: Session | None = None) -> Optional[DBInfringement]:
+def fetch_recent(user_id: int, session: Session | None = None) -> DBInfringement | None:
     return session.query(DBInfringement) \
         .filter(DBInfringement.user_id == user_id) \
         .order_by(DBInfringement.id.desc()) \
         .first()
 
 @session_wrapper
-def fetch_recent_by_action(user_id: int, action: int, session: Session | None = None) -> Optional[DBInfringement]:
+def fetch_recent_by_action(user_id: int, action: int, session: Session | None = None) -> DBInfringement | None:
     return session.query(DBInfringement) \
         .filter(DBInfringement.user_id == user_id) \
         .filter(DBInfringement.action == action) \

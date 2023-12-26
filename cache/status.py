@@ -1,8 +1,8 @@
 
+from __future__ import annotations
+
 from ..constants import ClientStatus, GameMode, Mods
 from ..objects import bStatusUpdate
-
-from typing import Optional
 from copy import copy
 
 import app
@@ -24,7 +24,7 @@ def update(player_id: int, status: bStatusUpdate, client_hash: str) -> None:
             key, value
         )
 
-def get(player_id: int) -> Optional[bStatusUpdate]:
+def get(player_id: int) -> bStatusUpdate | None:
     status = app.session.redis.hgetall(
         f'bancho:status:{player_id}'
     )
@@ -41,7 +41,7 @@ def get(player_id: int) -> Optional[bStatusUpdate]:
         text=status[b'text'].decode(),
     )
 
-def client_hash(player_id: int) -> Optional[str]:
+def client_hash(player_id: int) -> str | None:
     hash = app.session.redis.hget(
         f'bancho:status:{player_id}',
         'hash'

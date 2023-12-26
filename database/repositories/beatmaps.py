@@ -60,21 +60,21 @@ def create(
     return m
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session | None = None) -> Optional[DBBeatmap]:
+def fetch_by_id(id: int, session: Session | None = None) -> DBBeatmap | None:
     return session.query(DBBeatmap) \
         .options(selectinload(DBBeatmap.beatmapset)) \
         .filter(DBBeatmap.id == id) \
         .first()
 
 @session_wrapper
-def fetch_by_file(filename: str, session: Session | None = None) -> Optional[DBBeatmap]:
+def fetch_by_file(filename: str, session: Session | None = None) -> DBBeatmap | None:
     return session.query(DBBeatmap) \
         .options(selectinload(DBBeatmap.beatmapset)) \
         .filter(DBBeatmap.filename == filename) \
         .first()
 
 @session_wrapper
-def fetch_by_checksum(checksum: str, session: Session | None = None) -> Optional[DBBeatmap]:
+def fetch_by_checksum(checksum: str, session: Session | None = None) -> DBBeatmap | None:
     return session.query(DBBeatmap) \
         .options(selectinload(DBBeatmap.beatmapset)) \
         .filter(DBBeatmap.md5 == checksum) \

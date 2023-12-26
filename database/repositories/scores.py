@@ -10,8 +10,8 @@ from app.common.database.objects import (
 from sqlalchemy.orm import selectinload, Session
 from sqlalchemy import or_, and_, func
 
-from typing import Optional, List, Dict
 from datetime import datetime
+from typing import List, Dict
 
 from .wrapper import session_wrapper
 
@@ -43,7 +43,7 @@ def hide_all(user_id: int, session: Session | None = None) -> int:
     return rows
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session | None = None) -> Optional[DBScore]:
+def fetch_by_id(id: int, session: Session | None = None) -> DBScore | None:
     return session.query(DBScore) \
         .options(
             selectinload(DBScore.beatmap),
@@ -53,7 +53,7 @@ def fetch_by_id(id: int, session: Session | None = None) -> Optional[DBScore]:
         .first()
 
 @session_wrapper
-def fetch_by_replay_checksum(checksum: str, session: Session | None = None) -> Optional[DBScore]:
+def fetch_by_replay_checksum(checksum: str, session: Session | None = None) -> DBScore | None:
     return session.query(DBScore) \
         .filter(DBScore.replay_md5 == checksum) \
         .first()
@@ -76,9 +76,9 @@ def fetch_total_count(session: Session | None = None) -> int:
 def fetch_count_beatmap(
     beatmap_id: int,
     mode: int,
-    mods: Optional[int] = None,
-    country: Optional[str] = None,
-    friends: Optional[List[int]] = None,
+    mods: int | None = None,
+    country: str | None = None,
+    friends: List[int | None] = None,
     session: Session | None = None
 ) -> int:
     query = session.query(func.count(DBScore.id)) \
@@ -185,7 +185,7 @@ def fetch_personal_best(
     mode: int,
     mods: int | None = None,
     session: Session | None = None
-) -> Optional[DBScore]:
+) -> DBScore | None:
     if mods is None:
         return session.query(DBScore) \
             .options(selectinload(DBScore.user)) \
@@ -385,7 +385,7 @@ def fetch_score_above(
     mode: int,
     total_score: int,
     session: Session | None = None
-) -> Optional[DBScore]:
+) -> DBScore | None:
     return session.query(DBScore) \
         .options(selectinload(DBScore.user)) \
         .filter(DBScore.beatmap_id == beatmap_id) \

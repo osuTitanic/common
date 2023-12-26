@@ -5,7 +5,6 @@ from app.common.database.repositories import events
 from app.common.database.objects import DBMatch
 
 from sqlalchemy.orm import Session
-from typing import Optional
 
 from .wrapper import session_wrapper
 
@@ -28,13 +27,13 @@ def create(
     return m
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session | None = None) -> Optional[DBMatch]:
+def fetch_by_id(id: int, session: Session | None = None) -> DBMatch | None:
     return session.query(DBMatch) \
         .filter(DBMatch.id == id) \
         .first()
 
 @session_wrapper
-def fetch_by_bancho_id(id: int, session: Session | None = None) -> Optional[DBMatch]:
+def fetch_by_bancho_id(id: int, session: Session | None = None) -> DBMatch | None:
     return session.query(DBMatch) \
         .filter(DBMatch.bancho_id == id) \
         .first()

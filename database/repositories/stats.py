@@ -8,8 +8,8 @@ from app.common.database.objects import (
 )
 
 from sqlalchemy.orm import Session
-from typing import Optional, List
 from sqlalchemy import func
+from typing import List
 
 from .wrapper import session_wrapper
 from . import scores
@@ -71,7 +71,7 @@ def fetch_by_mode(
     user_id: int,
     mode: int,
     session: Session | None = None
-) -> Optional[DBStats]:
+) -> DBStats | None:
     return session.query(DBStats) \
         .filter(DBStats.user_id == user_id) \
         .filter(DBStats.mode == mode) \

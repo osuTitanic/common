@@ -5,8 +5,8 @@ from app.common.database.objects import DBUserCount
 
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from typing import List, Optional
 from sqlalchemy import desc, and_
+from typing import List
 
 from .wrapper import session_wrapper
 
@@ -31,7 +31,7 @@ def fetch_range(
         .all()
 
 @session_wrapper
-def fetch_last(session: Session | None = None) -> Optional[DBUserCount]:
+def fetch_last(session: Session | None = None) -> DBUserCount | None:
     return session.query(DBUserCount) \
         .order_by(desc(DBUserCount.time)) \
         .first()

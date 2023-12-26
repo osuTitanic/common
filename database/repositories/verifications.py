@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from app.common.database.objects import DBVerification
 from sqlalchemy.orm import Session
-from typing import Optional, List
+from typing import List
 
 from .wrapper import session_wrapper
 
@@ -32,13 +32,13 @@ def create(
     return v
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session | None = None) -> Optional[DBVerification]:
+def fetch_by_id(id: int, session: Session | None = None) -> DBVerification | None:
     return session.query(DBVerification) \
         .filter(DBVerification.id == id) \
         .first()
 
 @session_wrapper
-def fetch_by_token(token: str, session: Session | None = None) -> Optional[DBVerification]:
+def fetch_by_token(token: str, session: Session | None = None) -> DBVerification | None:
     return session.query(DBVerification) \
         .filter(DBVerification.token == token) \
         .first()

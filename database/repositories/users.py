@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from app.common.database.objects import DBUser, DBStats
 from datetime import datetime, timedelta
-from typing import Optional, List
+from typing import List
 
 from sqlalchemy.orm import selectinload, Session
 from sqlalchemy import func, or_
@@ -18,10 +18,10 @@ def create(
     pw_bcrypt: str,
     country: str,
     activated: bool = False,
-    discord_id: Optional[int] = None,
+    discord_id: int | None = None,
     permissions: int = 1,
     session: Session | None = None
-) -> Optional[DBUser]:
+) -> DBUser | None:
     session.add(
         user := DBUser(
             username,
@@ -51,13 +51,13 @@ def update(
     return rows
 
 @session_wrapper
-def fetch_by_name(username: str, session: Session | None = None) -> Optional[DBUser]:
+def fetch_by_name(username: str, session: Session | None = None) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.name == username) \
         .first()
 
 @session_wrapper
-def fetch_by_name_extended(query: str, session: Session | None = None) -> Optional[DBUser]:
+def fetch_by_name_extended(query: str, session: Session | None = None) -> DBUser | None:
     """Used for searching users"""
     return session.query(DBUser) \
         .filter(or_(
@@ -68,19 +68,19 @@ def fetch_by_name_extended(query: str, session: Session | None = None) -> Option
         .first()
 
 @session_wrapper
-def fetch_by_safe_name(username: str, session: Session | None = None) -> Optional[DBUser]:
+def fetch_by_safe_name(username: str, session: Session | None = None) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.safe_name == username) \
         .first()
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session | None = None) -> Optional[DBUser]:
+def fetch_by_id(id: int, session: Session | None = None) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.id == id) \
         .first()
 
 @session_wrapper
-def fetch_by_email(email: str, session: Session | None = None) -> Optional[DBUser]:
+def fetch_by_email(email: str, session: Session | None = None) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.email == email) \
         .first()
@@ -107,7 +107,7 @@ def fetch_active(delta: timedelta = timedelta(days=30), session: Session | None 
         .all()
 
 @session_wrapper
-def fetch_by_discord_id(id: int, session: Session | None = None) -> Optional[DBUser]:
+def fetch_by_discord_id(id: int, session: Session | None = None) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.discord_id == id) \
         .first()
@@ -124,13 +124,13 @@ def fetch_count(exclude_restricted=True, session: Session | None = None) -> int:
     return query.scalar()
 
 @session_wrapper
-def fetch_username(user_id: int, session: Session | None = None) -> Optional[str]:
+def fetch_username(user_id: int, session: Session | None = None) -> str | None:
     return session.query(DBUser.name) \
             .filter(DBUser.id == user_id) \
             .scalar()
 
 @session_wrapper
-def fetch_user_id(username: str, session: Session | None = None) -> Optional[int]:
+def fetch_user_id(username: str, session: Session | None = None) -> int | None:
     return session.query(DBUser.id) \
             .filter(DBUser.name == username) \
             .scalar()

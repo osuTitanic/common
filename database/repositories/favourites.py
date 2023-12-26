@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from app.common.database.objects import DBFavourite
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List
 
 from .wrapper import session_wrapper
 
@@ -12,7 +12,7 @@ def create(
     user_id: int,
     set_id: int,
     session: Session | None = None
-) -> Optional[DBFavourite]:
+) -> DBFavourite | None:
     # Check if favourite was already set
     if session.query(DBFavourite.user_id) \
         .filter(DBFavourite.user_id == user_id) \
@@ -35,7 +35,7 @@ def fetch_one(
     user_id: int,
     set_id: int,
     session: Session | None = None
-) -> Optional[DBFavourite]:
+) -> DBFavourite | None:
     return session.query(DBFavourite) \
         .filter(DBFavourite.user_id == user_id) \
         .filter(DBFavourite.set_id == set_id) \

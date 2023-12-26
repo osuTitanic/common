@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from app.common.database.objects import DBClient
 from sqlalchemy.orm import Session
-from typing import List, Optional
 
 from .wrapper import session_wrapper
 
@@ -50,7 +49,7 @@ def fetch_one(
     unique_id: str,
     disk_signature: str,
     session: Session | None = None
-) -> Optional[DBClient]:
+) -> DBClient | None:
     """Fetch one client where all hardware attributes need to match"""
     return session.query(DBClient) \
         .filter(DBClient.user_id == user_id) \
@@ -67,7 +66,7 @@ def fetch_without_executable(
     unique_id: str,
     disk_signature: str,
     session: Session | None = None
-) -> Optional[DBClient]:
+) -> DBClient | None:
     """Fetch one client with matching hardware and user id"""
     return session.query(DBClient) \
         .filter(DBClient.user_id == user_id) \
