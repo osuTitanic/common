@@ -90,6 +90,10 @@ def fetch_hardware_only(
             DBClient.adapters == adapters,
             DBClient.unique_id == unique_id
         )) \
+        .filter(
+            # "0"
+            DBClient.disk_signature != "dcfcd07e645d245babe887e5e2daa016"
+        ) \
         .all()
 
 @session_wrapper
