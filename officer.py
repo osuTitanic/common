@@ -11,7 +11,7 @@ def call(content: str, exc_info: Exception | None = None) -> None:
     app.session.logger.warning(content)
     app.session.logger.debug('Calling officer...')
 
-    if not config.MURDOCH_WEBHOOK_URL:
+    if not config.OFFICER_WEBHOOK_URL:
         app.session.logger.debug('Officer is not on board.')
         return
 
@@ -23,7 +23,7 @@ def call(content: str, exc_info: Exception | None = None) -> None:
         content += '```'
 
     payload = {'content': content}
-    response = requests.post(config.MURDOCH_WEBHOOK_URL, json=payload)
+    response = requests.post(config.OFFICER_WEBHOOK_URL, json=payload)
     
     if not response.ok:
         app.session.logger.warning(
