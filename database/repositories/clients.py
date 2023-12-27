@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from app.common.database.objects import DBClient
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from typing import List
 
 from .wrapper import session_wrapper
@@ -85,16 +85,29 @@ def fetch_hardware_only(
     session: Session | None = None
 ) -> List[DBClient]:
     """Fetch clients only by hardware attributes. Useful for multi-account detection."""
+    # TODO: There are somehow two types of empty md5 hashes?
     return session.query(DBClient) \
         .filter(or_(
-            DBClient.adapters == adapters,
-            DBClient.unique_id == unique_id
-        )) \
-        .filter(
-            # "0"
-            DBClient.disk_signature != "dcfcd07e645d245babe887e5e2daa016"
-        ) \
-        .all()
+            and_(
+                DBClient.adapters == adapters,
+                DBClient.adapters != "b4ec3c4334a0249dae95c284ec5983df", # "runningunderwine"
+                DBClient.adapters != "74be16979710d4c4e7c6647856088456", # ""
+                DBClient.adapters != "d41d8cd98f00b204e9800998ecf8427e"  # ""
+            ),
+            and_(
+                DBClient.disk_signature == disk_signature,
+                DBClient.disk_signature != "ad921d60486366258809553a3db49a4a", # "unknown"
+                DBClient.disk_signature != "dcfcd07e645d245babe887e5e2daa016", # "0"
+                DBClient.disk_signature != "74be16979710d4c4e7c6647856088456", # ""
+                DBClient.disk_signature != "d41d8cd98f00b204e9800998ecf8427e"  # ""
+            ),
+            and_(
+                DBClient.unique_id == unique_id,
+                DBClient.unique_id != "ad921d60486366258809553a3db49a4a", # "unknown"
+                DBClient.unique_id != "74be16979710d4c4e7c6647856088456", # ""
+                DBClient.unique_id != "d41d8cd98f00b204e9800998ecf8427e"  # ""
+            )
+        )).all()
 
 @session_wrapper
 def fetch_many(
