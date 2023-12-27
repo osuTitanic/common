@@ -304,3 +304,15 @@ def search_extended(
     return query.offset(offset) \
                 .limit(limit) \
                 .all()
+
+@session_wrapper
+def update(
+    beatmapset_id: int,
+    updates: dict,
+    session: Session | None = None
+) -> int:
+    rows = session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.id == beatmapset_id) \
+        .update(updates)
+    session.commit()
+    return rows
