@@ -130,3 +130,19 @@ def send_reactivate_account_email(verification: DBVerification, user: DBUser):
         message,
         user.email
     )
+
+def send_new_location_email(user: DBUser, country: str):
+    message = email.NEW_LOCATION.format(
+        domain=config.DOMAIN_NAME,
+        username=user.name,
+        country=country,
+        signature=email.SIGNATURE.format(
+            domain=config.DOMAIN_NAME
+        )
+    )
+
+    return send(
+        'New login from a new location',
+        message,
+        user.email
+    )
