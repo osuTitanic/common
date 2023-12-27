@@ -92,10 +92,25 @@ def fetch_count(session: Session | None = None) -> int:
                   .scalar()
 
 @session_wrapper
-def update(beatmap_id: int, updates: dict, session: Session | None = None) -> int:
+def update(
+    beatmap_id: int,
+    updates: dict,
+    session: Session | None = None
+) -> int:
     rows = session.query(DBBeatmap) \
         .filter(DBBeatmap.id == beatmap_id) \
         .update(updates)
     session.commit()
+    return rows
 
+@session_wrapper
+def update_by_set_id(
+    set_id: int,
+    updates: dict,
+    session: Session | None = None
+) -> int:
+    rows = session.query(DBBeatmap) \
+        .filter(DBBeatmap.set_id == set_id) \
+        .update(updates)
+    session.commit()
     return rows
