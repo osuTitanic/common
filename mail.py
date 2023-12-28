@@ -50,6 +50,8 @@ def mailgun(subject: str, message: str, email: str):
     return response
 
 def send(subject: str, message: str, email: str):
+    app.session.logger.info(f'Sending email to {email} with subject "{subject}"...')
+
     if not config.EMAILS_ENABLED:
         app.session.logger.warning(f'Failed to send email: Emails are disabled.')
         return
