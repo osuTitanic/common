@@ -29,10 +29,12 @@ def delete_entry(
     group_id: int,
     session: Session | None = None
 ) -> int:
-    return session.query(DBGroupEntry) \
+    rows = session.query(DBGroupEntry) \
         .filter(DBGroupEntry.group_id == group_id) \
         .filter(DBGroupEntry.user_id == user_id) \
         .delete()
+    session.commit()
+    return rows
 
 @session_wrapper
 def fetch_one(id: int, session: Session | None = None) -> DBGroup | None:
