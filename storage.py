@@ -97,6 +97,9 @@ class Storage:
 
         score = scores.fetch_by_id(id)
 
+        if not score:
+            return
+
         stream = StreamOut()
         stream.u8(score.mode)
         stream.s32(score.client_version)
