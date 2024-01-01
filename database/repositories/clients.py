@@ -98,6 +98,7 @@ def fetch_hardware_only(
                 DBClient.disk_signature == disk_signature,
                 DBClient.disk_signature != "ad921d60486366258809553a3db49a4a", # "unknown"
                 DBClient.disk_signature != "dcfcd07e645d245babe887e5e2daa016", # "0"
+                DBClient.disk_signature != "28c8edde3d61a0411511d3b1866f0636", # "1"
                 DBClient.disk_signature != "74be16979710d4c4e7c6647856088456", # ""
                 DBClient.disk_signature != "d41d8cd98f00b204e9800998ecf8427e"  # ""
             ),
