@@ -66,6 +66,39 @@ def update(stats: DBStats, country: str) -> None:
         {stats.user_id: stats.acc}
     )
 
+    # PP VN
+    app.session.redis.zadd(
+        f'bancho:ppvn:{stats.mode}',
+        {stats.user_id: stats.pp_vn}
+    )
+
+    app.session.redis.zadd(
+        f'bancho:ppvn:{stats.mode}:{country.lower()}',
+        {stats.user_id: stats.pp_vn}
+    )
+
+    # PP RX
+    app.session.redis.zadd(
+        f'bancho:pprx:{stats.mode}',
+        {stats.user_id: stats.pp_rx}
+    )
+
+    app.session.redis.zadd(
+        f'bancho:pprx:{stats.mode}:{country.lower()}',
+        {stats.user_id: stats.pp_rx}
+    )
+
+    # PP AP
+    app.session.redis.zadd(
+        f'bancho:ppap:{stats.mode}',
+        {stats.user_id: stats.pp_ap}
+    )
+
+    app.session.redis.zadd(
+        f'bancho:ppap:{stats.mode}:{country.lower()}',
+        {stats.user_id: stats.pp_ap}
+    )
+
 def remove_country(
     user_id: int,
     country: str
@@ -94,6 +127,21 @@ def remove_country(
 
         app.session.redis.zrem(
             f'bancho:acc:{mode}:{country.lower()}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:ppvn:{mode}:{country.lower()}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:pprx:{mode}:{country.lower()}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:ppap:{mode}:{country.lower()}',
             user_id
         )
 
@@ -150,6 +198,36 @@ def remove(
 
         app.session.redis.zrem(
             f'bancho:acc:{mode}:{country.lower()}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:ppvn:{mode}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:ppvn:{mode}:{country.lower()}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:pprx:{mode}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:pprx:{mode}:{country.lower()}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:ppap:{mode}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:ppap:{mode}:{country.lower()}',
             user_id
         )
 
@@ -245,6 +323,39 @@ def total_score_rank_country(
     )
     return (rank + 1 if rank is not None else 0)
 
+def vn_pp_rank(
+    user_id: int,
+    mode: int
+) -> int:
+    """Get vn pp rank"""
+    rank = app.session.redis.zrevrank(
+        f'bancho:ppvn:{mode}',
+        user_id
+    )
+    return (rank + 1 if rank is not None else 0)
+
+def rx_pp_rank(
+    user_id: int,
+    mode: int
+) -> int:
+    """Get rx pp rank"""
+    rank = app.session.redis.zrevrank(
+        f'bancho:pprx:{mode}',
+        user_id
+    )
+    return (rank + 1 if rank is not None else 0)
+
+def ap_pp_rank(
+    user_id: int,
+    mode: int
+) -> int:
+    """Get ap pp rank"""
+    rank = app.session.redis.zrevrank(
+        f'bancho:ppap:{mode}', # lol
+        user_id
+    )
+    return (rank + 1 if rank is not None else 0)
+
 def performance(
     user_id: int,
     mode: int
@@ -288,6 +399,39 @@ def accuracy(
         user_id
     )
     return acc if acc is not None else 0
+
+def vn_pp(
+    user_id: int,
+    mode: int
+) -> float:
+    """Get player's vn pp"""
+    pp = app.session.redis.zscore(
+        f'bancho:ppvn:{mode}',
+        user_id
+    )
+    return pp if pp is not None else 0
+
+def rx_pp(
+    user_id: int,
+    mode: int
+) -> float:
+    """Get player's rx pp"""
+    pp = app.session.redis.zscore(
+        f'bancho:pprx:{mode}',
+        user_id
+    )
+    return pp if pp is not None else 0
+
+def ap_pp(
+    user_id: int,
+    mode: int
+) -> float:
+    """Get player's ap pp"""
+    pp = app.session.redis.zscore(
+        f'bancho:ppap:{mode}',
+        user_id
+    )
+    return pp if pp is not None else 0
 
 def top_players(
     mode: int,
