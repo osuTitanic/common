@@ -81,9 +81,15 @@ def search(
     query_string: str,
     user_id: int,
     display_mode = DisplayMode.All,
+    offset: int = 0,
+    mode: int = -1,
     session: Session | None = None
 ) -> List[DBBeatmapset]:
-    query = session.query(DBBeatmapset)
+    query = session.query(DBBeatmapset) \
+                   .join(DBBeatmap)
+
+    if mode != -1:
+        query = query.filter(DBBeatmap.mode == mode)
 
     if query_string == 'Newest':
         query = query.order_by(DBBeatmapset.created_at.desc())
@@ -94,8 +100,7 @@ def search(
                      .order_by(func.avg(DBRating.rating).desc())
 
     elif query_string == 'Most Played':
-        query = query.join(DBBeatmap) \
-                     .group_by(DBBeatmapset.id) \
+        query = query.group_by(DBBeatmapset.id) \
                      .order_by(func.sum(DBBeatmap.playcount).desc())
 
     else:
@@ -128,9 +133,8 @@ def search(
                 ]
             ))
 
-        query = query.join(DBBeatmap) \
-                .filter(and_(*conditions)) \
-                .order_by(DBBeatmap.playcount.desc())
+        query = query.filter(and_(*conditions)) \
+                     .order_by(DBBeatmap.playcount.desc())
 
     if display_mode == DisplayMode.Ranked:
         query = query.filter(DBBeatmapset.status > 0)
@@ -147,6 +151,7 @@ def search(
                      .filter(DBBeatmapset.status > 0)
 
     return query.limit(100) \
+                .offset(offset) \
                 .options(
                     selectinload(DBBeatmapset.beatmaps),
                     selectinload(DBBeatmapset.ratings)
