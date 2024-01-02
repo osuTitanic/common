@@ -1,6 +1,5 @@
 
 import re
-import re
 
 OSU_VERSION = re.compile(
     r"^b(?P<date>\d{1,8})"

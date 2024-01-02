@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from app.common.constants import COUNTRIES
+from ...constants import COUNTRIES
 
 from geoip2.errors import AddressNotFoundError
 from geoip2.database import Reader

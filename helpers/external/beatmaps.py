@@ -3,7 +3,6 @@ from requests import Session, Response
 from typing import Optional
 
 import logging
-import config
 
 class Beatmaps:
     """Wrapper for different beatmap resources, using different API's"""
@@ -29,7 +28,7 @@ class Beatmaps:
             return self.osz_backup(set_id, no_video)
 
         # NOTE: osu.direct always responds with status code 200, even on errors
-        # So here is a little workaround for that
+        #       So here is a little workaround for that
 
         if 'application/json' in response.headers['Content-Type']:
             self.log_error(response.url, response.json()['code'])

@@ -6,7 +6,6 @@ from .constants import email
 
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
-from requests import Response
 
 import config
 import app

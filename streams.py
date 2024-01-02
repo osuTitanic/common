@@ -1,7 +1,6 @@
 
 from typing	import List
 from enum import Enum
-
 import struct
 
 class StreamOut:
