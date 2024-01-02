@@ -86,7 +86,8 @@ def search(
     session: Session | None = None
 ) -> List[DBBeatmapset]:
     query = session.query(DBBeatmapset) \
-                   .join(DBBeatmap)
+                   .join(DBBeatmap) \
+                   .distinct()
 
     if mode != -1:
         query = query.filter(DBBeatmap.mode == mode)
@@ -144,6 +145,9 @@ def search(
 
     elif display_mode == DisplayMode.Graveyard:
         query = query.filter(DBBeatmapset.status == -1)
+
+    elif display_mode == DisplayMode.Qualified:
+        query = query.filter(DBBeatmapset.status == 3)
 
     elif display_mode == DisplayMode.Played:
         query = query.join(DBPlay) \
