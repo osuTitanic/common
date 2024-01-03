@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from .database.objects import DBVerification, DBUser
 from .constants import email
+from . import officer
 
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
@@ -26,6 +27,10 @@ def sendgrid(subject: str, message: str, email: str):
         app.session.logger.warning(
             f'Failed to send email: {response.body}'
         )
+        officer.call(
+            f'Failed to send email to {email} with subject "{subject}": '
+            f'{response.body} ({response.status_code})'
+        )
 
     return response
 
@@ -44,6 +49,10 @@ def mailgun(subject: str, message: str, email: str):
     if not response.ok:
         app.session.logger.warning(
             f'Failed to send email: {response.text}'
+        )
+        officer.call(
+            f'Failed to send email to {email} with subject "{subject}": '
+            f'{response.text} ({response.status_code})'
         )
 
     return response
