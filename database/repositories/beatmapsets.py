@@ -86,14 +86,14 @@ def search(
     session: Session | None = None
 ) -> List[DBBeatmapset]:
     query = session.query(DBBeatmapset) \
-                   .join(DBBeatmap) \
-                   .distinct()
+                   .join(DBBeatmap, isouter=True)
 
     if mode != -1:
         query = query.filter(DBBeatmap.mode == mode)
 
     if query_string == 'Newest':
-        query = query.order_by(DBBeatmapset.created_at.desc())
+        query = query.order_by(DBBeatmapset.created_at.desc()) \
+                     .distinct()
 
     elif query_string == 'Top Rated':
         query = query.join(DBRating) \
@@ -135,7 +135,8 @@ def search(
             ))
 
         query = query.filter(and_(*conditions)) \
-                     .order_by(DBBeatmap.playcount.desc())
+                     .group_by(DBBeatmapset.id) \
+                     .order_by(func.sum(DBBeatmap.playcount).desc())
 
     if display_mode == DisplayMode.Ranked:
         query = query.filter(DBBeatmapset.status > 0)
