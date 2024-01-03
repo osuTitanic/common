@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from contextlib import contextmanager
 
 from .objects import Base
+from .. import officer
 
 import logging
 import config
@@ -48,6 +49,7 @@ class Postgres:
             if exception_name in ('HTTPException', 'NotFound'):
                 raise e
 
+            officer.call(f'Transaction failed: {e}', exc_info=e)
             self.logger.fatal(f'Transaction failed: {e}', exc_info=e)
             self.logger.fatal('Performing rollback...')
             session.rollback()

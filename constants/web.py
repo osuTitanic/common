@@ -24,6 +24,7 @@ class ScoreStatus(IntEnum):
 class DisplayMode(IntEnum):
     Ranked    = 0
     Pending   = 2
+    Qualified = 3
     All       = 4
     Graveyard = 5
     Played    = 7

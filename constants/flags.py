@@ -3,6 +3,7 @@ from enum import IntFlag
 
 class BadFlags(IntFlag):
 	Clean                       = 0
+	# TODO: ?? 					= 1
 	SpeedHackDetected           = 2
 	IncorrectModValue           = 4
 	MultipleOsuClients          = 8
@@ -14,3 +15,5 @@ class BadFlags(IntFlag):
 	SpinnerHack                 = 512
 	TransparentWindow           = 1024
 	FastPress                   = 2048
+	RawMouseDiscrepancy			= 4096
+	RawKeyboardDiscrepancy		= 8192
