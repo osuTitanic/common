@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from functools import cache
 
 import config
+import struct
+import socket
 import app
 
 @dataclass(slots=True)
@@ -36,9 +38,37 @@ def download_database():
     with open(f'{config.DATA_PATH}/geolite.mmdb', 'wb') as f:
         f.write(response.content)
 
+def is_local_ip(ip: str) -> bool:
+    if ':' in ip:
+        # TODO: IPv6 parsing
+        return False
+
+    private = (
+        [ 2130706432, 4278190080 ], # 127.0.0.0
+        [ 3232235520, 4294901760 ], # 192.168.0.0
+        [ 2886729728, 4293918720 ], # 172.16.0.0
+        [ 167772160,  4278190080 ], # 10.0.0.0
+    )
+
+    f = struct.unpack(
+        '!I',
+        socket.inet_pton(
+            socket.AF_INET,
+            ip
+        )
+    )[0]
+
+    for net in private:
+        if (f & net[1]) == net[0]:
+            return True
+
+    return False
+
 @cache
-def fetch_geolocation(ip: str, is_local: bool = False) -> Geolocation:
+def fetch_geolocation(ip: str) -> Geolocation:
     try:
+        is_local = is_local_ip(ip)
+
         if is_local:
             if not (geo := fetch_web(ip, is_local)):
                 return Geolocation()
