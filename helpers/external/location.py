@@ -107,28 +107,32 @@ def fetch_db(ip: str) -> Geolocation | None:
         return
 
 def fetch_web(ip: str, is_local: bool = False) -> Geolocation | None:
-    response = app.session.requests.get(f'http://ip-api.com/line/{ip if not is_local else ""}')
+    try:
+        response = app.session.requests.get(f'http://ip-api.com/line/{ip if not is_local else ""}')
 
-    if not response.ok:
-        return None
+        if not response.ok:
+            return None
 
-    status, *lines = response.text.split('\n')
+        status, *lines = response.text.split('\n')
 
-    if status != 'success':
-        app.session.logger.error(
-            f'Failed to get geolocation: {status} ({lines[0]})'
+        if status != 'success':
+            app.session.logger.error(
+                f'Failed to get geolocation: {status} ({lines[0]})'
+            )
+            return None
+
+        index = list(COUNTRIES.keys()).index(lines[1])
+
+        return Geolocation(
+            ip=lines[12],
+            latitude=float(lines[6]),
+            longitude=float(lines[7]),
+            country_code=lines[1],
+            country_name=lines[0],
+            country_index=index,
+            timezone=lines[8],
+            city=lines[4]
         )
+    except Exception as e:
+        app.session.logger.error(f'Failed to get geolocation from web: {e}')
         return None
-
-    index = list(COUNTRIES.keys()).index(lines[1])
-
-    return Geolocation(
-        ip=lines[12],
-        latitude=float(lines[6]),
-        longitude=float(lines[7]),
-        country_code=lines[1],
-        country_name=lines[0],
-        country_index=index,
-        timezone=lines[8],
-        city=lines[4]
-    )
