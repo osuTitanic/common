@@ -46,6 +46,7 @@ class Mods(IntFlag):
                 Mods.NoMod: "NM",
                 Mods.NoFail: "NF",
                 Mods.Easy: "EZ",
+                Mods.NoVideo: "NV",
                 Mods.Hidden: "HD",
                 Mods.HardRock: "HR",
                 Mods.SuddenDeath: "SD",
