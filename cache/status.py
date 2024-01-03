@@ -7,7 +7,7 @@ from copy import copy
 
 import app
 
-def update(player_id: int, status: bStatusUpdate, client_hash: str) -> None:
+def update(player_id: int, status: bStatusUpdate, client_hash: str, version: int) -> None:
     status = copy(status)
 
     for key, value in {
@@ -17,7 +17,8 @@ def update(player_id: int, status: bStatusUpdate, client_hash: str) -> None:
         'mods': status.mods.value,
         'mode': status.mode.value,
         'hash': client_hash,
-        'text': status.text
+        'text': status.text,
+        'version': version,
     }.items():
         app.session.redis.hset(
             f'bancho:status:{player_id}',
@@ -51,6 +52,17 @@ def client_hash(player_id: int) -> str | None:
         return
 
     return hash.decode()
+
+def version(player_id: int) -> int | None:
+    version = app.session.redis.hget(
+        f'bancho:status:{player_id}',
+        'version'
+    )
+
+    if not version:
+        return
+
+    return int(version)
 
 def delete(player_id: int) -> None:
     app.session.redis.hdel(
