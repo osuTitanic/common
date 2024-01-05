@@ -179,6 +179,20 @@ def fetch_best(
                 .all()
 
 @session_wrapper
+def fetch_pinned(
+    user_id: int,
+    mode: int,
+    session: Session | None = None
+) -> List[DBScore]:
+    return session.query(DBScore) \
+        .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.mode == mode) \
+        .filter(DBScore.status == 3) \
+        .filter(DBScore.pinned == True) \
+        .order_by(DBScore.pp.desc()) \
+        .all()
+
+@session_wrapper
 def fetch_personal_best(
     beatmap_id: int,
     user_id: int,
