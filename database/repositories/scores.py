@@ -182,6 +182,8 @@ def fetch_best(
 def fetch_pinned(
     user_id: int,
     mode: int,
+    limit: int = 50,
+    offset: int = 0,
     session: Session | None = None
 ) -> List[DBScore]:
     return session.query(DBScore) \
@@ -190,6 +192,8 @@ def fetch_pinned(
         .filter(DBScore.status == 3) \
         .filter(DBScore.pinned == True) \
         .order_by(DBScore.pp.desc()) \
+        .limit(limit) \
+        .offset(offset) \
         .all()
 
 @session_wrapper
