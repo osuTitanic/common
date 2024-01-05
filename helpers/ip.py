@@ -31,21 +31,16 @@ def is_local_ip(ip: str) -> bool:
 
 def resolve_ip_address_flask(request):
     """Resolve the IP address of a flask request"""
-    ip = request.headers.get("CF-Connecting-IP")
-    forwards = None
+    if ip := request.headers.get("CF-Connecting-IP"):
+        return ip
 
-    if ip is None:
-        forwards = request.headers.get("X-Forwarded-For")
+    if forwards := request.headers.get("X-Forwarded-For"):
+        return forwards.split(",")[0]
 
-    if forwards:
-        ip = forwards.split(",")[0]
-    else:
-        ip = request.headers.get("X-Real-IP")
+    if ip := request.headers.get("X-Real-IP"):
+        return ip.strip()
 
-    if ip is None:
-        ip = request.environ['REMOTE_ADDR']
-
-    return ip.strip()
+    return request.environ['REMOTE_ADDR']
 
 def resolve_ip_address_fastapi(request):
     """Resolve the IP address of a fastapi request"""
