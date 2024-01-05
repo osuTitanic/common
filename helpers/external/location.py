@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from ...constants import COUNTRIES
+from ..ip import is_local_ip
 
 from geoip2.errors import AddressNotFoundError
 from geoip2.database import Reader
@@ -9,7 +10,6 @@ from geoip2.database import Reader
 from dataclasses import dataclass
 from functools import cache
 
-import ipaddress
 import config
 import app
 
@@ -36,34 +36,6 @@ def download_database():
 
     with open(f'{config.DATA_PATH}/geolite.mmdb', 'wb') as f:
         f.write(response.content)
-
-def is_local_ip(ip: str) -> bool:
-    address = ipaddress.ip_address(ip)
-
-    if address.version == 6:
-        private = [
-            ipaddress.IPv6Network('fc00::/7'),
-            ipaddress.IPv6Network('::1/128')
-        ]
-
-        for net in private:
-            if address in net:
-                return True
-
-        return False
-
-    private = [
-        ipaddress.IPv4Network('127.0.0.0/8'),
-        ipaddress.IPv4Network('192.168.0.0/16'),
-        ipaddress.IPv4Network('172.16.0.0/12'),
-        ipaddress.IPv4Network('10.0.0.0/8')
-    ]
-
-    for net in private:
-        if address in net:
-            return True
-
-    return False
 
 @cache
 def fetch_geolocation(ip: str) -> Geolocation:
