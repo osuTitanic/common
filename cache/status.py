@@ -42,6 +42,12 @@ def get(player_id: int) -> bStatusUpdate | None:
         text=status[b'text'].decode(),
     )
 
+def get_all() -> list[str]:
+    return [
+        key.decode()
+        for key in app.session.redis.keys('bancho:status:*')
+    ]
+
 def client_hash(player_id: int) -> str | None:
     hash = app.session.redis.hget(
         f'bancho:status:{player_id}',
