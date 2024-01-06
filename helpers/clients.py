@@ -38,9 +38,10 @@ def get_manifest() -> List[dict]:
 
 def get_client_hashes() -> List[str]:
     return [
-        hash['md5']
+        hash
         for client in get_manifest()
-        for hash in client['hashes']
+        for hash_list in client['hashes']
+        for hash in hash_list['md5']
     ]
 
 def is_valid_client_hash(hash: str) -> bool:
