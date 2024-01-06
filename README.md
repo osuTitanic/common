@@ -1,2 +1,2 @@
 
-A folder used to share python code between bancho and the score server.
+A folder used to share python code for any project to access external resources.
