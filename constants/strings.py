@@ -52,18 +52,19 @@ LOGGED_IN_FROM_ANOTHER_LOCATION = '\n'.join([
 
 UNSUPPORTED_VERSION = '\n'.join([
     'This version of osu! you are using is not compatible with this server.',
-    'Please downgrade to one of our supported builds, or ask an admin for permission!'
+    'Please downgrade to one of our supported builds, or contact an admin for further assistance!'
 ])
 
 UNSUPPORTED_HASH = '\n'.join([
-    'This version of osu! you are using is not compatible with this server.',
-    'Please download one of the clients on the website, or ask an admin for permission!'
+    'The version of osu! you are using is outdated and is not compatible with this server.',
+    'Please visit our website to download the latest build for your desired version.',
+    'If you continue to experience issues, please contact an admin for further assistance.'
 ])
 
 MULTIACCOUNTING_DETECTED = '\n'.join([
     'Our systems have detected that you are multiaccounting.',
     'If you attempt to submit any scores, you will most likely be banned.',
-    'If you believe this is a mistake, please contact an admin!'
+    'If you believe this is a mistake, please contact an admin for further assistance!'
 ])
 
 MAINTENANCE_MODE = 'Bancho is currently in maintenance mode. Please check back later!'
