@@ -67,7 +67,7 @@ def version(player_id: int) -> int | None:
 def delete(player_id: int) -> None:
     app.session.redis.hdel(
         f'bancho:status:{player_id}',
-        'action', 'mode', 'mods', 'text', 'beatmap_id', 'beatmap_checksum', 'hash'
+        'action', 'mode', 'mods', 'text', 'beatmap_id', 'beatmap_checksum', 'hash', 'version'
     )
 
 def exists(player_id: int) -> bool:
