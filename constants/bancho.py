@@ -42,6 +42,7 @@ class ButtonState(IntFlag):
     Right1   = 2
     Left2    = 4
     Right2   = 8
+    Smoke    = 16
 
 class QuitState(IntEnum):
     Gone         = 0
