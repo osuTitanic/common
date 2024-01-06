@@ -1,2 +1,2 @@
 
-A folder used to share python code for any project to access external resources.
+A folder used to share python code and giving access external resources.
