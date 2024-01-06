@@ -5,5 +5,6 @@ from . import performance
 from . import external
 from . import caching
 from . import replays
+from . import clients
 from . import score
 from . import ip
