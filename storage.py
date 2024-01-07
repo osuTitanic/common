@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from boto3_type_annotations.s3 import Client
 from botocore.exceptions import ClientError
-from typing import List
+from typing import List, Dict
 
 from datetime import timedelta
 from redis import Redis
@@ -255,38 +255,38 @@ class Storage:
         else:
             return self.remove_from_s3('replays', str(id))
 
-    def get_file_hashes(self, key: str) -> List[str]:
+    def get_file_hashes(self, key: str) -> Dict[str, str]:
         if config.S3_ENABLED:
             return self.get_file_hashes_s3(key)
         else:
             return self.get_file_hashes_local(key)
 
-    def get_file_hashes_s3(self, bucket: str) -> List[str]:
+    def get_file_hashes_s3(self, bucket: str) -> Dict[str, str]:
         if not config.S3_ENABLED:
             return []
 
         try:
-            return [
-                object['ETag'].replace('"', '')
+            return {
+                object['Key']: object['ETag'].replace('"', '')
                 for object in self.s3.list_objects(Bucket=bucket)['Contents']
-            ]
+            }
         except Exception as e:
             self.logger.error(f'Failed to get etags: {e}')
             return []
 
-    def get_file_hashes_local(self, directory: str) -> List[str]:
+    def get_file_hashes_local(self, directory: str) -> Dict[str, str]:
         if config.S3_ENABLED:
-            return []
+            return {}
 
         try:
-            file_hashes = []
+            file_hashes = {}
 
             for filename in os.listdir(f'{config.DATA_PATH}/{directory}'):
                 try:
                     with open(f'{config.DATA_PATH}/{directory}/{filename}', 'rb') as file:
                         file_content = file.read()
                         file_hash = hashlib.md5(file_content).hexdigest()
-                        file_hashes.append(file_hash)
+                        file_hashes[filename] = file_hash
                 except Exception as e:
                     self.logger.error(
                         f'Failed to read file "{filename}": {e}',
