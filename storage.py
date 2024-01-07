@@ -193,12 +193,6 @@ class Storage:
         else:
             return self.get_file_content(f'/release/{filename}')
 
-    def get_patch_file(self, filename: str) -> bytes | None:
-        if config.S3_ENABLED:
-            return self.get_from_s3(filename, 'patches')
-        else:
-            return self.get_file_content(f'/patches/{filename}')
-
     def upload_avatar(self, id: int, content: bytes):
         if config.S3_ENABLED:
             self.save_to_s3(content, str(id), 'avatars')
