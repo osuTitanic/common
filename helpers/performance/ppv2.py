@@ -29,13 +29,21 @@ def calculate_ppv2(score: DBScore) -> Optional[float]:
     mods = Mods(score.mods)
 
     if Mods.Nightcore in mods and not Mods.DoubleTime in mods:
-        # NC somehow only appears with DT enabled at the same time...?
+        # NC somehow only appears with DT enabled at the same time
         # https://github.com/ppy/osu-api/wiki#mods
         mods |= Mods.DoubleTime
 
     if Mods.Perfect in mods and not Mods.SuddenDeath in mods:
         # The same seems to be the case for PF & SD
         mods |= Mods.SuddenDeath
+
+    if Mods.Hidden in mods and not Mods.FadeIn in mods and score.mode == 3:
+        # And also for HD & FI
+        mods |= Mods.FadeIn
+
+    if Mods.NoVideo in mods and score.client_version < 20140000:
+        # NoVideo was changed to TouchDevice, which affects pp a lot
+        mods &= ~Mods.NoVideo
 
     score.mods = mods.value
 
