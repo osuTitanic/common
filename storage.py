@@ -14,6 +14,7 @@ from .helpers.external import Beatmaps
 from .streams import StreamOut
 from .helpers import replays
 
+import hashlib
 import logging
 import config
 import boto3
@@ -253,6 +254,51 @@ class Storage:
             return self.remove_file(f'/replays/{id}')
         else:
             return self.remove_from_s3('replays', str(id))
+
+    def get_file_hashes(self, key: str) -> List[str]:
+        if config.S3_ENABLED:
+            return self.get_file_hashes_s3(key)
+        else:
+            return self.get_file_hashes_local(key)
+
+    def get_file_hashes_s3(self, bucket: str) -> List[str]:
+        if not config.S3_ENABLED:
+            return []
+
+        try:
+            return [
+                object['ETag'].replace('"', '')
+                for object in self.s3.list_objects(Bucket=bucket)['Contents']
+            ]
+        except Exception as e:
+            self.logger.error(f'Failed to get etags: {e}')
+            return []
+
+    def get_file_hashes_local(self, directory: str) -> List[str]:
+        if config.S3_ENABLED:
+            return []
+
+        try:
+            file_hashes = []
+
+            for filename in os.listdir(f'{config.DATA_PATH}/{directory}'):
+                try:
+                    with open(f'{config.DATA_PATH}/{directory}/{filename}', 'rb') as file:
+                        file_content = file.read()
+                        file_hash = hashlib.md5(file_content).hexdigest()
+                        file_hashes.append(file_hash)
+                except Exception as e:
+                    self.logger.error(
+                        f'Failed to read file "{filename}": {e}',
+                        exc_info=e
+                    )
+        except Exception as e:
+            self.logger.error(
+                f'Failed to list files in directory "{directory}": {e}',
+                exc_info=e
+            )
+
+        return file_hashes
 
     def get_presigned_url(self, bucket: str, key: str, expiration: int = 900) -> str | None:
         if not config.S3_ENABLED:
