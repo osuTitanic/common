@@ -87,7 +87,7 @@ class DBScore(Base):
     user_id        = Column('user_id', Integer, ForeignKey('users.id'))
     beatmap_id     = Column('beatmap_id', Integer, ForeignKey('beatmaps.id'))
     client_version = Column('client_version', Integer)
-    client_hash    = Column('client_hash', String)
+    client_hash    = Column('client_hash', String, nullable=True)
     checksum       = Column('score_checksum', String)
     mode           = Column('mode', SmallInteger)
     pp             = Column('pp', Float)
