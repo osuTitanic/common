@@ -48,8 +48,8 @@ def get_client_hashes_by_filename(filename: str) -> List[str]:
     return [
         hash
         for client in get_manifest()
-        if client['file'] == filename
         for hash_list in client['hashes']
+        if hash_list['file'] == filename
         for hash in hash_list['md5']
     ]
 
