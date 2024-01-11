@@ -44,6 +44,15 @@ def get_client_hashes() -> List[str]:
         for hash in hash_list['md5']
     ]
 
+def get_client_hashes_by_filename(filename: str) -> List[str]:
+    return [
+        hash
+        for client in get_manifest()
+        if client['filename'] == filename
+        for hash_list in client['hashes']
+        for hash in hash_list['md5']
+    ]
+
 def is_valid_client_hash(hash: str) -> bool:
     if not (hashes := get_client_hashes()):
         officer.call(
