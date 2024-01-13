@@ -38,7 +38,7 @@ def get(player_id: int) -> bStatusUpdate | None:
         mode=GameMode(int(status[b'mode'])),
         mods=Mods(int(status[b'mods'])),
         beatmap_id=int(status[b'beatmap_id']),
-        beatmap_checksum=status[b'beatmap_checksum'],
+        beatmap_checksum=status[b'beatmap_checksum'].decode(),
         text=status[b'text'].decode(),
     )
 
