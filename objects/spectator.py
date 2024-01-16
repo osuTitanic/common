@@ -114,10 +114,14 @@ class ScoreFrame:
 @dataclass(slots=True)
 class ReplayFrame:
     button_state: ButtonState
-    taiko_byte: int
+    legacy_byte: int
     mouse_x: float
     mouse_y: float
     time: int
+
+    # NOTE: The legacy_byte was originally used to store if the left key
+    #       was pressed. This is no longer the case. You can see the
+    #       implementation in b338.
 
 @dataclass(slots=True)
 class ReplayFrameBundle:
