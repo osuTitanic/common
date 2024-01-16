@@ -40,6 +40,9 @@ def calculate_mod_multiplier(mods: Mods) -> float:
 
 def calculate_rx_score(score: DBScore, beatmap: DBBeatmap) -> int:
     """Calculate the total score for relax plays"""
+    if score.mode != 0:
+        return score.total_score
+
     total_hits = (
         score.n300 +
         score.n100 +
