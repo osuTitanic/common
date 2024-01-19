@@ -50,20 +50,14 @@ LOGGED_IN_FROM_ANOTHER_LOCATION = '\n'.join([
     'Please change your password immediately, if this login was not authorized by you!'
 ])
 
-UNSUPPORTED_VERSION = '\n'.join([
-    'This version of osu! you are using is not compatible with this server.',
-    'Please downgrade to one of our supported builds, or contact an admin for further assistance!'
-])
-
 UNSUPPORTED_HASH = '\n'.join([
-    'The version of osu! you are using is outdated and is not compatible with this server.',
-    'Please visit our website to download the latest build for your desired version.',
-    'If you continue to experience issues, please contact an admin for further assistance.'
+    'The version of osu! you are using is made for testers only.',
+    'Please download a different version of osu! from the website!'
 ])
 
 MULTIACCOUNTING_DETECTED = '\n'.join([
-    'Our systems have detected that you are multiaccounting.',
-    'If you attempt to submit any scores, you will most likely be banned.',
+    'Our systems have detected that you are using multiple accounts on this server.',
+    'Please note that multiaccounting is not allowed, and will result in a ban.',
     'If you believe this is a mistake, please contact an admin for further assistance!'
 ])
 
