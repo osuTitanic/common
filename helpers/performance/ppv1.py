@@ -20,7 +20,7 @@ def calculate_star_rating(beatmap: DBBeatmap) -> float:
     # TODO: Add an actual implementation
     return min(5, beatmap.diff * 0.565)
 
-def calculate_ppv1(score: DBScore, session: Session | None = None) -> float:
+def calculate_ppv1(score: DBScore, session: Session) -> float:
     """Calculate ppv1, by using the score's pp as a difficulty factor"""
     if score.beatmap.playcount <= 0:
         return 0
