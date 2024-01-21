@@ -105,62 +105,46 @@ def search(
                      .order_by(func.sum(DBBeatmap.playcount).desc())
 
     else:
-        conditions = []
-
         keywords = [
-            f'%{word}%' for word in query_string.strip() \
-                .replace(' - ', ' ') \
-                .lower() \
+            f'%{word}%'
+            for word in query_string.strip() \
+                .replace(' - ', ' ').lower() \
                 .split()
         ]
 
-        searchable_columns = [
-            func.to_tsvector('simple', column)
-            for column in [
-                func.lower(DBBeatmapset.title),
-                func.lower(DBBeatmapset.artist),
-                func.lower(DBBeatmapset.creator),
-                func.lower(DBBeatmapset.source),
-                func.lower(DBBeatmapset.tags),
-                func.lower(DBBeatmap.version)
-            ]
-        ]
+        tsquery = func.plainto_tsquery('simple', ' & '.join(keywords))
+        tsvector = func.to_tsvector('simple',
+            DBBeatmapset.title + ' ' +
+            DBBeatmapset.artist + ' ' +
+            DBBeatmapset.creator + ' ' +
+            DBBeatmapset.source + ' ' +
+            DBBeatmapset.tags + ' ' +
+            DBBeatmap.version
+        )
 
-        for word in keywords:
-            conditions.append(or_(
-                *[
-                    col.op('@@')(func.plainto_tsquery('simple', word))
-                    for col in searchable_columns
-                ]
-            ))
+        condition = tsvector.op('@@')(tsquery)
 
-        query = query.filter(and_(*conditions)) \
-                     .group_by(DBBeatmapset.id) \
-                     .order_by(func.sum(DBBeatmap.playcount).desc())
+        query = query.filter(condition) \
+            .group_by(DBBeatmapset.id) \
+            .order_by(func.sum(DBBeatmap.playcount).desc())
 
-    if display_mode == DisplayMode.Ranked:
-        query = query.filter(DBBeatmapset.status > 0)
-
-    elif display_mode == DisplayMode.Pending:
-        query = query.filter(DBBeatmapset.status == 0)
-
-    elif display_mode == DisplayMode.Graveyard:
-        query = query.filter(DBBeatmapset.status == -1)
-
-    elif display_mode == DisplayMode.Qualified:
-        query = query.filter(DBBeatmapset.status == 3)
-
-    elif display_mode == DisplayMode.Played:
-        query = query.join(DBPlay) \
-                     .filter(DBPlay.user_id == user_id) \
-                     .filter(DBBeatmapset.status > 0)
+    query = {
+        DisplayMode.All: query,
+        DisplayMode.Ranked: query.filter(DBBeatmapset.status > 0),
+        DisplayMode.Pending: query.filter(DBBeatmapset.status == 0),
+        DisplayMode.Graveyard: query.filter(DBBeatmapset.status == -1),
+        DisplayMode.Qualified: query.filter(DBBeatmapset.status == 3),
+        DisplayMode.Played: query.join(DBPlay) \
+            .filter(DBPlay.user_id == user_id) \
+            .filter(DBBeatmapset.status > 0)
+    }.get(display_mode, query)
 
     return query.limit(100) \
-                .offset(offset) \
-                .options(
-                    selectinload(DBBeatmapset.beatmaps),
-                    selectinload(DBBeatmapset.ratings)
-                ).all()
+        .offset(offset) \
+        .options(
+            selectinload(DBBeatmapset.beatmaps),
+            selectinload(DBBeatmapset.ratings)
+        ).all()
 
 @session_wrapper
 def search_one(
@@ -168,38 +152,29 @@ def search_one(
     offset: int = 0,
     session: Session | None = None
 ) -> DBBeatmapset | None:
-    conditions = []
-
     keywords = [
-        f'%{word}%' for word in query_string.strip() \
+        f'%{word}%'
+        for word in query_string.strip() \
             .replace(' - ', ' ') \
             .lower() \
             .split()
     ]
 
-    searchable_columns = [
-        func.to_tsvector('simple', column)
-        for column in [
-            func.lower(DBBeatmapset.title),
-            func.lower(DBBeatmapset.artist),
-            func.lower(DBBeatmapset.creator),
-            func.lower(DBBeatmapset.source),
-            func.lower(DBBeatmapset.tags),
-            func.lower(DBBeatmap.version)
-        ]
-    ]
+    tsquery = func.plainto_tsquery('simple', ' & '.join(keywords))
+    tsvector = func.to_tsvector('simple',
+        DBBeatmapset.title + ' ' +
+        DBBeatmapset.artist + ' ' +
+        DBBeatmapset.creator + ' ' +
+        DBBeatmapset.source + ' ' +
+        DBBeatmapset.tags + ' ' +
+        DBBeatmap.version
+    )
 
-    for word in keywords:
-        conditions.append(or_(
-            *[
-                col.op('@@')(func.plainto_tsquery('simple', word))
-                for col in searchable_columns
-            ]
-        ))
+    condition = tsvector.op('@@')(tsquery)
 
     return session.query(DBBeatmapset) \
         .join(DBBeatmap) \
-        .filter(and_(*conditions)) \
+        .filter(condition) \
         .order_by(DBBeatmap.playcount.desc()) \
         .offset(offset) \
         .first()
