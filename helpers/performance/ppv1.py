@@ -1,8 +1,8 @@
 
 from __future__ import annotations
 
+from ...database.repositories import scores, wrapper
 from ...database.objects import DBScore, DBBeatmap
-from ...database.repositories import scores
 from ...constants import Mods
 
 from sqlalchemy.orm import Session
@@ -85,13 +85,16 @@ def calculate_weight(pps: List[float]) -> float:
     pps.sort(reverse=True)
     return sum(pp * 0.95**index for index, pp in enumerate(pps))
 
-def calculate_weighted_ppv1(scores: List[DBScore]) -> float:
+@wrapper.session_wrapper
+def calculate_weighted_ppv1(
+    scores: List[DBScore],
+    session: Session | None = None
+) -> float:
     """Calculate weighted ppv1 with from a list of scores"""
-    with app.session.database.managed_session() as session:
-        return calculate_weight([
-            calculate_ppv1(
-                score,
-                session
-            )
-            for score in scores
-        ])
+    return calculate_weight([
+        calculate_ppv1(
+            score,
+            session
+        )
+        for score in scores
+    ])
