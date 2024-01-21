@@ -74,8 +74,9 @@ def fetch_by_safe_name(username: str, session: Session | None = None) -> DBUser 
         .first()
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session | None = None) -> DBUser | None:
+def fetch_by_id(id: int, *options, session: Session | None = None) -> DBUser | None:
     return session.query(DBUser) \
+        .options(*[selectinload(item) for item in options]) \
         .filter(DBUser.id == id) \
         .first()
 
