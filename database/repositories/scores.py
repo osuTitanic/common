@@ -167,6 +167,7 @@ def fetch_best(
     session: Session | None = None
 ) -> List[DBScore]:
     query = session.query(DBScore) \
+        .options(selectinload(DBScore.beatmap)) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status == 3)
