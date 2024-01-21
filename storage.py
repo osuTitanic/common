@@ -18,6 +18,7 @@ import hashlib
 import logging
 import config
 import boto3
+import app
 import os
 import io
 
@@ -96,34 +97,35 @@ class Storage:
         if not (replay := self.get_replay(id)):
             return
 
-        score = scores.fetch_by_id(id)
+        with app.session.database.managed_session() as session:
+            score = scores.fetch_by_id(id, session=session)
 
-        if not score:
-            return
+            if not score:
+                return
 
-        stream = StreamOut()
-        stream.u8(score.mode)
-        stream.s32(score.client_version)
-        stream.string(score.beatmap.md5)
-        stream.string(score.user.name)
-        stream.string(replays.compute_score_checksum(score))
-        stream.u16(score.n300)
-        stream.u16(score.n100)
-        stream.u16(score.n50)
-        stream.u16(score.nGeki)
-        stream.u16(score.nKatu)
-        stream.u16(score.nMiss)
-        stream.s32(score.total_score)
-        stream.u16(score.max_combo)
-        stream.bool(score.perfect)
-        stream.s32(score.mods)
-        stream.string('') # TODO: HP Graph
-        stream.s64(replays.get_ticks(score.submitted_at))
-        stream.s32(len(replay))
-        stream.write(replay)
-        stream.s32(score.id)
+            stream = StreamOut()
+            stream.u8(score.mode)
+            stream.s32(score.client_version)
+            stream.string(score.beatmap.md5)
+            stream.string(score.user.name)
+            stream.string(replays.compute_score_checksum(score))
+            stream.u16(score.n300)
+            stream.u16(score.n100)
+            stream.u16(score.n50)
+            stream.u16(score.nGeki)
+            stream.u16(score.nKatu)
+            stream.u16(score.nMiss)
+            stream.s32(score.total_score)
+            stream.u16(score.max_combo)
+            stream.bool(score.perfect)
+            stream.s32(score.mods)
+            stream.string('') # TODO: HP Graph
+            stream.s64(replays.get_ticks(score.submitted_at))
+            stream.s32(len(replay))
+            stream.write(replay)
+            stream.s32(score.id)
 
-        return stream.get()
+            return stream.get()
 
     def get_beatmap(self, id: int) -> bytes | None:
         if (osu := self.get_from_cache(f'osu:{id}')):
