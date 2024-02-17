@@ -104,7 +104,6 @@ BAD_WORDS = [
     'cocks',
     'cocksucker',
     'cock-sucker',
-    'crap',
     'cunt',
     'cunts',
     'cuntz',
