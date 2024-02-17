@@ -19,7 +19,6 @@ def create(
     country: str,
     activated: bool = False,
     discord_id: int | None = None,
-    permissions: int = 1,
     session: Session | None = None
 ) -> DBUser | None:
     session.add(
@@ -30,8 +29,7 @@ def create(
             pw_bcrypt,
             country,
             activated,
-            discord_id,
-            permissions
+            discord_id
         )
     )
     session.commit()

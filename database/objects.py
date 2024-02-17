@@ -863,7 +863,6 @@ class DBUser(Base):
     discord_id         = Column('discord_id', BigInteger, nullable=True, unique=True)
     bcrypt             = Column('pw', String)
     is_bot             = Column('bot', Boolean, default=False)
-    permissions        = Column('permissions', Integer, default=1)
     country            = Column('country', String)
     silence_end        = Column('silence_end', DateTime, nullable=True)
     created_at         = Column('created_at', DateTime, server_default=func.now())
@@ -914,8 +913,7 @@ class DBUser(Base):
         bcrypt: str,
         country: str,
         activated: bool,
-        discord_id: int | None,
-        permissions: int = 5
+        discord_id: int | None
     ) -> None:
         self.name = name
         self.safe_name = safe_name
@@ -924,7 +922,6 @@ class DBUser(Base):
         self.country = country
         self.activated = activated
         self.discord_id = discord_id
-        self.permissions = permissions
 
     def __repr__(self) -> str:
         return f'<DBUser "{self.name}" ({self.id})>'
