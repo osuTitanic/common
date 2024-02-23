@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 
 from datetime import datetime
@@ -302,6 +302,8 @@ class DBBeatmapset(Base):
     has_video            = Column('has_video', Boolean, default=False)
     has_storyboard       = Column('has_storyboard', Boolean, default=False)
     server               = Column('server', SmallInteger, default=0)
+    topic_id             = Column('topic_id', Integer, nullable=True)
+    creator_id           = Column('creator_id', Integer, ForeignKey('users.id'), nullable=True)
     available            = Column('available', Boolean, default=True)
     created_at           = Column('submission_date', DateTime, server_default=func.now())
     approved_at          = Column('approved_date', DateTime, nullable=True)
@@ -629,12 +631,12 @@ class DBReplayHistory(Base):
 class DBClient(Base):
     __tablename__ = "clients"
 
-    user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
-    executable = Column('executable', String, primary_key=True)
-    adapters = Column('adapters', String, primary_key=True)
-    unique_id = Column('unique_id', String, primary_key=True)
+    user_id        = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    executable     = Column('executable', String, primary_key=True)
+    adapters       = Column('adapters', String, primary_key=True)
+    unique_id      = Column('unique_id', String, primary_key=True)
     disk_signature = Column('disk_signature', String, primary_key=True)
-    banned = Column('banned', Boolean, default=False)
+    banned         = Column('banned', Boolean, default=False)
 
     def __init__(
         self,
@@ -656,8 +658,8 @@ class DBLogin(Base):
     __tablename__ = "logins"
 
     user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
-    time = Column('time', DateTime, server_default='now()', primary_key=True)
-    ip = Column('ip', String)
+    time    = Column('time', DateTime, server_default=func.now(), primary_key=True)
+    ip      = Column('ip', String)
     version = Column('osu_version', String)
 
     def __init__(
@@ -674,13 +676,13 @@ class DBLogin(Base):
 class DBInfringement(Base):
     __tablename__ = "infringements"
 
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    user_id = Column('user_id', Integer, ForeignKey('users.id'))
-    time = Column('time', DateTime, server_default='now()', primary_key=True)
-    action = Column('action', SmallInteger, default=0) # 0: Ban 1: Mute
-    length = Column('length', DateTime, nullable=True)
+    id           = Column('id', Integer, primary_key=True, autoincrement=True)
+    user_id      = Column('user_id', Integer, ForeignKey('users.id'))
+    time         = Column('time', DateTime, server_default=func.now(), primary_key=True)
+    action       = Column('action', SmallInteger, default=0) # 0: Ban 1: Mute
+    length       = Column('length', DateTime, nullable=True)
     is_permanent = Column('is_permanent', Boolean, default=False)
-    description = Column('description', String, nullable=True)
+    description  = Column('description', String, nullable=True)
 
     def __init__(
         self,
@@ -700,12 +702,12 @@ class DBInfringement(Base):
 class DBReport(Base):
     __tablename__ = "reports"
 
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    id        = Column('id', Integer, primary_key=True, autoincrement=True)
     target_id = Column('target_id', Integer, ForeignKey('users.id'))
     sender_id = Column('sender_id', Integer, ForeignKey('users.id'))
-    time = Column('time', DateTime, server_default='now()')
-    reason = Column('reason', String, nullable=True)
-    resolved = Column('resolved', Boolean, default=False)
+    time      = Column('time', DateTime, server_default=func.now())
+    reason    = Column('reason', String, nullable=True)
+    resolved  = Column('resolved', Boolean, default=False)
 
     # TODO: Relationships
 
@@ -723,15 +725,15 @@ class DBReport(Base):
 class DBMatch(Base):
     __tablename__ = "mp_matches"
 
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    bancho_id = Column('bancho_id', SmallInteger)
-    name = Column('name', String)
+    id         = Column('id', Integer, primary_key=True, autoincrement=True)
+    bancho_id  = Column('bancho_id', SmallInteger)
+    name       = Column('name', String)
     creator_id = Column('creator_id', Integer, ForeignKey('users.id'))
     created_at = Column('created_at', DateTime)
-    ended_at = Column('ended_at', DateTime, nullable=True)
+    ended_at   = Column('ended_at', DateTime, nullable=True)
 
     creator = relationship('DBUser', back_populates='matches')
-    events = relationship('DBMatchEvent', back_populates='match')
+    events  = relationship('DBMatchEvent', back_populates='match')
 
     def __init__(
         self,
@@ -748,9 +750,9 @@ class DBMatchEvent(Base):
     __tablename__ = "mp_events"
 
     match_id = Column('match_id', Integer, ForeignKey('mp_matches.id'), primary_key=True)
-    time = Column('time', DateTime, server_default='now()', primary_key=True)
-    type = Column('type', SmallInteger)
-    data = Column('data', JSONB)
+    time     = Column('time', DateTime, server_default=func.now(), primary_key=True)
+    type     = Column('type', SmallInteger)
+    data     = Column('data', JSONB)
 
     match = relationship('DBMatch', back_populates='events')
 
@@ -767,7 +769,7 @@ class DBMatchEvent(Base):
 class DBUserCount(Base):
     __tablename__ = "user_count"
 
-    time = Column('time', DateTime, primary_key=True, server_default='now()')
+    time  = Column('time', DateTime, primary_key=True, server_default=func.now())
     count = Column('count', Integer, default=0)
 
     def __init__(self, count: int) -> None:
@@ -777,11 +779,11 @@ class DBUserCount(Base):
 class DBVerification(Base):
     __tablename__ = "verifications"
 
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    token = Column('token', String)
+    id      = Column('id', Integer, primary_key=True, autoincrement=True)
+    token   = Column('token', String)
     user_id = Column('user_id', Integer, ForeignKey('users.id'))
-    sent_at = Column('sent_at', DateTime, server_default='now()')
-    type = Column('type', SmallInteger, default=0)
+    sent_at = Column('sent_at', DateTime, server_default=func.now())
+    type    = Column('type', SmallInteger, default=0)
 
     user = relationship('DBUser', back_populates='verifications')
 
@@ -799,13 +801,13 @@ class DBVerification(Base):
 class DBGroup(Base):
     __tablename__ = "groups"
 
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    name = Column('name', String)
-    short_name = Column('short_name', String)
-    description = Column('description', String, nullable=True)
-    color = Column('color', String)
+    id                 = Column('id', Integer, primary_key=True, autoincrement=True)
+    name               = Column('name', String)
+    short_name         = Column('short_name', String)
+    description        = Column('description', String, nullable=True)
+    color              = Column('color', String)
     bancho_permissions = Column('bancho_permissions', SmallInteger, nullable=True, default=0)
-    hidden = Column(Boolean, default=False)
+    hidden             = Column('hidden', Boolean, default=False)
 
     entries = relationship('DBGroupEntry', back_populates='group')
 
@@ -813,10 +815,10 @@ class DBGroupEntry(Base):
     __tablename__ = "groups_entries"
 
     group_id = Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True)
-    user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    user_id  = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
 
     group = relationship('DBGroup', back_populates='entries')
-    user = relationship('DBUser', back_populates='groups')
+    user  = relationship('DBUser', back_populates='groups')
 
     def __init__(self, user_id: int, group_id: int) -> None:
         self.group_id = group_id
@@ -825,14 +827,14 @@ class DBGroupEntry(Base):
 class DBNotification(Base):
     __tablename__ = "notifications"
 
-    id = Column('id', BigInteger, primary_key=True, autoincrement=True)
+    id      = Column('id', BigInteger, primary_key=True, autoincrement=True)
     user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
-    type = Column('type', SmallInteger)
-    header = Column('header', String)
+    type    = Column('type', SmallInteger)
+    header  = Column('header', String)
     content = Column('content', String)
-    link = Column('link', String)
-    read = Column('read', Boolean, default=False)
-    time = Column('time', DateTime, server_default='now()')
+    link    = Column('link', String)
+    read    = Column('read', Boolean, default=False)
+    time    = Column('time', DateTime, server_default=func.now())
 
     user = relationship('DBUser', back_populates='notifications')
 
@@ -853,6 +855,202 @@ class DBNotification(Base):
         self.read = read
         self.time = datetime.now()
 
+class DBForum(Base):
+    __tablename__ = "forums"
+
+    id          = Column('id', Integer, primary_key=True, autoincrement=True)
+    parent_id   = Column('parent_id', Integer, ForeignKey('forums.id'), nullable=True)
+    created_at  = Column('created_at', DateTime, server_default=func.now())
+    name        = Column('name', String)
+    description = Column('description', String, default='')
+    hidden      = Column('hidden', Boolean, default=False)
+
+    subforums = relationship('DBForum', backref=backref('parent', remote_side=[id]))
+    topics    = relationship('DBForumTopic', back_populates='forum')
+    posts     = relationship('DBForumPost', back_populates='forum')
+
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        hidden: bool,
+        parent_id: int | None
+    ) -> None:
+        self.name = name
+        self.description = description
+        self.hidden = hidden
+        self.parent_id = parent_id
+
+class DBForumIcon(Base):
+    __tablename__ = "forum_icons"
+
+    id       = Column('id', Integer, primary_key=True, autoincrement=True)
+    name     = Column('name', String)
+    location = Column('location', String)
+
+    topics = relationship('DBForumTopic', back_populates='icon')
+
+    def __init__(
+        self,
+        name: str,
+        location: str
+    ) -> None:
+        self.name = name
+        self.location = location
+
+class DBForumTopic(Base):
+    __tablename__ = "forum_topics"
+
+    id              = Column('id', Integer, primary_key=True, autoincrement=True)
+    forum_id        = Column('forum_id', Integer, ForeignKey('forums.id'))
+    creator_id      = Column('creator_id', Integer, ForeignKey('users.id'))
+    title           = Column('title', String)
+    status_text     = Column('status_text', String, nullable=True)
+    created_at      = Column('created_at', DateTime, server_default=func.now())
+    last_post_at    = Column('last_post_at', DateTime, server_default=func.now())
+    locked_at       = Column('locked_at', DateTime, nullable=True)
+    views           = Column('views', Integer, default=0)
+    icon_id         = Column('icon', Integer, ForeignKey('forum_icons.id'), nullable=True)
+    can_change_icon = Column('can_change_icon', Boolean, default=True)
+    can_star        = Column('can_star', Boolean, default=False)
+    announcement    = Column('announcement', Boolean, default=False)
+    hidden          = Column('hidden', Boolean, default=False)
+    pinned          = Column('pinned', Boolean, default=False)
+
+    subscribers = relationship('DBForumSubscriber', back_populates='topic')
+    creator     = relationship('DBUser', back_populates='created_topics')
+    icon        = relationship('DBForumIcon', back_populates='topics')
+    posts       = relationship('DBForumPost', back_populates='topic')
+    forum       = relationship('DBForum', back_populates='topics')
+    stars       = relationship('DBForumStar', back_populates='topic')
+
+    def __init__(
+        self,
+        forum_id: int,
+        creator_id: int,
+        title: str,
+        status_text: str | None,
+        icon_id: int | None,
+        can_star: bool,
+        announcement: bool,
+        hidden: bool,
+        pinned: bool
+    ) -> None:
+        self.forum_id = forum_id
+        self.creator_id = creator_id
+        self.title = title
+        self.status_text = status_text
+        self.icon_id = icon_id
+        self.can_star = can_star
+        self.announcement = announcement
+        self.hidden = hidden
+        self.pinned = pinned
+
+class DBForumStar(Base):
+    __tablename__ = "forum_stars"
+
+    topic_id   = Column('topic_id', Integer, ForeignKey('forum_topics.id'), primary_key=True)
+    user_id    = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    created_at = Column('created_at', DateTime, server_default=func.now())
+
+    user  = relationship('DBUser', back_populates='starred_topics')
+    topic = relationship('DBForumTopic', back_populates='stars')
+
+    def __init__(
+        self,
+        topic_id: int,
+        user_id: int
+    ) -> None:
+        self.topic_id = topic_id
+        self.user_id = user_id
+        self.created_at = datetime.now()
+
+class DBForumPost(Base):
+    __tablename__ = "forum_posts"
+
+    id          = Column('id', BigInteger, primary_key=True, autoincrement=True)
+    topic_id    = Column('topic_id', Integer, ForeignKey('forum_topics.id'))
+    forum_id    = Column('forum_id', Integer, ForeignKey('forums.id'))
+    user_id     = Column('user_id', Integer, ForeignKey('users.id'))
+    content     = Column('content', String)
+    created_at  = Column('created_at', DateTime, server_default=func.now())
+    edit_time   = Column('edit_time', DateTime, server_default=func.now())
+    edit_count  = Column('edit_count', Integer, default=0)
+    edit_locked = Column('edit_locked', Boolean, default=False)
+    hidden      = Column('hidden', Boolean, default=False)
+    draft       = Column('draft', Boolean, default=False)
+
+    user  = relationship('DBUser', back_populates='created_posts')
+    topic = relationship('DBForumTopic', back_populates='posts')
+    forum = relationship('DBForum', back_populates='posts')
+
+    def __init__(
+        self,
+        topic_id: int,
+        forum_id: int,
+        user_id: int,
+        content: str,
+        draft: bool
+    ) -> None:
+        self.topic_id = topic_id
+        self.forum_id = forum_id
+        self.user_id = user_id
+        self.content = content
+        self.draft = draft
+        self.created_at = datetime.now()
+        self.edit_time = datetime.now()
+
+class DBForumReport(Base):
+    __tablename__ = "forum_reports"
+
+    post_id     = Column('post_id', Integer, ForeignKey('forum_posts.id'), primary_key=True)
+    user_id     = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    created_at  = Column('created_at', DateTime, server_default=func.now())
+    resolved_at = Column('resolved_at', DateTime, nullable=True)
+    reason      = Column('reason', String)
+
+    def __init__(
+        self,
+        post_id: int,
+        user_id: int,
+        reason: str
+    ) -> None:
+        self.post_id = post_id
+        self.user_id = user_id
+        self.reason = reason
+        self.created_at = datetime.now()
+
+class DBForumBookmark(Base):
+    __tablename__ = "forum_bookmarks"
+
+    user_id  = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    topic_id = Column('topic_id', Integer, ForeignKey('forum_topics.id'), primary_key=True)
+
+    def __init__(
+        self,
+        user_id: int,
+        topic_id: int
+    ) -> None:
+        self.user_id = user_id
+        self.topic_id = topic_id
+
+class DBForumSubscriber(Base):
+    __tablename__ = "forum_subscribers"
+
+    user_id  = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    topic_id = Column('topic_id', Integer, ForeignKey('forum_topics.id'), primary_key=True)
+
+    user  = relationship('DBUser', back_populates='subscribed_topics')
+    topic = relationship('DBForumTopic', back_populates='subscribers')
+
+    def __init__(
+        self,
+        user_id: int,
+        topic_id: int
+    ) -> None:
+        self.user_id = user_id
+        self.topic_id = topic_id
+
 class DBUser(Base):
     __tablename__ = "users"
 
@@ -872,6 +1070,7 @@ class DBUser(Base):
     preferred_mode     = Column('preferred_mode', Integer, default=0)
     playstyle          = Column('playstyle', Integer, default=0)
     irc_token          = Column('irc_token', String, server_default="encode(gen_random_bytes(5), 'hex')")
+    kudosu             = Column('kudosu', Integer, default=0)
     userpage_about     = Column('userpage_about', String, nullable=True)
     userpage_signature = Column('userpage_signature', String, nullable=True)
     userpage_title     = Column('userpage_title', String, nullable=True)
@@ -888,6 +1087,10 @@ class DBUser(Base):
     target_relationships = relationship('DBRelationship', back_populates='target', foreign_keys='DBRelationship.target_id')
     replay_history = relationship('DBReplayHistory', back_populates='user')
     relationships = relationship('DBRelationship', back_populates='user', foreign_keys='DBRelationship.user_id')
+    subscribed_topics = relationship('DBForumSubscriber', back_populates='user')
+    created_topics = relationship('DBForumTopic', back_populates='creator')
+    created_posts = relationship('DBForumPost', back_populates='user')
+    starred_topics = relationship('DBForumStar', back_populates='user')
     verifications = relationship('DBVerification', back_populates='user')
     notifications = relationship('DBNotification', back_populates='user')
     rank_history = relationship('DBRankHistory', back_populates='user')
