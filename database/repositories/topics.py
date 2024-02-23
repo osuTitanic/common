@@ -47,7 +47,7 @@ def fetch_range(
 @session_wrapper
 def fetch_announcements(
     limit: int,
-    offset: int,
+    offset: int = 0,
     session: Session | None = None
 ) -> List[DBForumTopic]:
     return session.query(DBForumTopic) \
