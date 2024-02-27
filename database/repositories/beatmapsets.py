@@ -259,6 +259,25 @@ def search_extended(
                 .all()
 
 @session_wrapper
+def fetch_count(
+    user_id: int,
+    session: Session | None = None
+) -> int:
+    return session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.creator_id == user_id) \
+        .count()
+
+@session_wrapper
+def fetch_ranked_count(
+    user_id: int,
+    session: Session | None = None
+) -> int:
+    return session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.creator_id == user_id) \
+        .filter(DBBeatmapset.status > 0) \
+        .count()
+
+@session_wrapper
 def update(
     beatmapset_id: int,
     updates: dict,
