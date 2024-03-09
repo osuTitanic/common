@@ -101,7 +101,7 @@ def fetch_hardware_only(
                 DBClient.disk_signature != "28c8edde3d61a0411511d3b1866f0636", # "1"
                 DBClient.disk_signature != "74be16979710d4c4e7c6647856088456", # ""
                 DBClient.disk_signature != "d41d8cd98f00b204e9800998ecf8427e", # ""
-                DBClient.disk_signature != "d1c651c36f499849f1c9a5843567e686"  # toshiba hdd
+                DBClient.disk_signature != "74be16979710d4c4e7c6647856088456"  # toshiba hdd
             ),
             and_(
                 DBClient.unique_id == unique_id,
