@@ -225,7 +225,6 @@ def fetch_best(
         ])
 
     return session.query(DBScore) \
-        .options(selectinload(DBScore.beatmap)) \
         .join(DBScore.beatmap) \
         .filter(DBBeatmap.status.in_(allowed_status)) \
         .filter(DBScore.user_id == user_id) \
