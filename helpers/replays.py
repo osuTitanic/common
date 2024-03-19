@@ -26,3 +26,9 @@ def compute_score_checksum(score: DBScore) -> str:
 def get_ticks(dt: datetime) -> int:
     dt = dt.replace(tzinfo=None)
     return int((dt - datetime(1, 1, 1)).total_seconds() * 10000000)
+
+def decode_ticks(ticks: int) -> datetime:
+    return (
+        datetime.datetime(1, 1, 1) +
+        datetime.timedelta(microseconds=ticks // 10)
+    )
