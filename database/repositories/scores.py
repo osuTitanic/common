@@ -109,19 +109,27 @@ def fetch_top_scores(
     offset: int = 0,
     session: Session | None = None
 ) -> List[DBScore]:
-    query = session.query(DBScore) \
-            .filter(DBScore.user_id == user_id) \
-            .filter(DBScore.mode == mode) \
-            .filter(DBScore.status == 3)
+    allowed_status = [
+        1, # Ranked
+        2  # Approved
+    ]
 
-    if exclude_approved:
-        query = query.filter(DBBeatmap.status == 1) \
-                     .join(DBScore.beatmap)
+    if not exclude_approved:
+        allowed_status.extend([
+            3, # Qualified
+            4  # Loved
+        ])
 
-    return query.order_by(DBScore.pp.desc()) \
-                .limit(limit) \
-                .offset(offset) \
-                .all()
+    return session.query(DBScore) \
+        .join(DBScore.beatmap) \
+        .filter(DBBeatmap.status.in_(allowed_status)) \
+        .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.mode == mode) \
+        .filter(DBScore.status == 3) \
+        .order_by(DBScore.pp.desc()) \
+        .limit(limit) \
+        .offset(offset) \
+        .all()
 
 @session_wrapper
 def fetch_top_scores_count(
@@ -155,7 +163,7 @@ def fetch_leader_scores(
         .subquery()
 
     # Get scores where the user has the highest total score
-    leader_scores = session.query(DBScore) \
+    return session.query(DBScore) \
         .join(subquery, and_(
             DBScore.beatmap_id == subquery.c.beatmap_id,
             DBScore.mode == subquery.c.mode,
@@ -168,8 +176,6 @@ def fetch_leader_scores(
         .limit(limit) \
         .offset(offset) \
         .all()
-
-    return leader_scores
 
 @session_wrapper
 def fetch_leader_count(
@@ -189,7 +195,7 @@ def fetch_leader_count(
         .subquery()
 
     # Get scores where the user has the highest total score
-    leader_count = session.query(func.count(DBScore.id)) \
+    return session.query(func.count(DBScore.id)) \
         .join(subquery, and_(
             DBScore.beatmap_id == subquery.c.beatmap_id,
             DBScore.mode == subquery.c.mode,
@@ -200,8 +206,6 @@ def fetch_leader_count(
         .filter(DBScore.status == 3) \
         .scalar()
 
-    return leader_count
-
 @session_wrapper
 def fetch_best(
     user_id: int,
@@ -209,18 +213,26 @@ def fetch_best(
     exclude_approved: bool = False,
     session: Session | None = None
 ) -> List[DBScore]:
-    query = session.query(DBScore) \
+    allowed_status = [
+        1, # Ranked
+        2  # Approved
+    ]
+
+    if not exclude_approved:
+        allowed_status.extend([
+            3, # Qualified
+            4  # Loved
+        ])
+
+    return session.query(DBScore) \
         .options(selectinload(DBScore.beatmap)) \
+        .join(DBScore.beatmap) \
+        .filter(DBBeatmap.status.in_(allowed_status)) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
-        .filter(DBScore.status == 3)
-
-    if exclude_approved:
-        query = query.filter(DBBeatmap.status == 1) \
-                     .join(DBScore.beatmap)
-
-    return query.order_by(DBScore.pp.desc()) \
-                .all()
+        .filter(DBScore.status == 3) \
+        .order_by(DBScore.pp.desc()) \
+        .all()
 
 @session_wrapper
 def fetch_pinned(
