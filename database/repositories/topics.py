@@ -64,3 +64,29 @@ def fetch_post_count(topic_id: int, session: Session | None = None) -> int:
         .filter(DBForumPost.topic_id == topic_id) \
         .filter(DBForumPost.hidden == False) \
         .count()
+
+@session_wrapper
+def fetch_recent(
+    forum_id: int,
+    session: Session | None = None
+) -> DBForumTopic | None:
+    return session.query(DBForumTopic) \
+        .filter(DBForumTopic.forum_id == forum_id) \
+        .filter(DBForumTopic.hidden == False) \
+        .order_by(DBForumTopic.id.desc()) \
+        .first()
+
+@session_wrapper
+def fetch_recent_many(
+    forum_id: int,
+    limit: int = 5,
+    offset: int = 0,
+    session: Session | None = None
+) -> List[DBForumTopic]:
+    return session.query(DBForumTopic) \
+        .filter(DBForumTopic.forum_id == forum_id) \
+        .filter(DBForumTopic.hidden == False) \
+        .order_by(DBForumTopic.id.desc()) \
+        .limit(limit) \
+        .offset(offset) \
+        .all()
