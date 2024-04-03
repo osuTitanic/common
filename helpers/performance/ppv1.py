@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from ...database.repositories import scores, wrapper
+from ...database.repositories import scores, beatmaps, wrapper
 from ...database.objects import DBScore, DBBeatmap
 from ...constants import Mods
 
@@ -22,12 +22,17 @@ def calculate_star_rating(beatmap: DBBeatmap) -> float:
 
 def calculate_ppv1(score: DBScore, session: Session) -> float:
     """Calculate ppv1, by using the score's pp as a difficulty factor"""
-    if score.beatmap.playcount <= 0:
+    beatmap = beatmaps.fetch_by_id(
+        score.beatmap_id,
+        session=session
+    )
+
+    if beatmap.playcount <= 0:
         return 0
 
     score_rank = scores.fetch_score_index_by_tscore(
         score.total_score,
-        score.beatmap.id,
+        beatmap.id,
         score.mode,
         session=session
     )
@@ -35,7 +40,7 @@ def calculate_ppv1(score: DBScore, session: Session) -> float:
     mods = Mods(score.mods)
 
     # TODO: Use old eyup star rating
-    star_rating = calculate_star_rating(score.beatmap)
+    star_rating = calculate_star_rating(beatmap)
 
     base_pp = math.pow(star_rating, 4) / math.pow(score_rank, 0.5)
 
@@ -54,15 +59,15 @@ def calculate_ppv1(score: DBScore, session: Session) -> float:
     ez_nerf  = 0.2 if (Mods.Easy in mods) or (Mods.HalfTime in mods) else 1
 
     # NOTE: Beatmap popularity is nefed a LOT, since it would inflate pp to the roof
-    populariy_factor = math.pow(score.beatmap.playcount, 0.145)
+    populariy_factor = math.pow(beatmap.playcount, 0.145)
     acc_factor = math.pow(score.acc, 15)
 
     # Nerf converts
-    if score.mode > 0 and score.mode != score.beatmap.mode:
+    if score.mode > 0 and score.mode != beatmap.mode:
         base_pp *= 0.2
 
     # Nerf "easy maps"... idk?
-    if score.mode != 1 and (score.beatmap.passcount / score.beatmap.playcount) > 0.3:
+    if score.mode != 1 and (beatmap.passcount / beatmap.playcount) > 0.3:
         base_pp *= 0.2
 
     result_pp = math.prod([
