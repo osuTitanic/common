@@ -13,7 +13,7 @@ def create(
     user_id: int,
     ip: str,
     version: str,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBLogin:
     session.add(
         login := DBLogin(
@@ -30,7 +30,7 @@ def fetch_many(
     user_id: int,
     limit: int = 50,
     offset: int = 0,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBLogin]:
     return session.query(DBLogin) \
         .filter(DBLogin.user_id == user_id) \
@@ -43,7 +43,7 @@ def fetch_many(
 def fetch_many_until(
     user_id: int,
     until: datetime,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBLogin]:
     return session.query(DBLogin) \
         .filter(DBLogin.user_id == user_id) \
@@ -56,7 +56,7 @@ def fetch_many_by_ip(
     ip: str,
     limit: int = 50,
     offset: int = 0,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBLogin]:
     return session.query(DBLogin) \
         .filter(DBLogin.ip == ip) \
@@ -70,7 +70,7 @@ def fetch_many_by_version(
     version: str,
     limit: int = 50,
     offset: int = 0,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBLogin]:
     return session.query(DBLogin) \
         .filter(DBLogin.version == version) \

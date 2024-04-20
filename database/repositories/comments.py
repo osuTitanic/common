@@ -17,7 +17,7 @@ def create(
     comment_format: str,
     playmode: int,
     color: str,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBComment:
     session.add(
         c := DBComment(
@@ -39,7 +39,7 @@ def create(
 def fetch_many(
     target_id: int,
     type: str,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBComment]:
     return session.query(DBComment) \
         .filter(DBComment.target_id == target_id) \

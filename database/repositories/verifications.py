@@ -15,7 +15,7 @@ def create(
     user_id: int,
     type: int,
     token_size: int = 32,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBVerification:
     session.add(
         v := DBVerification(
@@ -32,19 +32,19 @@ def create(
     return v
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session | None = None) -> DBVerification | None:
+def fetch_by_id(id: int, session: Session = ...) -> DBVerification | None:
     return session.query(DBVerification) \
         .filter(DBVerification.id == id) \
         .first()
 
 @session_wrapper
-def fetch_by_token(token: str, session: Session | None = None) -> DBVerification | None:
+def fetch_by_token(token: str, session: Session = ...) -> DBVerification | None:
     return session.query(DBVerification) \
         .filter(DBVerification.token == token) \
         .first()
 
 @session_wrapper
-def fetch_all(user_id: int, session: Session | None = None) -> List[DBVerification]:
+def fetch_all(user_id: int, session: Session = ...) -> List[DBVerification]:
     return session.query(DBVerification) \
         .filter(DBVerification.user_id == user_id) \
         .all()
@@ -53,7 +53,7 @@ def fetch_all(user_id: int, session: Session | None = None) -> List[DBVerificati
 def fetch_all_by_type(
     user_id: int,
     verification_type: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBVerification]:
     return session.query(DBVerification) \
         .filter(DBVerification.user_id == user_id) \
@@ -61,7 +61,7 @@ def fetch_all_by_type(
         .all()
 
 @session_wrapper
-def delete(token: str, session: Session | None = None) -> int:
+def delete(token: str, session: Session = ...) -> int:
     rows = session.query(DBVerification) \
             .filter(DBVerification.token == token) \
             .delete()

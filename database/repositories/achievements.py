@@ -12,7 +12,7 @@ from typing import List
 def create_many(
     achievements: List[bAchievement],
     user_id: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> None:
     for a in achievements:
         session.add(
@@ -26,7 +26,7 @@ def create_many(
     session.commit()
 
 @session_wrapper
-def fetch_many(user_id: int, session: Session | None = None) -> List[DBAchievement]:
+def fetch_many(user_id: int, session: Session = ...) -> List[DBAchievement]:
     return session.query(DBAchievement) \
         .filter(DBAchievement.user_id == user_id) \
         .all()

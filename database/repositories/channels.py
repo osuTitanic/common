@@ -13,7 +13,7 @@ def create(
     topic: str,
     read_permissions: int,
     write_permissions: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBChannel:
     session.add(
         chan := DBChannel(
@@ -27,6 +27,6 @@ def create(
     return chan
 
 @session_wrapper
-def fetch_all(session: Session | None = None) -> List[DBChannel]:
+def fetch_all(session: Session = ...) -> List[DBChannel]:
     return session.query(DBChannel) \
                   .all()

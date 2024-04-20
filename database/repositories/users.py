@@ -19,7 +19,7 @@ def create(
     country: str,
     activated: bool = False,
     discord_id: int | None = None,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBUser | None:
     session.add(
         user := DBUser(
@@ -40,7 +40,7 @@ def create(
 def update(
     user_id: int,
     updates: dict,
-    session: Session | None = None
+    session: Session = ...
 ) -> int:
     rows = session.query(DBUser) \
            .filter(DBUser.id == user_id) \
@@ -49,13 +49,13 @@ def update(
     return rows
 
 @session_wrapper
-def fetch_by_name(username: str, session: Session | None = None) -> DBUser | None:
+def fetch_by_name(username: str, session: Session = ...) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.name == username) \
         .first()
 
 @session_wrapper
-def fetch_by_name_extended(query: str, session: Session | None = None) -> DBUser | None:
+def fetch_by_name_extended(query: str, session: Session = ...) -> DBUser | None:
     """Used for searching users"""
     return session.query(DBUser) \
         .filter(or_(
@@ -66,32 +66,32 @@ def fetch_by_name_extended(query: str, session: Session | None = None) -> DBUser
         .first()
 
 @session_wrapper
-def fetch_by_safe_name(username: str, session: Session | None = None) -> DBUser | None:
+def fetch_by_safe_name(username: str, session: Session = ...) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.safe_name == username) \
         .first()
 
 @session_wrapper
-def fetch_by_id(id: int, *options, session: Session | None = None) -> DBUser | None:
+def fetch_by_id(id: int, *options, session: Session = ...) -> DBUser | None:
     return session.query(DBUser) \
         .options(*[selectinload(item) for item in options]) \
         .filter(DBUser.id == id) \
         .first()
 
 @session_wrapper
-def fetch_by_email(email: str, session: Session | None = None) -> DBUser | None:
+def fetch_by_email(email: str, session: Session = ...) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.email == email) \
         .first()
 
 @session_wrapper
-def fetch_all(restricted: bool = False, session: Session | None = None) -> List[DBUser]:
+def fetch_all(restricted: bool = False, session: Session = ...) -> List[DBUser]:
     return session.query(DBUser) \
         .filter(DBUser.restricted == restricted) \
         .all()
 
 @session_wrapper
-def fetch_active(delta: timedelta = timedelta(days=30), session: Session | None = None) -> List[DBUser]:
+def fetch_active(delta: timedelta = timedelta(days=30), session: Session = ...) -> List[DBUser]:
     return session.query(DBUser) \
         .join(DBStats) \
         .filter(DBUser.restricted == False) \
@@ -106,13 +106,13 @@ def fetch_active(delta: timedelta = timedelta(days=30), session: Session | None 
         .all()
 
 @session_wrapper
-def fetch_by_discord_id(id: int, session: Session | None = None) -> DBUser | None:
+def fetch_by_discord_id(id: int, session: Session = ...) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.discord_id == id) \
         .first()
 
 @session_wrapper
-def fetch_count(exclude_restricted=True, session: Session | None = None) -> int:
+def fetch_count(exclude_restricted=True, session: Session = ...) -> int:
     query = session.query(
         func.count(DBUser.id)
     )
@@ -123,19 +123,19 @@ def fetch_count(exclude_restricted=True, session: Session | None = None) -> int:
     return query.scalar()
 
 @session_wrapper
-def fetch_username(user_id: int, session: Session | None = None) -> str | None:
+def fetch_username(user_id: int, session: Session = ...) -> str | None:
     return session.query(DBUser.name) \
             .filter(DBUser.id == user_id) \
             .scalar()
 
 @session_wrapper
-def fetch_user_id(username: str, session: Session | None = None) -> int | None:
+def fetch_user_id(username: str, session: Session = ...) -> int | None:
     return session.query(DBUser.id) \
             .filter(DBUser.name == username) \
             .scalar()
 
 @session_wrapper
-def fetch_many(user_ids: tuple, *options, session: Session | None = None) -> List[DBUser]:
+def fetch_many(user_ids: tuple, *options, session: Session = ...) -> List[DBUser]:
     return session.query(DBUser) \
               .options(*[selectinload(item) for item in options]) \
               .filter(DBUser.id.in_(user_ids)) \

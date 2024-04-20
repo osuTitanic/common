@@ -10,7 +10,7 @@ from .wrapper import session_wrapper
 def create(
     user_id: int,
     hidden: bool,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBScreenshot:
     session.add(
         ss := DBScreenshot(
@@ -25,7 +25,7 @@ def create(
 @session_wrapper
 def fetch_by_id(
     id: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBScreenshot | None:
     return session.query(DBScreenshot) \
             .filter(DBScreenshot.id == id) \

@@ -12,7 +12,7 @@ from .wrapper import session_wrapper
 def create_entry(
     user_id: int,
     group_id: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBGroupEntry:
     session.add(
         ge := DBGroupEntry(
@@ -27,7 +27,7 @@ def create_entry(
 def delete_entry(
     user_id: int,
     group_id: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> int:
     rows = session.query(DBGroupEntry) \
         .filter(DBGroupEntry.group_id == group_id) \
@@ -37,13 +37,13 @@ def delete_entry(
     return rows
 
 @session_wrapper
-def fetch_one(id: int, session: Session | None = None) -> DBGroup | None:
+def fetch_one(id: int, session: Session = ...) -> DBGroup | None:
     return session.query(DBGroup) \
         .filter(DBGroup.id == id) \
         .first()
 
 @session_wrapper
-def fetch_all(include_hidden: bool = False, session: Session | None = None) -> List[DBGroup]:
+def fetch_all(include_hidden: bool = False, session: Session = ...) -> List[DBGroup]:
     if include_hidden:
         return session.query(DBGroup) \
             .order_by(DBGroup.id.asc()) \
@@ -55,7 +55,7 @@ def fetch_all(include_hidden: bool = False, session: Session | None = None) -> L
         .all()
 
 @session_wrapper
-def fetch_group_users(group_id: int, session: Session | None = None) -> List[DBUser]:
+def fetch_group_users(group_id: int, session: Session = ...) -> List[DBUser]:
     return session.query(DBUser) \
         .join(DBGroupEntry) \
         .filter(DBGroupEntry.group_id == group_id) \
@@ -66,7 +66,7 @@ def fetch_group_users(group_id: int, session: Session | None = None) -> List[DBU
 def fetch_user_groups(
     user_id: int,
     include_hidden: bool = False,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBGroup]:
     if include_hidden:
         return session.query(DBGroup) \
@@ -85,7 +85,7 @@ def fetch_user_groups(
 @session_wrapper
 def get_player_permissions(
     user_id: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> int:
     return session.query(func.bit_or(DBGroup.bancho_permissions)) \
         .join(DBGroupEntry) \

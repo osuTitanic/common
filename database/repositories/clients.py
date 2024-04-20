@@ -16,7 +16,7 @@ def create(
     unique_id: str,
     disk_signature: str,
     banned: bool = False,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBClient:
     session.add(
         client := DBClient(
@@ -35,7 +35,7 @@ def create(
 def update_all(
     user_id: int,
     updates: dict,
-    session: Session | None = None
+    session: Session = ...
 ) -> int:
     rows = session.query(DBClient) \
         .filter(DBClient.user_id == user_id) \
@@ -50,7 +50,7 @@ def fetch_one(
     adapters: str,
     unique_id: str,
     disk_signature: str,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBClient | None:
     """Fetch one client where all hardware attributes need to match"""
     return session.query(DBClient) \
@@ -67,7 +67,7 @@ def fetch_without_executable(
     adapters: str,
     unique_id: str,
     disk_signature: str,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBClient | None:
     """Fetch one client with matching hardware and user id"""
     return session.query(DBClient) \
@@ -82,7 +82,7 @@ def fetch_hardware_only(
     adapters: str,
     unique_id: str,
     disk_signature: str,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBClient]:
     """Fetch clients only by hardware attributes. Useful for multi-account detection."""
     # TODO: There are somehow two types of empty md5 hashes?
@@ -116,7 +116,7 @@ def fetch_many(
     user_id: int,
     limit: int = 50,
     offset: int = 0,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBClient]:
     """Fetch every client from user id"""
     return session.query(DBClient) \
@@ -126,7 +126,7 @@ def fetch_many(
         .all()
 
 @session_wrapper
-def fetch_all(user_id: int, session: Session | None = None) -> List[DBClient]:
+def fetch_all(user_id: int, session: Session = ...) -> List[DBClient]:
     """Fetch every client from user id"""
     return session.query(DBClient) \
         .filter(DBClient.user_id == user_id) \

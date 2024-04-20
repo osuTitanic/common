@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 @session_wrapper
-def fetch_one(id: int, session: Session | None = None) -> DBForumPost | None:
+def fetch_one(id: int, session: Session = ...) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .filter(DBForumPost.id == id) \
         .first()
@@ -16,7 +16,7 @@ def fetch_one(id: int, session: Session | None = None) -> DBForumPost | None:
 @session_wrapper
 def fetch_all_by_topic(
     topic_id: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBForumPost]:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
@@ -29,7 +29,7 @@ def fetch_range_by_topic(
     topic_id: int,
     range: int,
     offset: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBForumPost]:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
@@ -40,7 +40,7 @@ def fetch_range_by_topic(
         .all()
 
 @session_wrapper
-def fetch_initial_post(topic_id: int, session: Session | None = None) -> DBForumPost | None:
+def fetch_initial_post(topic_id: int, session: Session = ...) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
         .filter(DBForumPost.hidden == False) \
@@ -48,7 +48,7 @@ def fetch_initial_post(topic_id: int, session: Session | None = None) -> DBForum
         .first()
 
 @session_wrapper
-def fetch_last_post(topic_id: int, session: Session | None = None) -> DBForumPost | None:
+def fetch_last_post(topic_id: int, session: Session = ...) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
         .filter(DBForumPost.hidden == False) \

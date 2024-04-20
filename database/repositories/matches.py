@@ -13,7 +13,7 @@ def create(
     name: str,
     bancho_id: int,
     creator_id: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBMatch:
     session.add(
         m := DBMatch(
@@ -27,26 +27,26 @@ def create(
     return m
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session | None = None) -> DBMatch | None:
+def fetch_by_id(id: int, session: Session = ...) -> DBMatch | None:
     return session.query(DBMatch) \
         .filter(DBMatch.id == id) \
         .first()
 
 @session_wrapper
-def fetch_by_bancho_id(id: int, session: Session | None = None) -> DBMatch | None:
+def fetch_by_bancho_id(id: int, session: Session = ...) -> DBMatch | None:
     return session.query(DBMatch) \
         .filter(DBMatch.bancho_id == id) \
         .first()
 
 @session_wrapper
-def update(id: int, updates: dict, session: Session | None = None) -> None:
+def update(id: int, updates: dict, session: Session = ...) -> None:
     session.query(DBMatch) \
         .filter(DBMatch.id == id) \
         .update(updates)
     session.commit()
 
 @session_wrapper
-def delete(id: int, session: Session | None = None) -> None:
+def delete(id: int, session: Session = ...) -> None:
     # Delete events first
     events.delete_all(id)
 

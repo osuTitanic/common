@@ -74,7 +74,7 @@ def create(
     osz_filesize_novideo: int = 0,
     available: bool = True,
     server: int = 0,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBBeatmapset:
     session.add(
         s := DBBeatmapset(
@@ -103,7 +103,7 @@ def create(
     return s
 
 @session_wrapper
-def fetch_one(id: int, session: Session | None = None) -> DBBeatmapset | None:
+def fetch_one(id: int, session: Session = ...) -> DBBeatmapset | None:
     return session.query(DBBeatmapset) \
             .filter(DBBeatmapset.id == id) \
             .first()
@@ -115,7 +115,7 @@ def search(
     display_mode = DisplayMode.All,
     offset: int = 0,
     mode: int = -1,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBBeatmapset]:
     query = session.query(DBBeatmapset) \
                    .join(DBBeatmap, isouter=True)
@@ -165,7 +165,7 @@ def search(
 def search_one(
     query_string: str,
     offset: int = 0,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBBeatmapset | None:
     return session.query(DBBeatmapset) \
         .join(DBBeatmap) \
@@ -189,7 +189,7 @@ def search_extended(
     has_video: bool,
     offset: int = 0,
     limit: int = 50,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBBeatmapset]:
     query = session.query(DBBeatmapset) \
             .options(
@@ -261,7 +261,7 @@ def search_extended(
 @session_wrapper
 def fetch_count(
     user_id: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> int:
     return session.query(DBBeatmapset) \
         .filter(DBBeatmapset.creator_id == user_id) \
@@ -270,7 +270,7 @@ def fetch_count(
 @session_wrapper
 def fetch_ranked_count(
     user_id: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> int:
     return session.query(DBBeatmapset) \
         .filter(DBBeatmapset.creator_id == user_id) \
@@ -281,7 +281,7 @@ def fetch_ranked_count(
 def update(
     beatmapset_id: int,
     updates: dict,
-    session: Session | None = None
+    session: Session = ...
 ) -> int:
     rows = session.query(DBBeatmapset) \
         .filter(DBBeatmapset.id == beatmapset_id) \

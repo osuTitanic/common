@@ -12,7 +12,7 @@ def create(
     user_id: int,
     target_id: int,
     status: int = 0,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBRelationship:
     session.add(
         rel := DBRelationship(
@@ -30,7 +30,7 @@ def delete(
     user_id: int,
     target_id: int,
     status: int = 0,
-    session: Session | None = None
+    session: Session = ...
 ) -> bool:
     rel = session.query(DBRelationship) \
             .filter(DBRelationship.user_id == user_id) \
@@ -45,31 +45,31 @@ def delete(
     return False
 
 @session_wrapper
-def fetch_many_by_id(user_id: int, session: Session | None = None) -> List[DBRelationship]:
+def fetch_many_by_id(user_id: int, session: Session = ...) -> List[DBRelationship]:
     return session.query(DBRelationship) \
         .filter(DBRelationship.user_id == user_id) \
         .all()
 
 @session_wrapper
-def fetch_many_by_target(target_id: int, session: Session | None = None) -> List[DBRelationship]:
+def fetch_many_by_target(target_id: int, session: Session = ...) -> List[DBRelationship]:
         return session.query(DBRelationship) \
             .filter(DBRelationship.target_id == target_id) \
             .all()
 
 @session_wrapper
-def fetch_count_by_id(user_id: int, session: Session | None = None) -> int:
+def fetch_count_by_id(user_id: int, session: Session = ...) -> int:
     return session.query(DBRelationship) \
         .filter(DBRelationship.user_id == user_id) \
         .count()
 
 @session_wrapper
-def fetch_count_by_target(target_id: int, session: Session | None = None) -> int:
+def fetch_count_by_target(target_id: int, session: Session = ...) -> int:
     return session.query(DBRelationship) \
         .filter(DBRelationship.target_id == target_id) \
         .count()
 
 @session_wrapper
-def fetch_target_ids(user_id: int, session: Session | None = None) -> List[int]:
+def fetch_target_ids(user_id: int, session: Session = ...) -> List[int]:
     result = session.query(DBRelationship.target_id) \
         .filter(DBRelationship.user_id == user_id) \
         .all()
@@ -80,7 +80,7 @@ def fetch_target_ids(user_id: int, session: Session | None = None) -> List[int]:
 def fetch_users(
     user_id: int,
     status: int = 0,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBUser]:
     return session.query(DBUser) \
             .join(DBRelationship, DBUser.id == DBRelationship.target_id) \

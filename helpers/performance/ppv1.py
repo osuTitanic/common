@@ -93,7 +93,7 @@ def calculate_weight(pps: List[float]) -> float:
 @wrapper.session_wrapper
 def calculate_weighted_ppv1(
     scores: List[DBScore],
-    session: Session | None = None
+    session: Session = ...
 ) -> float:
     """Calculate weighted ppv1 with from a list of scores"""
     return calculate_weight([

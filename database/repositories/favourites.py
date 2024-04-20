@@ -11,7 +11,7 @@ from .wrapper import session_wrapper
 def create(
     user_id: int,
     set_id: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBFavourite | None:
     # Check if favourite was already set
     if session.query(DBFavourite.user_id) \
@@ -34,7 +34,7 @@ def create(
 def fetch_one(
     user_id: int,
     set_id: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBFavourite | None:
     return session.query(DBFavourite) \
         .filter(DBFavourite.user_id == user_id) \
@@ -42,26 +42,26 @@ def fetch_one(
         .first()
 
 @session_wrapper
-def fetch_many(user_id: int, session: Session | None = None) -> List[DBFavourite]:
+def fetch_many(user_id: int, session: Session = ...) -> List[DBFavourite]:
     return session.query(DBFavourite) \
         .filter(DBFavourite.user_id == user_id) \
         .all()
 
 @session_wrapper
-def fetch_many_by_set(set_id: int, limit: int = 5, session: Session | None = None) -> List[DBFavourite]:
+def fetch_many_by_set(set_id: int, limit: int = 5, session: Session = ...) -> List[DBFavourite]:
     return session.query(DBFavourite) \
         .filter(DBFavourite.set_id == set_id) \
         .limit(limit) \
         .all()
 
 @session_wrapper
-def fetch_count(user_id: int, session: Session | None = None) -> int:
+def fetch_count(user_id: int, session: Session = ...) -> int:
     return session.query(DBFavourite) \
         .filter(DBFavourite.user_id == user_id) \
         .count()
 
 @session_wrapper
-def fetch_count_by_set(set_id: int, session: Session | None = None) -> int:
+def fetch_count_by_set(set_id: int, session: Session = ...) -> int:
     return session.query(DBFavourite) \
         .filter(DBFavourite.set_id == set_id) \
         .count()

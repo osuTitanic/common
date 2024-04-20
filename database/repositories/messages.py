@@ -12,7 +12,7 @@ def create(
     sender: str,
     target: str,
     message: str,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBMessage:
     session.add(
         msg := DBMessage(
@@ -29,7 +29,7 @@ def create(
 def fetch_recent(
     target: str = '#osu',
     limit: int = 10,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBMessage]:
     return session.query(DBMessage) \
         .filter(DBMessage.target == target) \

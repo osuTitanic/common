@@ -8,7 +8,7 @@ from sqlalchemy import func
 import app
 
 @wrapper.session_wrapper
-def next_beatmapset_id(session: Session | None = None) -> int:
+def next_beatmapset_id(session: Session = ...) -> int:
     """Get the next availabe beatmapset id"""
     while True:
         database_id = session.query(
@@ -33,7 +33,7 @@ def next_beatmapset_id(session: Session | None = None) -> int:
         return database_id
 
 @wrapper.session_wrapper
-def next_beatmap_id(session: Session | None = None) -> int:
+def next_beatmap_id(session: Session = ...) -> int:
     """Get the next availabe beatmap id"""
     while True:
         database_id = session.query(

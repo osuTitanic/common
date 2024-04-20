@@ -19,7 +19,7 @@ from .wrapper import session_wrapper
 def update_plays(
     user_id: int,
     mode: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> None:
     time = datetime.now()
 
@@ -48,7 +48,7 @@ def fetch_plays_history(
     user_id: int,
     mode: int,
     until: datetime,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBPlayHistory]:
     return session.query(DBPlayHistory) \
         .filter(DBPlayHistory.user_id == user_id) \
@@ -67,7 +67,7 @@ def fetch_plays_history(
 def update_replay_views(
     user_id: int,
     mode: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> None:
     time = datetime.now()
 
@@ -96,7 +96,7 @@ def fetch_replay_history(
     user_id: int,
     mode: int,
     until: datetime,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBReplayHistory]:
     return session.query(DBReplayHistory) \
         .filter(DBReplayHistory.user_id == user_id) \
@@ -115,7 +115,7 @@ def fetch_replay_history(
 def update_rank(
     stats: DBStats,
     country: str,
-    session: Session | None = None
+    session: Session = ...
 ) -> None:
     country_rank = leaderboards.country_rank(stats.user_id, stats.mode, country)
     global_rank = leaderboards.global_rank(stats.user_id, stats.mode)
@@ -160,7 +160,7 @@ def fetch_rank_history(
     user_id: int,
     mode: int,
     until: datetime,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBRankHistory]:
     return session.query(DBRankHistory) \
         .filter(DBRankHistory.user_id == user_id) \

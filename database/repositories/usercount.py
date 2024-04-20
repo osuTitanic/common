@@ -11,7 +11,7 @@ from typing import List
 from .wrapper import session_wrapper
 
 @session_wrapper
-def create(count: int, session: Session | None = None) -> DBUserCount:
+def create(count: int, session: Session = ...) -> DBUserCount:
     session.add(uc := DBUserCount(count))
     session.commit()
     return uc
@@ -20,7 +20,7 @@ def create(count: int, session: Session | None = None) -> DBUserCount:
 def fetch_range(
     _until: datetime,
     _from: datetime,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBUserCount]:
     return session.query(DBUserCount) \
         .filter(and_(
@@ -31,7 +31,7 @@ def fetch_range(
         .all()
 
 @session_wrapper
-def fetch_last(session: Session | None = None) -> DBUserCount | None:
+def fetch_last(session: Session = ...) -> DBUserCount | None:
     return session.query(DBUserCount) \
         .order_by(desc(DBUserCount.time)) \
         .first()
@@ -39,7 +39,7 @@ def fetch_last(session: Session | None = None) -> DBUserCount | None:
 @session_wrapper
 def delete_old(
     delta: timedelta = timedelta(weeks=5),
-    session: Session | None = None
+    session: Session = ...
 ) -> int:
     """Delete usercount entries that are older than the given delta (default ~1 month)"""
     rows = session.query(DBUserCount) \

@@ -15,7 +15,7 @@ def create(
     user_id: int,
     set_id: int,
     rating: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBRating:
     session.add(
         rating := DBRating(
@@ -30,7 +30,7 @@ def create(
     return rating
 
 @session_wrapper
-def fetch_one(beatmap_hash: str, user_id: int, session: Session | None = None) -> int | None:
+def fetch_one(beatmap_hash: str, user_id: int, session: Session = ...) -> int | None:
     result = session.query(DBRating.rating) \
         .filter(DBRating.map_checksum == beatmap_hash) \
         .filter(DBRating.user_id == user_id) \
@@ -39,7 +39,7 @@ def fetch_one(beatmap_hash: str, user_id: int, session: Session | None = None) -
     return result[0] if result else None
 
 @session_wrapper
-def fetch_many(beatmap_hash: str, session: Session | None = None) -> List[int]:
+def fetch_many(beatmap_hash: str, session: Session = ...) -> List[int]:
     return [
         rating[0]
         for rating in session.query(DBRating.rating) \
@@ -48,7 +48,7 @@ def fetch_many(beatmap_hash: str, session: Session | None = None) -> List[int]:
     ]
 
 @session_wrapper
-def fetch_average(beatmap_hash: str, session: Session | None = None) -> float:
+def fetch_average(beatmap_hash: str, session: Session = ...) -> float:
     result = session.query(
         func.avg(DBRating.rating).label('average')) \
         .filter(DBRating.map_checksum == beatmap_hash) \

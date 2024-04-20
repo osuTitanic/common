@@ -11,7 +11,7 @@ def create(
     message: str,
     level: str,
     type: str,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBLog:
     session.add(
         log := DBLog(

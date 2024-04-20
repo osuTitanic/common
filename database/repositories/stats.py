@@ -20,7 +20,7 @@ import config
 def create(
     user_id: int,
     mode: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBStats:
     session.add(
         stats := DBStats(
@@ -37,7 +37,7 @@ def update(
     user_id: int,
     mode: int,
     updates: dict,
-    session: Session | None = None
+    session: Session = ...
 ) -> int:
     rows = session.query(DBStats) \
            .filter(DBStats.user_id == user_id) \
@@ -50,7 +50,7 @@ def update(
 def update_all(
     user_id: int,
     updates: dict,
-    session: Session | None = None
+    session: Session = ...
 ) -> int:
     rows = session.query(DBStats) \
            .filter(DBStats.user_id == user_id) \
@@ -59,7 +59,7 @@ def update_all(
     return rows
 
 @session_wrapper
-def delete_all(user_id: int, session: Session | None = None) -> int:
+def delete_all(user_id: int, session: Session = ...) -> int:
     rows = session.query(DBStats) \
             .filter(DBStats.user_id == user_id) \
             .delete()
@@ -70,7 +70,7 @@ def delete_all(user_id: int, session: Session | None = None) -> int:
 def fetch_by_mode(
     user_id: int,
     mode: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBStats | None:
     return session.query(DBStats) \
         .filter(DBStats.user_id == user_id) \
@@ -78,13 +78,13 @@ def fetch_by_mode(
         .first()
 
 @session_wrapper
-def fetch_all(user_id: int, session: Session | None = None) -> List[DBStats]:
+def fetch_all(user_id: int, session: Session = ...) -> List[DBStats]:
     return session.query(DBStats) \
         .filter(DBStats.user_id == user_id) \
         .all()
 
 @session_wrapper
-def restore(user_id: int, session: Session | None = None) -> None:
+def restore(user_id: int, session: Session = ...) -> None:
     all_stats = [DBStats(user_id, mode) for mode in range(4)]
 
     for mode in range(4):

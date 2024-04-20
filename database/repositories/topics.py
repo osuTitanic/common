@@ -8,13 +8,13 @@ from sqlalchemy.orm import Session
 from typing import List
 
 @session_wrapper
-def fetch_one(id: int, session: Session | None = None) -> DBForumTopic | None:
+def fetch_one(id: int, session: Session = ...) -> DBForumTopic | None:
     return session.query(DBForumTopic) \
         .filter(DBForumTopic.id == id) \
         .first()
 
 @session_wrapper
-def fetch_all(session: Session | None = None) -> List[DBForumTopic]:
+def fetch_all(session: Session = ...) -> List[DBForumTopic]:
     return session.query(DBForumTopic) \
         .filter(DBForumTopic.hidden == False) \
         .order_by(DBForumTopic.id.desc()) \
@@ -23,7 +23,7 @@ def fetch_all(session: Session | None = None) -> List[DBForumTopic]:
 @session_wrapper
 def fetch_by_forum(
     forum_id: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBForumTopic]:
     return session.query(DBForumTopic) \
         .filter(DBForumTopic.forum_id == forum_id) \
@@ -35,7 +35,7 @@ def fetch_by_forum(
 def fetch_range(
     limit: int,
     offset: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBForumTopic]:
     return session.query(DBForumTopic) \
         .filter(DBForumTopic.hidden == False) \
@@ -48,7 +48,7 @@ def fetch_range(
 def fetch_announcements(
     limit: int,
     offset: int = 0,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBForumTopic]:
     return session.query(DBForumTopic) \
         .filter(DBForumTopic.announcement == True) \
@@ -59,7 +59,7 @@ def fetch_announcements(
         .all()
 
 @session_wrapper
-def fetch_post_count(topic_id: int, session: Session | None = None) -> int:
+def fetch_post_count(topic_id: int, session: Session = ...) -> int:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
         .filter(DBForumPost.hidden == False) \
@@ -68,7 +68,7 @@ def fetch_post_count(topic_id: int, session: Session | None = None) -> int:
 @session_wrapper
 def fetch_recent(
     forum_id: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBForumTopic | None:
     return session.query(DBForumTopic) \
         .filter(DBForumTopic.forum_id == forum_id) \
@@ -81,7 +81,7 @@ def fetch_recent_many(
     forum_id: int,
     limit: int = 5,
     offset: int = 0,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBForumTopic]:
     return session.query(DBForumTopic) \
         .filter(DBForumTopic.forum_id == forum_id) \

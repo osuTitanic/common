@@ -15,7 +15,7 @@ def create(
     text: str,
     args: str,
     links: str,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBActivity:
     session.add(
         ac := DBActivity(
@@ -35,7 +35,7 @@ def fetch_recent(
     user_id: int,
     mode: int,
     until: timedelta = timedelta(days=30),
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBActivity]:
     return session.query(DBActivity) \
         .filter(DBActivity.time > datetime.now() - until) \

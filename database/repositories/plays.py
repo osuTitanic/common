@@ -16,7 +16,7 @@ def create(
     user_id: int,
     set_id: int,
     count: int = 1,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBPlay:
     session.add(
         p := DBPlay(
@@ -38,7 +38,7 @@ def update(
     user_id: int,
     set_id: int,
     count: int = 1,
-    session: Session | None = None
+    session: Session = ...
 ) -> None:
     updated = session.query(DBPlay) \
         .filter(DBPlay.beatmap_id == beatmap_id) \
@@ -59,7 +59,7 @@ def update(
     session.commit()
 
 @session_wrapper
-def fetch_count_for_beatmap(beatmap_id: int, session: Session | None = None) -> int:
+def fetch_count_for_beatmap(beatmap_id: int, session: Session = ...) -> int:
     count = session.query(
         func.sum(DBPlay.count).label('playcount')) \
             .group_by(DBPlay.beatmap_id) \
@@ -69,7 +69,7 @@ def fetch_count_for_beatmap(beatmap_id: int, session: Session | None = None) -> 
     return count[0] if count else 0
 
 @session_wrapper
-def fetch_most_played(limit: int = 5, session: Session | None = None) -> List[DBPlay]:
+def fetch_most_played(limit: int = 5, session: Session = ...) -> List[DBPlay]:
     return session.query(DBPlay) \
         .order_by(DBPlay.count.desc()) \
         .limit(limit) \
@@ -80,7 +80,7 @@ def fetch_most_played_by_user(
     user_id: int,
     limit: int = 15,
     offset: int = 0,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBPlay]:
     return session.query(DBPlay) \
         .filter(DBPlay.user_id == user_id) \

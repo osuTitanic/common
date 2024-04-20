@@ -32,7 +32,7 @@ def create(
     od: float,
     hp: float,
     diff: float,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBBeatmap:
     session.add(
         m := DBBeatmap(
@@ -60,34 +60,34 @@ def create(
     return m
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session | None = None) -> DBBeatmap | None:
+def fetch_by_id(id: int, session: Session = ...) -> DBBeatmap | None:
     return session.query(DBBeatmap) \
         .options(selectinload(DBBeatmap.beatmapset)) \
         .filter(DBBeatmap.id == id) \
         .first()
 
 @session_wrapper
-def fetch_by_file(filename: str, session: Session | None = None) -> DBBeatmap | None:
+def fetch_by_file(filename: str, session: Session = ...) -> DBBeatmap | None:
     return session.query(DBBeatmap) \
         .options(selectinload(DBBeatmap.beatmapset)) \
         .filter(DBBeatmap.filename == filename) \
         .first()
 
 @session_wrapper
-def fetch_by_checksum(checksum: str, session: Session | None = None) -> DBBeatmap | None:
+def fetch_by_checksum(checksum: str, session: Session = ...) -> DBBeatmap | None:
     return session.query(DBBeatmap) \
         .options(selectinload(DBBeatmap.beatmapset)) \
         .filter(DBBeatmap.md5 == checksum) \
         .first()
 
 @session_wrapper
-def fetch_by_set(set_id: int, session: Session | None = None) -> List[DBBeatmap]:
+def fetch_by_set(set_id: int, session: Session = ...) -> List[DBBeatmap]:
     return session.query(DBBeatmap) \
         .filter(DBBeatmap.set_id == set_id) \
         .all()
 
 @session_wrapper
-def fetch_count(session: Session | None = None) -> int:
+def fetch_count(session: Session = ...) -> int:
     return session.query(func.count(DBBeatmap.id)) \
                   .scalar()
 
@@ -95,7 +95,7 @@ def fetch_count(session: Session | None = None) -> int:
 def update(
     beatmap_id: int,
     updates: dict,
-    session: Session | None = None
+    session: Session = ...
 ) -> int:
     rows = session.query(DBBeatmap) \
         .filter(DBBeatmap.id == beatmap_id) \
@@ -107,7 +107,7 @@ def update(
 def update_by_set_id(
     set_id: int,
     updates: dict,
-    session: Session | None = None
+    session: Session = ...
 ) -> int:
     rows = session.query(DBBeatmap) \
         .filter(DBBeatmap.set_id == set_id) \

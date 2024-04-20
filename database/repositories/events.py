@@ -14,7 +14,7 @@ def create(
     match_id: int,
     type: EventType,
     data: dict = {},
-    session: Session | None = None
+    session: Session = ...
 ) -> DBMatchEvent:
     session.add(
         m := DBMatchEvent(
@@ -28,14 +28,14 @@ def create(
     return m
 
 @session_wrapper
-def fetch_last(match_id: int, session: Session | None = None) -> DBMatchEvent | None:
+def fetch_last(match_id: int, session: Session = ...) -> DBMatchEvent | None:
     return session.query(DBMatchEvent) \
         .filter(DBMatchEvent.match_id == match_id) \
         .order_by(DBMatchEvent.time.desc()) \
         .first()
 
 @session_wrapper
-def fetch_last_by_type(match_id: int, type: int, session: Session | None = None) -> DBMatchEvent | None:
+def fetch_last_by_type(match_id: int, type: int, session: Session = ...) -> DBMatchEvent | None:
     return session.query(DBMatchEvent) \
         .filter(DBMatchEvent.match_id == match_id) \
         .filter(DBMatchEvent.type == type) \
@@ -43,7 +43,7 @@ def fetch_last_by_type(match_id: int, type: int, session: Session | None = None)
         .first()
 
 @session_wrapper
-def fetch_all(match_id: int, session: Session | None = None) -> List[DBMatchEvent]:
+def fetch_all(match_id: int, session: Session = ...) -> List[DBMatchEvent]:
     return session.query(DBMatchEvent) \
         .filter(DBMatchEvent.match_id == match_id) \
         .all()
@@ -52,7 +52,7 @@ def fetch_all(match_id: int, session: Session | None = None) -> List[DBMatchEven
 def fetch_all_after_time(
     match_id: int,
     after: datetime,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBMatchEvent]:
     return session.query(DBMatchEvent) \
         .filter(DBMatchEvent.match_id == match_id) \
@@ -61,7 +61,7 @@ def fetch_all_after_time(
         .all()
 
 @session_wrapper
-def delete_all(match_id: int, session: Session | None = None) -> None:
+def delete_all(match_id: int, session: Session = ...) -> None:
     session.query(DBMatchEvent) \
         .filter(DBMatchEvent.match_id == match_id) \
         .delete()

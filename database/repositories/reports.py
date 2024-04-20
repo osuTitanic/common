@@ -12,7 +12,7 @@ def create(
     target_id: int,
     sender_id: int,
     reason: str | None = None,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBReport:
     session.add(
         r := DBReport(
@@ -26,13 +26,13 @@ def create(
     return r
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session | None = None) -> DBReport | None:
+def fetch_by_id(id: int, session: Session = ...) -> DBReport | None:
     return session.query(DBReport) \
         .filter(DBReport.id == id) \
         .first()
 
 @session_wrapper
-def fetch_last_by_sender(sender_id: int, session: Session | None = None) -> DBReport | None:
+def fetch_last_by_sender(sender_id: int, session: Session = ...) -> DBReport | None:
     return session.query(DBReport) \
         .filter(DBReport.sender_id == sender_id) \
         .filter(DBReport.resolved == False) \
@@ -40,7 +40,7 @@ def fetch_last_by_sender(sender_id: int, session: Session | None = None) -> DBRe
         .first()
 
 @session_wrapper
-def fetch_last(target_id: int, session: Session | None = None) -> DBReport | None:
+def fetch_last(target_id: int, session: Session = ...) -> DBReport | None:
     return session.query(DBReport) \
         .filter(DBReport.target_id == target_id) \
         .filter(DBReport.resolved == False) \
@@ -48,7 +48,7 @@ def fetch_last(target_id: int, session: Session | None = None) -> DBReport | Non
         .first()
 
 @session_wrapper
-def fetch_all_by_sender(sender_id: int, session: Session | None = None) -> List[DBReport]:
+def fetch_all_by_sender(sender_id: int, session: Session = ...) -> List[DBReport]:
     return session.query(DBReport) \
         .filter(DBReport.sender_id == sender_id) \
         .filter(DBReport.resolved == False) \
@@ -56,7 +56,7 @@ def fetch_all_by_sender(sender_id: int, session: Session | None = None) -> List[
         .all()
 
 @session_wrapper
-def fetch_all(target_id: int, session: Session | None = None) -> List[DBReport]:
+def fetch_all(target_id: int, session: Session = ...) -> List[DBReport]:
     return session.query(DBReport) \
         .filter(DBReport.target_id == target_id) \
         .filter(DBReport.resolved == False) \
@@ -67,7 +67,7 @@ def fetch_all(target_id: int, session: Session | None = None) -> List[DBReport]:
 def fetch_by_sender_to_target(
     sender_id: int,
     target_id: int,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBReport | None:
     return session.query(DBReport) \
         .filter(DBReport.target_id == target_id) \

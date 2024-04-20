@@ -17,7 +17,7 @@ def create(
     content: str,
     read: bool = False,
     link: str | None = None,
-    session: Session | None = None
+    session: Session = ...
 ) -> DBNotification:
     session.add(
         n := DBNotification(
@@ -34,7 +34,7 @@ def create(
     return n
 
 @session_wrapper
-def fetch_one(id: int, session: Session | None = None) -> int:
+def fetch_one(id: int, session: Session = ...) -> int:
     return session.query(DBNotification) \
         .filter(DBNotification.id == id) \
         .first()
@@ -43,7 +43,7 @@ def fetch_one(id: int, session: Session | None = None) -> int:
 def fetch_count(
     user_id: int,
     read: bool | None = False,
-    session: Session | None = None
+    session: Session = ...
 ) -> int:
     if read is None:
         count = session.query(func.count(DBNotification.id)) \
@@ -63,7 +63,7 @@ def fetch_all(
     user_id: int,
     read: bool | None = False,
     until: datetime | None = None,
-    session: Session | None = None
+    session: Session = ...
 ) -> List[DBNotification]:
     query = session.query(DBNotification) \
         .filter(DBNotification.user_id == user_id)
@@ -80,7 +80,7 @@ def fetch_all(
 def update(
     id: int,
     updates: dict,
-    session: Session | None = None
+    session: Session = ...
 ) -> int:
     rows = session.query(DBNotification) \
         .filter(DBNotification.id == id) \
