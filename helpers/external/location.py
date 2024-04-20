@@ -24,19 +24,6 @@ class Geolocation:
     timezone: str = 'UTC'
     city: str = 'Unknown'
 
-def download_database():
-    app.session.logger.info('Downloading geolite database...')
-
-    response = app.session.requests.get(config.IP_DATABASE_URL)
-
-    if not response.ok:
-        app.session.logger.error(f'Download failed. ({response.status_code})')
-        app.session.logger.warning('Skipping...')
-        return
-
-    with open(f'{config.DATA_PATH}/geolite.mmdb', 'wb') as f:
-        f.write(response.content)
-
 @cache
 def fetch_geolocation(ip: str) -> Geolocation:
     try:
