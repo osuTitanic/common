@@ -9,14 +9,14 @@ def ttl_cache(maxsize: int = 128, typed: bool = False, ttl: int = -1):
     def wrapper(func: Callable) -> Callable:
         func = lru_cache(maxsize=maxsize, typed=typed)(func)
         func.lifetime = timedelta(seconds=ttl)
-        func.expiration = datetime.utcnow() + func.lifetime
+        func.expiration = datetime.now() + func.lifetime
 
         @wraps(func)
         def wrapped_func(*args, **kwargs):
             # Check func expiration
-            if datetime.utcnow() > func.expiration:
+            if datetime.now() > func.expiration:
                 func.cache_clear()
-                func.expiration = datetime.utcnow() + func.lifetime
+                func.expiration = datetime.now() + func.lifetime
 
             if (result := func(*args, **kwargs)) == None:
                 func.cache_clear()
@@ -25,7 +25,7 @@ def ttl_cache(maxsize: int = 128, typed: bool = False, ttl: int = -1):
 
         def cache_clear():
             func.cache_clear()
-            func.expiration = datetime.utcnow() + func.lifetime
+            func.expiration = datetime.now() + func.lifetime
 
         wrapped_func.cache_clear = cache_clear
         return wrapped_func
