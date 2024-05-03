@@ -1056,6 +1056,14 @@ class DBRelease(Base):
     actions      = Column('actions', JSONB, default=[])
     created_at   = Column('created_at', DateTime, server_default=func.now())
 
+class DBResourceMirror(Base):
+    __tablename__ = "resource_mirrors"
+
+    url      = Column('url', String, primary_key=True)
+    type     = Column('type', Integer)
+    server   = Column('server', Integer)
+    priority = Column('priority', Integer, default=0)
+
 class DBUser(Base):
     __tablename__ = "users"
 
