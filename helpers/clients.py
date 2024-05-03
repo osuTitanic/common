@@ -10,6 +10,6 @@ def fetch_hashes(version: int) -> List[str]:
         for hash in file['md5']
     ]
 
-def is_valid_client_hash(hash: str) -> bool:
-    hashes = fetch_hashes()
+def is_valid_client_hash(version: int, hash: str) -> bool:
+    hashes = fetch_hashes(version)
     return hash in hashes
