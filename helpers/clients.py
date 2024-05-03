@@ -1,6 +1,6 @@
 
 
-from ..database import releases
+from ..database.repositories import releases
 from typing import List
 
 def fetch_hashes(version: int) -> List[str]:
