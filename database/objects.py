@@ -17,6 +17,7 @@ from sqlalchemy import (
     Integer,
     Column,
     String,
+    ARRAY,
     Float
 )
 
@@ -1038,6 +1039,22 @@ class DBForumSubscriber(Base):
     ) -> None:
         self.user_id = user_id
         self.topic_id = topic_id
+
+class DBRelease(Base):
+    __tablename__ = "releases"
+
+    name         = Column('name', String, primary_key=True)
+    version      = Column('version', Integer)
+    description  = Column('description', String, default='')
+    known_bugs   = Column('known_bugs', String, nullable=True)
+    supported    = Column('supported', Boolean, default=True)
+    recommended  = Column('recommended', Boolean, default=False)
+    preview      = Column('preview', Boolean, default=False)
+    downloads    = Column('downloads', ARRAY(String), default=[])
+    hashes       = Column('hashes', JSONB, default=[])
+    screenshots  = Column('screenshots', JSONB, default=[])
+    actions      = Column('actions', JSONB, default=[])
+    created_at   = Column('created_at', DateTime, server_default=func.now())
 
 class DBUser(Base):
     __tablename__ = "users"
