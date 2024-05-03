@@ -10,6 +10,7 @@ from . import (
     favourites,
     usercount,
     histories,
+    releases,
     beatmaps,
     channels,
     messages,
