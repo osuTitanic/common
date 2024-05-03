@@ -55,6 +55,12 @@ def fetch_by_name(username: str, session: Session = ...) -> DBUser | None:
         .first()
 
 @session_wrapper
+def fetch_by_name_case_insensitive(username: str, session: Session = ...) -> DBUser | None:
+    return session.query(DBUser) \
+        .filter(func.lower(DBUser.name) == username.lower()) \
+        .first()
+
+@session_wrapper
 def fetch_by_name_extended(query: str, session: Session = ...) -> DBUser | None:
     """Used for searching users"""
     return session.query(DBUser) \
