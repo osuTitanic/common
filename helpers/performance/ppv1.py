@@ -6,12 +6,10 @@ from ...database.objects import DBScore, DBBeatmap
 from ...constants import Mods
 
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 from datetime import datetime
 from typing import List
 
 import math
-import app
 
 # ppv1 reference: https://gist.github.com/peppy/4f8fcb6629d300c56ebe80156b20b76c
 

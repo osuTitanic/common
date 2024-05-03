@@ -1,6 +1,6 @@
 
-from ...database.objects import DBScore
 from ...constants import GameMode, Mods
+from ...database import DBScore
 from typing import Optional
 
 from titanic_pp_py import Calculator, Beatmap
