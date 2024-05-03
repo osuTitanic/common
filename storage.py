@@ -132,6 +132,7 @@ class Storage:
             return osu
 
         # Check for custom beatmap files
+        # TODO: Add mirror api for titanic
 
         if config.S3_ENABLED:
             osu = self.get_from_s3(str(id), 'beatmaps')

@@ -1,4 +1,6 @@
 
+from ...database.repositories import resources
+
 from requests import Session, Response
 from typing import Optional
 
@@ -18,84 +20,89 @@ class Beatmaps:
     def log_error(self, url: str, status_code: int) -> None:
         self.logger.error(f'Error while sending request to "{url}" ({status_code})')
 
-    def osz(self, set_id: int, no_video: bool = False) -> Optional[Response]:
+    def osz(self, set_id: int, no_video: bool = False, server: int = 0) -> Optional[Response]:
         self.logger.debug(f'Downloading osz... ({set_id})')
 
-        response = self.session.get(f'https://api.osu.direct/d/{set_id}{"?noVideo=" if no_video else ""}', stream=True)
-
-        if not response.ok:
-            self.log_error(response.url, response.status_code)
-            return self.osz_backup(set_id, no_video)
-
-        # NOTE: osu.direct always responds with status code 200, even on errors
-        #       So here is a little workaround for that
-
-        if 'application/json' in response.headers['Content-Type']:
-            self.log_error(response.url, response.json()['code'])
-            return self.osz_backup(set_id, no_video)
-
-        return response
-
-    def osz_backup(self, set_id: int, no_video: bool = False) -> Optional[Response]:
-        self.logger.debug(f'Downloading osz from backup api... ({set_id})')
-
-        response = self.session.get(f'https://api.nerinyan.moe/d/{set_id}',
-            stream=True,
-            params={
-                'noVideo': no_video
-            }
+        mirrors = resources.fetch_by_type(
+            type=(1 if no_video else 0),
+            server=server
         )
 
-        if not response.ok:
-            self.log_error(response.url, response.status_code)
-            return
-
-        return response
-    
-    def osu(self, beatmap_id: int) -> Optional[bytes]:
-        self.logger.debug(f'Downloading beatmap... ({beatmap_id})')
-
-        try:
-            response = self.session.get(f'https://api.osu.direct/osu/{beatmap_id}')
+        for mirror in mirrors:
+            response = self.session.get(
+                mirror.url.format(set_id),
+                stream=True
+            )
 
             if not response.ok:
                 self.log_error(response.url, response.status_code)
-                raise ValueError
+                continue
+
+            # NOTE: Some mirrors like osu.direct always responds with status code
+            #       200, even on errors. So here is a little workaround for that
 
             if 'application/json' in response.headers['Content-Type']:
                 self.log_error(response.url, response.json()['code'])
-                return
-        except ValueError:
-            response = self.session.get(f'https://old.ppy.sh/osu/{beatmap_id}')
+                continue
+
+            return response
+    
+    def osu(self, beatmap_id: int, server: int = 0) -> Optional[bytes]:
+        self.logger.debug(f'Downloading beatmap... ({beatmap_id})')
+
+        mirrors = resources.fetch_by_type(
+            type=2,
+            server=server
+        )
+
+        for mirror in mirrors:
+            response = self.session.get(mirror.url.format(beatmap_id))
 
             if not response.ok:
                 self.log_error(response.url, response.status_code)
-                return
+                continue
 
-        if not response.content:
-            return
+            if 'application/json' in response.headers['Content-Type']:
+                self.log_error(response.url, response.json()['code'])
+                continue
 
-        return response.content
+            if not response.content:
+                continue
 
-    def preview(self, set_id: int) -> Optional[bytes]:
+            return response.content
+
+    def preview(self, set_id: int, server: int = 0) -> Optional[bytes]:
         self.logger.debug(f'Downloading preview... ({set_id})')
 
-        response = self.session.get(f'https://b.ppy.sh/preview/{set_id}.mp3')
+        mirrors = resources.fetch_by_type(
+            type=5,
+            server=server
+        )
 
-        if not response.ok:
-            self.log_error(response.url, response.status_code)
-            return
+        for mirror in mirrors:
+            response = self.session.get(mirror.url.format(set_id))
 
-        return response.content
+            if not response.ok:
+                self.log_error(response.url, response.status_code)
+                continue
 
-    def background(self, set_id: int, large=False) -> Optional[bytes]:
+            return response.content
+
+    def background(self, set_id: int, large=False, server: int = 0) -> Optional[bytes]:
         self.logger.debug(f'Downloading background... ({set_id})')
 
-        response = self.session.get(f'https://b.ppy.sh/thumb/{set_id}{"l" if large else ""}.jpg')
+        mirrors = resources.fetch_by_type(
+            type=(4 if large else 3),
+            server=server
+        )
 
-        if not response.ok:
-            if response.status_code != 404:
-                self.log_error(response.url, response.status_code)
-            return
+        for mirror in mirrors:
+            response = self.session.get(mirror.url.format(set_id))
 
-        return response.content
+            if not response.ok:
+                if response.status_code != 404:
+                    # Prevent flooding the console with 404 errors lol
+                    self.log_error(response.url, response.status_code)
+                continue
+
+            return response.content
