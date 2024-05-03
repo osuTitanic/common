@@ -16,7 +16,19 @@ def fetch_by_name(name: str, session: Session = ...) -> DBRelease | None:
         .first()
 
 @session_wrapper
+def fetch_by_version(version: int, session: Session = ...) -> DBRelease | None:
+    return session.query(DBRelease) \
+        .filter(DBRelease.version == version) \
+        .first()
+
+@session_wrapper
 def fetch_all(session: Session = ...) -> List[DBRelease]:
     return session.query(DBRelease) \
         .order_by(DBRelease.version.desc()) \
         .all()
+
+@session_wrapper
+def fetch_hashes(version: int, session: Session = ...) -> List[dict]:
+    return session.query(DBRelease.hashes) \
+        .filter(DBRelease.version == version) \
+        .scalar()
