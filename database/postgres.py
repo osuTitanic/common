@@ -38,20 +38,24 @@ class Postgres:
     def session(self) -> Session:
         return self.sessionmaker(bind=self.engine)
 
-    @contextmanager
-    def managed_session(self):
+    def yield_session(self):
         session = self.sessionmaker(bind=self.engine)
+
         try:
             yield session
         except Exception as e:
             exception_name = e.__class__.__name__
 
-            if exception_name in ('HTTPException', 'NotFound'):
-                raise e
+            if exception_name not in ('HTTPException', 'NotFound'):
+                officer.call(f'Transaction failed: {e}', exc_info=e)
+                self.logger.fatal(f'Transaction failed: {e}', exc_info=e)
+                self.logger.fatal('Performing rollback...')
 
-            officer.call(f'Transaction failed: {e}', exc_info=e)
-            self.logger.fatal(f'Transaction failed: {e}', exc_info=e)
-            self.logger.fatal('Performing rollback...')
             session.rollback()
+            raise e
         finally:
             session.close()
+
+    @contextmanager
+    def managed_session(self):
+        return self.yield_session()
