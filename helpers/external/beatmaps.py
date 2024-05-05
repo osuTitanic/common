@@ -20,13 +20,10 @@ class Beatmaps:
     def log_error(self, url: str, status_code: int) -> None:
         self.logger.error(f'Error while sending request to "{url}" ({status_code})')
 
-    def osz(self, set_id: int, no_video: bool = False, server: int = 0) -> Optional[Response]:
+    def osz(self, set_id: int, no_video: bool = False) -> Optional[Response]:
         self.logger.debug(f'Downloading osz... ({set_id})')
 
-        mirrors = resources.fetch_by_type(
-            type=(1 if no_video else 0),
-            server=server
-        )
+        mirrors = resources.fetch_by_type_all(1 if no_video else 0)
 
         for mirror in mirrors:
             response = self.session.get(
@@ -47,13 +44,10 @@ class Beatmaps:
 
             return response
     
-    def osu(self, beatmap_id: int, server: int = 0) -> Optional[bytes]:
+    def osu(self, beatmap_id: int) -> Optional[bytes]:
         self.logger.debug(f'Downloading beatmap... ({beatmap_id})')
 
-        mirrors = resources.fetch_by_type(
-            type=2,
-            server=server
-        )
+        mirrors = resources.fetch_by_type_all(2)
 
         for mirror in mirrors:
             response = self.session.get(mirror.url.format(beatmap_id))
@@ -71,13 +65,10 @@ class Beatmaps:
 
             return response.content
 
-    def preview(self, set_id: int, server: int = 0) -> Optional[bytes]:
+    def preview(self, set_id: int) -> Optional[bytes]:
         self.logger.debug(f'Downloading preview... ({set_id})')
 
-        mirrors = resources.fetch_by_type(
-            type=5,
-            server=server
-        )
+        mirrors = resources.fetch_by_type_all(5)
 
         for mirror in mirrors:
             response = self.session.get(mirror.url.format(set_id))
@@ -88,13 +79,10 @@ class Beatmaps:
 
             return response.content
 
-    def background(self, set_id: int, large=False, server: int = 0) -> Optional[bytes]:
+    def background(self, set_id: int, large=False) -> Optional[bytes]:
         self.logger.debug(f'Downloading background... ({set_id})')
 
-        mirrors = resources.fetch_by_type(
-            type=(4 if large else 3),
-            server=server
-        )
+        mirrors = resources.fetch_by_type_all(4 if large else 3)
 
         for mirror in mirrors:
             response = self.session.get(mirror.url.format(set_id))

@@ -152,12 +152,8 @@ class Storage:
         return osz
 
     def get_beatmap(self, id: int) -> bytes | None:
-        # Check for custom beatmap files
         if (osu := self.get_beatmap_internal(id)):
             return osu
-
-        # Get beatmap file from peppy's servers if not found
-        osu = self.api.osu(id)
 
         if not osu:
             return
