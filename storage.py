@@ -308,6 +308,20 @@ class Storage:
             expiry=timedelta(days=1)
         )
 
+    def upload_osz(self, set_id: int, content: bytes):
+        if config.S3_ENABLED:
+            self.save_to_s3(content, str(set_id), 'osz')
+
+        else:
+            self.save_to_file(f'/osz/{set_id}', content)
+
+    def upload_osz2(self, set_id: int, content: bytes):
+        if config.S3_ENABLED:
+            self.save_to_s3(content, str(set_id), 'osz2')
+
+        else:
+            self.save_to_file(f'/osz2/{set_id}', content)
+
     def cache_replay(self, id: int, content: bytes, time=timedelta(hours=1)):
         self.save_to_cache(
             name=f'osr:{id}',
