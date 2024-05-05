@@ -310,9 +310,9 @@ class DBBeatmapset(Base):
     genre_id             = Column('genre_id', SmallInteger, default=1)
 
     favourites = relationship('DBFavourite', back_populates='beatmapset')
-    beatmaps   = relationship('DBBeatmap', back_populates='beatmapset')
-    ratings    = relationship('DBRating', back_populates='beatmapset')
-    plays      = relationship('DBPlay', back_populates='beatmapset')
+    beatmaps = relationship('DBBeatmap', back_populates='beatmapset')
+    ratings = relationship('DBRating', back_populates='beatmapset')
+    plays = relationship('DBPlay', back_populates='beatmapset')
 
     @property
     def full_name(self):
