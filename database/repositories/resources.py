@@ -33,3 +33,12 @@ def fetch_by_type(type: int, server: int, session: Session = ...) -> List[DBReso
         .filter(DBResourceMirror.server == server) \
         .order_by(DBResourceMirror.priority.asc()) \
         .all()
+
+@session_wrapper
+@ttl_cache(ttl=60)
+def fetch_by_type_all(type: int, session: Session = ...) -> List[DBResourceMirror]:
+    return session.query(DBResourceMirror) \
+        .filter(DBResourceMirror.type == type) \
+        .order_by(DBResourceMirror.priority.asc()) \
+        .group_by(DBResourceMirror.url, DBResourceMirror.server) \
+        .all()
