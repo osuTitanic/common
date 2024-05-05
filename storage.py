@@ -127,12 +127,46 @@ class Storage:
 
             return stream.get()
 
+    def get_osz_internal(self, set_id: int) -> bytes | None:
+        if config.S3_ENABLED:
+            osz = self.get_from_s3(str(set_id), 'osz')
+
+        else:
+            osz = self.get_file_content(f'/osz/{set_id}')
+
+        if not osz:
+            return
+
+        return osz
+
+    def get_osz2_internal(self, set_id: int) -> bytes | None:
+        if config.S3_ENABLED:
+            osz = self.get_from_s3(str(set_id), 'osz2')
+
+        else:
+            osz = self.get_file_content(f'/osz2/{set_id}')
+
+        if not osz:
+            return
+
+        return osz
+
     def get_beatmap(self, id: int) -> bytes | None:
-        if (osu := self.get_from_cache(f'osu:{id}')):
+        # Check for custom beatmap files
+        if (osu := self.get_beatmap_internal(id)):
             return osu
 
-        # Check for custom beatmap files
-        # TODO: Add mirror api for titanic
+        # Get beatmap file from peppy's servers if not found
+        osu = self.api.osu(id)
+
+        if not osu:
+            return
+
+        return osu
+
+    def get_beatmap_internal(self, id: int) -> bytes | None:
+        if (osu := self.get_from_cache(f'osu:{id}')):
+            return osu
 
         if config.S3_ENABLED:
             osu = self.get_from_s3(str(id), 'beatmaps')
@@ -141,17 +175,7 @@ class Storage:
             osu = self.get_file_content(f'/beatmaps/{id}')
 
         if not osu:
-            # Get beatmap file from peppy's servers if not found
-            osu = self.api.osu(id)
-
-            if not osu:
-                return
-
-        self.save_to_cache(
-            name=f'osu:{id}',
-            content=osu,
-            expiry=timedelta(hours=1)
-        )
+            return
 
         return osu
 
@@ -176,11 +200,53 @@ class Storage:
 
         return image
 
+    def get_background_internal(self, set_id: int) -> bytes | None:
+        if (image := self.get_from_cache(f'mt:{set_id}')):
+            return image
+
+        if config.S3_ENABLED:
+            image = self.get_from_s3(str(set_id), 'thumbnails')
+
+        else:
+            image = self.get_file_content(f'/thumbnails/{set_id}')
+
+        if not image:
+            return
+
+        self.save_to_cache(
+            name=f'mt:{set_id}',
+            content=image,
+            expiry=timedelta(weeks=3)
+        )
+
+        return image
+
     def get_mp3(self, set_id: int) -> bytes | None:
         if (mp3 := self.get_from_cache(f'mp3:{set_id}')):
             return mp3
 
         if not (mp3 := self.api.preview(set_id)):
+            return
+
+        self.save_to_cache(
+            name=f'mp3:{set_id}',
+            content=mp3,
+            expiry=timedelta(hours=1)
+        )
+
+        return mp3
+
+    def get_mp3_internal(self, set_id: int) -> bytes | None:
+        if (mp3 := self.get_from_cache(f'mp3:{set_id}')):
+            return mp3
+
+        if config.S3_ENABLED:
+            mp3 = self.get_from_s3(str(set_id), 'audio')
+
+        else:
+            mp3 = self.get_file_content(f'/audio/{set_id}')
+
+        if not mp3:
             return
 
         self.save_to_cache(
