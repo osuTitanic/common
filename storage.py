@@ -127,6 +127,9 @@ class Storage:
 
             return stream.get()
 
+    def get_osz(self, set_id: int) -> bytes | None:
+        return self.api.osz(set_id)
+
     def get_osz_internal(self, set_id: int) -> bytes | None:
         if config.S3_ENABLED:
             osz = self.get_from_s3(str(set_id), 'osz')
