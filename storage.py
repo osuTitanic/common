@@ -474,6 +474,16 @@ class Storage:
 
         return buffer.getvalue()
 
+    def file_exists(self, key: str, bucket: str) -> bool:
+        if not config.S3_ENABLED:
+            return os.path.isfile(f'{config.DATA_PATH}/{bucket}/{key}')
+
+        try:
+            self.s3.head_object(Bucket=bucket, Key=key)
+            return True
+        except ClientError:
+            return False
+
     def list(self, key: str) -> List[str]:
         """Get a list of filenames from the specified bucket/directory."""
         if not config.S3_ENABLED:
