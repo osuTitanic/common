@@ -66,6 +66,28 @@ def update(stats: DBStats, country: str) -> None:
         {stats.user_id: stats.acc}
     )
 
+    clears = sum(
+        stats.xh_count,
+        stats.x_count,
+        stats.sh_count,
+        stats.s_count,
+        stats.a_count,
+        stats.b_count,
+        stats.c_count,
+        stats.d_count
+    )
+
+    # Clears
+    app.session.redis.zadd(
+        f'bancho:clears:{stats.mode}',
+        {stats.user_id: clears}
+    )
+
+    app.session.redis.zadd(
+        f'bancho:clears:{stats.mode}:{country.lower()}',
+        {stats.user_id: clears}
+    )
+
     # PP VN
     app.session.redis.zadd(
         f'bancho:ppvn:{stats.mode}',
