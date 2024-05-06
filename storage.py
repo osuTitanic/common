@@ -155,7 +155,7 @@ class Storage:
         return osz
 
     def get_beatmap(self, id: int) -> bytes | None:
-        if (osu := self.get_beatmap_internal(id)):
+        if (osu := self.api.osu(id)):
             return osu
 
         if not osu:
