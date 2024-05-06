@@ -66,7 +66,7 @@ def update(stats: DBStats, country: str) -> None:
         {stats.user_id: stats.acc}
     )
 
-    clears = sum(
+    clears = sum([
         stats.xh_count,
         stats.x_count,
         stats.sh_count,
@@ -75,7 +75,7 @@ def update(stats: DBStats, country: str) -> None:
         stats.b_count,
         stats.c_count,
         stats.d_count
-    )
+    ])
 
     # Clears
     app.session.redis.zadd(
