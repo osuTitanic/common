@@ -557,6 +557,18 @@ def fetch_pp_record(
             .first()
 
 @session_wrapper
+def fetch_clears(
+    user_id: int,
+    mode: int,
+    session: Session = ...
+) -> int:
+    return session.query(func.count(DBScore.id)) \
+        .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.mode == mode) \
+        .filter(DBScore.status == 3) \
+        .scalar()
+
+@session_wrapper
 def restore_hidden_scores(user_id: int, session: Session = ...):
     # This will restore all score status attributes
 
