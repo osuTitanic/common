@@ -31,4 +31,4 @@ def fetch_all(session: Session = ...) -> List[DBRelease]:
 def fetch_hashes(version: int, session: Session = ...) -> List[dict]:
     return session.query(DBRelease.hashes) \
         .filter(DBRelease.version == version) \
-        .scalar()
+        .all()

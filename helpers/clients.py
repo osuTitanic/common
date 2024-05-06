@@ -6,7 +6,8 @@ from typing import List
 def fetch_hashes(version: int) -> List[str]:
     return [
         hash
-        for file in releases.fetch_hashes(version) or []
+        for release in releases.fetch_hashes(version) or []
+        for file in release[0]
         for hash in file['md5']
     ]
 
