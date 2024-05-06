@@ -298,6 +298,17 @@ def score_rank(
     )
     return (rank + 1 if rank is not None else 0)
 
+def clears_rank(
+    user_id: int,
+    mode: int
+) -> int:
+    """Get clears rank"""
+    rank = app.session.redis.zrevrank(
+        f'bancho:clears:{mode}',
+        user_id
+    )
+    return (rank + 1 if rank is not None else 0)
+
 def total_score_rank(
     user_id: int,
     mode: int
@@ -317,6 +328,18 @@ def score_rank_country(
     """Get score rank by country"""
     rank = app.session.redis.zrevrank(
         f'bancho:rscore:{mode}:{country.lower()}',
+        user_id
+    )
+    return (rank + 1 if rank is not None else 0)
+
+def clears_rank_country(
+    user_id: int,
+    mode: int,
+    country: str
+) -> int:
+    """Get clears rank by country"""
+    rank = app.session.redis.zrevrank(
+        f'bancho:clears:{mode}:{country.lower()}',
         user_id
     )
     return (rank + 1 if rank is not None else 0)
@@ -410,6 +433,17 @@ def total_score(
         user_id
     )
     return score if score is not None else 0
+
+def clears(
+    user_id: int,
+    mode: int
+) -> int:
+    """Get player's clears"""
+    clears = app.session.redis.zscore(
+        f'bancho:clears:{mode}',
+        user_id
+    )
+    return clears if clears is not None else 0
 
 def accuracy(
     user_id: int,
