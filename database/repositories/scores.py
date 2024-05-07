@@ -291,6 +291,25 @@ def fetch_personal_best(
         .first()
 
 @session_wrapper
+def fetch_grades(
+    user_id: int,
+    mode: int,
+    session: Session = ...
+) -> Dict[str, int]:
+    grades = session.query(
+            DBScore.grade,
+            func.count(DBScore.id)
+        ) \
+        .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.mode == mode) \
+        .filter(DBScore.status == 3) \
+        .filter(DBScore.grade != 'F') \
+        .group_by(DBScore.grade) \
+        .all()
+
+    return {grade: count for grade, count in grades}
+
+@session_wrapper
 def fetch_range_scores(
     beatmap_id: int,
     mode: int,
