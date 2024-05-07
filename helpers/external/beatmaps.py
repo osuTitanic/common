@@ -5,6 +5,7 @@ from requests import Session, Response
 from typing import Optional
 
 import logging
+import config
 
 class Beatmaps:
     """Wrapper for different beatmap resources, using different API's"""
@@ -27,7 +28,7 @@ class Beatmaps:
 
         for mirror in mirrors:
             response = self.session.get(
-                mirror.url.format(set_id),
+                self.format_mirror_url(mirror.url, set_id),
                 stream=True
             )
 
@@ -50,7 +51,7 @@ class Beatmaps:
         mirrors = resources.fetch_by_type_all(2)
 
         for mirror in mirrors:
-            response = self.session.get(mirror.url.format(beatmap_id))
+            response = self.session.get(self.format_mirror_url(mirror.url, beatmap_id))
 
             if not response.ok:
                 self.log_error(response.url, response.status_code)
@@ -71,7 +72,7 @@ class Beatmaps:
         mirrors = resources.fetch_by_type_all(5)
 
         for mirror in mirrors:
-            response = self.session.get(mirror.url.format(set_id))
+            response = self.session.get(self.format_mirror_url(mirror.url, set_id))
 
             if not response.ok:
                 self.log_error(response.url, response.status_code)
@@ -85,7 +86,7 @@ class Beatmaps:
         mirrors = resources.fetch_by_type_all(4 if large else 3)
 
         for mirror in mirrors:
-            response = self.session.get(mirror.url.format(set_id))
+            response = self.session.get(self.format_mirror_url(mirror.url, set_id))
 
             if not response.ok:
                 if response.status_code != 404:
@@ -94,3 +95,12 @@ class Beatmaps:
                 continue
 
             return response.content
+
+    @staticmethod
+    def format_mirror_url(url: str, id: int) -> str:
+        if url.startswith('/'):
+            # Fix for local domains (e.g. /beatmapsets/{}/download)
+            url = f'http://{config.DOMAIN_NAME}{url}'
+
+        # Insert the id into the url
+        return url.format(id)
