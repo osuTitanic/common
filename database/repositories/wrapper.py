@@ -31,6 +31,6 @@ def exception_wrapper(on_fail=None):
             try:
                 return func(*args, **kwargs)
             except Exception as e:
-                if on_fail: on_fail(e)
+                if on_fail: return on_fail(e)
         return wrapped
     return wrapper
