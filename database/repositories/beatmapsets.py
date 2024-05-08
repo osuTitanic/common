@@ -144,10 +144,10 @@ def search(
             .order_by(func.sum(DBBeatmap.playcount).desc())
 
     query = {
-        DisplayMode.All: query,
+        DisplayMode.All: query.filter(DBBeatmapset.status > -3),
         DisplayMode.Ranked: query.filter(DBBeatmapset.status > 0),
         DisplayMode.Pending: query.filter(DBBeatmapset.status == 0),
-        DisplayMode.Graveyard: query.filter(DBBeatmapset.status == -1),
+        DisplayMode.Graveyard: query.filter(DBBeatmapset.status == -2),
         DisplayMode.Qualified: query.filter(DBBeatmapset.status == 3),
         DisplayMode.Played: query.join(DBPlay) \
             .filter(DBPlay.user_id == user_id) \
@@ -169,6 +169,7 @@ def search_one(
 ) -> DBBeatmapset | None:
     return session.query(DBBeatmapset) \
         .join(DBBeatmap) \
+        .filter(DBBeatmapset.status > -3) \
         .filter(and_(*text_search_conditions(query_string))) \
         .order_by(DBBeatmap.playcount.desc()) \
         .offset(offset) \
@@ -244,15 +245,15 @@ def search_extended(
         query = query.join(DBPlay) \
                      .filter(DBPlay.user_id == user_id)
 
-    if category > BeatmapCategory.Any:
-        query = query.filter({
-            BeatmapCategory.Leaderboard: (DBBeatmapset.status > 0),
-            BeatmapCategory.Pending: (DBBeatmapset.status == 0),
-            BeatmapCategory.Ranked: (DBBeatmapset.status == 1),
-            BeatmapCategory.Approved: (DBBeatmapset.status == 2),
-            BeatmapCategory.Qualified: (DBBeatmapset.status == 3),
-            BeatmapCategory.Loved: (DBBeatmapset.status == 4),
-        }[category])
+    query = query.filter({
+        BeatmapCategory.Any: (DBBeatmapset.status > -3),
+        BeatmapCategory.Leaderboard: (DBBeatmapset.status > 0),
+        BeatmapCategory.Pending: (DBBeatmapset.status == 0),
+        BeatmapCategory.Ranked: (DBBeatmapset.status == 1),
+        BeatmapCategory.Approved: (DBBeatmapset.status == 2),
+        BeatmapCategory.Qualified: (DBBeatmapset.status == 3),
+        BeatmapCategory.Loved: (DBBeatmapset.status == 4),
+    }[category])
 
     return query.offset(offset) \
                 .limit(limit) \
