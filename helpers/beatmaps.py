@@ -65,7 +65,7 @@ def next_beatmap_id(session: Session = ...) -> int:
 def decrypt_on_fail(e: Exception) -> None:
     officer.call(f'Failed to decrypt osz file: "{e}"')
 
-@utils.exception_wrapper(decrypt_on_fail)
+@wrapper.exception_wrapper(decrypt_on_fail)
 def decrypt_osz2(file: bytes) -> dict | None:
     if not config.OSZ2_SERVICE_URL:
         return
@@ -81,7 +81,7 @@ def decrypt_osz2(file: bytes) -> dict | None:
 
     return response.json()
 
-@utils.exception_wrapper(decrypt_on_fail)
+@wrapper.exception_wrapper(decrypt_on_fail)
 def patch_osz2(patch_file: bytes) -> dict | None:
     if not config.OSZ2_SERVICE_URL:
         return
