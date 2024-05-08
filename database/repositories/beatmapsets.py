@@ -57,23 +57,21 @@ def text_search_conditions(query_string: str) -> list:
 @session_wrapper
 def create(
     id: int,
-    title: str,
-    artist: str,
-    creator: str,
-    source: str,
-    tags: str,
-    status: int,
-    has_video: bool,
-    has_storyboard: bool,
-    created_at: datetime,
-    approved_at: datetime,
-    last_update: datetime,
-    language_id: int,
-    genre_id: int,
+    title: str = '',
+    artist: str = '',
+    creator: str = '',
+    source: str = '',
+    tags: str = '',
+    status: int = -3,
+    has_video: bool = False,
+    has_storyboard: bool = False,
+    language_id: int = 0,
+    genre_id: int = 0,
     osz_filesize: int = 0,
     osz_filesize_novideo: int = 0,
     available: bool = True,
     server: int = 0,
+    creator_id: int = 0,
     session: Session = ...
 ) -> DBBeatmapset:
     session.add(
@@ -87,15 +85,16 @@ def create(
             status,
             has_video,
             has_storyboard,
-            created_at,
-            approved_at,
-            last_update,
+            datetime.now(),
+            None,
+            datetime.now(),
             language_id,
             genre_id,
             osz_filesize,
             osz_filesize_novideo,
             available,
-            server
+            server,
+            creator_id
         )
     )
     session.commit()
@@ -279,6 +278,16 @@ def fetch_ranked_count(
         .count()
 
 @session_wrapper
+def fetch_inactive(
+    user_id: int,
+    session: Session = ...
+) -> List[DBBeatmapset]:
+    return session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.creator_id == user_id) \
+        .filter(DBBeatmapset.status == -3) \
+        .all()
+
+@session_wrapper
 def update(
     beatmapset_id: int,
     updates: dict,
@@ -287,5 +296,25 @@ def update(
     rows = session.query(DBBeatmapset) \
         .filter(DBBeatmapset.id == beatmapset_id) \
         .update(updates)
+    session.commit()
+    return rows
+
+@session_wrapper
+def delete_by_id(
+    id: int,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.id == id) \
+        .delete()
+    session.commit()
+    return rows
+
+@session_wrapper
+def delete_inactive(user_id: int, session: Session = ...) -> int:
+    rows = session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.creator_id == user_id) \
+        .filter(DBBeatmapset.status == -3) \
+        .delete()
     session.commit()
     return rows

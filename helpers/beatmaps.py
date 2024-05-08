@@ -9,7 +9,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 
 import config
-import utils
 import app
 
 @wrapper.session_wrapper

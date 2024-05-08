@@ -345,7 +345,8 @@ class DBBeatmapset(Base):
         osz_filesize: int,
         osz_filesize_novideo: int = 0,
         available: bool = True,
-        server: int = 0
+        server: int = 0,
+        creator_id: int = 0
     ) -> None:
         self.id = id
         self.title = title
@@ -366,6 +367,7 @@ class DBBeatmapset(Base):
         self.available = available
         self.server = server
         self.added_at = datetime.now()
+        self.creator_id = creator_id
 
 class DBBeatmap(Base):
     __tablename__ = "beatmaps"

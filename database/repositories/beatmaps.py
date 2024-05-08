@@ -17,21 +17,19 @@ import app
 def create(
     id: int,
     set_id: int,
-    mode: int,
-    md5: str,
-    status: int,
-    version: str,
-    filename: str,
-    created_at: datetime,
-    last_update: datetime,
-    total_length: int,
-    max_combo: int,
-    bpm: float,
-    cs: float,
-    ar: float,
-    od: float,
-    hp: float,
-    diff: float,
+    mode: int = 0,
+    md5: str = '',
+    status: int = -3,
+    version: str = '',
+    filename: str = '',
+    total_length: int = 0,
+    max_combo: int = 0,
+    bpm: float = 0.0,
+    cs: float = 0.0,
+    ar: float = 0.0,
+    od: float = 0.0,
+    hp: float = 0.0,
+    diff: float = 0.0,
     session: Session = ...
 ) -> DBBeatmap:
     session.add(
@@ -43,8 +41,8 @@ def create(
             status,
             version,
             filename,
-            created_at,
-            last_update,
+            datetime.now(),
+            datetime.now(),
             total_length,
             max_combo,
             bpm,
@@ -112,5 +110,21 @@ def update_by_set_id(
     rows = session.query(DBBeatmap) \
         .filter(DBBeatmap.set_id == set_id) \
         .update(updates)
+    session.commit()
+    return rows
+
+@session_wrapper
+def delete_by_id(id: int, session: Session = ...) -> int:
+    rows = session.query(DBBeatmap) \
+        .filter(DBBeatmap.id == id) \
+        .delete()
+    session.commit()
+    return rows
+
+@session_wrapper
+def delete_by_set_id(set_id: int, session: Session = ...) -> int:
+    rows = session.query(DBBeatmap) \
+        .filter(DBBeatmap.set_id == set_id) \
+        .delete()
     session.commit()
     return rows
