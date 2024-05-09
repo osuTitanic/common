@@ -108,6 +108,15 @@ def fetch_one(id: int, session: Session = ...) -> DBBeatmapset | None:
             .first()
 
 @session_wrapper
+def fetch_by_creator(
+    creator_id: int,
+    session: Session = ...
+) -> List[DBBeatmapset]:
+    return session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.creator_id == creator_id) \
+        .all()
+
+@session_wrapper
 def search(
     query_string: str,
     user_id: int,
@@ -259,12 +268,13 @@ def search_extended(
                 .all()
 
 @session_wrapper
-def fetch_count(
+def fetch_unranked_count(
     user_id: int,
     session: Session = ...
 ) -> int:
     return session.query(DBBeatmapset) \
         .filter(DBBeatmapset.creator_id == user_id) \
+        .filter(DBBeatmapset.status <= 0) \
         .count()
 
 @session_wrapper
