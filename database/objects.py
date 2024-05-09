@@ -288,9 +288,12 @@ class DBBeatmapset(Base):
 
     id                   = Column('id', Integer, primary_key=True, autoincrement=True)
     title                = Column('title', String, nullable=True)
+    title_unicode        = Column('title_unicode', String, nullable=True)
     artist               = Column('artist', String, nullable=True)
-    creator              = Column('creator', String, nullable=True)
+    artist_unicode       = Column('artist_unicode', String, nullable=True)
     source               = Column('source', String, nullable=True)
+    source_unicode       = Column('source_unicode', String, nullable=True)
+    creator              = Column('creator', String, nullable=True)
     description          = Column('description', String, nullable=True)
     tags                 = Column('tags', String, nullable=True, default='')
     status               = Column('submission_status', Integer, default=3)
