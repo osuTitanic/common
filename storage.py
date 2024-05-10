@@ -194,7 +194,7 @@ class Storage:
         return image
 
     def get_background_internal(self, set_id: int) -> bytes | None:
-        if (image := self.get_from_cache(f'mt:{set_id}')):
+        if (image := self.get_from_cache(f'mt:{set_id}l')):
             return image
 
         if config.S3_ENABLED:
@@ -207,7 +207,7 @@ class Storage:
             return
 
         self.save_to_cache(
-            name=f'mt:{set_id}',
+            name=f'mt:{set_id}l',
             content=image,
             expiry=timedelta(weeks=3)
         )
