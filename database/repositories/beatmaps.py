@@ -90,6 +90,13 @@ def fetch_count(session: Session = ...) -> int:
                   .scalar()
 
 @session_wrapper
+def fetch_count_with_leaderboards(mode: int, session: Session = ...) -> int:
+    return session.query(func.count(DBBeatmap.id)) \
+                  .filter(DBBeatmap.mode == mode) \
+                  .filter(DBBeatmap.status > 0) \
+                  .scalar()
+
+@session_wrapper
 def update(
     beatmap_id: int,
     updates: dict,
