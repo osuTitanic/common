@@ -316,6 +316,32 @@ class Storage:
         else:
             self.save_to_file(f'/osz2/{set_id}', content)
 
+    def upload_background(self, set_id: int, content: bytes):
+        if config.S3_ENABLED:
+            self.save_to_s3(content, str(set_id), 'thumbnails')
+
+        else:
+            self.save_to_file(f'/thumbnails/{set_id}', content)
+
+        self.save_to_cache(
+            name=f'mt:{set_id}l',
+            content=content,
+            expiry=timedelta(weeks=3)
+        )
+
+    def upload_mp3(self, set_id: int, content: bytes):
+        if config.S3_ENABLED:
+            self.save_to_s3(content, str(set_id), 'audio')
+
+        else:
+            self.save_to_file(f'/audio/{set_id}', content)
+
+        self.save_to_cache(
+            name=f'mp3:{set_id}',
+            content=content,
+            expiry=timedelta(hours=1)
+        )
+
     def cache_replay(self, id: int, content: bytes, time=timedelta(hours=1)):
         self.save_to_cache(
             name=f'osr:{id}',
