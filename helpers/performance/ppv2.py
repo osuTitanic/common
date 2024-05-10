@@ -1,9 +1,9 @@
 
+from titanic_pp_py import Calculator, Beatmap, DifficultyAttributes
+
 from ...database.objects import DBScore
 from ...constants import GameMode, Mods
 from typing import Optional
-
-from titanic_pp_py import Calculator, Beatmap
 
 import math
 import app
@@ -83,3 +83,33 @@ def calculate_ppv2(score: DBScore) -> Optional[float]:
     app.session.logger.debug(f"Calculated pp: {result}")
 
     return result.pp
+
+def calculate_difficulty(beatmap_file: bytes, mode: GameMode, mods: Mods = Mods.NoMod) -> Optional[DifficultyAttributes]:
+    bm = Beatmap(bytes=beatmap_file)
+
+    calc = Calculator(
+        mode = mode,
+        mods = mods.value
+    )
+
+    if not (result := calc.difficulty(bm)):
+        app.session.logger.error(
+            'Difficulty calculation failed: No result'
+        )
+        return
+
+    if math.isnan(result.stars):
+        app.session.logger.error(
+            'Difficulty calculation failed: NaN stars'
+        )
+        return
+
+    if math.isinf(result.stars):
+        app.session.logger.error(
+            'Difficulty calculation failed: Inf stars'
+        )
+        return
+
+    app.session.logger.debug(f"Calculated difficulty: {result}")
+
+    return result
