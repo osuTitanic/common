@@ -97,4 +97,4 @@ def patch_osz2(patch_file: bytes, osz2: bytes) -> bytes | None:
         officer.call(f'Failed to patch osz2 file: "{response.text}"')
         return
 
-    return response.json()
+    return response.content
