@@ -28,11 +28,11 @@ class SubmissionStatus(IntEnum):
         return {
             -3: SubmissionStatus.NotSubmitted,   # Inactive
             -2: SubmissionStatus.Pending,        # Graveyard
-            -1: SubmissionStatus.EditableCutoff, # WIP
+            -1: SubmissionStatus.Pending,        # WIP
             0:  SubmissionStatus.Pending,        # Pending
             1:  SubmissionStatus.Ranked,         # Ranked
             2:  SubmissionStatus.Approved,       # Approved
-            3:  SubmissionStatus.Ranked,         # Qualified
+            3:  SubmissionStatus.EditableCutoff, # Qualified
             4:  SubmissionStatus.Approved        # Loved
         }[status]
 
@@ -47,7 +47,7 @@ class LegacyStatus(IntEnum):
         return {
             -3: LegacyStatus.NotSubmitted, # Inactive
             -2: LegacyStatus.Pending,      # Graveyard
-            -1: LegacyStatus.Ranked,       # WIP
+            -1: LegacyStatus.Pending,      # WIP
             0:  LegacyStatus.Pending,      # Pending
             1:  LegacyStatus.Ranked,       # Ranked
             2:  LegacyStatus.Ranked,       # Approved
