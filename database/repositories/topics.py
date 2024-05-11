@@ -36,24 +36,6 @@ def create(
     return topic
 
 @session_wrapper
-def add_subscriber(
-    topic_id: int,
-    user_id: int,
-    session: Session = ...
-) -> DBForumSubscriber:
-    if subscriber := fetch_subscriber(topic_id, user_id, session=session):
-        # User already subscribed to this topic
-        return subscriber
-
-    subscriber = DBForumSubscriber(
-        topic_id=topic_id,
-        user_id=user_id
-    )
-    session.add(subscriber)
-    session.commit()
-    return subscriber
-
-@session_wrapper
 def fetch_one(id: int, session: Session = ...) -> DBForumTopic | None:
     return session.query(DBForumTopic) \
         .filter(DBForumTopic.id == id) \
@@ -136,6 +118,37 @@ def fetch_recent_many(
         .limit(limit) \
         .offset(offset) \
         .all()
+
+@session_wrapper
+def add_subscriber(
+    topic_id: int,
+    user_id: int,
+    session: Session = ...
+) -> DBForumSubscriber:
+    if subscriber := fetch_subscriber(topic_id, user_id, session=session):
+        # User already subscribed to this topic
+        return subscriber
+
+    subscriber = DBForumSubscriber(
+        topic_id=topic_id,
+        user_id=user_id
+    )
+    session.add(subscriber)
+    session.commit()
+    return subscriber
+
+@session_wrapper
+def delete_subscriber(
+    topic_id: int,
+    user_id: int,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBForumSubscriber) \
+        .filter(DBForumSubscriber.topic_id == topic_id) \
+        .filter(DBForumSubscriber.user_id == user_id) \
+        .delete()
+    session.commit()
+    return rows
 
 @session_wrapper
 def fetch_subscriber(
