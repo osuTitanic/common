@@ -8,6 +8,34 @@ from sqlalchemy.orm import Session
 from typing import List
 
 @session_wrapper
+def create(
+    forum_id: int,
+    creator_id: int,
+    title: str,
+    status_text: str | None,
+    icon_id: int | None = None,
+    can_star: bool = False,
+    announcement: bool = False,
+    hidden: bool = False,
+    pinned: bool = False,
+    session: Session = ...
+) -> DBForumTopic:
+    topic = DBForumTopic(
+        forum_id=forum_id,
+        creator_id=creator_id,
+        title=title,
+        status_text=status_text,
+        icon_id=icon_id,
+        can_star=can_star,
+        announcement=announcement,
+        hidden=hidden,
+        pinned=pinned
+    )
+    session.add(topic)
+    session.commit()
+    return topic
+
+@session_wrapper
 def fetch_one(id: int, session: Session = ...) -> DBForumTopic | None:
     return session.query(DBForumTopic) \
         .filter(DBForumTopic.id == id) \
@@ -90,3 +118,15 @@ def fetch_recent_many(
         .limit(limit) \
         .offset(offset) \
         .all()
+
+@session_wrapper
+def update(
+    id: int,
+    updates: dict,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBForumTopic) \
+        .filter(DBForumTopic.id == id) \
+        .update(updates)
+    session.commit()
+    return rows
