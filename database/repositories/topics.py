@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBForumTopic, DBForumPost
+from app.common.database.objects import DBForumTopic, DBForumPost, DBForumSubscriber
 from .wrapper import session_wrapper
 
 from sqlalchemy.orm import Session
@@ -34,6 +34,24 @@ def create(
     session.add(topic)
     session.commit()
     return topic
+
+@session_wrapper
+def add_subscriber(
+    topic_id: int,
+    user_id: int,
+    session: Session = ...
+) -> DBForumSubscriber:
+    if subscriber := fetch_subscriber(topic_id, user_id, session=session):
+        # User already subscribed to this topic
+        return subscriber
+
+    subscriber = DBForumSubscriber(
+        topic_id=topic_id,
+        user_id=user_id
+    )
+    session.add(subscriber)
+    session.commit()
+    return subscriber
 
 @session_wrapper
 def fetch_one(id: int, session: Session = ...) -> DBForumTopic | None:
@@ -117,6 +135,26 @@ def fetch_recent_many(
         .order_by(DBForumTopic.id.desc()) \
         .limit(limit) \
         .offset(offset) \
+        .all()
+
+@session_wrapper
+def fetch_subscriber(
+    topic_id: int,
+    user_id: int,
+    session: Session = ...
+) -> DBForumSubscriber | None:
+    return session.query(DBForumSubscriber) \
+        .filter(DBForumSubscriber.topic_id == topic_id) \
+        .filter(DBForumSubscriber.user_id == user_id) \
+        .first()
+
+@session_wrapper
+def fetch_subscribers(
+    topic_id: int,
+    session: Session = ...
+) -> List[DBForumSubscriber]:
+    return session.query(DBForumSubscriber) \
+        .filter(DBForumSubscriber.topic_id == topic_id) \
         .all()
 
 @session_wrapper
