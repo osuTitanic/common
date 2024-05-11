@@ -8,6 +8,26 @@ from sqlalchemy.orm import Session
 from typing import List
 
 @session_wrapper
+def create(
+    topic_id: int,
+    forum_id: int,
+    user_id: int,
+    content: str,
+    draft: bool = False,
+    session: Session = ...
+) -> DBForumPost:
+    post = DBForumPost(
+        topic_id=topic_id,
+        forum_id=forum_id,
+        user_id=user_id,
+        content=content,
+        draft=draft
+    )
+    session.add(post)
+    session.commit()
+    return post
+
+@session_wrapper
 def fetch_one(id: int, session: Session = ...) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .filter(DBForumPost.id == id) \
@@ -54,3 +74,15 @@ def fetch_last_post(topic_id: int, session: Session = ...) -> DBForumPost | None
         .filter(DBForumPost.hidden == False) \
         .order_by(DBForumPost.id.desc()) \
         .first()
+
+@session_wrapper
+def update(
+    post_id: int,
+    updates: dict,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBForumPost) \
+        .filter(DBForumPost.id == post_id) \
+        .update(updates)
+    session.commit()
+    return rows
