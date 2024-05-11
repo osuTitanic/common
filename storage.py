@@ -357,6 +357,14 @@ class Storage:
         else:
             return self.remove_from_s3('replays', str(id))
 
+    def remove_osz2(self, set_id: int):
+        self.logger.debug(f'Removing osz2 with id "{set_id}"...')
+
+        if not config.S3_ENABLED:
+            return self.remove_file(f'/osz2/{set_id}')
+        else:
+            return self.remove_from_s3('osz2', str(set_id))
+
     def get_file_hashes(self, key: str) -> Dict[str, str]:
         if config.S3_ENABLED:
             return self.get_file_hashes_s3(key)
