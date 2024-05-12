@@ -984,13 +984,15 @@ class DBForumPost(Base):
         forum_id: int,
         user_id: int,
         content: str,
-        draft: bool
+        draft: bool,
+        edit_locked: bool
     ) -> None:
         self.topic_id = topic_id
         self.forum_id = forum_id
         self.user_id = user_id
         self.content = content
         self.draft = draft
+        self.edit_locked = edit_locked
         self.created_at = datetime.now()
         self.edit_time = datetime.now()
 
