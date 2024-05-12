@@ -15,6 +15,7 @@ def create(
     status_text: str | None,
     icon_id: int | None = None,
     can_star: bool = False,
+    can_change_icon: bool = False,
     announcement: bool = False,
     hidden: bool = False,
     pinned: bool = False,
@@ -27,6 +28,7 @@ def create(
         status_text=status_text,
         icon_id=icon_id,
         can_star=can_star,
+        can_change_icon=can_change_icon,
         announcement=announcement,
         hidden=hidden,
         pinned=pinned

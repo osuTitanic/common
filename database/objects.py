@@ -932,6 +932,7 @@ class DBForumTopic(Base):
         status_text: str | None,
         icon_id: int | None,
         can_star: bool,
+        can_change_icon: bool,
         announcement: bool,
         hidden: bool,
         pinned: bool
@@ -942,6 +943,7 @@ class DBForumTopic(Base):
         self.status_text = status_text
         self.icon_id = icon_id
         self.can_star = can_star
+        self.can_change_icon = can_change_icon
         self.announcement = announcement
         self.hidden = hidden
         self.pinned = pinned
