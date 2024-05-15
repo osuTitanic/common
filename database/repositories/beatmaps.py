@@ -91,8 +91,14 @@ def fetch_count(session: Session = ...) -> int:
 
 @session_wrapper
 def fetch_count_with_leaderboards(mode: int, session: Session = ...) -> int:
+    modes = [mode]
+
+    if mode > 0:
+        # Account for converts
+        modes.append(0)
+
     return session.query(func.count(DBBeatmap.id)) \
-                  .filter(DBBeatmap.mode == mode) \
+                  .filter(DBBeatmap.mode in modes) \
                   .filter(DBBeatmap.status > 0) \
                   .scalar()
 
