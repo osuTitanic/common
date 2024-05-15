@@ -98,7 +98,7 @@ def fetch_count_with_leaderboards(mode: int, session: Session = ...) -> int:
         modes.append(0)
 
     return session.query(func.count(DBBeatmap.id)) \
-                  .filter(DBBeatmap.mode in modes) \
+                  .filter(DBBeatmap.mode.in_(modes)) \
                   .filter(DBBeatmap.status > 0) \
                   .scalar()
 
