@@ -70,7 +70,7 @@ def fetch_initial_post(topic_id: int, session: Session = ...) -> DBForumPost | N
         .first()
 
 @session_wrapper
-def fetch_last_post(topic_id: int, session: Session = ...) -> DBForumPost | None:
+def fetch_last(topic_id: int, session: Session = ...) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
         .filter(DBForumPost.hidden == False) \
