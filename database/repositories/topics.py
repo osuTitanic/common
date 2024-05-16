@@ -5,6 +5,7 @@ from app.common.database.objects import DBForumTopic, DBForumPost, DBForumSubscr
 from .wrapper import session_wrapper
 
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List
 
 @session_wrapper
@@ -199,6 +200,11 @@ def fetch_subscribers(
     return session.query(DBForumSubscriber) \
         .filter(DBForumSubscriber.topic_id == topic_id) \
         .all()
+
+@session_wrapper
+def fetch_average_views(session: Session = ...) -> float:
+    return session.query(func.avg(DBForumTopic.views)) \
+                  .scalar()
 
 @session_wrapper
 def update(
