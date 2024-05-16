@@ -89,6 +89,34 @@ def fetch_announcements(
         .all()
 
 @session_wrapper
+def fetch_pinned_by_forum_id(
+    forum_id: int,
+    session: Session = ...
+) -> List[DBForumTopic]:
+    return session.query(DBForumTopic) \
+        .filter(DBForumTopic.forum_id == forum_id) \
+        .filter(DBForumTopic.pinned == True) \
+        .filter(DBForumTopic.hidden == False) \
+        .order_by(DBForumTopic.id.desc()) \
+        .all()
+
+@session_wrapper
+def fetch_announcements_by_forum_id(
+    forum_id: int,
+    limit: int,
+    offset: int = 0,
+    session: Session = ...
+) -> List[DBForumTopic]:
+    return session.query(DBForumTopic) \
+        .filter(DBForumTopic.forum_id == forum_id) \
+        .filter(DBForumTopic.announcement == True) \
+        .filter(DBForumTopic.hidden == False) \
+        .order_by(DBForumTopic.id.desc()) \
+        .limit(limit) \
+        .offset(offset) \
+        .all()
+
+@session_wrapper
 def fetch_post_count(topic_id: int, session: Session = ...) -> int:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
