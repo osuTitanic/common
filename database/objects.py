@@ -865,7 +865,8 @@ class DBForum(Base):
     description = Column('description', String, default='')
     hidden      = Column('hidden', Boolean, default=False)
 
-    subforums = relationship('DBForum', backref=backref('parent', remote_side=[id]))
+    subforums = relationship("DBForum", backref="parent_forum_rel", remote_side=[id])
+    parent    = relationship("DBForum", remote_side=[id])
     topics    = relationship('DBForumTopic', back_populates='forum')
     posts     = relationship('DBForumPost', back_populates='forum')
 
