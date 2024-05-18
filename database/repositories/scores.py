@@ -10,6 +10,7 @@ from app.common.database.objects import (
 from sqlalchemy.orm import selectinload, Session
 from sqlalchemy import or_, and_, func
 
+from collections import defaultdict
 from datetime import datetime
 from typing import List, Dict
 
@@ -589,10 +590,10 @@ def fetch_clears(
 
 @session_wrapper
 def restore_hidden_scores(user_id: int, session: Session = ...):
-    # This will restore all score status attributes
-
+    """This will restore all score status attributes"""
     app.session.logger.info(f'Restoring scores for user: {user_id}...')
 
+    # Set failed scores to status 1
     session.query(DBScore) \
             .filter(DBScore.user_id == user_id) \
             .filter(DBScore.failtime != None) \
@@ -602,71 +603,57 @@ def restore_hidden_scores(user_id: int, session: Session = ...):
             })
     session.commit()
 
-    all_scores = session.query(DBScore) \
+    # Fetch remaining scores, that are submitted
+    user_scores = session.query(DBScore) \
             .filter(DBScore.user_id == user_id) \
             .filter(DBScore.failtime == None) \
             .filter(DBScore.status == -1) \
             .all()
 
-    # Sort scores by beatmap
-    beatmaps: Dict[int, List[DBScore]] = {score.beatmap_id: [] for score in all_scores}
+    if not user_scores:
+        return
 
-    for score in all_scores:
-        beatmaps[score.beatmap_id].append(score)
+    # Sort scores by beatmap id
+    scores_dict = defaultdict(list)
 
-    for beatmap, scores in beatmaps.items():
-        # Get best score for each beatmap
-        scores.sort(
-            key=lambda score: score.pp,
-            reverse=True
-        )
+    for score in user_scores:
+        scores_dict[score.beatmap_id].append(score)
 
-        best_score = scores[0]
+    for beatmap_id, beatmap_scores in scores_dict.items():
+        # Sort scores by pp
+        beatmap_scores.sort(key=lambda x: x.pp, reverse=True)
 
-        session.query(DBScore) \
-                .filter(DBScore.id == best_score.id) \
-                .update({
-                    'status': 3
-                })
-        session.commit()
+        # Update best score
+        best_score = beatmap_scores[0]
+        update(best_score.id, {'status': 3}, session=session)
 
-        # Set other scores with same mods to 'submitted'
-        session.query(DBScore) \
-                .filter(DBScore.beatmap_id == beatmap) \
-                .filter(DBScore.user_id == user_id) \
-                .filter(DBScore.mods == best_score.mods) \
-                .filter(DBScore.status == -1) \
-                .update({
-                    'status': 2
-                })
-        session.commit()
+        # Sort scores by mods
+        mods_dict = defaultdict(list)
 
-        all_mods = [score.mods for score in scores if score.mods != best_score.mods]
+        for score in beatmap_scores:
+            mods_dict[score.mods].append(score)
 
-        for mods in all_mods:
-            # Update best score with mods
-            best_score = session.query(DBScore) \
-                .filter(DBScore.beatmap_id == beatmap) \
-                .filter(DBScore.user_id == user_id) \
-                .filter(DBScore.mods == mods) \
-                .filter(DBScore.status == -1) \
-                .order_by(DBScore.pp.desc()) \
-                .first()
+        for mods, scores_list in mods_dict.items():
+            # Sort scores by pp
+            scores_list.sort(key=lambda x: x.pp, reverse=True)
 
-            if not best_score:
+            # Get best score with mods
+            mods_best_score = scores_list.pop(0)
+
+            # Update other scores to submitted status
+            for score in scores_list:
+                best_score_ids = (mods_best_score.id, best_score.id)
+
+                if score.id in best_score_ids:
+                    continue
+
+                update(score.id, {'status': 2}, session=session)
+
+            if mods == best_score.mods:
+                # Don't update the best score
                 continue
 
-            best_score.status = 4
-            session.commit()
-
-            session.query(DBScore) \
-                .filter(DBScore.beatmap_id == beatmap) \
-                .filter(DBScore.user_id == user_id) \
-                .filter(DBScore.mods == mods) \
-                .filter(DBScore.status == -1) \
-                .update({
-                    'status': 2
-                })
-            session.commit()
+            # Update best mod-score
+            update(mods_best_score.id, {'status': 4}, session=session)
 
     app.session.logger.info('Scores have been restored!')
