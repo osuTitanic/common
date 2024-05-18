@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from app.common.database.objects import (
+    DBReplayHistory,
     DBBeatmap,
     DBStats,
     DBScore
@@ -203,6 +204,14 @@ def restore(user_id: int, session: Session = ...) -> None:
         ) \
             .filter(DBScore.user_id == stats.user_id) \
             .filter(DBScore.mode == stats.mode) \
+            .scalar() or 0
+
+        # Update replay views
+        stats.replay_views = session.query(
+            func.sum(DBReplayHistory.replay_views)
+        ) \
+            .filter(DBReplayHistory.user_id == stats.user_id) \
+            .filter(DBReplayHistory.mode == stats.mode) \
             .scalar() or 0
 
     for stats in all_stats:
