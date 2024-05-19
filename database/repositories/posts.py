@@ -78,6 +78,13 @@ def fetch_last(topic_id: int, session: Session = ...) -> DBForumPost | None:
         .first()
 
 @session_wrapper
+def fetch_count(topic_id: int, session: Session = ...) -> int:
+    return session.query(DBForumPost) \
+        .filter(DBForumPost.topic_id == topic_id) \
+        .filter(DBForumPost.hidden == False) \
+        .count()
+
+@session_wrapper
 def update(
     post_id: int,
     updates: dict,

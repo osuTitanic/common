@@ -118,13 +118,6 @@ def fetch_announcements_by_forum_id(
         .all()
 
 @session_wrapper
-def fetch_post_count(topic_id: int, session: Session = ...) -> int:
-    return session.query(DBForumPost) \
-        .filter(DBForumPost.topic_id == topic_id) \
-        .filter(DBForumPost.hidden == False) \
-        .count()
-
-@session_wrapper
 def fetch_recent(
     forum_id: int,
     session: Session = ...
