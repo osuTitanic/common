@@ -3,13 +3,13 @@ from __future__ import annotations
 
 from boto3_type_annotations.s3 import Client
 from botocore.exceptions import ClientError
+from sqlalchemy.orm import Session
 from typing import List, Dict
 
 from datetime import timedelta
 from redis import Redis
 
-from .database.repositories import scores
-
+from .database.repositories import scores, wrapper
 from .helpers.external import Beatmaps
 from .streams import StreamOut
 from .helpers import replays
@@ -93,39 +93,39 @@ class Storage:
 
         return replay
     
-    def get_full_replay(self, id: int) -> bytes | None:
+    @wrapper.session_wrapper
+    def get_full_replay(self, id: int, session: Session = ...) -> bytes | None:
         if not (replay := self.get_replay(id)):
             return
 
-        with app.session.database.managed_session() as session:
-            score = scores.fetch_by_id(id, session=session)
+        score = scores.fetch_by_id(id, session=session)
 
-            if not score:
-                return
+        if not score:
+            return
 
-            stream = StreamOut()
-            stream.u8(score.mode)
-            stream.s32(score.client_version)
-            stream.string(score.beatmap.md5)
-            stream.string(score.user.name)
-            stream.string(replays.compute_score_checksum(score))
-            stream.u16(score.n300)
-            stream.u16(score.n100)
-            stream.u16(score.n50)
-            stream.u16(score.nGeki)
-            stream.u16(score.nKatu)
-            stream.u16(score.nMiss)
-            stream.s32(score.total_score)
-            stream.u16(score.max_combo)
-            stream.bool(score.perfect)
-            stream.s32(score.mods)
-            stream.string('') # TODO: HP Graph
-            stream.s64(replays.get_ticks(score.submitted_at))
-            stream.s32(len(replay))
-            stream.write(replay)
-            stream.s32(score.id)
+        stream = StreamOut()
+        stream.u8(score.mode)
+        stream.s32(score.client_version)
+        stream.string(score.beatmap.md5)
+        stream.string(score.user.name)
+        stream.string(replays.compute_score_checksum(score))
+        stream.u16(score.n300)
+        stream.u16(score.n100)
+        stream.u16(score.n50)
+        stream.u16(score.nGeki)
+        stream.u16(score.nKatu)
+        stream.u16(score.nMiss)
+        stream.s32(score.total_score)
+        stream.u16(score.max_combo)
+        stream.bool(score.perfect)
+        stream.s32(score.mods)
+        stream.string('') # TODO: HP Graph
+        stream.s64(replays.get_ticks(score.submitted_at))
+        stream.s32(len(replay))
+        stream.write(replay)
+        stream.s32(score.id)
 
-            return stream.get()
+        return stream.get()
 
     def get_osz(self, set_id: int) -> bytes | None:
         return self.api.osz(set_id)
