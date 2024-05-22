@@ -14,10 +14,10 @@ from ..constants import (
 
 @dataclass(slots=True)
 class Slot:
-    player_id: int
-    status: SlotStatus
-    team: SlotTeam
-    mods: Mods
+    player_id: int = -1
+    status: SlotStatus = SlotStatus.Locked
+    team: SlotTeam = SlotTeam.Neutral
+    mods: Mods = Mods.NoMod
 
     @property
     def has_player(self) -> bool:
