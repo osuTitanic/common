@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBUser, DBStats
+from app.common.database.objects import DBUser, DBStats, DBForumPost
 from datetime import datetime, timedelta
 from typing import List
 
@@ -146,3 +146,9 @@ def fetch_many(user_ids: tuple, *options, session: Session = ...) -> List[DBUser
               .options(*[selectinload(item) for item in options]) \
               .filter(DBUser.id.in_(user_ids)) \
               .all()
+
+@session_wrapper
+def fetch_post_count(user_id: int, session: Session = ...) -> int:
+    return session.query(DBForumPost) \
+        .filter(DBForumPost.user_id == user_id) \
+        .count()
