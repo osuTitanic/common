@@ -11,6 +11,7 @@ from app.common.database.objects import (
 
 from sqlalchemy.orm import Session
 from datetime import datetime
+from sqlalchemy import or_
 from typing import List
 
 from .wrapper import session_wrapper
@@ -53,10 +54,10 @@ def fetch_plays_history(
     return session.query(DBPlayHistory) \
         .filter(DBPlayHistory.user_id == user_id) \
         .filter(DBPlayHistory.mode == mode) \
-        .filter(
+        .filter(or_(
             DBPlayHistory.year >= until.year,
             DBPlayHistory.month >= until.month,
-        ) \
+        )) \
         .order_by(
             DBPlayHistory.year.desc(),
             DBPlayHistory.month.desc()
@@ -101,10 +102,10 @@ def fetch_replay_history(
     return session.query(DBReplayHistory) \
         .filter(DBReplayHistory.user_id == user_id) \
         .filter(DBReplayHistory.mode == mode) \
-        .filter(
+        .filter(or_(
             DBReplayHistory.year >= until.year,
             DBReplayHistory.month >= until.month,
-        ) \
+        )) \
         .order_by(
             DBReplayHistory.year.desc(),
             DBReplayHistory.month.desc()
