@@ -104,7 +104,7 @@ class Webhook:
             "Webhook must contain at least one " "of (content, file, embeds)."
         )
 
-        assert self.content and len(self.content) <= 2000, (
+        assert not self.content or len(self.content) <= 2000, (
             "Webhook content must be under 2000 characters."
         )
 
