@@ -9,7 +9,7 @@ from requests import Response
 from datetime import datetime
 from typing import Any, List
 
-import app.session
+import app
 
 @dataclass
 class Footer:

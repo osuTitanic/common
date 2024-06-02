@@ -1,8 +1,8 @@
 
 from __future__ import annotations
-from typing import Any, List
 
-from .webhooks import Webhook, Embed
+from app.common import webhooks
+from typing import Any, List
 
 import traceback
 import config
@@ -24,7 +24,7 @@ def call(content: str, exc_info: Exception | None = None) -> bool:
         )
         content += '```'
 
-    response = Webhook(
+    response = webhooks.Webhook(
         config.OFFICER_WEBHOOK_URL,
         content=content
     ).post()
@@ -37,7 +37,7 @@ def event(
     avatar_url: str | None = None,
     is_tts: bool | None = None,
     file: Any | None = None,
-    embeds: List[Embed] = []
+    embeds: List[webhooks.Embed] = []
 ) -> bool:
     """Send an event to the event webhook"""
     app.session.logger.debug('Sending event to discord...')
@@ -46,7 +46,7 @@ def event(
         app.session.logger.debug('Event webhook was not configured.')
         return
 
-    response = Webhook(
+    response = webhooks.Webhook(
         config.EVENT_WEBHOOK_URL,
         content, username,
         avatar_url, is_tts,
