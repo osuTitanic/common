@@ -1,8 +1,8 @@
 
 from __future__ import annotations
+from .webhooks import Webhook
 
 import traceback
-import requests
 import config
 import app
 
@@ -22,15 +22,4 @@ def call(content: str, exc_info: Exception | None = None) -> None:
         )
         content += '```'
 
-    payload = {'content': content}
-    response = requests.post(config.OFFICER_WEBHOOK_URL, json=payload)
-    
-    if not response.ok:
-        app.session.logger.warning(
-            f'Failed to call officer: {response.text}'
-        )
-        return
-
-    app.session.logger.debug(
-        f'Officer called successfully: {response.text}'
-    )
+    Webhook(config.OFFICER_WEBHOOK_URL, content=content).post()
