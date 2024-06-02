@@ -71,7 +71,10 @@ def create(
     osz_filesize_novideo: int = 0,
     available: bool = True,
     server: int = 0,
-    creator_id: int = 0,
+    creator_id: int = None,
+    submit_date: datetime | None = None,
+    approved_date: datetime | None = None,
+    last_update: datetime | None = None,
     session: Session = ...
 ) -> DBBeatmapset:
     session.add(
@@ -85,9 +88,9 @@ def create(
             status,
             has_video,
             has_storyboard,
-            datetime.now(),
-            None,
-            datetime.now(),
+            submit_date or datetime.now(),
+            approved_date,
+            last_update or datetime.now(),
             language_id,
             genre_id,
             osz_filesize,

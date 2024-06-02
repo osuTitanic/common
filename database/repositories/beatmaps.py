@@ -30,6 +30,8 @@ def create(
     od: float = 0.0,
     hp: float = 0.0,
     diff: float = 0.0,
+    submit_date: datetime | None = None,
+    last_update: datetime | None = None,
     session: Session = ...
 ) -> DBBeatmap:
     session.add(
@@ -41,8 +43,8 @@ def create(
             status,
             version,
             filename,
-            datetime.now(),
-            datetime.now(),
+            submit_date or datetime.now(),
+            last_update or datetime.now(),
             total_length,
             max_combo,
             bpm,
