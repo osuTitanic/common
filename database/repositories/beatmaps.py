@@ -1,7 +1,10 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBBeatmap
+from app.common.database.objects import DBBeatmap, DBBeatmapset
+from app.common.constants.status import DatabaseStatus
+from app.common.webhooks import Embed, Image, Author
+
 from sqlalchemy.orm import selectinload
 from sqlalchemy import func
 
@@ -11,6 +14,8 @@ from sqlalchemy.orm import Session
 from typing import Optional, List
 from datetime import datetime
 
+import app.common
+import config
 import app
 
 @session_wrapper
@@ -113,6 +118,7 @@ def update(
     rows = session.query(DBBeatmap) \
         .filter(DBBeatmap.id == beatmap_id) \
         .update(updates)
+    post_beatmap_change(session.query(DBBeatmap).filter(DBBeatmap.id == beatmap_id).first())
     session.commit()
     return rows
 
@@ -125,6 +131,7 @@ def update_by_set_id(
     rows = session.query(DBBeatmap) \
         .filter(DBBeatmap.set_id == set_id) \
         .update(updates)
+    post_beatmapset_change(session.get(DBBeatmapset, set_id))
     session.commit()
     return rows
 
@@ -143,3 +150,29 @@ def delete_by_set_id(set_id: int, session: Session = ...) -> int:
         .delete()
     session.commit()
     return rows
+
+def post_beatmapset_change(beatmapset: DBBeatmapset):
+    status_name = [status.name for status in DatabaseStatus if status.value == beatmapset.status][0]
+
+    embed = Embed(title=f'Status change: {beatmapset.title}')
+    embed.image = Image(url=f'https://assets.ppy.sh/beatmaps/{beatmapset.id}/covers/cover.jpg')
+    embed.author = Author(name="New beatmapset update!")
+    embed.add_field(name="Artist", value=beatmapset.artist, inline=True)
+    embed.add_field(name="Creator", value=beatmapset.creator, inline=True)
+    embed.add_field(name="New status", value=status_name, inline=True)
+    embed.add_field(name="Bancho url", value=f"https://osu.ppy.sh/s/{beatmapset.id}", inline=True)
+    embed.add_field(name="Titanic url", value=f"https://{config.DOMAIN_NAME}/s/{beatmapset.id}", inline=True)
+    app.common.officer.event(embeds=[embed])
+
+def post_beatmap_change(beatmap: DBBeatmap):
+    beatmapset = beatmap.beatmapset
+    status_name = [status.name for status in DatabaseStatus if status.value == beatmap.status][0]
+    embed = Embed(title=f'Status change: {beatmapset.title} ({beatmap.version})')
+    embed.image = Image(url=f'https://assets.ppy.sh/beatmaps/{beatmapset.id}/covers/cover.jpg')
+    embed.author = Author(name="New beatmap update!")
+    embed.add_field(name="Artist", value=beatmapset.artist, inline=True)
+    embed.add_field(name="Creator", value=beatmapset.creator, inline=True)
+    embed.add_field(name="New status", value=status_name, inline=True)
+    embed.add_field(name="Bancho url", value=f"https://osu.ppy.sh/b/{beatmap.id}", inline=True)
+    embed.add_field(name="Titanic url", value=f"https://{config.DOMAIN_NAME}/b/{beatmap.id}", inline=True)
+    app.common.officer.event(embeds=[embed])
