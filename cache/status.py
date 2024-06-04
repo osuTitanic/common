@@ -59,6 +59,12 @@ def client_hash(player_id: int) -> str | None:
 
     return hash.decode()
 
+def device_id(player_id: int) -> str | None:
+    if not (hash := client_hash(player_id)):
+        return
+
+    return ':'.join(hash.split(':')[2:])
+
 def version(player_id: int) -> int | None:
     version = app.session.redis.hget(
         f'bancho:status:{player_id}',
