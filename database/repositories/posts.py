@@ -87,10 +87,12 @@ def fetch_count(topic_id: int, session: Session = ...) -> int:
 @session_wrapper
 def fetch_count_before_post(
     post_id: int,
+    topic_id: int,
     session: Session = ...
 ) -> int:
     return session.query(DBForumPost) \
         .filter(DBForumPost.id < post_id) \
+        .filter(DBForumPost.topic_id == topic_id) \
         .filter(DBForumPost.hidden == False) \
         .count()
 
