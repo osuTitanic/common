@@ -95,6 +95,15 @@ def fetch_count_before_post(
         .count()
 
 @session_wrapper
+def fetch_drafts(user_id: int, topic_id: int, session: Session = ...) -> List[DBForumPost]:
+    return session.query(DBForumPost) \
+        .filter(DBForumPost.topic_id == topic_id) \
+        .filter(DBForumPost.user_id == user_id) \
+        .filter(DBForumPost.draft == True) \
+        .order_by(DBForumPost.id.desc()) \
+        .all()
+
+@session_wrapper
 def update(
     post_id: int,
     updates: dict,
@@ -103,5 +112,13 @@ def update(
     rows = session.query(DBForumPost) \
         .filter(DBForumPost.id == post_id) \
         .update(updates)
+    session.commit()
+    return rows
+
+@session_wrapper
+def delete(post_id: int, session: Session = ...) -> int:
+    rows = session.query(DBForumPost) \
+        .filter(DBForumPost.id == post_id) \
+        .delete()
     session.commit()
     return rows
