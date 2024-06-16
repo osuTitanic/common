@@ -13,7 +13,7 @@ def create(
     forum_id: int,
     creator_id: int,
     title: str,
-    status_text: str | None,
+    status_text: str | None = None,
     icon_id: int | None = None,
     can_star: bool = False,
     can_change_icon: bool = False,
