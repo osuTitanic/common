@@ -43,10 +43,12 @@ def fetch_sub_forums(parent_id: int, session: Session = ...) -> List[DBForum]:
 def fetch_post_count(forum_id: int, session: Session = ...) -> int:
     return session.query(DBForumPost) \
         .filter(DBForumPost.forum_id == forum_id) \
+        .filter(DBForumPost.hidden == False) \
         .count()
 
 @session_wrapper
 def fetch_topic_count(forum_id: int, session: Session = ...) -> int:
     return session.query(DBForumTopic) \
         .filter(DBForumTopic.forum_id == forum_id) \
+        .filter(DBForumTopic.hidden == False) \
         .count()
