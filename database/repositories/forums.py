@@ -1,11 +1,15 @@
 
 from __future__ import annotations
-
-from app.common.database.objects import DBForum, DBForumPost, DBForumTopic
 from sqlalchemy.orm import Session
 from typing import List
 
 from .wrapper import session_wrapper
+from app.common.database.objects import (
+    DBForumTopic,
+    DBForumIcon,
+    DBForumPost,
+    DBForum
+)
 
 @session_wrapper
 def fetch_by_id(forum_id: int, session: Session = ...) -> DBForum | None:
@@ -52,3 +56,9 @@ def fetch_topic_count(forum_id: int, session: Session = ...) -> int:
         .filter(DBForumTopic.forum_id == forum_id) \
         .filter(DBForumTopic.hidden == False) \
         .count()
+
+@session_wrapper
+def fetch_icons(session: Session = ...) -> List[DBForumIcon]:
+    return session.query(DBForumIcon) \
+        .order_by(DBForumIcon.id.asc()) \
+        .all()
