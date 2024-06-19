@@ -863,6 +863,7 @@ class DBForum(Base):
     created_at  = Column('created_at', DateTime, server_default=func.now())
     name        = Column('name', String)
     description = Column('description', String, default='')
+    allow_icons = Column('allow_icons', Boolean, default=True)
     hidden      = Column('hidden', Boolean, default=False)
 
     subforums = relationship("DBForum", backref="parent_forum_rel", remote_side=[id])
