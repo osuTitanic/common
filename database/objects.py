@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from datetime import datetime
+from typing import Any, List
 
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import (
@@ -1161,12 +1162,30 @@ class DBUser(Base):
         return f'[http://osu.{config.DOMAIN_NAME}/u/{self.id} {self.name}]'
 
     @property
+    def group_ids(self):
+        return [group.group_id for group in self.groups]
+
+    @property
+    def is_admin(self):
+        return self.check_groups([1, 2])
+
+    @property
+    def is_moderator(self):
+        return self.check_groups([1, 2, 4])
+
+    @property
+    def is_bat(self):
+        return self.check_groups([1, 2, 3])
+
+    @property
     def is_supporter(self) -> bool:
-        # NOTE: Supporter related code has been removed
+        # TODO: Add group check
         return True
 
-    # NOTE: These are required attributes for Flask-Login.
-    #       I am not sure if you can implement them differently...
+    def check_groups(self, ids: List[int]) -> bool:
+        return any(group in self.group_ids for group in ids)
+
+    # NOTE: These are required attributes for Flask-Login
 
     @property
     def is_active(self):
@@ -1174,7 +1193,7 @@ class DBUser(Base):
 
     @property
     def is_authenticated(self):
-        return self.is_active
+        return True
 
     @property
     def is_anonymous(self):
