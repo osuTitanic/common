@@ -194,6 +194,17 @@ def fetch_subscribers(
         .filter(DBForumSubscriber.topic_id == topic_id) \
         .all()
 
+def is_subscribed(
+    topic_id: int,
+    user_id: int,
+    session: Session
+) -> bool:
+    return fetch_subscriber(
+        topic_id,
+        user_id,
+        session=session
+    ) is not None
+
 @session_wrapper
 def fetch_average_views(session: Session = ...) -> float:
     return session.query(func.avg(DBForumTopic.views)) \
