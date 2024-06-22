@@ -984,6 +984,7 @@ class DBForumPost(Base):
     edit_locked = Column('edit_locked', Boolean, default=False)
     hidden      = Column('hidden', Boolean, default=False)
     draft       = Column('draft', Boolean, default=False)
+    deleted     = Column('deleted', Boolean, default=False)
 
     user  = relationship('DBUser', back_populates='created_posts')
     topic = relationship('DBForumTopic', back_populates='posts')
