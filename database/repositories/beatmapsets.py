@@ -120,6 +120,15 @@ def fetch_by_creator(
         .all()
 
 @session_wrapper
+def fetch_by_topic(
+    topic_id: int,
+    session: Session = ...
+) -> DBBeatmapset | None:
+    return session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.topic_id == topic_id) \
+        .first()
+
+@session_wrapper
 def search(
     query_string: str,
     user_id: int,
