@@ -30,7 +30,7 @@ def delete(
 ) -> None:
     session.query(DBBeatmapNomination) \
         .filter(DBBeatmapNomination.user_id == user_id) \
-        .filter(DBBeatmapNomination.beatmapset_id == beatmapset_id) \
+        .filter(DBBeatmapNomination.set_id == beatmapset_id) \
         .delete()
     session.commit()
 
@@ -40,7 +40,7 @@ def count(
     session: Session = ...
 ) -> int:
     return session.query(DBBeatmapNomination) \
-        .filter(DBBeatmapNomination.beatmapset_id == beatmapset_id) \
+        .filter(DBBeatmapNomination.set_id == beatmapset_id) \
         .count()
 
 @session_wrapper
@@ -51,7 +51,7 @@ def fetch_one(
 ) -> DBBeatmapNomination | None:
     return session.query(DBBeatmapNomination) \
         .filter(DBBeatmapNomination.user_id == user_id) \
-        .filter(DBBeatmapNomination.beatmapset_id == beatmapset_id) \
+        .filter(DBBeatmapNomination.set_id == beatmapset_id) \
         .first()
 
 @session_wrapper
@@ -60,7 +60,7 @@ def fetch_by_beatmapset(
     session: Session = ...
 ) -> list[DBBeatmapNomination]:
     return session.query(DBBeatmapNomination) \
-        .filter(DBBeatmapNomination.beatmapset_id == beatmapset_id) \
+        .filter(DBBeatmapNomination.set_id == beatmapset_id) \
         .all()
 
 @session_wrapper
