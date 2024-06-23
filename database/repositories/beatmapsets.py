@@ -75,6 +75,7 @@ def create(
     submit_date: datetime | None = None,
     approved_date: datetime | None = None,
     last_update: datetime | None = None,
+    display_title: str | None = None,
     session: Session = ...
 ) -> DBBeatmapset:
     session.add(
@@ -85,6 +86,7 @@ def create(
             creator,
             source,
             tags,
+            display_title or f'[bold:0,size:20]{artist or ""}|[]{title or ""}',
             status,
             has_video,
             has_storyboard,

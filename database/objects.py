@@ -295,6 +295,7 @@ class DBBeatmapset(Base):
     source               = Column('source', String, nullable=True)
     source_unicode       = Column('source_unicode', String, nullable=True)
     creator              = Column('creator', String, nullable=True)
+    display_title        = Column('display_title', String, nullable=True)
     description          = Column('description', String, nullable=True)
     tags                 = Column('tags', String, nullable=True, default='')
     status               = Column('submission_status', Integer, default=3)
@@ -344,6 +345,7 @@ class DBBeatmapset(Base):
         creator: str,
         source: str,
         tags: str,
+        display_title: str,
         status: int,
         has_video: bool,
         has_storyboard: bool,
@@ -364,6 +366,7 @@ class DBBeatmapset(Base):
         self.creator = creator
         self.source = source
         self.tags = tags
+        self.display_title = display_title
         self.status = status
         self.has_video = has_video
         self.has_storyboard = has_storyboard
