@@ -320,6 +320,7 @@ class DBBeatmapset(Base):
     info_hash            = Column('info_hash', String, nullable=True)
     body_hash            = Column('body_hash', String, nullable=True)
 
+    nominations = relationship('DBBeatmapNomination', back_populates='beatmapset')
     favourites = relationship('DBFavourite', back_populates='beatmapset')
     beatmaps = relationship('DBBeatmap', back_populates='beatmapset')
     ratings = relationship('DBRating', back_populates='beatmapset')
@@ -477,6 +478,20 @@ class DBBeatmap(Base):
         self.od = od
         self.hp = hp
         self.diff = diff
+
+class DBBeatmapNomination(Base):
+    __tablename__ = "beatmap_nominations"
+
+    user_id   = Column('user_id', Integer, ForeignKey('users.id'))
+    set_id    = Column('set_id', Integer, ForeignKey('beatmapsets.id'))
+    time      = Column('time', DateTime, server_default=func.now())
+
+    user = relationship('DBUser', back_populates='nominations')
+    beatmapset = relationship('DBBeatmapset', back_populates='nominations')
+
+    def __init__(self, user_id: int, set_id: int) -> None:
+        self.user_id = user_id
+        self.set_id = set_id
 
 class DBBadge(Base):
     __tablename__ = "profile_badges"
@@ -1117,8 +1132,9 @@ class DBUser(Base):
     userpage_interests = Column('userpage_interests', String, nullable=True)
 
     target_relationships = relationship('DBRelationship', back_populates='target', foreign_keys='DBRelationship.target_id')
-    replay_history = relationship('DBReplayHistory', back_populates='user')
     relationships = relationship('DBRelationship', back_populates='user', foreign_keys='DBRelationship.user_id')
+    replay_history = relationship('DBReplayHistory', back_populates='user')
+    nominations = relationship('DBBeatmapNomination', back_populates='user')
     subscribed_topics = relationship('DBForumSubscriber', back_populates='user')
     created_topics = relationship('DBForumTopic', back_populates='creator')
     created_posts = relationship('DBForumPost', back_populates='user')
