@@ -482,8 +482,8 @@ class DBBeatmap(Base):
 class DBBeatmapNomination(Base):
     __tablename__ = "beatmap_nominations"
 
-    user_id   = Column('user_id', Integer, ForeignKey('users.id'))
-    set_id    = Column('set_id', Integer, ForeignKey('beatmapsets.id'))
+    user_id   = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    set_id    = Column('set_id', Integer, ForeignKey('beatmapsets.id'), primary_key=True)
     time      = Column('time', DateTime, server_default=func.now())
 
     user = relationship('DBUser', back_populates='nominations')
