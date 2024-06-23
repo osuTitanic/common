@@ -4,6 +4,7 @@ from . import (
     relationships,
     infringements,
     achievements,
+    nominations,
     beatmapsets,
     screenshots,
     activities,
