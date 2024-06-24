@@ -26,14 +26,6 @@ def next_beatmapset_id(session: Session = ...) -> int:
         if exists:
             continue
 
-        # Check if the beatmapset id is already in use on peppy's servers
-        response = app.session.requests.head(
-            f'https://osu.ppy.sh/beatmapsets/{database_id}'
-        )
-
-        if response.status_code != 404:
-            continue
-
         return database_id
 
 @wrapper.session_wrapper
@@ -49,14 +41,6 @@ def next_beatmap_id(session: Session = ...) -> int:
             .count() > 0
 
         if exists:
-            continue
-
-        # Check if the beatmap id is already in use on peppy's servers
-        response = app.session.requests.head(
-            f'https://osu.ppy.sh/beatmaps/{database_id}'
-        )
-
-        if response.status_code != 404:
             continue
 
         return database_id

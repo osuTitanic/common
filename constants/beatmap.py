@@ -17,6 +17,10 @@ class BeatmapGenre(IntEnum):
     Folk = 13
     Jazz = 14
 
+    @classmethod
+    def values(cls) -> list:
+        return list(cls._value2member_map_.keys())
+
 class BeatmapLanguage(IntEnum):
     Any = 0
     Unspecified = 1
@@ -34,6 +38,10 @@ class BeatmapLanguage(IntEnum):
     Polish = 13
     Other = 14
 
+    @classmethod
+    def values(cls) -> list:
+        return list(cls._value2member_map_.keys())
+
 class BeatmapSortBy(IntEnum):
     Title = 0
     Artist = 1
@@ -44,6 +52,10 @@ class BeatmapSortBy(IntEnum):
     Plays = 6
     Created = 7
 
+    @classmethod
+    def values(cls) -> list:
+        return list(cls._value2member_map_.keys())
+
 class BeatmapCategory(IntEnum):
     Any = 0
     Leaderboard = 1
@@ -53,6 +65,14 @@ class BeatmapCategory(IntEnum):
     Approved = 5
     Pending = 6
 
+    @classmethod
+    def values(cls) -> list:
+        return list(cls._value2member_map_.keys())
+
 class BeatmapOrder(IntEnum):
     Descending = 0
     Ascending = 1
+
+    @classmethod
+    def values(cls) -> list:
+        return list(cls._value2member_map_.keys())

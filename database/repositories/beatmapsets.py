@@ -65,8 +65,8 @@ def create(
     status: int = -3,
     has_video: bool = False,
     has_storyboard: bool = False,
-    language_id: int = 0,
-    genre_id: int = 0,
+    language_id: int = 1,
+    genre_id: int = 1,
     osz_filesize: int = 0,
     osz_filesize_novideo: int = 0,
     available: bool = True,
@@ -75,6 +75,7 @@ def create(
     submit_date: datetime | None = None,
     approved_date: datetime | None = None,
     last_update: datetime | None = None,
+    display_title: str | None = None,
     session: Session = ...
 ) -> DBBeatmapset:
     session.add(
@@ -85,6 +86,7 @@ def create(
             creator,
             source,
             tags,
+            display_title or f'[bold:0,size:20]{artist or ""}|[]{title or ""}',
             status,
             has_video,
             has_storyboard,
@@ -118,6 +120,15 @@ def fetch_by_creator(
     return session.query(DBBeatmapset) \
         .filter(DBBeatmapset.creator_id == creator_id) \
         .all()
+
+@session_wrapper
+def fetch_by_topic(
+    topic_id: int,
+    session: Session = ...
+) -> DBBeatmapset | None:
+    return session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.topic_id == topic_id) \
+        .first()
 
 @session_wrapper
 def search(

@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from datetime import datetime
+from typing import Any, List
 
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import (
@@ -294,6 +295,7 @@ class DBBeatmapset(Base):
     source               = Column('source', String, nullable=True)
     source_unicode       = Column('source_unicode', String, nullable=True)
     creator              = Column('creator', String, nullable=True)
+    display_title        = Column('display_title', String, nullable=True)
     description          = Column('description', String, nullable=True)
     tags                 = Column('tags', String, nullable=True, default='')
     status               = Column('submission_status', Integer, default=3)
@@ -318,6 +320,7 @@ class DBBeatmapset(Base):
     info_hash            = Column('info_hash', String, nullable=True)
     body_hash            = Column('body_hash', String, nullable=True)
 
+    nominations = relationship('DBBeatmapNomination', back_populates='beatmapset')
     favourites = relationship('DBFavourite', back_populates='beatmapset')
     beatmaps = relationship('DBBeatmap', back_populates='beatmapset')
     ratings = relationship('DBRating', back_populates='beatmapset')
@@ -343,6 +346,7 @@ class DBBeatmapset(Base):
         creator: str,
         source: str,
         tags: str,
+        display_title: str,
         status: int,
         has_video: bool,
         has_storyboard: bool,
@@ -363,6 +367,7 @@ class DBBeatmapset(Base):
         self.creator = creator
         self.source = source
         self.tags = tags
+        self.display_title = display_title
         self.status = status
         self.has_video = has_video
         self.has_storyboard = has_storyboard
@@ -473,6 +478,20 @@ class DBBeatmap(Base):
         self.od = od
         self.hp = hp
         self.diff = diff
+
+class DBBeatmapNomination(Base):
+    __tablename__ = "beatmap_nominations"
+
+    user_id   = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    set_id    = Column('set_id', Integer, ForeignKey('beatmapsets.id'), primary_key=True)
+    time      = Column('time', DateTime, server_default=func.now())
+
+    user = relationship('DBUser', back_populates='nominations')
+    beatmapset = relationship('DBBeatmapset', back_populates='nominations')
+
+    def __init__(self, user_id: int, set_id: int) -> None:
+        self.user_id = user_id
+        self.set_id = set_id
 
 class DBBadge(Base):
     __tablename__ = "profile_badges"
@@ -863,6 +882,7 @@ class DBForum(Base):
     created_at  = Column('created_at', DateTime, server_default=func.now())
     name        = Column('name', String)
     description = Column('description', String, default='')
+    allow_icons = Column('allow_icons', Boolean, default=True)
     hidden      = Column('hidden', Boolean, default=False)
 
     subforums = relationship("DBForum", backref="parent_forum_rel", remote_side=[id])
@@ -982,6 +1002,7 @@ class DBForumPost(Base):
     edit_locked = Column('edit_locked', Boolean, default=False)
     hidden      = Column('hidden', Boolean, default=False)
     draft       = Column('draft', Boolean, default=False)
+    deleted     = Column('deleted', Boolean, default=False)
 
     user  = relationship('DBUser', back_populates='created_posts')
     topic = relationship('DBForumTopic', back_populates='posts')
@@ -1111,8 +1132,9 @@ class DBUser(Base):
     userpage_interests = Column('userpage_interests', String, nullable=True)
 
     target_relationships = relationship('DBRelationship', back_populates='target', foreign_keys='DBRelationship.target_id')
-    replay_history = relationship('DBReplayHistory', back_populates='user')
     relationships = relationship('DBRelationship', back_populates='user', foreign_keys='DBRelationship.user_id')
+    replay_history = relationship('DBReplayHistory', back_populates='user')
+    nominations = relationship('DBBeatmapNomination', back_populates='user')
     subscribed_topics = relationship('DBForumSubscriber', back_populates='user')
     created_topics = relationship('DBForumTopic', back_populates='creator')
     created_posts = relationship('DBForumPost', back_populates='user')
@@ -1160,12 +1182,30 @@ class DBUser(Base):
         return f'[http://osu.{config.DOMAIN_NAME}/u/{self.id} {self.name}]'
 
     @property
+    def group_ids(self):
+        return [group.group_id for group in self.groups]
+
+    @property
+    def is_admin(self):
+        return self.check_groups([1, 2])
+
+    @property
+    def is_moderator(self):
+        return self.check_groups([1, 2, 4])
+
+    @property
+    def is_bat(self):
+        return self.check_groups([1, 2, 3])
+
+    @property
     def is_supporter(self) -> bool:
-        # NOTE: Supporter related code has been removed
+        # TODO: Add group check
         return True
 
-    # NOTE: These are required attributes for Flask-Login.
-    #       I am not sure if you can implement them differently...
+    def check_groups(self, ids: List[int]) -> bool:
+        return any(group in self.group_ids for group in ids)
+
+    # NOTE: These are required attributes for Flask-Login
 
     @property
     def is_active(self):
@@ -1173,7 +1213,7 @@ class DBUser(Base):
 
     @property
     def is_authenticated(self):
-        return self.is_active
+        return True
 
     @property
     def is_anonymous(self):

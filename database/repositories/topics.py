@@ -13,7 +13,7 @@ def create(
     forum_id: int,
     creator_id: int,
     title: str,
-    status_text: str | None,
+    status_text: str | None = None,
     icon_id: int | None = None,
     can_star: bool = False,
     can_change_icon: bool = False,
@@ -193,6 +193,17 @@ def fetch_subscribers(
     return session.query(DBForumSubscriber) \
         .filter(DBForumSubscriber.topic_id == topic_id) \
         .all()
+
+def is_subscribed(
+    topic_id: int,
+    user_id: int,
+    session: Session
+) -> bool:
+    return fetch_subscriber(
+        topic_id,
+        user_id,
+        session=session
+    ) is not None
 
 @session_wrapper
 def fetch_average_views(session: Session = ...) -> float:

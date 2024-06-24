@@ -106,6 +106,18 @@ def fetch_drafts(user_id: int, topic_id: int, session: Session = ...) -> List[DB
         .all()
 
 @session_wrapper
+def update_by_topic(
+    topic_id: int,
+    updates: dict,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBForumPost) \
+        .filter(DBForumPost.topic_id == topic_id) \
+        .update(updates)
+    session.commit()
+    return rows
+
+@session_wrapper
 def update(
     post_id: int,
     updates: dict,
