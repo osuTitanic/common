@@ -24,12 +24,10 @@ def call(content: str, exc_info: Exception | None = None) -> bool:
         )
         content += '```'
 
-    response = webhooks.Webhook(
+    return webhooks.Webhook(
         config.OFFICER_WEBHOOK_URL,
         content=content
     ).post()
-
-    return response.ok
 
 def event(
     content: str | None = None,
@@ -46,11 +44,9 @@ def event(
         app.session.logger.debug('Event webhook was not configured.')
         return
 
-    response = webhooks.Webhook(
+    return webhooks.Webhook(
         config.EVENT_WEBHOOK_URL,
         content, username,
         avatar_url, is_tts,
         file, embeds
     ).post()
-
-    return response.ok

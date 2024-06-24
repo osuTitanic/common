@@ -140,7 +140,7 @@ class Webhook:
 
         return payload
 
-    def post(self) -> Response:
+    def post(self) -> bool:
         """Post the webhook in json format"""
         try:
             app.session.requests.post(
@@ -158,3 +158,6 @@ class Webhook:
             app.session.logger.info(
                 f"Failed to post webhook: {e}"
             )
+            return False
+
+        return True
