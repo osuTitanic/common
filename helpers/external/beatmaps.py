@@ -21,13 +21,23 @@ class Beatmaps:
     def log_error(self, url: str, status_code: int) -> None:
         self.logger.error(f'Error while sending request to "{url}" ({status_code})')
 
+    def do_safe_request(self, url: str, **kwargs) -> Optional[Response]:
+        try:
+            response = self.session.get(url, **kwargs)
+        except Exception as e:
+            response = Response()
+            response.status_code = 500
+            self.logger.error(f'Failed to send request to "{url}": {e}')
+        finally:
+            return response
+
     def osz(self, set_id: int, no_video: bool = False) -> Optional[Response]:
         self.logger.debug(f'Downloading osz... ({set_id})')
 
         mirrors = resources.fetch_by_type_all(1 if no_video else 0)
 
         for mirror in mirrors:
-            response = self.session.get(
+            response = self.do_safe_request(
                 self.format_mirror_url(mirror.url, set_id),
                 stream=True
             )
@@ -51,7 +61,9 @@ class Beatmaps:
         mirrors = resources.fetch_by_type_all(2)
 
         for mirror in mirrors:
-            response = self.session.get(self.format_mirror_url(mirror.url, beatmap_id))
+            response = self.do_safe_request(
+                self.format_mirror_url(mirror.url, beatmap_id)
+            )
 
             if not response.ok:
                 self.log_error(response.url, response.status_code)
@@ -72,7 +84,9 @@ class Beatmaps:
         mirrors = resources.fetch_by_type_all(5)
 
         for mirror in mirrors:
-            response = self.session.get(self.format_mirror_url(mirror.url, set_id))
+            response = self.do_safe_request(
+                self.format_mirror_url(mirror.url, set_id)
+            )
 
             if not response.ok:
                 self.log_error(response.url, response.status_code)
@@ -86,7 +100,9 @@ class Beatmaps:
         mirrors = resources.fetch_by_type_all(4 if large else 3)
 
         for mirror in mirrors:
-            response = self.session.get(self.format_mirror_url(mirror.url, set_id))
+            response = self.do_safe_request(
+                self.format_mirror_url(mirror.url, set_id)
+            )
 
             if not response.ok:
                 if response.status_code != 404:
