@@ -142,21 +142,19 @@ class Webhook:
 
     def post(self) -> Response:
         """Post the webhook in json format"""
-        response = app.session.requests.post(
-            self.url,
-            json=self.json,
-            headers={
-                "Content-Type": (
-                    "application/json"
-                    if self.file is None
-                    else "multipart/form-data"
-                )
-            }
-        )
-
-        if not response.ok:
-            app.session.logger.warning(
-                f"Failed to post to webhook: {response.text} ({response.status_code})"
+        try:
+            app.session.requests.post(
+                self.url,
+                json=self.json,
+                headers={
+                    "Content-Type": (
+                        "application/json"
+                        if self.file is None
+                        else "multipart/form-data"
+                    )
+                }
+            ).raise_for_status()
+        except Exception as e:
+            app.session.logger.info(
+                f"Failed to post webhook: {e}"
             )
-
-        return response
