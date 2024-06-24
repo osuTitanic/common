@@ -65,3 +65,16 @@ def fetch_count_by_set(set_id: int, session: Session = ...) -> int:
     return session.query(DBFavourite) \
         .filter(DBFavourite.set_id == set_id) \
         .count()
+
+@session_wrapper
+def delete(
+    user_id: int,
+    set_id: int,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBFavourite) \
+        .filter(DBFavourite.user_id == user_id) \
+        .filter(DBFavourite.set_id == set_id) \
+        .delete()
+    session.commit()
+    return rows
