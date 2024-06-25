@@ -78,3 +78,11 @@ def delete(
         .delete()
     session.commit()
     return rows
+
+@session_wrapper
+def delete_all(set_id: int, session: Session = ...) -> int:
+    rows = session.query(DBFavourite) \
+        .filter(DBFavourite.set_id == set_id) \
+        .delete()
+    session.commit()
+    return rows
