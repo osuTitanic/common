@@ -357,6 +357,22 @@ class Storage:
         else:
             return self.remove_from_s3('replays', str(id))
 
+    def remove_beatmap_file(self, id: int):
+        self.logger.debug(f'Removing beatmap file with id "{id}"...')
+
+        if not config.S3_ENABLED:
+            return self.remove_file(f'/beatmaps/{id}')
+        else:
+            return self.remove_from_s3('beatmaps', str(id))
+
+    def remove_osz(self, set_id: int):
+        self.logger.debug(f'Removing osz with id "{set_id}"...')
+
+        if not config.S3_ENABLED:
+            return self.remove_file(f'/osz/{set_id}')
+        else:
+            return self.remove_from_s3('osz', str(set_id))
+
     def remove_osz2(self, set_id: int):
         self.logger.debug(f'Removing osz2 with id "{set_id}"...')
 
@@ -364,6 +380,30 @@ class Storage:
             return self.remove_file(f'/osz2/{set_id}')
         else:
             return self.remove_from_s3('osz2', str(set_id))
+
+    def remove_background(self, set_id: int):
+        self.logger.debug(f'Removing background with id "{set_id}"...')
+
+        if not config.S3_ENABLED:
+            return self.remove_file(f'/thumbnails/{set_id}')
+        else:
+            return self.remove_from_s3('thumbnails', str(set_id))
+
+    def remove_mp3(self, set_id: int):
+        self.logger.debug(f'Removing mp3 with id "{set_id}"...')
+
+        if not config.S3_ENABLED:
+            return self.remove_file(f'/audio/{set_id}')
+        else:
+            return self.remove_from_s3('audio', str(set_id))
+
+    def remove_avatar(self, id: int):
+        self.logger.debug(f'Removing avatar with id "{id}"...')
+
+        if not config.S3_ENABLED:
+            return self.remove_file(f'/avatars/{id}')
+        else:
+            return self.remove_from_s3('avatars', str(id))
 
     def get_file_hashes(self, key: str) -> Dict[str, str]:
         if config.S3_ENABLED:
