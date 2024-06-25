@@ -357,13 +357,13 @@ class Storage:
         else:
             return self.remove_from_s3('replays', str(id))
 
-    def remove_beatmap_file(self, id: int):
-        self.logger.debug(f'Removing beatmap file with id "{id}"...')
+    def remove_beatmap_file(self, beatmap_id: int):
+        self.logger.debug(f'Removing beatmap file with id "{beatmap_id}"...')
 
         if not config.S3_ENABLED:
-            return self.remove_file(f'/beatmaps/{id}')
+            return self.remove_file(f'/beatmaps/{beatmap_id}')
         else:
-            return self.remove_from_s3('beatmaps', str(id))
+            return self.remove_from_s3('beatmaps', str(beatmap_id))
 
     def remove_osz(self, set_id: int):
         self.logger.debug(f'Removing osz with id "{set_id}"...')
