@@ -1,9 +1,15 @@
 
 from __future__ import annotations
-
-from app.common.database.objects import DBUser, DBStats, DBForumPost
-from datetime import datetime, timedelta
 from typing import List
+
+from datetime import datetime, timedelta
+from app.common.database.objects import (
+    DBForumSubscriber,
+    DBForumBookmark,
+    DBForumPost,
+    DBStats,
+    DBUser
+)
 
 from sqlalchemy.orm import selectinload, Session
 from sqlalchemy import func, or_
@@ -152,3 +158,15 @@ def fetch_post_count(user_id: int, session: Session = ...) -> int:
     return session.query(DBForumPost) \
         .filter(DBForumPost.user_id == user_id) \
         .count()
+
+@session_wrapper
+def fetch_subscriptions(user_id: int, session: Session = ...) -> List[DBForumSubscriber]:
+    return session.query(DBForumSubscriber) \
+        .filter(DBForumSubscriber.user_id == user_id) \
+        .all()
+
+@session_wrapper
+def fetch_bookmarks(user_id: int, session: Session = ...) -> List[DBForumBookmark]:
+    return session.query(DBForumBookmark) \
+        .filter(DBForumBookmark.user_id == user_id) \
+        .all()
