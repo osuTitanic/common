@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBForumTopic, DBForumPost, DBForumSubscriber
+from ..objects import DBForumTopic, DBForumSubscriber, DBForumBookmark
 from .wrapper import session_wrapper
 
 from sqlalchemy.orm import Session
@@ -200,6 +200,68 @@ def is_subscribed(
     session: Session
 ) -> bool:
     return fetch_subscriber(
+        topic_id,
+        user_id,
+        session=session
+    ) is not None
+
+@session_wrapper
+def add_bookmark(
+    topic_id: int,
+    user_id: int,
+    session: Session = ...
+) -> DBForumBookmark:
+    if bookmark := fetch_bookmark(topic_id, user_id, session=session):
+        # User already subscribed to this topic
+        return bookmark
+
+    bookmark = DBForumBookmark(
+        topic_id=topic_id,
+        user_id=user_id
+    )
+    session.add(bookmark)
+    session.commit()
+    return bookmark
+
+@session_wrapper
+def delete_bookmark(
+    topic_id: int,
+    user_id: int,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBForumBookmark) \
+        .filter(DBForumBookmark.topic_id == topic_id) \
+        .filter(DBForumBookmark.user_id == user_id) \
+        .delete()
+    session.commit()
+    return rows
+
+@session_wrapper
+def fetch_bookmark(
+    topic_id: int,
+    user_id: int,
+    session: Session = ...
+) -> DBForumBookmark | None:
+    return session.query(DBForumBookmark) \
+        .filter(DBForumBookmark.topic_id == topic_id) \
+        .filter(DBForumBookmark.user_id == user_id) \
+        .first()
+
+@session_wrapper
+def fetch_bookmarks(
+    topic_id: int,
+    session: Session = ...
+) -> List[DBForumBookmark]:
+    return session.query(DBForumBookmark) \
+        .filter(DBForumBookmark.topic_id == topic_id) \
+        .all()
+
+def is_bookmarked(
+    topic_id: int,
+    user_id: int,
+    session: Session
+) -> bool:
+    return fetch_bookmark(
         topic_id,
         user_id,
         session=session
