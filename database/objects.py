@@ -939,6 +939,7 @@ class DBForumTopic(Base):
     pinned          = Column('pinned', Boolean, default=False)
 
     subscribers = relationship('DBForumSubscriber', back_populates='topic')
+    bookmarks   = relationship('DBForumBookmark', back_populates='topic')
     creator     = relationship('DBUser', back_populates='created_topics')
     icon        = relationship('DBForumIcon', back_populates='topics')
     posts       = relationship('DBForumPost', back_populates='topic')
@@ -1052,6 +1053,9 @@ class DBForumBookmark(Base):
     user_id  = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
     topic_id = Column('topic_id', Integer, ForeignKey('forum_topics.id'), primary_key=True)
 
+    user  = relationship('DBUser', back_populates='bookmarked_topics')
+    topic = relationship('DBForumTopic', back_populates='bookmarks')
+
     def __init__(
         self,
         user_id: int,
@@ -1135,6 +1139,7 @@ class DBUser(Base):
     relationships = relationship('DBRelationship', back_populates='user', foreign_keys='DBRelationship.user_id')
     replay_history = relationship('DBReplayHistory', back_populates='user')
     nominations = relationship('DBBeatmapNomination', back_populates='user')
+    bookmarked_topics = relationship('DBForumBookmark', back_populates='user')
     subscribed_topics = relationship('DBForumSubscriber', back_populates='user')
     created_topics = relationship('DBForumTopic', back_populates='creator')
     created_posts = relationship('DBForumPost', back_populates='user')
