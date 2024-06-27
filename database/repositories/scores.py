@@ -26,9 +26,25 @@ def create(score: DBScore, session: Session = ...) -> DBScore:
     return score
 
 @session_wrapper
-def update(score_id: int, updates: dict, session: Session = ...) -> int:
+def update(
+    score_id: int,
+    updates: dict,
+    session: Session = ...
+) -> int:
     rows = session.query(DBScore) \
         .filter(DBScore.id == score_id) \
+        .update(updates)
+    session.commit()
+    return rows
+
+@session_wrapper
+def update_by_beatmap_id(
+    beatmap_id: int,
+    updates: dict,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBScore) \
+        .filter(DBScore.beatmap_id == beatmap_id) \
         .update(updates)
     session.commit()
     return rows
