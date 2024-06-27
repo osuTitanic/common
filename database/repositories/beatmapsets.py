@@ -131,6 +131,15 @@ def fetch_by_topic(
         .first()
 
 @session_wrapper
+def fetch_by_status(
+    status: int,
+    session: Session = ...
+) -> DBBeatmapset | None:
+    return session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.status == status) \
+        .all()
+
+@session_wrapper
 def search(
     query_string: str,
     user_id: int,
