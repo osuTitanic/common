@@ -99,14 +99,14 @@ def fetch_hardware_only(
             and_(
                 DBClient.unique_id == unique_id,
                 *[
-                    DBClient.adapters != hash
+                    DBClient.unique_id != hash
                     for hash in fetch_verified(1)
                 ]
             ),
             and_(
                 DBClient.disk_signature == disk_signature,
                 *[
-                    DBClient.adapters != hash
+                    DBClient.disk_signature != hash
                     for hash in fetch_verified(2)
                 ]
             )
