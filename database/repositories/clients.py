@@ -1,7 +1,9 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBClient
+from app.common.database.objects import DBClient, DBVerifiedClient
+from app.common.helpers.caching import ttl_cache
+
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
 from typing import List
@@ -84,30 +86,29 @@ def fetch_hardware_only(
     disk_signature: str,
     session: Session = ...
 ) -> List[DBClient]:
-    """Fetch clients only by hardware attributes. Useful for multi-account detection."""
-    # TODO: There are somehow two types of empty md5 hashes?
+    """Fetch clients only by hardware attributes. Used for multi-account detection."""
     return session.query(DBClient) \
         .filter(or_(
             and_(
                 DBClient.adapters == adapters,
-                DBClient.adapters != "b4ec3c4334a0249dae95c284ec5983df", # "runningunderwine"
-                DBClient.adapters != "74be16979710d4c4e7c6647856088456", # ""
-                DBClient.adapters != "d41d8cd98f00b204e9800998ecf8427e"  # ""
-            ),
-            and_(
-                DBClient.disk_signature == disk_signature,
-                DBClient.disk_signature != "ad921d60486366258809553a3db49a4a", # "unknown"
-                DBClient.disk_signature != "dcfcd07e645d245babe887e5e2daa016", # "0"
-                DBClient.disk_signature != "28c8edde3d61a0411511d3b1866f0636", # "1"
-                DBClient.disk_signature != "74be16979710d4c4e7c6647856088456", # ""
-                DBClient.disk_signature != "d41d8cd98f00b204e9800998ecf8427e", # ""
-                DBClient.disk_signature != "d1c651c36f499849f1c9a5843567e686"  # toshiba hdd
+                *[
+                    DBClient.adapters != hash
+                    for hash in fetch_verified(0)
+                ]
             ),
             and_(
                 DBClient.unique_id == unique_id,
-                DBClient.unique_id != "ad921d60486366258809553a3db49a4a", # "unknown"
-                DBClient.unique_id != "74be16979710d4c4e7c6647856088456", # ""
-                DBClient.unique_id != "d41d8cd98f00b204e9800998ecf8427e"  # ""
+                *[
+                    DBClient.adapters != hash
+                    for hash in fetch_verified(1)
+                ]
+            ),
+            and_(
+                DBClient.disk_signature == disk_signature,
+                *[
+                    DBClient.adapters != hash
+                    for hash in fetch_verified(2)
+                ]
             )
         )).all()
 
@@ -131,3 +132,14 @@ def fetch_all(user_id: int, session: Session = ...) -> List[DBClient]:
     return session.query(DBClient) \
         .filter(DBClient.user_id == user_id) \
         .all()
+
+@session_wrapper
+@ttl_cache(ttl=600)
+def fetch_verified(type: int, session: Session = ...) -> List[str]:
+    """Fetch all hardware ids, that can bypass multiaccounting checks"""
+    return [
+        hash_tuple[0] for hash_tuple in
+        session.query(DBVerifiedClient.hash) \
+            .filter(DBVerifiedClient.type == type) \
+            .all()
+    ]
