@@ -673,6 +673,12 @@ class DBClient(Base):
         self.disk_signature = disk_signature
         self.banned = banned
 
+class DBVerifiedClient(Base):
+    __tablename__ = "clients_verified"
+
+    type = Column('type', SmallInteger, primary_key=True)
+    hash = Column('hash', String, primary_key=True)
+
 class DBLogin(Base):
     __tablename__ = "logins"
 
