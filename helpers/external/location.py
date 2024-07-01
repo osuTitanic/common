@@ -30,7 +30,8 @@ def fetch_geolocation(ip: str) -> Geolocation:
         is_local = is_local_ip(ip)
 
         if is_local:
-            if not (geo := fetch_web(ip, is_local)):
+            # Resolve ip address of server
+            if not (geo := fetch_web()):
                 return Geolocation()
 
             return geo
@@ -65,9 +66,9 @@ def fetch_db(ip: str) -> Geolocation | None:
     except AddressNotFoundError:
         return
 
-def fetch_web(ip: str, is_local: bool = False) -> Geolocation | None:
+def fetch_web(ip: str = "") -> Geolocation | None:
     try:
-        response = app.session.requests.get(f'http://ip-api.com/line/{ip if not is_local else ""}')
+        response = app.session.requests.get(f'http://ip-api.com/line/{ip or ""}')
 
         if not response.ok:
             return None
