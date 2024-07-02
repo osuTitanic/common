@@ -891,8 +891,9 @@ class DBForum(Base):
     allow_icons = Column('allow_icons', Boolean, default=True)
     hidden      = Column('hidden', Boolean, default=False)
 
-    subforums = relationship("DBForum", backref="parent_forum_rel", remote_side=[id])
-    parent    = relationship("DBForum", remote_side=[id])
+    parent    = relationship('DBForum', back_populates='subforums', remote_side=[id])
+    subforums = relationship('DBForum', back_populates='parent')
+
     topics    = relationship('DBForumTopic', back_populates='forum')
     posts     = relationship('DBForumPost', back_populates='forum')
 
