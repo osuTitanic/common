@@ -155,7 +155,19 @@ class Storage:
         return osz
 
     def get_beatmap(self, id: int) -> bytes | None:
-        return self.api.osu(id)
+        if (osu := self.get_from_cache(f'osu:{id}')):
+            return osu
+
+        if not (osu := self.api.osu(id)):
+            return
+
+        self.save_to_cache(
+            name=f'osu:{id}',
+            content=osu,
+            expiry=timedelta(days=1)
+        )
+
+        return osu
 
     def get_beatmap_internal(self, id: int) -> bytes | None:
         if (osu := self.get_from_cache(f'osu:{id}')):
