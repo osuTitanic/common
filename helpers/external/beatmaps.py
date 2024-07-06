@@ -1,8 +1,8 @@
 
-from ...database.repositories import resources
+from __future__ import annotations
 
+from ...database.repositories import resources
 from requests import Session, Response
-from typing import Optional
 
 import logging
 import config
@@ -21,7 +21,7 @@ class Beatmaps:
     def log_error(self, url: str, status_code: int) -> None:
         self.logger.error(f'Error while sending request to "{url}" ({status_code})')
 
-    def do_safe_request(self, url: str, **kwargs) -> Optional[Response]:
+    def do_safe_request(self, url: str, **kwargs) -> Response | None:
         try:
             response = self.session.get(url, **kwargs)
         except Exception as e:
@@ -31,7 +31,7 @@ class Beatmaps:
         finally:
             return response
 
-    def osz(self, set_id: int, no_video: bool = False) -> Optional[Response]:
+    def osz(self, set_id: int, no_video: bool = False) -> Response | None:
         self.logger.debug(f'Downloading osz... ({set_id})')
 
         mirrors = resources.fetch_by_type_all(1 if no_video else 0)
@@ -50,12 +50,12 @@ class Beatmaps:
             #       200, even on errors. So here is a little workaround for that
 
             if 'application/json' in response.headers['Content-Type']:
-                self.log_error(response.url, response.json()['code'])
+                self.log_error(response.url, response.json().get('code', 500))
                 continue
 
             return response
     
-    def osu(self, beatmap_id: int) -> Optional[bytes]:
+    def osu(self, beatmap_id: int) -> bytes | None:
         self.logger.debug(f'Downloading beatmap... ({beatmap_id})')
 
         mirrors = resources.fetch_by_type_all(2)
@@ -78,7 +78,7 @@ class Beatmaps:
 
             return response.content
 
-    def preview(self, set_id: int) -> Optional[bytes]:
+    def preview(self, set_id: int) -> bytes | None:
         self.logger.debug(f'Downloading preview... ({set_id})')
 
         mirrors = resources.fetch_by_type_all(5)
@@ -94,7 +94,7 @@ class Beatmaps:
 
             return response.content
 
-    def background(self, set_id: int, large=False) -> Optional[bytes]:
+    def background(self, set_id: int, large=False) -> bytes | None:
         self.logger.debug(f'Downloading background... ({set_id})')
 
         mirrors = resources.fetch_by_type_all(4 if large else 3)
