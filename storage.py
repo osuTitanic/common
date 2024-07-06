@@ -4,9 +4,8 @@ from __future__ import annotations
 from boto3_type_annotations.s3 import Client
 from botocore.exceptions import ClientError
 from sqlalchemy.orm import Session
-from typing import List, Dict
-
 from datetime import timedelta
+from typing import List, Dict
 from redis import Redis
 
 from .database.repositories import scores, wrapper
@@ -18,7 +17,6 @@ import hashlib
 import logging
 import config
 import boto3
-import app
 import os
 import io
 
@@ -46,13 +44,10 @@ class Storage:
         if (image := self.get_from_cache(f'avatar:{id}')):
             return image
 
-        if config.S3_ENABLED:
-            if not (image := self.get_from_s3(str(id), 'avatars')):
-                return
+        image = self.get(id, 'avatars')
 
-        else:
-            if not (image := self.get_file_content(f'/avatars/{id}')):
-                return
+        if not image:
+            return
 
         self.save_to_cache(
             name=f'avatar:{id}',
@@ -63,13 +58,19 @@ class Storage:
         return image
     
     def get_screenshot(self, id: int) -> bytes | None:
-        if config.S3_ENABLED:
-            if not (image := self.get_from_s3(str(id), 'screenshots')):
-                return
+        if (image := self.get_from_cache(f'screenshots:{id}')):
+            return image
 
-        else:
-            if not (image := self.get_file_content(f'/screenshots/{id}')):
-                return
+        image = self.get(id, 'screenshots')
+
+        if not image:
+            return
+
+        self.save_to_cache(
+            name=f'screenshots:{id}',
+            content=image,
+            expiry=timedelta(hours=4)
+        )
 
         return image
     
@@ -77,13 +78,10 @@ class Storage:
         if (replay := self.get_from_cache(f'osr:{id}')):
             return replay
 
-        if config.S3_ENABLED:
-            if not (replay := self.get_from_s3(str(id), 'replays')):
-                return
+        replay = self.get(id, 'replays')
 
-        else:
-            if not (replay := self.get_file_content(f'/replays/{id}')):
-                return
+        if not replay:
+            return
 
         self.save_to_cache(
             name=f'osr:{id}',
@@ -128,31 +126,16 @@ class Storage:
         return stream.get()
 
     def get_osz(self, set_id: int) -> bytes | None:
-        return self.api.osz(set_id)
+        if not (osz := self.api.osz(set_id)):
+            return
+
+        return osz.content
 
     def get_osz_internal(self, set_id: int) -> bytes | None:
-        if config.S3_ENABLED:
-            osz = self.get_from_s3(str(set_id), 'osz')
-
-        else:
-            osz = self.get_file_content(f'/osz/{set_id}')
-
-        if not osz:
-            return
-
-        return osz
+        return self.get(set_id, 'osz')
 
     def get_osz2_internal(self, set_id: int) -> bytes | None:
-        if config.S3_ENABLED:
-            osz = self.get_from_s3(str(set_id), 'osz2')
-
-        else:
-            osz = self.get_file_content(f'/osz2/{set_id}')
-
-        if not osz:
-            return
-
-        return osz
+        return self.get(set_id, 'osz2')
 
     def get_beatmap(self, id: int) -> bytes | None:
         if (osu := self.get_from_cache(f'osu:{id}')):
@@ -173,14 +156,16 @@ class Storage:
         if (osu := self.get_from_cache(f'osu:{id}')):
             return osu
 
-        if config.S3_ENABLED:
-            osu = self.get_from_s3(str(id), 'beatmaps')
-
-        else:
-            osu = self.get_file_content(f'/beatmaps/{id}')
+        osu = self.get(id, 'beatmaps')
 
         if not osu:
             return
+
+        self.save_to_cache(
+            name=f'osu:{id}',
+            content=osu,
+            expiry=timedelta(days=1)
+        )
 
         return osu
 
@@ -209,11 +194,7 @@ class Storage:
         if (image := self.get_from_cache(f'mt:{set_id}l')):
             return image
 
-        if config.S3_ENABLED:
-            image = self.get_from_s3(str(set_id), 'thumbnails')
-
-        else:
-            image = self.get_file_content(f'/thumbnails/{set_id}')
+        image = self.get(set_id, 'thumbnails')
 
         if not image:
             return
@@ -236,7 +217,7 @@ class Storage:
         self.save_to_cache(
             name=f'mp3:{set_id}',
             content=mp3,
-            expiry=timedelta(hours=1)
+            expiry=timedelta(days=1)
         )
 
         return mp3
@@ -245,11 +226,7 @@ class Storage:
         if (mp3 := self.get_from_cache(f'mp3:{set_id}')):
             return mp3
 
-        if config.S3_ENABLED:
-            mp3 = self.get_from_s3(str(set_id), 'audio')
-
-        else:
-            mp3 = self.get_file_content(f'/audio/{set_id}')
+        mp3 = self.get(set_id, 'audio')
 
         if not mp3:
             return
@@ -257,24 +234,22 @@ class Storage:
         self.save_to_cache(
             name=f'mp3:{set_id}',
             content=mp3,
-            expiry=timedelta(hours=1)
+            expiry=timedelta(days=1)
         )
 
         return mp3
 
     def get_release_file(self, filename: str) -> bytes | None:
-        if config.S3_ENABLED:
-            return self.get_from_s3(filename, 'release')
-        else:
-            return self.get_file_content(f'/release/{filename}')
+        return self.get(filename, 'release')
+
+    def upload_osz(self, set_id: int, content: bytes):
+        self.save(set_id, content, 'osz')
+
+    def upload_osz2(self, set_id: int, content: bytes):
+        self.save(set_id, content, 'osz2')
 
     def upload_avatar(self, id: int, content: bytes):
-        if config.S3_ENABLED:
-            self.save_to_s3(content, str(id), 'avatars')
-
-        else:
-            self.save_to_file(f'/avatars/{id}', content)
-        
+        self.save(id, content, 'avatars')
         self.save_to_cache(
             name=f'avatar:{id}',
             content=content,
@@ -282,19 +257,15 @@ class Storage:
         )
 
     def upload_screenshot(self, id: int, content: bytes):
-        if config.S3_ENABLED:
-            self.save_to_s3(content, str(id), 'screenshots')
-
-        else:
-            self.save_to_file(f'/screenshots/{id}', content)
+        self.save(id, content, 'screenshots')
+        self.save_to_cache(
+            name=f'screenshots:{id}',
+            content=content,
+            expiry=timedelta(hours=4)
+        )
     
     def upload_replay(self, id: int, content: bytes):
-        if config.S3_ENABLED:
-            self.save_to_s3(content, str(id), 'replays')
-
-        else:
-            self.save_to_file(f'/replays/{id}', content)
-
+        self.save(id, content, 'replays')
         self.save_to_cache(
             name=f'osr:{id}',
             content=content,
@@ -302,39 +273,15 @@ class Storage:
         )
 
     def upload_beatmap_file(self, id: int, content: bytes):
-        if config.S3_ENABLED:
-            self.save_to_s3(content, str(id), 'beatmaps')
-
-        else:
-            self.save_to_file(f'/beatmaps/{id}', content)
-
+        self.save(id, content, 'beatmaps')
         self.save_to_cache(
             name=f'osu:{id}',
             content=content,
             expiry=timedelta(days=1)
         )
 
-    def upload_osz(self, set_id: int, content: bytes):
-        if config.S3_ENABLED:
-            self.save_to_s3(content, str(set_id), 'osz')
-
-        else:
-            self.save_to_file(f'/osz/{set_id}', content)
-
-    def upload_osz2(self, set_id: int, content: bytes):
-        if config.S3_ENABLED:
-            self.save_to_s3(content, str(set_id), 'osz2')
-
-        else:
-            self.save_to_file(f'/osz2/{set_id}', content)
-
     def upload_background(self, set_id: int, content: bytes):
-        if config.S3_ENABLED:
-            self.save_to_s3(content, str(set_id), 'thumbnails')
-
-        else:
-            self.save_to_file(f'/thumbnails/{set_id}', content)
-
+        self.save(set_id, content, 'thumbnails')
         self.save_to_cache(
             name=f'mt:{set_id}l',
             content=content,
@@ -342,16 +289,11 @@ class Storage:
         )
 
     def upload_mp3(self, set_id: int, content: bytes):
-        if config.S3_ENABLED:
-            self.save_to_s3(content, str(set_id), 'audio')
-
-        else:
-            self.save_to_file(f'/audio/{set_id}', content)
-
+        self.save(set_id, content, 'audio')
         self.save_to_cache(
             name=f'mp3:{set_id}',
             content=content,
-            expiry=timedelta(hours=1)
+            expiry=timedelta(days=1)
         )
 
     def cache_replay(self, id: int, content: bytes, time=timedelta(hours=1)):
@@ -363,61 +305,162 @@ class Storage:
 
     def remove_replay(self, id: int):
         self.logger.debug(f'Removing replay with id "{id}"...')
-
-        if not config.S3_ENABLED:
-            return self.remove_file(f'/replays/{id}')
-        else:
-            return self.remove_from_s3('replays', str(id))
+        self.remove_from_cache(f'osr:{id}')
+        self.remove(id, 'replays')
 
     def remove_beatmap_file(self, beatmap_id: int):
         self.logger.debug(f'Removing beatmap file with id "{beatmap_id}"...')
-
-        if not config.S3_ENABLED:
-            return self.remove_file(f'/beatmaps/{beatmap_id}')
-        else:
-            return self.remove_from_s3('beatmaps', str(beatmap_id))
+        self.remove_from_cache(f'osu:{beatmap_id}')
+        self.remove(beatmap_id, 'beatmaps')
 
     def remove_osz(self, set_id: int):
         self.logger.debug(f'Removing osz with id "{set_id}"...')
-
-        if not config.S3_ENABLED:
-            return self.remove_file(f'/osz/{set_id}')
-        else:
-            return self.remove_from_s3('osz', str(set_id))
+        self.remove(set_id, 'osz')
 
     def remove_osz2(self, set_id: int):
         self.logger.debug(f'Removing osz2 with id "{set_id}"...')
-
-        if not config.S3_ENABLED:
-            return self.remove_file(f'/osz2/{set_id}')
-        else:
-            return self.remove_from_s3('osz2', str(set_id))
+        self.remove(set_id, 'osz2')
 
     def remove_background(self, set_id: int):
         self.logger.debug(f'Removing background with id "{set_id}"...')
-
-        if not config.S3_ENABLED:
-            return self.remove_file(f'/thumbnails/{set_id}')
-        else:
-            return self.remove_from_s3('thumbnails', str(set_id))
+        self.remove_from_cache(f'mt:{set_id}l')
+        self.remove(set_id, 'thumbnails')
 
     def remove_mp3(self, set_id: int):
         self.logger.debug(f'Removing mp3 with id "{set_id}"...')
-
-        if not config.S3_ENABLED:
-            return self.remove_file(f'/audio/{set_id}')
-        else:
-            return self.remove_from_s3('audio', str(set_id))
+        self.remove_from_cache(f'mp3:{set_id}')
+        self.remove(set_id, 'audio')
 
     def remove_avatar(self, id: int):
         self.logger.debug(f'Removing avatar with id "{id}"...')
+        self.remove_from_cache(f'avatar:{id}')
+        self.remove(id, 'avatars')
 
-        if not config.S3_ENABLED:
-            return self.remove_file(f'/avatars/{id}')
+    def save(self, key: str, content: bytes, bucket: str) -> bool:
+        """Save a file to the specified bucket/directory."""
+        if config.S3_ENABLED:
+            return self.save_to_s3(content, str(key), bucket)
         else:
-            return self.remove_from_s3('avatars', str(id))
+            return self.save_to_file(f'{bucket}/{key}', content)
+
+    def get(self, key: str, bucket: str) -> bytes | None:
+        """Get a file from the specified bucket/directory."""
+        if config.S3_ENABLED:
+            return self.get_from_s3(str(key), bucket)
+        else:
+            return self.get_file_content(f'{bucket}/{key}')
+
+    def remove(self, key: str, bucket: str) -> bool:
+        """Remove a file from the specified bucket/directory."""
+        if config.S3_ENABLED:
+            return self.remove_from_s3(str(key), bucket)
+        else:
+            return self.remove_file(f'{bucket}/{key}')
+
+    def save_to_cache(self, name: str, content: bytes, expiry=timedelta(days=1), override=True) -> bool:
+        return self.cache.set(str(name), content, expiry, nx=(not override))
+
+    def get_from_cache(self, name: str) -> bytes | None:
+        return self.cache.get(str(name))
+
+    def remove_from_cache(self, name: str) -> bool:
+        return self.cache.delete(str(name))
+
+    def save_to_file(self, filepath: str, content: bytes) -> bool:
+        try:
+            with open(f'{config.DATA_PATH}/{filepath}', 'wb') as f:
+                f.write(content)
+        except Exception as e:
+            self.logger.error(f'Failed to save file "{filepath}": {e}')
+            return False
+
+        return True
+
+    def save_to_s3(self, content: bytes, key: str, bucket: str) -> bool:
+        try:
+            self.s3.upload_fileobj(
+                io.BytesIO(content),
+                bucket,
+                key
+            )
+        except Exception as e:
+            self.logger.error(f'Failed to upload "{key}" to s3: "{e}"')
+            return False
+
+        return True
+
+    def get_file_content(self, filepath: str) -> bytes | None:
+        try:
+            with open(f'{config.DATA_PATH}/{filepath}', 'rb') as f:
+                return f.read()
+        except Exception as e:
+            self.logger.error(f'Failed to read file "{filepath}": {e}')
+
+    def get_from_s3(self, key: str, bucket: str) -> bytes | None:
+        buffer = io.BytesIO()
+
+        try:
+            self.s3.download_fileobj(
+                bucket,
+                key,
+                buffer
+            )
+        except ClientError:
+            # Most likely not found
+            return
+        except Exception as e:
+            self.logger.error(f'Failed to download "{key}" from s3: "{e}"')
+            return
+
+        return buffer.getvalue()
+
+    def remove_from_s3(self, key: str, bucket: str) -> bool:
+        try:
+            self.s3.delete_object(
+                Bucket=bucket,
+                Key=key
+            )
+        except Exception as e:
+            self.logger.error(f'Failed to remove "{key}" from {bucket}: "{e}"')
+            return False
+
+        return True
+
+    def remove_file(self, filepath: str) -> bool:
+        try:
+            os.remove(f'{config.DATA_PATH}/{filepath}')
+        except Exception as e:
+            self.logger.error(f'Failed to file "{filepath}": "{e}"')
+            return False
+
+        return True
+
+    def file_exists(self, key: str, bucket: str) -> bool:
+        """Check if a file exists in the specified bucket/directory."""
+        if not config.S3_ENABLED:
+            return os.path.isfile(f'{config.DATA_PATH}/{bucket}/{key}')
+
+        try:
+            self.s3.head_object(Bucket=bucket, Key=key)
+            return True
+        except ClientError:
+            return False
+
+    def list(self, key: str) -> List[str]:
+        """Get a list of filenames from the specified bucket/directory."""
+        if not config.S3_ENABLED:
+            return self.list_directory(key)
+        else:
+            return self.list_bucket(key)
+
+    def list_directory(self, dir: str) -> List[str]:
+        return os.listdir(f'{config.DATA_PATH}/{dir}')
+
+    def list_bucket(self, bucket: str) -> List[str]:
+        return [object['Key'] for object in self.s3.list_objects(Bucket=bucket)['Contents']]
 
     def get_file_hashes(self, key: str) -> Dict[str, str]:
+        """Get a dictionary of file hashes from the specified bucket/directory."""
         if config.S3_ENABLED:
             return self.get_file_hashes_s3(key)
         else:
@@ -463,6 +506,7 @@ class Storage:
         return file_hashes
 
     def get_presigned_url(self, bucket: str, key: str, expiration: int = 900) -> str | None:
+        """Generate a presigned url for the specified bucket & key."""
         if not config.S3_ENABLED:
             return
 
@@ -478,101 +522,3 @@ class Storage:
         except ClientError as e:
             self.logger.error(f'Failed to generate presigned url: {e}')
             return
-
-    def save_to_cache(self, name: str, content: bytes, expiry=timedelta(weeks=1), override=True) -> bool:
-        return self.cache.set(name, content, expiry, nx=(not override))
-
-    def save_to_file(self, filepath: str, content: bytes) -> bool:
-        try:
-            with open(f'{config.DATA_PATH}/{filepath}', 'wb') as f:
-                f.write(content)
-        except Exception as e:
-            self.logger.error(f'Failed to save file "{filepath}": {e}')
-            return False
-
-        return True
-
-    def save_to_s3(self, content: bytes, key: str, bucket: str) -> bool:
-        try:
-            self.s3.upload_fileobj(
-                io.BytesIO(content),
-                bucket,
-                key
-            )
-        except Exception as e:
-            self.logger.error(f'Failed to upload "{key}" to s3: "{e}"')
-            return False
-
-        return True
-
-    def remove_from_s3(self, bucket: str, key: str) -> bool:
-        try:
-            self.s3.delete_object(
-                Bucket=bucket,
-                Key=key
-            )
-        except Exception as e:
-            self.logger.error(f'Failed to remove "{key}" from {bucket}: "{e}"')
-            return False
-
-        return True
-
-    def get_from_cache(self, name: str) -> bytes | None:
-        return self.cache.get(name)
-
-    def get_file_content(self, filepath: str) -> bytes | None:
-        try:
-            with open(f'{config.DATA_PATH}/{filepath}', 'rb') as f:
-                return f.read()
-        except Exception as e:
-            self.logger.error(f'Failed to read file "{filepath}": {e}')
-
-    def remove_file(self, filepath: str) -> bool:
-        try:
-            os.remove(f'{config.DATA_PATH}/{filepath}')
-        except Exception as e:
-            self.logger.error(f'Failed to file "{filepath}": "{e}"')
-            return False
-
-        return True
-
-    def get_from_s3(self, key: str, bucket: str) -> bytes | None:
-        buffer = io.BytesIO()
-
-        try:
-            self.s3.download_fileobj(
-                bucket,
-                key,
-                buffer
-            )
-        except ClientError:
-            # Most likely not found
-            return
-        except Exception as e:
-            self.logger.error(f'Failed to download "{key}" from s3: "{e}"')
-            return
-
-        return buffer.getvalue()
-
-    def file_exists(self, key: str, bucket: str) -> bool:
-        if not config.S3_ENABLED:
-            return os.path.isfile(f'{config.DATA_PATH}/{bucket}/{key}')
-
-        try:
-            self.s3.head_object(Bucket=bucket, Key=key)
-            return True
-        except ClientError:
-            return False
-
-    def list(self, key: str) -> List[str]:
-        """Get a list of filenames from the specified bucket/directory."""
-        if not config.S3_ENABLED:
-            return self.list_directory(key)
-        else:
-            return self.list_bucket(key)
-
-    def list_directory(self, dir: str) -> List[str]:
-        return os.listdir(f'{config.DATA_PATH}/{dir}')
-
-    def list_bucket(self, bucket: str) -> List[str]:
-        return [object['Key'] for object in self.s3.list_objects(Bucket=bucket)['Contents']]
