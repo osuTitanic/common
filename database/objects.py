@@ -1233,3 +1233,13 @@ class DBUser(Base):
 
     def get_id(self):
         return self.id
+
+class DBBenchmark(Base):
+    __tablename__ = "benchmarks"
+
+    id         = Column('id', Integer, primary_key=True, autoincrement=True)
+    user_id    = Column('user_id', Integer, unique=True)
+    smoothness = Column('smoothness', Float, unique=True)
+    framerate  = Column('framerate', Integer, unique=True)
+    score      = Column('score', BigInteger, nullable=True, unique=True)
+    grade      = Column('grade', String, default='N')
