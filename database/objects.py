@@ -917,6 +917,7 @@ class DBForumIcon(Base):
     location = Column('location', String)
 
     topics = relationship('DBForumTopic', back_populates='icon')
+    posts  = relationship('DBForumPost', back_populates='icon')
 
     def __init__(
         self,
@@ -1003,6 +1004,7 @@ class DBForumPost(Base):
     topic_id    = Column('topic_id', Integer, ForeignKey('forum_topics.id'))
     forum_id    = Column('forum_id', Integer, ForeignKey('forums.id'))
     user_id     = Column('user_id', Integer, ForeignKey('users.id'))
+    icon_id     = Column('icon_id', Integer, ForeignKey('forum_icons.id'), nullable=True)
     content     = Column('content', String)
     created_at  = Column('created_at', DateTime, server_default=func.now())
     edit_time   = Column('edit_time', DateTime, server_default=func.now())
@@ -1013,6 +1015,7 @@ class DBForumPost(Base):
     deleted     = Column('deleted', Boolean, default=False)
 
     user  = relationship('DBUser', back_populates='created_posts')
+    icon  = relationship('DBForumIcon', back_populates='posts')
     topic = relationship('DBForumTopic', back_populates='posts')
     forum = relationship('DBForum', back_populates='posts')
 
