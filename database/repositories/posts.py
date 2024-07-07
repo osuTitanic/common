@@ -15,6 +15,7 @@ def create(
     content: str,
     draft: bool = False,
     edit_locked: bool = False,
+    icon_id: int | None = None,
     session: Session = ...
 ) -> DBForumPost:
     post = DBForumPost(
@@ -23,7 +24,8 @@ def create(
         user_id=user_id,
         content=content,
         draft=draft,
-        edit_locked=edit_locked
+        edit_locked=edit_locked,
+        icon_id=icon_id
     )
     session.add(post)
     session.commit()

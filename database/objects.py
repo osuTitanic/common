@@ -1026,7 +1026,8 @@ class DBForumPost(Base):
         user_id: int,
         content: str,
         draft: bool,
-        edit_locked: bool
+        edit_locked: bool,
+        icon_id: int | None
     ) -> None:
         self.topic_id = topic_id
         self.forum_id = forum_id
@@ -1036,6 +1037,7 @@ class DBForumPost(Base):
         self.edit_locked = edit_locked
         self.created_at = datetime.now()
         self.edit_time = datetime.now()
+        self.icon_id = icon_id
 
 class DBForumReport(Base):
     __tablename__ = "forum_reports"
