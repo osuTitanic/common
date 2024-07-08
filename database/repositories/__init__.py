@@ -17,6 +17,7 @@ from . import (
     channels,
     messages,
     comments,
+    modding,
     clients,
     ratings,
     forums,
