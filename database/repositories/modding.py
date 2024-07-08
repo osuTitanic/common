@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from app.common.database.objects import DBBeatmapModding
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List
 
 from .wrapper import session_wrapper
@@ -84,6 +85,15 @@ def fetch_all_by_set(
     return session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.set_id == set_id) \
         .all()
+
+@session_wrapper
+def total_amount(
+    post_id: int,
+    session: Session = ...
+) -> int:
+    return session.query(func.sum(DBBeatmapModding.amount)) \
+        .filter(DBBeatmapModding.post_id == post_id) \
+        .scalar() or 0
 
 @session_wrapper
 def update(
