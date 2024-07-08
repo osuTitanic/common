@@ -321,6 +321,7 @@ class DBBeatmapset(Base):
     body_hash            = Column('body_hash', String, nullable=True)
 
     nominations = relationship('DBBeatmapNomination', back_populates='beatmapset')
+    modding = relationship('DBBeatmapModding', back_populates='beatmapset')
     favourites = relationship('DBFavourite', back_populates='beatmapset')
     beatmaps = relationship('DBBeatmap', back_populates='beatmapset')
     ratings = relationship('DBRating', back_populates='beatmapset')
@@ -506,8 +507,8 @@ class DBBeatmapModding(Base):
 
     beatmapset = relationship('DBBeatmapset', back_populates='modding')
     post = relationship('DBForumPost', back_populates='modding')
-    target = relationship('DBUser', back_populates='modding')
-    sender = relationship('DBUser', back_populates='modded')
+    target = relationship('DBUser', foreign_keys=[target_id])
+    sender = relationship('DBUser', foreign_keys=[sender_id])
 
 class DBBadge(Base):
     __tablename__ = "profile_badges"
@@ -1030,6 +1031,7 @@ class DBForumPost(Base):
     draft       = Column('draft', Boolean, default=False)
     deleted     = Column('deleted', Boolean, default=False)
 
+    modding = relationship('DBBeatmapModding', back_populates='post')
     user  = relationship('DBUser', back_populates='created_posts')
     icon  = relationship('DBForumIcon', back_populates='posts')
     topic = relationship('DBForumTopic', back_populates='posts')
