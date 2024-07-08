@@ -39,7 +39,18 @@ def fetch_one(
         .first()
 
 @session_wrapper
-def fetch_by_post(
+def fetch_by_post_and_sender(
+    post_id: int,
+    sender_id: int,
+    session: Session = ...
+) -> DBBeatmapModding | None:
+    return session.query(DBBeatmapModding) \
+        .filter(DBBeatmapModding.post_id == post_id) \
+        .filter(DBBeatmapModding.sender_id == sender_id) \
+        .first()
+
+@session_wrapper
+def fetch_all_by_post(
     post_id: int,
     session: Session = ...
 ) -> List[DBBeatmapModding]:
@@ -63,6 +74,15 @@ def fetch_all_by_sender(
 ) -> List[DBBeatmapModding]:
     return session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.sender_id == sender_id) \
+        .all()
+
+@session_wrapper
+def fetch_all_by_set(
+    set_id: int,
+    session: Session = ...
+) -> List[DBBeatmapModding]:
+    return session.query(DBBeatmapModding) \
+        .filter(DBBeatmapModding.set_id == set_id) \
         .all()
 
 @session_wrapper
