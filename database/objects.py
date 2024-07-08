@@ -493,6 +493,22 @@ class DBBeatmapNomination(Base):
         self.user_id = user_id
         self.set_id = set_id
 
+class DBBeatmapModding(Base):
+    __tablename__ = "beatmap_modding"
+
+    id        = Column('id', Integer, primary_key=True, autoincrement=True)
+    target_id = Column('target_id', Integer, ForeignKey('users.id'))
+    sender_id = Column('sender_id', Integer, ForeignKey('users.id'))
+    set_id    = Column('set_id', Integer, ForeignKey('beatmapsets.id'))
+    post_id   = Column('post_id', Integer, ForeignKey('forum_posts.id'))
+    amount    = Column('amount', Integer, default=0)
+    time      = Column('time', DateTime, server_default=func.now())
+
+    beatmapset = relationship('DBBeatmapset', back_populates='modding')
+    post = relationship('DBForumPost', back_populates='modding')
+    target = relationship('DBUser', back_populates='modding')
+    sender = relationship('DBUser', back_populates='modded')
+
 class DBBadge(Base):
     __tablename__ = "profile_badges"
 
