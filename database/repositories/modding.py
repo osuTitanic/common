@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from app.common.database.objects import DBBeatmapModding
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from typing import List
 
 from .wrapper import session_wrapper
@@ -94,6 +94,32 @@ def total_amount(
     return session.query(func.sum(DBBeatmapModding.amount)) \
         .filter(DBBeatmapModding.post_id == post_id) \
         .scalar() or 0
+
+@session_wrapper
+def total_amount_by_user(
+    user_id: int,
+    session: Session = ...
+) -> int:
+    return session.query(func.sum(DBBeatmapModding.amount)) \
+        .filter(DBBeatmapModding.target_id == user_id) \
+        .scalar() or 0
+
+@session_wrapper
+def fetch_range_by_user(
+    user_id: int,
+    limit: int = 15,
+    offset: int = 0,
+    session: Session = ...
+) -> List[DBBeatmapModding]:
+    return session.query(DBBeatmapModding) \
+        .filter(or_(
+            DBBeatmapModding.target_id == user_id,
+            DBBeatmapModding.sender_id == user_id
+        )) \
+        .order_by(DBBeatmapModding.id.desc()) \
+        .offset(offset) \
+        .limit(limit) \
+        .all()
 
 @session_wrapper
 def update(
