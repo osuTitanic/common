@@ -23,8 +23,6 @@ class Postgres:
         )
 
         self.engine.dispose()
-        Base.metadata.create_all(bind=self.engine)
-
         self.sessionmaker = sessionmaker(
             bind=self.engine,
             autoflush=False,
@@ -37,6 +35,10 @@ class Postgres:
     @property
     def session(self) -> Session:
         return self.sessionmaker(bind=self.engine)
+
+    @contextmanager
+    def managed_session(self):
+        return self.yield_session()
 
     def yield_session(self):
         session = self.sessionmaker(bind=self.engine)
@@ -55,7 +57,3 @@ class Postgres:
             raise e
         finally:
             session.close()
-
-    @contextmanager
-    def managed_session(self):
-        return self.yield_session()
