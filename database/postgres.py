@@ -17,7 +17,7 @@ class Postgres:
             pool_size=config.POSTGRES_POOLSIZE,
             pool_pre_ping=True,
             pool_recycle=900,
-            pool_timeout=5,
+            pool_timeout=15,
             echo_pool=None,
             echo=None
         )
