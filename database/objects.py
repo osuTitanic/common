@@ -1154,7 +1154,6 @@ class DBUser(Base):
     preferred_mode     = Column('preferred_mode', Integer, default=0)
     playstyle          = Column('playstyle', Integer, default=0)
     irc_token          = Column('irc_token', String, server_default="encode(gen_random_bytes(5), 'hex')")
-    kudosu             = Column('kudosu', Integer, default=0)
     userpage_about     = Column('userpage_about', String, nullable=True)
     userpage_signature = Column('userpage_signature', String, nullable=True)
     userpage_title     = Column('userpage_title', String, nullable=True)
