@@ -16,43 +16,24 @@ from app.common.database.objects import (
 )
 
 from sqlalchemy.orm import selectinload, Session
-from sqlalchemy import func, or_, and_
 from .wrapper import session_wrapper
+from sqlalchemy import func, or_
 
 from datetime import datetime
 from typing import List
 
-def text_search_conditions(query_string: str) -> list:
-    conditions = []
-
-    keywords = [
-        f'%{word}%' for word in query_string.strip() \
-            .replace(' - ', ' ') \
-            .lower() \
-            .split()
+def text_search_condition(query_string: str):
+    search_columns = [
+        DBBeatmapset.search,
+        DBBeatmap.search
     ]
 
-    searchable_columns = [
-        func.to_tsvector('simple', column)
-        for column in [
-            func.lower(DBBeatmapset.title),
-            func.lower(DBBeatmapset.artist),
-            func.lower(DBBeatmapset.creator),
-            func.lower(DBBeatmapset.source),
-            func.lower(DBBeatmapset.tags),
-            func.lower(DBBeatmap.version)
+    return or_(
+        *[
+            column.op('@@')(func.plainto_tsquery('simple', query_string))
+            for column in search_columns
         ]
-    ]
-
-    for word in keywords:
-        conditions.append(or_(
-            *[
-                col.op('@@')(func.plainto_tsquery('simple', word))
-                for col in searchable_columns
-            ]
-        ))
-
-    return conditions
+    )
 
 @session_wrapper
 def create(
@@ -168,11 +149,7 @@ def search(
                      .order_by(func.sum(DBBeatmap.playcount).desc())
 
     else:
-        query = query.filter(
-            and_(*text_search_conditions(query_string))
-        ) \
-            .group_by(DBBeatmapset.id) \
-            .order_by(func.sum(DBBeatmap.playcount).desc())
+        query = query.filter(text_search_condition(query_string))
 
     query = {
         DisplayMode.All: query.filter(DBBeatmapset.status > -3),
@@ -201,7 +178,7 @@ def search_one(
     return session.query(DBBeatmapset) \
         .join(DBBeatmap) \
         .filter(DBBeatmapset.status > -3) \
-        .filter(and_(*text_search_conditions(query_string))) \
+        .filter(text_search_condition(query_string)) \
         .order_by(DBBeatmap.playcount.desc()) \
         .offset(offset) \
         .first()
@@ -233,9 +210,7 @@ def search_extended(
             .join(DBBeatmap)
 
     if query_string:
-        query = query.filter(
-            and_(*text_search_conditions(query_string))
-        )
+        query = query.filter(text_search_condition(query_string))
 
     if sort == BeatmapSortBy.Rating:
         query = query.join(DBRating)
