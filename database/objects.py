@@ -6,13 +6,14 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from datetime import datetime
-from typing import Any, List
+from typing import List
 
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy import (
     SmallInteger,
     ForeignKey,
     BigInteger,
+    Computed,
     DateTime,
     Boolean,
     Integer,
@@ -320,6 +321,17 @@ class DBBeatmapset(Base):
     info_hash            = Column('info_hash', String, nullable=True)
     body_hash            = Column('body_hash', String, nullable=True)
 
+    search = Column('search', TSVECTOR, Computed(
+        "setweight(to_tsvector('simple', coalesce(title, '')), 'B') || "
+        "setweight(to_tsvector('simple', coalesce(title_unicode, '')), 'A') || "
+        "setweight(to_tsvector('simple', coalesce(artist, '')), 'B') || "
+        "setweight(to_tsvector('simple', coalesce(artist_unicode, '')), 'A') || "
+        "setweight(to_tsvector('simple', coalesce(creator, '')), 'B') || "
+        "setweight(to_tsvector('simple', coalesce(source, '')), 'B') || "
+        "setweight(to_tsvector('simple', coalesce(tags, '')), 'B')",
+        persisted=True
+    ))
+
     nominations = relationship('DBBeatmapNomination', back_populates='beatmapset')
     modding = relationship('DBBeatmapModding', back_populates='beatmapset')
     favourites = relationship('DBFavourite', back_populates='beatmapset')
@@ -407,6 +419,11 @@ class DBBeatmap(Base):
     od        = Column('od',   Float, default=0.0)
     hp        = Column('hp',   Float, default=0.0)
     diff      = Column('diff', Float, default=0.0)
+
+    search = Column('search', TSVECTOR, Computed(
+        "to_tsvector('simple', coalesce(version, ''))",
+        persisted=True
+    ))
 
     beatmapset = relationship('DBBeatmapset', back_populates='beatmaps')
     ratings    = relationship('DBRating', back_populates='beatmap')
