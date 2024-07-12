@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBForumPost
+from app.common.database.objects import DBForumPost, DBUser, DBGroupEntry
 from .wrapper import session_wrapper
 
 from sqlalchemy.orm import Session
@@ -76,6 +76,30 @@ def fetch_last(topic_id: int, session: Session = ...) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
         .filter(DBForumPost.hidden == False) \
+        .order_by(DBForumPost.id.desc()) \
+        .first()
+
+@session_wrapper
+def fetch_last_by_user(
+    topic_id: int,
+    user_id: int,
+    session: Session = ...
+) -> DBForumPost | None:
+    return session.query(DBForumPost) \
+        .filter(DBForumPost.topic_id == topic_id) \
+        .filter(DBForumPost.user_id == user_id) \
+        .filter(DBForumPost.hidden == False) \
+        .order_by(DBForumPost.id.desc()) \
+        .first()
+
+@session_wrapper
+def fetch_last_bat_post(topic_id: int, session: Session = ...) -> DBForumPost | None:
+    return session.query(DBForumPost) \
+        .join(DBUser, DBForumPost.user_id == DBUser.id) \
+        .join(DBGroupEntry, DBUser.id == DBGroupEntry.user_id) \
+        .filter(DBForumPost.topic_id == topic_id) \
+        .filter(DBForumPost.hidden == False) \
+        .filter(DBGroupEntry.group_id == 3) \
         .order_by(DBForumPost.id.desc()) \
         .first()
 
