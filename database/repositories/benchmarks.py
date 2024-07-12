@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from app.common.database.objects import DBBenchmark
 from sqlalchemy.orm import Session
+from sqlalchemy import and_, func
 from typing import List
 
 from .wrapper import session_wrapper
@@ -69,3 +70,30 @@ def update(
         .update(update)
     session.commit()
     return rows
+
+@session_wrapper
+def fetch_leaderboard(
+    limit: int = 50,
+    offset: int = 0,
+    session: Session = ...
+) -> List[DBBenchmark]:
+    # Create subquery to get max score per user
+    subquery = session.query(
+        DBBenchmark.user_id,
+        func.max(DBBenchmark.score).label('max_score')
+    ).group_by(
+        DBBenchmark.user_id
+    ).subquery()
+
+    # Get benchmarks with max score per user
+    query = session.query(DBBenchmark) \
+        .join(subquery, and_(
+            DBBenchmark.user_id == subquery.c.user_id,
+            DBBenchmark.score == subquery.c.max_score
+        )) \
+        .order_by(DBBenchmark.score.desc()) \
+        .offset(offset) \
+        .limit(limit) \
+        .all()
+
+    return query
