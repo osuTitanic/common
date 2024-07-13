@@ -156,7 +156,8 @@ class Webhook:
             ).raise_for_status()
         except Exception as e:
             app.session.logger.info(
-                f"Failed to post webhook: {e}"
+                f"Failed to post webhook: {e}",
+                exc_info=e
             )
             return False
 
