@@ -2,23 +2,39 @@
 from __future__ import annotations
 
 from ...database.repositories import resources
+
 from requests import Session, Response
+from urllib.parse import urlparse
+from redis import Redis
 
 import logging
 import config
+import time
 
 class Beatmaps:
     """Wrapper for different beatmap resources, using different API's"""
 
-    def __init__(self) -> None:
+    def __init__(self, cache: Redis) -> None:
         self.logger = logging.getLogger('beatmap-api')
 
         self.session = Session()
-        self.session.headers = {
-            'User-Agent': 'osuTitanic/titanic'
-        }
+        self.session.headers = {'User-Agent': 'osuTitanic/titanic'}
+        self.cache = cache
+
+    def check_ratelimit(self, url: str) -> bool:
+        domain = urlparse(self.format_mirror_url(url, 0)).netloc
+        return self.cache.exists(f'ratelimit:{domain}')
+
+    def set_ratelimit(self, url: str, ex: int = 120) -> None:
+        domain = urlparse(self.format_mirror_url(url, 0)).netloc
+        self.cache.set(f'ratelimit:{domain}', 1, ex=ex)
+        self.logger.warning(f'Rate limited on "{domain}", will expire in {ex} seconds')
 
     def log_error(self, url: str, status_code: int) -> None:
+        if status_code == 404:
+            self.logger.debug(f'Failed to find resource "{url}" ({status_code})')
+            return
+
         self.logger.error(f'Error while sending request to "{url}" ({status_code})')
 
     def do_safe_request(self, url: str, **kwargs) -> Response | None:
@@ -37,19 +53,24 @@ class Beatmaps:
         mirrors = resources.fetch_by_type_all(1 if no_video else 0)
 
         for mirror in mirrors:
+            if self.check_ratelimit(mirror.url):
+                continue
+
             response = self.do_safe_request(
                 self.format_mirror_url(mirror.url, set_id),
                 stream=True
             )
 
+            if response.status_code == 429:
+                # Rate limited, try again later
+                self.set_ratelimit(mirror.url)
+                continue
+
             if not response.ok:
                 self.log_error(response.url, response.status_code)
                 continue
 
-            # NOTE: Some mirrors like osu.direct always responds with status code
-            #       200, even on errors. So here is a little workaround for that
-
-            if 'application/json' in response.headers['Content-Type']:
+            if 'application/json' in response.headers.get('Content-Type', ''):
                 self.log_error(response.url, response.json().get('code', 500))
                 continue
 
@@ -61,15 +82,23 @@ class Beatmaps:
         mirrors = resources.fetch_by_type_all(2)
 
         for mirror in mirrors:
+            if self.check_ratelimit(mirror.url):
+                continue
+
             response = self.do_safe_request(
                 self.format_mirror_url(mirror.url, beatmap_id)
             )
+
+            if response.status_code == 429:
+                # Rate limited, try again later
+                self.set_ratelimit(mirror.url)
+                continue
 
             if not response.ok:
                 self.log_error(response.url, response.status_code)
                 continue
 
-            if 'application/json' in response.headers['Content-Type']:
+            if 'application/json' in response.headers.get('Content-Type', ''):
                 self.log_error(response.url, response.json()['code'])
                 continue
 
@@ -84,9 +113,17 @@ class Beatmaps:
         mirrors = resources.fetch_by_type_all(5)
 
         for mirror in mirrors:
+            if self.check_ratelimit(mirror.url):
+                continue
+
             response = self.do_safe_request(
                 self.format_mirror_url(mirror.url, set_id)
             )
+
+            if response.status_code == 429:
+                # Rate limited, try again later
+                self.set_ratelimit(mirror.url)
+                continue
 
             if not response.ok:
                 self.log_error(response.url, response.status_code)
@@ -100,14 +137,20 @@ class Beatmaps:
         mirrors = resources.fetch_by_type_all(4 if large else 3)
 
         for mirror in mirrors:
+            if self.check_ratelimit(mirror.url):
+                continue
+
             response = self.do_safe_request(
                 self.format_mirror_url(mirror.url, set_id)
             )
 
+            if response.status_code == 429:
+                # Rate limited, try again later
+                self.set_ratelimit(mirror.url)
+                continue
+
             if not response.ok:
-                if response.status_code != 404:
-                    # Prevent flooding the console with 404 errors lol
-                    self.log_error(response.url, response.status_code)
+                self.log_error(response.url, response.status_code)
                 continue
 
             return response.content

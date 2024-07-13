@@ -38,7 +38,7 @@ class Storage:
             aws_secret_access_key=config.S3_SECRET_KEY
         )
 
-        self.api = Beatmaps()
+        self.api = Beatmaps(self.cache)
 
     def get_avatar(self, id: str) -> bytes | None:
         if (image := self.get_from_cache(f'avatar:{id}')):
