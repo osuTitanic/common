@@ -40,6 +40,16 @@ def fetch_one(
         .first()
 
 @session_wrapper
+def fetch_one_by_post(
+    post_id: int,
+    session: Session = ...
+) -> DBBeatmapModding | None:
+    return session.query(DBBeatmapModding) \
+        .filter(DBBeatmapModding.post_id == post_id) \
+        .order_by(DBBeatmapModding.id.desc()) \
+        .first()
+
+@session_wrapper
 def fetch_by_post_and_sender(
     post_id: int,
     sender_id: int,
