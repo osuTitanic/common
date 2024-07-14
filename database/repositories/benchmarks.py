@@ -14,6 +14,7 @@ def create(
     framerate: int,
     score: int,
     grade: str,
+    client: str
     session: Session = ...
 ) -> DBBenchmark:
     session.add(
@@ -22,7 +23,8 @@ def create(
             smoothness=smoothness,
             framerate=framerate,
             score=score,
-            grade=grade
+            grade=grade,
+            client=client
         )
     )
     session.commit()
