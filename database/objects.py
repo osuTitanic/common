@@ -1162,6 +1162,7 @@ class DBBenchmark(Base):
     score      = Column('score', BigInteger)
     grade      = Column('grade', String, default='N')
     created_at = Column('created_at', DateTime, server_default=func.now())
+    client     = Column('client', String)
 
     user = relationship('DBUser', back_populates='benchmarks')
 
