@@ -126,16 +126,49 @@ class Storage:
         return stream.get()
 
     def get_osz(self, set_id: int) -> bytes | None:
+        if (osz := self.get_from_cache(f'osz:{set_id}')):
+            return osz
+
         if not (osz := self.api.osz(set_id)):
             return
+
+        self.save_to_cache(
+            name=f'osz:{set_id}',
+            content=osz,
+            expiry=timedelta(hours=12)
+        )
 
         return osz.content
 
     def get_osz_internal(self, set_id: int) -> bytes | None:
-        return self.get(set_id, 'osz')
+        if (osz := self.get_from_cache(f'osz:{set_id}')):
+            return osz
+
+        if not (osz := self.get(set_id, 'osz')):
+            return
+
+        self.save_to_cache(
+            name=f'osz:{set_id}',
+            content=osz,
+            expiry=timedelta(hours=12)
+        )
+
+        return osz
 
     def get_osz2_internal(self, set_id: int) -> bytes | None:
-        return self.get(set_id, 'osz2')
+        if (osz2 := self.get_from_cache(f'osz2:{set_id}')):
+            return osz2
+
+        if not (osz2 := self.get(set_id, 'osz2')):
+            return
+
+        self.save_to_cache(
+            name=f'osz2:{set_id}',
+            content=osz2,
+            expiry=timedelta(hours=12)
+        )
+
+        return osz2
 
     def get_beatmap(self, id: int) -> bytes | None:
         if (osu := self.get_from_cache(f'osu:{id}')):
@@ -244,9 +277,19 @@ class Storage:
 
     def upload_osz(self, set_id: int, content: bytes):
         self.save(set_id, content, 'osz')
+        self.save_to_cache(
+            name=f'osz:{set_id}',
+            content=content,
+            expiry=timedelta(hours=12)
+        )
 
     def upload_osz2(self, set_id: int, content: bytes):
         self.save(set_id, content, 'osz2')
+        self.save_to_cache(
+            name=f'osz2:{set_id}',
+            content=content,
+            expiry=timedelta(hours=12)
+        )
 
     def upload_avatar(self, id: int, content: bytes):
         self.save(id, content, 'avatars')
