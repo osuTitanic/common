@@ -28,9 +28,28 @@ def text_search_condition(query_string: str):
         DBBeatmap.search
     ]
 
+    words = [
+        word.strip()
+        for word in query_string.split(' ')
+    ]
+
+    main_tsquery = func.plainto_tsquery(
+        'simple',
+        query_string
+    )
+
+    fuzzy_tsquery = func.to_tsquery(
+        'simple',
+        ' & '.join(f'{word}:*' for word in words)
+    )
+
     return or_(
         *[
-            column.op('@@')(func.plainto_tsquery('simple', query_string))
+            column.op('@@')(main_tsquery)
+            for column in search_columns
+        ],
+        *[
+            column.op('@@')(fuzzy_tsquery)
             for column in search_columns
         ]
     )
