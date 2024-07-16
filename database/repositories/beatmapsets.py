@@ -22,15 +22,22 @@ from sqlalchemy import func, or_
 from datetime import datetime
 from typing import List
 
+import re
+
 def text_search_condition(query_string: str):
     search_columns = [
         DBBeatmapset.search,
         DBBeatmap.search
     ]
 
+    sanitized_query = re.sub(
+        r'[^\w\s]', '',
+        query_string
+    )
+
     words = [
         word.strip()
-        for word in query_string.split(' ')
+        for word in sanitized_query.split()
     ]
 
     main_tsquery = func.plainto_tsquery(
