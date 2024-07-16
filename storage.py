@@ -125,11 +125,11 @@ class Storage:
 
         return stream.get()
 
-    def get_osz(self, set_id: int) -> bytes | None:
+    def get_osz(self, set_id: int, no_video: bool = False) -> bytes | None:
         if (osz := self.get_from_cache(f'osz:{set_id}')):
             return osz
 
-        if not (osz := self.api.osz(set_id)):
+        if not (osz := self.api.osz(set_id, no_video)):
             return
 
         self.save_to_cache(
