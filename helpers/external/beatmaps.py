@@ -88,10 +88,7 @@ class Beatmaps:
     def osu(self, beatmap_id: int) -> bytes | None:
         self.logger.debug(f'Downloading beatmap... ({beatmap_id})')
 
-        mirrors = resources.fetch_by_type(
-            type=2,
-            server=self.determine_server(beatmap_id)
-        )
+        mirrors = resources.fetch_by_type_all(2)
 
         for mirror in mirrors:
             if self.check_ratelimit(mirror.url):
