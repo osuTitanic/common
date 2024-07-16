@@ -16,6 +16,7 @@ class Beatmaps:
 
     def __init__(self, cache: Redis) -> None:
         self.logger = logging.getLogger('beatmap-api')
+        self.id_offset = 1000000000
 
         self.session = Session()
         self.session.headers = {'User-Agent': 'osuTitanic/titanic'}
@@ -47,10 +48,18 @@ class Beatmaps:
         finally:
             return response
 
+    def determine_server(self, id: int) -> int:
+        # NOTE: This is a very hacky way to determine the server,
+        #       but it works for now.
+        return int(id >= self.id_offset)
+
     def osz(self, set_id: int, no_video: bool = False) -> Response | None:
         self.logger.debug(f'Downloading osz... ({set_id})')
 
-        mirrors = resources.fetch_by_type_all(1 if no_video else 0)
+        mirrors = resources.fetch_by_type(
+            type=1 if no_video else 0,
+            server=self.determine_server(set_id)
+        )
 
         for mirror in mirrors:
             if self.check_ratelimit(mirror.url):
@@ -79,7 +88,10 @@ class Beatmaps:
     def osu(self, beatmap_id: int) -> bytes | None:
         self.logger.debug(f'Downloading beatmap... ({beatmap_id})')
 
-        mirrors = resources.fetch_by_type_all(2)
+        mirrors = resources.fetch_by_type(
+            type=2,
+            server=self.determine_server(beatmap_id)
+        )
 
         for mirror in mirrors:
             if self.check_ratelimit(mirror.url):
@@ -110,7 +122,10 @@ class Beatmaps:
     def preview(self, set_id: int) -> bytes | None:
         self.logger.debug(f'Downloading preview... ({set_id})')
 
-        mirrors = resources.fetch_by_type_all(5)
+        mirrors = resources.fetch_by_type(
+            type=5,
+            server=self.determine_server(set_id)
+        )
 
         for mirror in mirrors:
             if self.check_ratelimit(mirror.url):
@@ -134,7 +149,10 @@ class Beatmaps:
     def background(self, set_id: int, large=False) -> bytes | None:
         self.logger.debug(f'Downloading background... ({set_id})')
 
-        mirrors = resources.fetch_by_type_all(4 if large else 3)
+        mirrors = resources.fetch_by_type(
+            type=4 if large else 3,
+            server=self.determine_server(set_id)
+        )
 
         for mirror in mirrors:
             if self.check_ratelimit(mirror.url):
