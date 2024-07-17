@@ -16,24 +16,25 @@ class DatabaseStatus(IntEnum):
         return list(cls._value2member_map_.keys())
 
 class SubmissionStatus(IntEnum):
-    NotSubmitted   = -1
-    Pending        = 0
-    Unknown        = 1
-    EditableCutoff = 2
-    Approved       = 3
-    Ranked         = 4
+    NotSubmitted = -1
+    Pending      = 0
+    Unknown      = 1
+    Qualified    = 2
+    Approved     = 3
+    Ranked       = 4
+    Loved        = 5
 
     @classmethod
     def from_database(cls, status: int):
         return {
-            -3: SubmissionStatus.NotSubmitted,   # Inactive
-            -2: SubmissionStatus.Pending,        # Graveyard
-            -1: SubmissionStatus.Pending,        # WIP
-            0:  SubmissionStatus.Pending,        # Pending
-            1:  SubmissionStatus.Ranked,         # Ranked
-            2:  SubmissionStatus.Approved,       # Approved
-            3:  SubmissionStatus.EditableCutoff, # Qualified
-            4:  SubmissionStatus.Approved        # Loved
+            -3: SubmissionStatus.NotSubmitted, # Inactive
+            -2: SubmissionStatus.Pending,      # Graveyard
+            -1: SubmissionStatus.Pending,      # WIP
+            0:  SubmissionStatus.Pending,      # Pending
+            1:  SubmissionStatus.Ranked,       # Ranked
+            2:  SubmissionStatus.Approved,     # Approved
+            3:  SubmissionStatus.Qualified,    # Qualified
+            4:  SubmissionStatus.Loved         # Loved
         }[status]
 
 class LegacyStatus(IntEnum):
