@@ -37,6 +37,19 @@ class SubmissionStatus(IntEnum):
             4:  SubmissionStatus.Loved         # Loved
         }[status]
 
+    @classmethod
+    def from_database_legacy(cls, status: int):
+        return {
+            -3: SubmissionStatus.NotSubmitted, # Inactive
+            -2: SubmissionStatus.Pending,      # Graveyard
+            -1: SubmissionStatus.Pending,      # WIP
+            0:  SubmissionStatus.Pending,      # Pending
+            1:  SubmissionStatus.Ranked,       # Ranked
+            2:  SubmissionStatus.Approved,     # Approved
+            3:  SubmissionStatus.Qualified,    # Qualified
+            4:  SubmissionStatus.Approved      # Loved
+        }[status]
+
 class LegacyStatus(IntEnum):
     NotSubmitted = -1
     Pending      = 0
