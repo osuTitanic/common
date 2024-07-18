@@ -82,6 +82,15 @@ def fetch_initial_post_id(topic_id: int, session: Session = ...) -> DBForumPost 
     return result.id if result else None
 
 @session_wrapper
+def fetch_topic_id(post_id: int, session: Session = ...) -> int | None:
+    result = session.query(DBForumPost.topic_id) \
+        .filter(DBForumPost.hidden == False) \
+        .filter(DBForumPost.id == post_id) \
+        .first()
+
+    return result.topic_id if result else None
+
+@session_wrapper
 def fetch_last(topic_id: int, session: Session = ...) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
