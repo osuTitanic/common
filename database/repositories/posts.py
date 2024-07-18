@@ -72,6 +72,14 @@ def fetch_initial_post(topic_id: int, session: Session = ...) -> DBForumPost | N
         .first()
 
 @session_wrapper
+def fetch_initial_post_id(topic_id: int, session: Session = ...) -> DBForumPost | None:
+    return session.query(DBForumPost.id) \
+        .filter(DBForumPost.topic_id == topic_id) \
+        .filter(DBForumPost.hidden == False) \
+        .order_by(DBForumPost.id.asc()) \
+        .scalar()
+
+@session_wrapper
 def fetch_last(topic_id: int, session: Session = ...) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
