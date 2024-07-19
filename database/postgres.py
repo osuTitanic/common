@@ -1,6 +1,6 @@
 
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from contextlib import contextmanager
 
 from .objects import Base
@@ -8,6 +8,7 @@ from .. import officer
 
 import logging
 import config
+import time
 
 class Postgres:
     def __init__(self, username: str, password: str, host: str, port: int) -> None:
@@ -31,6 +32,7 @@ class Postgres:
         )
 
         self.logger = logging.getLogger('postgres')
+        self.wait_for_connection()
 
     @property
     def session(self) -> Session:
@@ -57,3 +59,13 @@ class Postgres:
             raise e
         finally:
             session.close()
+
+    def wait_for_connection(self):
+        while True:
+            try:
+                self.session.execute(text('SELECT 1'))
+                break
+            except Exception as e:
+                self.logger.warning(f'Failed to connect to database: "{e}"')
+                self.logger.warning('Retrying...')
+                time.sleep(1)
