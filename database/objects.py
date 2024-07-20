@@ -1265,13 +1265,12 @@ class DBUser(Base):
 
     @property
     def is_supporter(self) -> bool:
-        # TODO: Add group check
-        return True
+        return self.check_groups([1, 2, 999])
 
     def check_groups(self, ids: List[int]) -> bool:
         return any(group in self.group_ids for group in ids)
 
-    # NOTE: These are required attributes for Flask-Login
+    ## Required attributes for Flask-Login
 
     @property
     def is_active(self):
