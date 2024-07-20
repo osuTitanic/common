@@ -50,6 +50,11 @@ LOGGED_IN_FROM_ANOTHER_LOCATION = '\n'.join([
     'Please change your password immediately, if this login was not authorized by you!'
 ])
 
+NOT_ACTIVATED = '\n'.join([
+    'Your account is not yet activated. '
+    'Please check your email for activation instructions!'
+])
+
 UNSUPPORTED_HASH = '\n'.join([
     'The version of osu! you are using is made for testers only.',
     'Please download a different version of osu! from the website!'
