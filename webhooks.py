@@ -104,9 +104,9 @@ class Webhook:
             "Webhook must contain at least one " "of (content, file, embeds)."
         )
 
-        assert not self.content or len(self.content) <= 2000, (
-            "Webhook content must be under 2000 characters."
-        )
+        if len(self.content) > 2000:
+            # Truncate content if it's too long
+            self.content = self.content[:1997] + "..."
 
         payload: dict[str, Any] = {"embeds": []}
 
