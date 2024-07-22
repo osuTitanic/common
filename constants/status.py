@@ -25,7 +25,10 @@ class SubmissionStatus(IntEnum):
     Loved        = 5
 
     @classmethod
-    def from_database(cls, status: int):
+    def from_database(cls, status: int, version: int = 0):
+        if version < 4:
+            return cls.from_database_legacy(status)
+
         return {
             -3: SubmissionStatus.NotSubmitted, # Inactive
             -2: SubmissionStatus.Pending,      # Graveyard
