@@ -173,3 +173,13 @@ def delete_by_topic_id(
         .filter(DBForumPost.topic_id == topic_id) \
         .delete()
     session.commit()
+
+@session_wrapper
+def delete_by_set_id(
+    set_id: int,
+    session: Session = ...
+) -> None:
+    session.query(DBBeatmapModding) \
+        .filter(DBBeatmapModding.set_id == set_id) \
+        .delete()
+    session.commit()
