@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBBeatmapModding
+from app.common.database.objects import DBBeatmapModding, DBForumPost
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
 from typing import List
@@ -160,5 +160,16 @@ def delete_by_post(
 ) -> None:
     session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.post_id == post_id) \
+        .delete()
+    session.commit()
+
+@session_wrapper
+def delete_by_topic_id(
+    topic_id: int,
+    session: Session = ...
+) -> None:
+    session.query(DBBeatmapModding) \
+        .join(DBForumPost, DBForumPost.id == DBBeatmapModding.post_id) \
+        .filter(DBForumPost.topic_id == topic_id) \
         .delete()
     session.commit()
