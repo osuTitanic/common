@@ -430,18 +430,18 @@ def fetch_score_index(
 
     if friends != None:
         query = query.filter(
-                        or_(
-                            DBScore.user_id.in_(friends),
-                            DBScore.user_id == user_id
-                        )
-                     )
+            or_(
+                DBScore.user_id.in_(friends),
+                DBScore.user_id == user_id
+            )
+        )
 
     subquery = query.subquery()
+    result = session.query(subquery.c.rank) \
+        .filter(subquery.c.user_id == user_id) \
+        .first()
 
-    if not (result := session.query(subquery.c.rank) \
-                             .filter(subquery.c.user_id == user_id) \
-                             .first()):
-        # No score was found...?
+    if not result:
         return 0
 
     return result[-1]
@@ -470,10 +470,11 @@ def fetch_score_index_by_id(
         query = query.filter(DBScore.status == 3)
 
     subquery = query.subquery()
+    result = session.query(subquery.c.rank) \
+        .filter(subquery.c.id == score_id) \
+        .first()
 
-    if not (result := session.query(subquery.c.rank) \
-                              .filter(subquery.c.id == score_id) \
-                              .first()):
+    if not result:
         return 0
 
     return result[-1]
