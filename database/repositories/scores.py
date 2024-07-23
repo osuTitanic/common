@@ -174,6 +174,8 @@ def fetch_leader_scores(
             DBScore.mode,
             func.max(DBScore.total_score).label('max_total_score')
         ) \
+        .join(DBScore.beatmap) \
+        .filter(DBBeatmap.status > 0) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status == 3) \
         .group_by(DBScore.beatmap_id, DBScore.mode) \
