@@ -104,7 +104,7 @@ class Webhook:
             "Webhook must contain at least one " "of (content, file, embeds)."
         )
 
-        if len(self.content) > 2000:
+        if self.content and len(self.content) > 2000:
             # Truncate content if it's too long
             self.content = self.content[:1997] + "..."
 
