@@ -154,6 +154,15 @@ def fetch_many(user_ids: tuple, *options, session: Session = ...) -> List[DBUser
               .all()
 
 @session_wrapper
+def fetch_top(limit: int = 50, session: Session = ...) -> List[DBUser]:
+    return session.query(DBUser) \
+        .join(DBStats) \
+        .filter(DBUser.restricted == False) \
+        .order_by(DBStats.rank.asc()) \
+        .limit(limit) \
+        .all()
+
+@session_wrapper
 def fetch_post_count(user_id: int, session: Session = ...) -> int:
     return session.query(DBForumPost) \
         .filter(DBForumPost.user_id == user_id) \
