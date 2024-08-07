@@ -56,7 +56,7 @@ UNSUPPORTED_HASH = '\n'.join([
 ])
 
 MULTIACCOUNTING_DETECTED = '\n'.join([
-    'Our systems have detected that you are using multiple accounts on this server.',
+    'We have detected that you are using multiple accounts on this server.',
     'Please note that multiaccounting is not allowed, and will result in a ban.',
     'If you believe this is a mistake, please contact an admin for further assistance!'
 ])
