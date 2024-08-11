@@ -1,5 +1,5 @@
 
-SIGNATURE = """osu!Titanic | https://osu.{domain}"""
+SIGNATURE = """Titanic! | https://osu.{domain}"""
 
 WELCOME = """\
 Welcome on board, {username}!

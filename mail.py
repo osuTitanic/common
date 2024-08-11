@@ -80,7 +80,7 @@ def send_welcome_email(verification: DBVerification, user: DBUser):
     )
 
     return send(
-        'Welcome to osu!Titanic',
+        'Welcome to Titanic!',
         message,
         user.email
     )
