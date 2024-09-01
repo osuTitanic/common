@@ -124,7 +124,7 @@ storage.list('avatars')
 Function caching is used to cache the results of a function, as the name suggests.
 Here is how to use it:
 
-```
+```python
 from common.helpers import caching
 
 # Add cache with timeout of 10 seconds
