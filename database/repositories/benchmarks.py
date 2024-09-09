@@ -15,7 +15,7 @@ def create(
     score: int,
     grade: str,
     client: str,
-    hardware: str,
+    hardware: dict,
     session: Session = ...
 ) -> DBBenchmark:
     session.add(
