@@ -25,7 +25,7 @@ def create(
             framerate=framerate,
             score=score,
             grade=grade,
-            client=client
+            client=client,
             hardware=hardware
         )
     )
