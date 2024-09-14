@@ -25,7 +25,7 @@ class StreamOut:
 	def align(self, num): self.skip((num - self.pos % num) % num)
 	def available(self): return len(self.data) - self.pos
 	def eof(self): return self.pos >= len(self.data)
-		
+
 	def write(self, data):
 		self.data[self.pos : self.pos + len(data)] = data
 		self.pos += len(data)
@@ -77,7 +77,8 @@ class StreamOut:
 
 	def uleb128(self, value):
 		if value == 0:
-			return b'\x00'
+			self.write(b'\x00')
+			return
 
 		ret = bytearray()
 
@@ -95,7 +96,7 @@ class StreamOut:
 			return
 
 		string = value.encode()
-		length = len(string) # + 1
+		length = len(string)
 
 		self.s8(0x0b)
 		self.uleb128(length)
