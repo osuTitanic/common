@@ -65,7 +65,9 @@ def text_search_condition(query_string: str):
 def create(
     id: int,
     title: str = '',
+    title_unicode: str = '',
     artist: str = '',
+    artist_unicode: str = '',
     creator: str = '',
     source: str = '',
     tags: str = '',
@@ -89,7 +91,9 @@ def create(
         s := DBBeatmapset(
             id=id,
             title=title,
+            title_unicode=title_unicode,
             artist=artist,
+            artist_unicode=artist_unicode,
             creator=creator,
             source=source,
             tags=tags,
