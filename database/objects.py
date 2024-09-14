@@ -310,7 +310,7 @@ class DBBeatmapset(Base):
     approved_at          = Column('approved_date', DateTime, nullable=True)
     approved_by          = Column('approved_by', Integer, ForeignKey('users.id'), nullable=True)
     last_update          = Column('last_updated', DateTime, server_default=func.now())
-    added_at             = Column('added_at', DateTime, nullable=True) # only if server is 0 (osu!)
+    added_at             = Column('added_at', DateTime, nullable=True, server_default=func.now())
     osz_filesize         = Column('osz_filesize', Integer, default=0)
     osz_filesize_novideo = Column('osz_filesize_novideo', Integer, default=0)
     language_id          = Column('language_id', SmallInteger, default=1)
@@ -345,56 +345,10 @@ class DBBeatmapset(Base):
 
     @property
     def link(self):
-        name = self.full_name \
-                   .replace('[', '(') \
-                   .replace(']', ')')
-
-        return f'[http://osu.{config.DOMAIN_NAME}/s/{self.id} {name}]'
-
-    def __init__(
-        self,
-        id: int,
-        title: str,
-        artist: str,
-        creator: str,
-        source: str,
-        tags: str,
-        display_title: str,
-        status: int,
-        has_video: bool,
-        has_storyboard: bool,
-        created_at: datetime,
-        approved_at: datetime,
-        last_update: datetime,
-        language_id: int,
-        genre_id: int,
-        osz_filesize: int,
-        osz_filesize_novideo: int = 0,
-        available: bool = True,
-        server: int = 0,
-        creator_id: int = 0
-    ) -> None:
-        self.id = id
-        self.title = title
-        self.artist = artist
-        self.creator = creator
-        self.source = source
-        self.tags = tags
-        self.display_title = display_title
-        self.status = status
-        self.has_video = has_video
-        self.has_storyboard = has_storyboard
-        self.created_at = created_at
-        self.approved_at = approved_at
-        self.last_update = last_update
-        self.language_id = language_id
-        self.genre_id = genre_id
-        self.osz_filesize = osz_filesize
-        self.osz_filesize_novideo = osz_filesize_novideo
-        self.available = available
-        self.server = server
-        self.added_at = datetime.now()
-        self.creator_id = creator_id
+        return (
+            f'[http://osu.{config.DOMAIN_NAME}/s/{self.id} '
+            f'{self.full_name.replace("[", "(").replace("]", ")")}]'
+        )
 
 class DBBeatmap(Base):
     __tablename__ = "beatmaps"

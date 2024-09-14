@@ -87,26 +87,26 @@ def create(
 ) -> DBBeatmapset:
     session.add(
         s := DBBeatmapset(
-            id,
-            title,
-            artist,
-            creator,
-            source,
-            tags,
-            display_title or f'[bold:0,size:20]{artist or ""}|[]{title or ""}',
-            status,
-            has_video,
-            has_storyboard,
-            submit_date or datetime.now(),
-            approved_date,
-            last_update or datetime.now(),
-            language_id,
-            genre_id,
-            osz_filesize,
-            osz_filesize_novideo,
-            available,
-            server,
-            creator_id
+            id=id,
+            title=title,
+            artist=artist,
+            creator=creator,
+            source=source,
+            tags=tags,
+            display_title=display_title or f'[bold:0,size:20]{artist or ""}|[]{title or ""}',
+            status=status,
+            has_video=has_video,
+            has_storyboard=has_storyboard,
+            created_at=submit_date or datetime.now(),
+            approved_at=approved_date,
+            last_update=last_update or datetime.now(),
+            language_id=language_id,
+            genre_id=genre_id,
+            osz_filesize=osz_filesize,
+            osz_filesize_novideo=osz_filesize_novideo,
+            available=available,
+            server=server,
+            creator_id=creator_id
         )
     )
     session.commit()
