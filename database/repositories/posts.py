@@ -123,6 +123,19 @@ def fetch_last_bat_post(topic_id: int, session: Session = ...) -> DBForumPost | 
         .first()
 
 @session_wrapper
+def fetch_previous(
+    post_id: int,
+    topic_id: int,
+    session: Session = ...
+) -> DBForumPost | None:
+    return session.query(DBForumPost) \
+        .filter(DBForumPost.id < post_id) \
+        .filter(DBForumPost.topic_id == topic_id) \
+        .filter(DBForumPost.hidden == False) \
+        .order_by(DBForumPost.id.desc()) \
+        .first()
+
+@session_wrapper
 def fetch_count(topic_id: int, session: Session = ...) -> int:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
