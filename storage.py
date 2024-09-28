@@ -12,6 +12,7 @@ from .database.repositories import scores, wrapper
 from .helpers.external import Beatmaps
 from .streams import StreamOut
 from .helpers import replays
+from .constants import Mods
 
 import hashlib
 import logging
@@ -100,6 +101,12 @@ class Storage:
 
         if not score:
             return
+
+        mods = Mods(score.mods)
+
+        if Mods.Nightcore in mods and Mods.DoubleTime not in mods:
+            # NC requires DT to be present
+            score.mods |= Mods.DoubleTime.value
 
         stream = StreamOut()
         stream.u8(score.mode)
