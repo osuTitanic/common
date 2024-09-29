@@ -181,7 +181,9 @@ def search(
                      .order_by(func.sum(DBBeatmap.playcount).desc())
 
     else:
-        query = query.filter(text_search_condition(query_string))
+        query = query.filter(text_search_condition(query_string)) \
+                     .order_by(func.sum(DBBeatmap.playcount).desc()) \
+                     .group_by(DBBeatmapset.id)
 
     query = {
         DisplayMode.All: query.filter(DBBeatmapset.status > -3),
