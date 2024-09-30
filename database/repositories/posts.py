@@ -112,6 +112,17 @@ def fetch_last_by_user(
         .first()
 
 @session_wrapper
+def fetch_last_by_forum(
+    forum_id: int,
+    session: Session = ...
+) -> DBForumPost | None:
+    return session.query(DBForumPost) \
+        .filter(DBForumPost.forum_id == forum_id) \
+        .filter(DBForumPost.hidden == False) \
+        .order_by(DBForumPost.id.desc()) \
+        .first()
+
+@session_wrapper
 def fetch_last_bat_post(topic_id: int, session: Session = ...) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .join(DBUser, DBForumPost.user_id == DBUser.id) \
