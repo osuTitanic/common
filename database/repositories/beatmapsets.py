@@ -230,6 +230,7 @@ def search_extended(
     sort: BeatmapSortBy,
     has_storyboard: bool,
     has_video: bool,
+    titanic_only: bool,
     offset: int = 0,
     limit: int = 50,
     session: Session = ...
@@ -279,6 +280,9 @@ def search_extended(
 
     if has_video:
         query = query.filter(DBBeatmapset.has_video == True)
+
+    if titanic_only:
+        query = query.filter(DBBeatmapset.server == 1)
 
     if (played is not None and
        user_id is not None):
