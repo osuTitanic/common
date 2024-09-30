@@ -336,6 +336,15 @@ def fetch_inactive(
         .all()
 
 @session_wrapper
+def fetch_server_id(
+    beatmapset_id: int,
+    session: Session = ...
+) -> int:
+    return session.query(DBBeatmapset.server) \
+        .filter(DBBeatmapset.id == beatmapset_id) \
+        .scalar() or 0
+
+@session_wrapper
 def update(
     beatmapset_id: int,
     updates: dict,

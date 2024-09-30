@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from ...database.repositories import resources
+from ...database.repositories import resources, beatmapsets
 
 from requests import Session, Response
 from urllib.parse import urlparse
@@ -9,8 +9,6 @@ from redis import Redis
 
 import logging
 import config
-import time
-
 class Beatmaps:
     """Wrapper for different beatmap resources, using different API's"""
 
@@ -49,9 +47,7 @@ class Beatmaps:
             return response
 
     def determine_server(self, id: int) -> int:
-        # NOTE: This is a very hacky way to determine the server,
-        #       but it works for now.
-        return int(id >= self.id_offset)
+        return beatmapsets.fetch_server_id(id)
 
     def osz(self, set_id: int, no_video: bool = False) -> Response | None:
         self.logger.debug(f'Downloading osz... ({set_id})')
