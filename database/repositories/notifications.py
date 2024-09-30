@@ -87,3 +87,15 @@ def update(
         .update(updates)
     session.commit()
     return rows
+
+@session_wrapper
+def update_by_user_id(
+    user_id: int,
+    updates: dict,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBNotification) \
+        .filter(DBNotification.user_id == user_id) \
+        .update(updates)
+    session.commit()
+    return rows
