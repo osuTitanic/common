@@ -64,6 +64,8 @@ class BeatmapCategory(IntEnum):
     Loved = 4
     Approved = 5
     Pending = 6
+    WIP = 7
+    Graveyard = 8
 
     @classmethod
     def values(cls) -> list:

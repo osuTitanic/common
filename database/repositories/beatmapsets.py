@@ -292,6 +292,8 @@ def search_extended(
     query = query.filter({
         BeatmapCategory.Any: (DBBeatmapset.status > -3),
         BeatmapCategory.Leaderboard: (DBBeatmapset.status > 0),
+        BeatmapCategory.Graveyard: (DBBeatmapset.status == -2),
+        BeatmapCategory.WIP: (DBBeatmapset.status == -1),
         BeatmapCategory.Pending: (DBBeatmapset.status == 0),
         BeatmapCategory.Ranked: (DBBeatmapset.status == 1),
         BeatmapCategory.Approved: (DBBeatmapset.status == 2),
