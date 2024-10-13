@@ -153,6 +153,11 @@ def remove_country(
         )
 
         app.session.redis.zrem(
+            f'bancho:clears:{mode}:{country.lower()}',
+            user_id
+        )
+
+        app.session.redis.zrem(
             f'bancho:ppvn:{mode}:{country.lower()}',
             user_id
         )
@@ -220,6 +225,16 @@ def remove(
 
         app.session.redis.zrem(
             f'bancho:acc:{mode}:{country.lower()}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:clears:{mode}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:clears:{mode}:{country.lower()}',
             user_id
         )
 
