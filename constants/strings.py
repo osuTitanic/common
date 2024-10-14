@@ -1,5 +1,5 @@
 
-ANCHOR_WEB_RESPONSE = '''
+ANCHOR_WEB_RESPONSE = r'''
 <pre>
         _-_
        |(_)|
@@ -23,7 +23,7 @@ deck: <a href="https://github.com/osuTitanic/deck">https://github.com/osuTitanic
 </pre>
 '''
 
-ANCHOR_ASCII_ART = '''
+ANCHOR_ASCII_ART = r'''
         _-_
        |(_)|
         |||
