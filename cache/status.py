@@ -78,7 +78,7 @@ def get(player_id: int) -> bUserStats | None:
         accuracy=float(stats[b'accuracy']),
         playcount=int(stats[b'playcount']),
         rank=int(stats[b'rank']),
-        pp=int(stats[b'pp'])
+        pp=float(stats[b'pp'])
     )
 
 def get_keys() -> List[str]:
