@@ -212,8 +212,8 @@ user_id = 2
 
 status.exists(user_id) # Check if a player is connected to bancho
 status.version(user_id) # Get the current version of the players client
-status.get(user_id) # Returns bStatusUpdate object
-status.get_all() # Get all players' statuses
+status.get(user_id) # Returns bUserStats object
+status.get_keys() # Get all status keys
 status.client_hash(user_id) # Get the client hash of a player
 
 # Functions that should only be used by bancho
