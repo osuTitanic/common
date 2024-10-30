@@ -74,7 +74,7 @@ class Storage:
         )
 
         return image
-    
+
     def get_replay(self, id: int) -> bytes | None:
         if (replay := self.get_from_cache(f'osr:{id}')):
             return replay
@@ -142,7 +142,7 @@ class Storage:
         self.save_to_cache(
             name=f'osz:{set_id}',
             content=osz,
-            expiry=timedelta(hours=12)
+            expiry=timedelta(hours=6)
         )
 
         return osz.content
@@ -157,7 +157,7 @@ class Storage:
         self.save_to_cache(
             name=f'osz:{set_id}',
             content=osz,
-            expiry=timedelta(hours=12)
+            expiry=timedelta(hours=6)
         )
 
         return osz
@@ -172,7 +172,7 @@ class Storage:
         self.save_to_cache(
             name=f'osz2:{set_id}',
             content=osz2,
-            expiry=timedelta(hours=12)
+            expiry=timedelta(hours=6)
         )
 
         return osz2
@@ -225,7 +225,7 @@ class Storage:
         self.save_to_cache(
             name=f'mt:{id}',
             content=image,
-            expiry=timedelta(weeks=3)
+            expiry=timedelta(days=1)
         )
 
         return image
@@ -242,7 +242,7 @@ class Storage:
         self.save_to_cache(
             name=f'mt:{set_id}l',
             content=image,
-            expiry=timedelta(weeks=3)
+            expiry=timedelta(days=1)
         )
 
         return image
@@ -303,7 +303,7 @@ class Storage:
         self.save_to_cache(
             name=f'avatar:{id}',
             content=content,
-            expiry=timedelta(weeks=1)
+            expiry=timedelta(days=1)
         )
 
     def upload_screenshot(self, id: int, content: bytes):
@@ -335,7 +335,7 @@ class Storage:
         self.save_to_cache(
             name=f'mt:{set_id}l',
             content=content,
-            expiry=timedelta(weeks=3)
+            expiry=timedelta(days=1)
         )
 
     def upload_mp3(self, set_id: int, content: bytes):
