@@ -1219,6 +1219,10 @@ class DBUser(Base):
         return self.check_groups([1, 2, 3])
 
     @property
+    def is_verified(self) -> bool:
+        return self.check_groups([1, 2, 998])
+
+    @property
     def is_supporter(self) -> bool:
         return self.check_groups([1, 2, 999])
 
