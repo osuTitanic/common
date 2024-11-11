@@ -26,11 +26,19 @@ class Mods(IntFlag):
     Key8        = 1 << 19
     FadeIn      = 1 << 20
     Random      = 1 << 21
-    LastMod     = 1 << 29
+    Cinema      = 1 << 22
+    Target      = 1 << 23
+    Key9        = 1 << 24
+    KeyCoop     = 1 << 25
+    Key1        = 1 << 26
+    Key3        = 1 << 27
+    Key2        = 1 << 28
+    ScoreV2     = 1 << 29
+    Mirror      = 1 << 30
 
-    KeyMod = Key4 | Key5 | Key6 | Key7 | Key8
-    SpeedMods = DoubleTime | HalfTime| Nightcore
+    KeyMod = Key1 | Key2 | Key3 | Key4 | Key5 | Key6 | Key7 | Key8 | Key9 | KeyCoop
     FreeModAllowed = NoFail | Easy | Hidden | HardRock | SuddenDeath | Flashlight | FadeIn | Relax | Autopilot | SpunOut | KeyMod
+    SpeedMods = DoubleTime | HalfTime| Nightcore
 
     @property
     def members(self) -> list:
