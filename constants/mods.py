@@ -74,6 +74,15 @@ class Mods(IntFlag):
                 Mods.Key8: "K8",
                 Mods.FadeIn: "FI",
                 Mods.Random: "RD",
+                Mods.Cinema: "CN",
+                Mods.Target: "TP",
+                Mods.Key9: "K9",
+                Mods.KeyCoop: "CP",
+                Mods.Key1: "K1",
+                Mods.Key3: "K3",
+                Mods.Key2: "K2",
+                Mods.ScoreV2: "SV2",
+                Mods.Mirror: "MR",
                 Mods.SpeedMods: "",
                 Mods.KeyMod: "",
                 Mods.FreeModAllowed: ""
@@ -113,7 +122,16 @@ class Mods(IntFlag):
             "K7": Mods.Key7,
             "K8": Mods.Key8,
             "FI": Mods.FadeIn,
-            "RD": Mods.Random
+            "RD": Mods.Random,
+            "CN": Mods.Cinema,
+            "TP": Mods.Target,
+            "K9": Mods.Key9,
+            "CP": Mods.KeyCoop,
+            "K1": Mods.Key1,
+            "K3": Mods.Key3,
+            "K2": Mods.Key2,
+            "SV2": Mods.ScoreV2,
+            "MR": Mods.Mirror
         }
 
         for mod in parsed_mods:
