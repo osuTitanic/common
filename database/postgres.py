@@ -34,6 +34,13 @@ class Postgres:
         self.logger = logging.getLogger('postgres')
         self.wait_for_connection()
 
+        self.ignored_exceptions = (
+            'HTTPException',
+            'Unauthorized',
+            'Forbidden',
+            'NotFound'
+        )
+
     @property
     def session(self) -> Session:
         return self.sessionmaker(bind=self.engine)
@@ -49,9 +56,8 @@ class Postgres:
             yield session
         except Exception as e:
             exception_name = e.__class__.__name__
-            ignored = ('HTTPException', 'NotFound')
 
-            if exception_name not in ignored:
+            if exception_name not in self.ignored_exceptions:
                 officer.call(f'Transaction failed: {e}', exc_info=e)
                 self.logger.fatal('Performing rollback...')
 
