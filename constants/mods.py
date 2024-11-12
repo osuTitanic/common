@@ -76,7 +76,6 @@ class Mods(IntFlag):
                 Mods.Random: "RD",
                 Mods.SpeedMods: "",
                 Mods.KeyMod: "",
-                Mods.LastMod: "",
                 Mods.FreeModAllowed: ""
             }[mod]
             for mod in self.members
