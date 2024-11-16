@@ -17,7 +17,7 @@ USERNAME = re.compile(
 )
 
 DISCORD_USERNAME = re.compile(
-    r'^[a-z0-9_-]{3,15}$'
+    r'^[a-z0-9_-]{3,32}$'
 )
 
 URL = re.compile(
