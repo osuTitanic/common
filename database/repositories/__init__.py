@@ -26,6 +26,7 @@ from . import (
     scores,
     logins,
     posts,
+    packs,
     names,
     stats,
     plays,
