@@ -85,7 +85,7 @@ def fetch_by_category(
     session: Session = ...
 ) -> List[DBBeatmapPack]:
     return session.query(DBBeatmapPack) \
-        .filter(DBBeatmapPack.category == category) \
+        .filter(DBBeatmapPack.category.ilike(category)) \
         .all()
 
 @session_wrapper
