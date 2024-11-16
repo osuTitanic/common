@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from app.common.database.objects import DBBeatmapPack, DBBeatmapPackEntry
 from sqlalchemy.orm import Session
+from datetime import datetime
 from typing import List
 
 from .wrapper import session_wrapper
@@ -41,6 +42,7 @@ def update(
     updates: dict,
     session: Session = ...
 ) -> int:
+    updates.update({'updated_at': datetime.now()})
     updated = session.query(DBBeatmapPack) \
         .filter(DBBeatmapPack.id == id) \
         .update(updates)
