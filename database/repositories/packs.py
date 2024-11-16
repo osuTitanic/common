@@ -80,6 +80,15 @@ def fetch_all(
         .all()
 
 @session_wrapper
+def fetch_by_category(
+    category: str,
+    session: Session = ...
+) -> List[DBBeatmapPack]:
+    return session.query(DBBeatmapPack) \
+        .filter(DBBeatmapPack.category == category) \
+        .all()
+
+@session_wrapper
 def fetch_categories(session: Session = ...) -> List[str]:
     categories = session.query(DBBeatmapPack.category) \
         .distinct() \
