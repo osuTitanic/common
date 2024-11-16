@@ -77,6 +77,7 @@ def fetch_all(
     session: Session = ...
 ) -> List[DBBeatmapPack]:
     return session.query(DBBeatmapPack) \
+        .order_by(DBBeatmapPack.id.asc()) \
         .all()
 
 @session_wrapper
@@ -86,6 +87,7 @@ def fetch_by_category(
 ) -> List[DBBeatmapPack]:
     return session.query(DBBeatmapPack) \
         .filter(DBBeatmapPack.category.ilike(category)) \
+        .order_by(DBBeatmapPack.id.asc()) \
         .all()
 
 @session_wrapper
