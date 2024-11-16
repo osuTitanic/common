@@ -1144,6 +1144,7 @@ class DBBeatmapPackEntry(Base):
     created_at = Column('created_at', DateTime, server_default=func.now())
 
     pack = relationship('DBBeatmapPack', back_populates='entries')
+    beatmapset = relationship('DBBeatmapset')
 
 class DBUser(Base):
     __tablename__ = "users"
