@@ -1121,6 +1121,30 @@ class DBBenchmark(Base):
 
     user = relationship('DBUser', back_populates='benchmarks')
 
+class DBBeatmapPack(Base):
+    __tablename__ = "beatmap_packs"
+
+    id            = Column('id', Integer, primary_key=True, autoincrement=True)
+    name          = Column('name', String)
+    category      = Column('category', String)
+    download_link = Column('download_link', String)
+    description   = Column('description', String, default='')
+    creator_id    = Column('creator_id', Integer, ForeignKey('users.id'))
+    created_at    = Column('created_at', DateTime, server_default=func.now())
+    updated_at    = Column('updated_at', DateTime, server_default=func.now())
+
+    entries = relationship('DBBeatmapPackEntry', back_populates='pack')
+    creator = relationship('DBUser')
+
+class DBBeatmapPackEntry(Base):
+    __tablename__ = "beatmap_pack_entries"
+
+    pack_id = Column('pack_id', Integer, ForeignKey('beatmap_packs.id'), primary_key=True)
+    beatmapset_id = Column('beatmapset_id', Integer, ForeignKey('beatmapsets.id'), primary_key=True)
+    created_at = Column('created_at', DateTime, server_default=func.now())
+
+    pack = relationship('DBBeatmapPack', back_populates='entries')
+
 class DBUser(Base):
     __tablename__ = "users"
 
