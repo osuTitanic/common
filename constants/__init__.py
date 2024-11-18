@@ -13,7 +13,8 @@ from .beatmap import (
     BeatmapCategory,
     BeatmapSortBy,
     BeatmapOrder,
-    BeatmapGenre
+    BeatmapGenre,
+    SendAction
 )
 
 from .bancho import (

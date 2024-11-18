@@ -78,3 +78,13 @@ class BeatmapOrder(IntEnum):
     @classmethod
     def values(cls) -> list:
         return list(cls._value2member_map_.keys())
+
+class SendAction(IntEnum):
+    Standard = 0
+    FirstBeatmap = 1
+    LastBeatmap = 2
+    SingleBeatmap = 3
+
+    @classmethod
+    def values(cls) -> list:
+        return list(cls._value2member_map_.keys())
