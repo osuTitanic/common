@@ -91,10 +91,10 @@ def next_beatmap_id(session: Session = ...) -> int:
 
         return database_id
 
-def decrypt_on_fail(e: Exception) -> None:
-    officer.call(f'Failed to decrypt osz file: "{e}"')
+def process_on_fail(e: Exception) -> None:
+    officer.call(f'Failed to process osz/osu file: "{e}"')
 
-@wrapper.exception_wrapper(decrypt_on_fail)
+@wrapper.exception_wrapper(process_on_fail)
 def decrypt_osz2(osz2_file: bytes) -> dict | None:
     if not config.OSZ2_SERVICE_URL:
         return
@@ -110,7 +110,7 @@ def decrypt_osz2(osz2_file: bytes) -> dict | None:
 
     return response.json()
 
-@wrapper.exception_wrapper(decrypt_on_fail)
+@wrapper.exception_wrapper(process_on_fail)
 def patch_osz2(patch_file: bytes, osz2: bytes) -> bytes | None:
     if not config.OSZ2_SERVICE_URL:
         return
@@ -128,3 +128,19 @@ def patch_osz2(patch_file: bytes, osz2: bytes) -> bytes | None:
         return
 
     return response.content
+
+@wrapper.exception_wrapper(process_on_fail)
+def parse_beatmap(osu_file: bytes) -> dict | None:
+    if not config.OSZ2_SERVICE_URL:
+        return
+
+    response = app.session.requests.post(
+        f'{config.OSZ2_SERVICE_URL}/osu/parse',
+        files={'osu': osu_file}
+    )
+
+    if not response.ok:
+        officer.call(f'Failed to parse osu file: "{response.text}"')
+        return
+
+    return response.json()
