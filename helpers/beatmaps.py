@@ -6,7 +6,7 @@ from app.common.database import DBBeatmapset, DBBeatmap
 from app.common.database.repositories import wrapper
 from app.common import officer
 
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -17,27 +17,36 @@ import app
 
 @dataclass
 class UploadRequest:
-    tickets: List[UploadTicket]
+    set_id: int
+    osz_ticket: str
     has_video: bool
     has_storyboard: bool
-    osz_ticket: str
-    set_id: int
+    metadata: dict
     is_update: bool = False
+    tickets: List[UploadTicket] = field(default_factory=list)
+
+    @property
+    def osz_filename(self) -> str:
+        return (
+            f'{self.set_id} '
+            f'{self.metadata["artist"]} - {self.metadata["title"]} '
+            f'({self.metadata["author"]["username"]})'
+            '.osz'
+        )
 
 @dataclass
 class UploadTicket:
     filename: str
     ticket: str
-    size: int
-    beatmap_data: dict
-    file_data: bytes
+    file: bytes
+    data: dict
 
 def register_upload_request(user_id: int, request: UploadRequest) -> None:
     request_dict = asdict(request)
 
     for ticket in request_dict['tickets']:
         # Serialize the binary file data to base64
-        ticket['file_data'] = base64.b64encode(ticket['file_data']).decode()
+        ticket['file'] = base64.b64encode(ticket['file']).decode()
 
     serialized_request = json.dumps(request_dict)
     app.session.redis.set(f'beatmap_upload:{user_id}', serialized_request, ex=3600)
@@ -50,9 +59,12 @@ def get_upload_request(user_id: int) -> UploadRequest | None:
 
     for ticket in request_dict['tickets']:
         # Deserialize the base64 file data to binary
-        ticket['file_data'] = base64.b64decode(ticket['file_data'])
+        ticket['file'] = base64.b64decode(ticket['file'])
 
     return UploadRequest(**request_dict)
+
+def upload_request_exists(user_id: int) -> bool:
+    return app.session.redis.exists(f'beatmap_upload:{user_id}')
 
 def remove_upload_request(user_id: int) -> None:
     app.session.redis.delete(f'beatmap_upload:{user_id}')
