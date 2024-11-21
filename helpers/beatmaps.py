@@ -26,6 +26,14 @@ class UploadRequest:
     tickets: List[UploadTicket] = field(default_factory=list)
 
     @property
+    def files(self) -> dict:
+        return {ticket.filename: ticket.file for ticket in self.tickets}
+
+    @property
+    def beatmaps(self) -> dict:
+        return {ticket.filename: ticket.data for ticket in self.tickets}
+
+    @property
     def osz_filename(self) -> str:
         return (
             f'{self.set_id} '
