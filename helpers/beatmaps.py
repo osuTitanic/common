@@ -69,7 +69,14 @@ def get_upload_request(user_id: int) -> UploadRequest | None:
         # Deserialize the base64 file data to binary
         ticket['file'] = base64.b64decode(ticket['file'])
 
-    return UploadRequest(**request_dict)
+    tickets = [
+        UploadTicket(**ticket)
+        for ticket in request_dict['tickets']
+    ]
+
+    request = UploadRequest(**request_dict)
+    request.tickets = tickets
+    return request
 
 def upload_request_exists(user_id: int) -> bool:
     return app.session.redis.exists(f'beatmap_upload:{user_id}')
