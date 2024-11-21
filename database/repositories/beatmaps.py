@@ -105,6 +105,12 @@ def fetch_count_with_leaderboards(mode: int, session: Session = ...) -> int:
                   .scalar()
 
 @session_wrapper
+def fetch_id_by_filename(filename: str, session: Session = ...) -> int | None:
+    return session.query(DBBeatmap.id) \
+        .filter(DBBeatmap.filename == filename) \
+        .scalar()
+
+@session_wrapper
 def update(
     beatmap_id: int,
     updates: dict,
