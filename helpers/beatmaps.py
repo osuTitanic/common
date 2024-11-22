@@ -37,8 +37,8 @@ class UploadRequest:
     def osz_filename(self) -> str:
         return (
             f'{self.set_id} '
-            f'{self.metadata["artist"]} - {self.metadata["title"]} '
-            f'({self.metadata["author"]["username"]})'
+            f'{self.metadata["Artist"]} - {self.metadata["Title"]} '
+            f'({self.metadata["Creator"]})'
             '.osz'
         )
 
