@@ -171,3 +171,18 @@ def parse_beatmap(osu_file: bytes) -> dict | None:
         return
 
     return response.json()
+
+@wrapper.exception_wrapper(process_on_fail)
+def format_metadata(lazer_metadata: dict) -> dict:
+    return {
+        'Title': lazer_metadata.get('title'),
+        'TitleUnicode': lazer_metadata.get('title_unicode'),
+        'Artist': lazer_metadata.get('artist'),
+        'ArtistUnicode': lazer_metadata.get('artist_unicode'),
+        'Creator': lazer_metadata.get('author', {}).get('username'),
+        'Source': lazer_metadata.get('source'),
+        'Tags': lazer_metadata.get('tags'),
+        'PreviewTime': lazer_metadata.get('previewTime'),
+        'AudioFile': lazer_metadata.get('audioFile'),
+        'BackgroundFile': lazer_metadata.get('background_file'),
+    }
