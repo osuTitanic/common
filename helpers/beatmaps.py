@@ -14,6 +14,7 @@ import base64
 import config
 import json
 import app
+import re
 
 @dataclass
 class UploadRequest:
@@ -35,12 +36,10 @@ class UploadRequest:
 
     @property
     def osz_filename(self) -> str:
-        return (
-            f'{self.set_id} '
+        return sanitize_filename(
             f'{self.metadata["Artist"]} - {self.metadata["Title"]} '
             f'({self.metadata["Creator"]})'
-            '.osz'
-        )
+        ) + '.osz'
 
 @dataclass
 class UploadTicket:
@@ -83,6 +82,9 @@ def upload_request_exists(user_id: int) -> bool:
 
 def remove_upload_request(user_id: int) -> None:
     app.session.redis.delete(f'beatmap_upload:{user_id}')
+
+def sanitize_filename(filename: str) -> str:
+    return re.sub(r'[<>:"/\\|?*\x00-\x1F]', "_", filename)
 
 @wrapper.session_wrapper
 def next_beatmapset_id(session: Session = ...) -> int:
