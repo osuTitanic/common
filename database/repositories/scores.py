@@ -608,6 +608,20 @@ def fetch_clears(
         .scalar()
 
 @session_wrapper
+def delete(score_id: int, session: Session = ...):
+    session.query(DBScore) \
+        .filter(DBScore.id == score_id) \
+        .delete()
+    session.commit()
+
+@session_wrapper
+def delete_by_beatmap_id(beatmap_id: int, session: Session = ...):
+    session.query(DBScore) \
+        .filter(DBScore.beatmap_id == beatmap_id) \
+        .delete()
+    session.commit()
+
+@session_wrapper
 def restore_hidden_scores(user_id: int, session: Session = ...):
     """This will restore all score status attributes"""
     app.session.logger.info(f'Restoring scores for user: {user_id}...')
