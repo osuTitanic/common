@@ -84,7 +84,7 @@ def remove_upload_request(user_id: int) -> None:
     app.session.redis.delete(f'beatmap_upload:{user_id}')
 
 def sanitize_filename(filename: str) -> str:
-    return re.sub(r'[<>:"/\\|?*\x00-\x1F]', "_", filename)
+    return re.sub(r'[<>:"/\\|?*\x00-\x1F]', "", filename)
 
 @wrapper.session_wrapper
 def next_beatmapset_id(session: Session = ...) -> int:
