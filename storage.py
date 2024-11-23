@@ -408,6 +408,7 @@ class Storage:
             return self.remove_file(f'{bucket}/{key}')
 
     def save_to_cache(self, name: str, content: bytes, expiry=timedelta(days=1), override=True) -> bool:
+        if len(content) > 40_000_000: return True
         return self.cache.set(str(name), content, expiry, nx=(not override))
 
     def get_from_cache(self, name: str) -> bytes | None:
