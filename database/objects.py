@@ -1088,6 +1088,7 @@ class DBRelease(Base):
     name         = Column('name', String, primary_key=True)
     version      = Column('version', Integer)
     description  = Column('description', String, default='')
+    category     = Column('category', String, default='Uncategorized')
     known_bugs   = Column('known_bugs', String, nullable=True)
     supported    = Column('supported', Boolean, default=True)
     recommended  = Column('recommended', Boolean, default=False)
