@@ -1,6 +1,7 @@
 
 from __future__ import annotations
 
+from app.common.constants import Grade
 from app.common.database.objects import (
     DBBeatmap,
     DBScore,
@@ -9,7 +10,6 @@ from app.common.database.objects import (
 
 from sqlalchemy.orm import selectinload, Session
 from sqlalchemy import or_, and_, func
-
 from collections import defaultdict
 from datetime import datetime
 from typing import List, Dict
@@ -315,7 +315,13 @@ def fetch_grades(
     mode: int,
     session: Session = ...
 ) -> Dict[str, int]:
-    grades = session.query(
+    grades = {
+        name: 0
+        for name in Grade.__members__
+        if name not in ('F', 'N')
+    }
+
+    results = session.query(
             DBScore.grade,
             func.count(DBScore.id)
         ) \
@@ -326,7 +332,8 @@ def fetch_grades(
         .group_by(DBScore.grade) \
         .all()
 
-    return {grade: count for grade, count in grades}
+    grades.update({grade: count for grade, count in results})
+    return grades
 
 @session_wrapper
 def fetch_range_scores(
