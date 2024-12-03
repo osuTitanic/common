@@ -128,3 +128,11 @@ def delete_by_set_id(set_id: int, session: Session = ...) -> int:
         .delete()
     session.commit()
     return rows
+
+@session_wrapper
+def delete_by_beatmap_id(beatmap_id: int, session: Session = ...) -> int:
+    rows = session.query(DBPlay) \
+        .filter(DBPlay.beatmap_id == beatmap_id) \
+        .delete()
+    session.commit()
+    return rows
