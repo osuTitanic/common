@@ -386,6 +386,9 @@ class Storage:
         self.remove_from_cache(f'avatar:{id}')
         self.remove(id, 'avatars')
 
+        for size in (25, 120, 120, 128, 256):
+            self.remove_from_cache(f'avatar:{id}:{size}')
+
     def save(self, key: str, content: bytes, bucket: str) -> bool:
         """Save a file to the specified bucket/directory."""
         if config.S3_ENABLED:
