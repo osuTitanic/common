@@ -299,6 +299,7 @@ class Storage:
         )
 
     def upload_avatar(self, id: int, content: bytes):
+        self.remove_avatar(id)
         self.save(id, content, 'avatars')
         self.save_to_cache(
             name=f'avatar:{id}',
