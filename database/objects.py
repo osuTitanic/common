@@ -404,14 +404,14 @@ class DBBeatmap(Base):
         return self.status > 0
 
     @property
+    def approved(self) -> bool:
+        return self.status == 2
+
+    @property
     def awards_pp(self) -> bool:
         if config.APPROVED_MAP_REWARDS:
             return self.status > 0
-        return self.status == 1
-
-    @property
-    def approved(self) -> bool:
-        return self.status == 2
+        return self.status in (1, 2)
 
     def __init__(
         self,
