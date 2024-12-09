@@ -132,7 +132,7 @@ class DBScore(Base):
         self.nGeki          = kwargs.get('nGeki')
         self.nKatu          = kwargs.get('nKatu')
         self.grade          = kwargs.get('grade')
-        self.status_pp         = kwargs.get('status')
+        self.status_pp      = kwargs.get('status')
         self.failtime       = kwargs.get('failtime')
         self.replay_md5     = kwargs.get('replay_md5')
 
