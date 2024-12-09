@@ -10,13 +10,10 @@ from app.common.database.objects import (
 
 from sqlalchemy.orm import selectinload, Session
 from sqlalchemy import or_, and_, func
-from collections import defaultdict
 from datetime import datetime
 from typing import List, Dict
 
 from .wrapper import session_wrapper
-
-import app
 
 @session_wrapper
 def create(score: DBScore, session: Session = ...) -> DBScore:
