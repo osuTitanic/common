@@ -103,10 +103,9 @@ class DBScore(Base):
     nGeki          = Column('ngeki', Integer)
     nKatu          = Column('nkatu', Integer)
     grade          = Column('grade', String, default='N')
-    status         = Column('status', SmallInteger, default=-1)
+    status_pp      = Column('status', SmallInteger, default=-1)
     pinned         = Column('pinned', Boolean, default=False)
     submitted_at   = Column('submitted_at', DateTime, server_default=func.now())
-
     replay_md5     = Column('replay_md5', String, nullable=True)
     failtime       = Column('failtime',  Integer, nullable=True)
 
@@ -133,7 +132,7 @@ class DBScore(Base):
         self.nGeki          = kwargs.get('nGeki')
         self.nKatu          = kwargs.get('nKatu')
         self.grade          = kwargs.get('grade')
-        self.status         = kwargs.get('status')
+        self.status_pp         = kwargs.get('status')
         self.failtime       = kwargs.get('failtime')
         self.replay_md5     = kwargs.get('replay_md5')
 

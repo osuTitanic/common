@@ -103,7 +103,7 @@ def restore(user_id: int, session: Session = ...) -> None:
         ) \
             .filter(DBScore.user_id == user_id) \
             .filter(DBScore.mode == mode) \
-            .filter(DBScore.status == 1) \
+            .filter(DBScore.status_pp == 1) \
             .scalar()
 
         fail_times = (fail_times / 1000) \
@@ -117,7 +117,7 @@ def restore(user_id: int, session: Session = ...) -> None:
             .group_by(DBScore) \
             .filter(DBScore.user_id == 15) \
             .filter(DBScore.mode == 0) \
-            .filter(DBScore.status > 1) \
+            .filter(DBScore.status_pp > 1) \
             .first() or [0]
 
         playtime = map_times[-1] + fail_times
