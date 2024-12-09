@@ -53,9 +53,7 @@ def update_by_beatmap_id(
 def hide_all(user_id: int, session: Session = ...) -> int:
     rows = session.query(DBScore) \
             .filter(DBScore.user_id == user_id) \
-            .update({
-                'status_pp': -1
-            })
+            .update({'hidden': True})
     session.commit()
     return rows
 
@@ -81,12 +79,13 @@ def fetch_count(user_id: int, mode: int, session: Session = ...) -> int:
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .scalar()
 
 @session_wrapper
 def fetch_total_count(session: Session = ...) -> int:
     return session.query(func.count(DBScore.id)) \
-        .filter(DBScore.status_pp != -1) \
+        .filter(DBScore.hidden == False) \
         .scalar()
 
 @session_wrapper
@@ -100,7 +99,8 @@ def fetch_count_beatmap(
 ) -> int:
     query = session.query(func.count(DBScore.id)) \
         .filter(DBScore.beatmap_id == beatmap_id) \
-        .filter(DBScore.mode == mode)
+        .filter(DBScore.mode == mode) \
+        .filter(DBScore.hidden == False)
 
     if country is not None:
         query = query.filter(DBUser.country == country) \
@@ -143,6 +143,7 @@ def fetch_top_scores(
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .order_by(DBScore.pp.desc()) \
         .limit(limit) \
         .offset(offset) \
@@ -158,6 +159,7 @@ def fetch_top_scores_count(
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .scalar()
 
 @session_wrapper
@@ -178,6 +180,7 @@ def fetch_leader_scores(
         .filter(DBBeatmap.status > 0) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .group_by(DBScore.beatmap_id, DBScore.mode) \
         .subquery()
 
@@ -191,6 +194,7 @@ def fetch_leader_scores(
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .order_by(DBScore.id.desc()) \
         .limit(limit) \
         .offset(offset) \
@@ -210,6 +214,7 @@ def fetch_leader_count(
         ) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .group_by(DBScore.beatmap_id, DBScore.mode) \
         .subquery()
 
@@ -223,6 +228,7 @@ def fetch_leader_count(
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .scalar()
 
 @session_wrapper
@@ -249,6 +255,7 @@ def fetch_best(
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .order_by(DBScore.pp.desc()) \
         .all()
 
@@ -264,6 +271,7 @@ def fetch_pinned(
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .filter(DBScore.pinned == True) \
         .order_by(DBScore.pp.desc()) \
         .limit(limit) \
@@ -280,6 +288,7 @@ def fetch_pinned_count(
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .filter(DBScore.pinned == True) \
         .scalar()
 
@@ -298,6 +307,7 @@ def fetch_personal_best(
             .filter(DBScore.user_id == user_id) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.status_pp == 3) \
+            .filter(DBScore.hidden == False) \
             .first()
 
     return session.query(DBScore) \
@@ -306,6 +316,7 @@ def fetch_personal_best(
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(or_(DBScore.status_pp == 3, DBScore.status_pp == 4)) \
+        .filter(DBScore.hidden == False) \
         .filter(DBScore.mods == mods) \
         .first()
 
@@ -328,6 +339,7 @@ def fetch_grades(
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .filter(DBScore.grade != 'F') \
         .group_by(DBScore.grade) \
         .all()
@@ -348,6 +360,7 @@ def fetch_range_scores(
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .order_by(DBScore.total_score.desc()) \
         .offset(offset) \
         .limit(limit) \
@@ -366,6 +379,7 @@ def fetch_range_scores_country(
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .filter(DBUser.country == country) \
         .join(DBScore.user) \
         .limit(limit) \
@@ -384,6 +398,7 @@ def fetch_range_scores_friends(
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .filter(DBScore.user_id.in_(friends)) \
         .limit(limit) \
         .all()
@@ -401,6 +416,7 @@ def fetch_range_scores_mods(
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
         .filter(or_(DBScore.status_pp == 3, DBScore.status_pp == 4)) \
+        .filter(DBScore.hidden == False) \
         .filter(DBScore.mods == mods) \
         .order_by(DBScore.total_score.desc()) \
         .limit(limit) \
@@ -423,6 +439,7 @@ def fetch_score_index(
             ) \
             .filter(DBScore.beatmap_id == beatmap_id) \
             .filter(DBScore.mode == mode) \
+            .filter(DBScore.hidden == False) \
             .order_by(DBScore.total_score.desc())
 
     if mods != None:
@@ -468,6 +485,7 @@ def fetch_score_index_by_id(
             ) \
             .filter(DBScore.beatmap_id == beatmap_id) \
             .filter(DBScore.mode == mode) \
+            .filter(DBScore.hidden == False) \
             .order_by(DBScore.total_score.desc())
 
     if mods != None:
@@ -498,6 +516,7 @@ def fetch_score_index_by_tscore(
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .order_by(func.abs(DBScore.total_score - total_score)) \
         .first()
 
@@ -524,6 +543,7 @@ def fetch_score_above(
         .filter(DBScore.mode == mode) \
         .filter(DBScore.total_score > total_score) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .order_by(DBScore.total_score.asc()) \
         .first()
 
@@ -536,6 +556,7 @@ def fetch_recent(
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.hidden == False) \
         .filter(DBScore.mode == mode) \
         .order_by(DBScore.id.desc()) \
         .limit(limit) \
@@ -552,6 +573,7 @@ def fetch_recent_until(
     return session.query(DBScore) \
         .filter(DBScore.submitted_at > until) \
         .filter(DBScore.status_pp >= min_status) \
+        .filter(DBScore.hidden == False) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .order_by(DBScore.id.desc()) \
@@ -565,6 +587,7 @@ def fetch_recent_all(
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.hidden == False) \
         .order_by(DBScore.id.desc()) \
         .limit(limit) \
         .all()
@@ -578,6 +601,7 @@ def fetch_recent_top_scores(
     return session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .order_by(DBScore.id.desc()) \
         .limit(limit) \
         .all()
@@ -590,17 +614,19 @@ def fetch_pp_record(
 ) -> DBScore:
     if mods == None:
         return session.query(DBScore) \
-                .filter(DBScore.mode == mode) \
-                .filter(DBScore.status_pp > 2) \
-                .order_by(DBScore.pp.desc()) \
-                .first()
-
-    return session.query(DBScore) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.status_pp > 2) \
-            .filter(DBScore.mods == mods) \
+            .filter(DBScore.hidden == False) \
             .order_by(DBScore.pp.desc()) \
             .first()
+
+    return session.query(DBScore) \
+        .filter(DBScore.mode == mode) \
+        .filter(DBScore.status_pp > 2) \
+        .filter(DBScore.hidden == False) \
+        .filter(DBScore.mods == mods) \
+        .order_by(DBScore.pp.desc()) \
+        .first()
 
 @session_wrapper
 def fetch_clears(
@@ -612,6 +638,7 @@ def fetch_clears(
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.hidden == False) \
         .scalar()
 
 @session_wrapper
@@ -631,69 +658,7 @@ def delete_by_beatmap_id(beatmap_id: int, session: Session = ...):
 @session_wrapper
 def restore_hidden_scores(user_id: int, session: Session = ...):
     """This will restore all score status attributes"""
-    app.session.logger.info(f'Restoring scores for user: {user_id}...')
-
-    # Set failed scores to status 1
     session.query(DBScore) \
-            .filter(DBScore.user_id == user_id) \
-            .filter(DBScore.failtime != None) \
-            .filter(DBScore.status_pp == -1) \
-            .update({
-                'status_pp': 1
-            })
+        .filter(DBScore.user_id == user_id) \
+        .update({'hidden': False})
     session.commit()
-
-    # Fetch remaining scores, that are submitted
-    user_scores = session.query(DBScore) \
-            .filter(DBScore.user_id == user_id) \
-            .filter(DBScore.failtime == None) \
-            .filter(DBScore.status_pp == -1) \
-            .all()
-
-    if not user_scores:
-        return
-
-    # Sort scores by beatmap id
-    scores_dict = defaultdict(list)
-
-    for score in user_scores:
-        scores_dict[score.beatmap_id].append(score)
-
-    for beatmap_id, beatmap_scores in scores_dict.items():
-        # Sort scores by pp
-        beatmap_scores.sort(key=lambda x: x.pp, reverse=True)
-
-        # Update best score
-        best_score = beatmap_scores[0]
-        update(best_score.id, {'status_pp': 3}, session=session)
-
-        # Sort scores by mods
-        mods_dict = defaultdict(list)
-
-        for score in beatmap_scores:
-            mods_dict[score.mods].append(score)
-
-        for mods, scores_list in mods_dict.items():
-            # Sort scores by pp
-            scores_list.sort(key=lambda x: x.pp, reverse=True)
-
-            # Get best score with mods
-            mods_best_score = scores_list.pop(0)
-
-            # Update other scores to submitted status
-            for score in scores_list:
-                best_score_ids = (mods_best_score.id, best_score.id)
-
-                if score.id in best_score_ids:
-                    continue
-
-                update(score.id, {'status_pp': 2}, session=session)
-
-            if mods == best_score.mods:
-                # Don't update the best score
-                continue
-
-            # Update best mod-score
-            update(mods_best_score.id, {'status_pp': 4}, session=session)
-
-    app.session.logger.info('Scores have been restored!')

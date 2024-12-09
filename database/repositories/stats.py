@@ -125,6 +125,7 @@ def restore(user_id: int, session: Session = ...) -> None:
         combo_score = session.query(DBScore) \
             .filter(DBScore.user_id == user_id) \
             .filter(DBScore.mode == mode) \
+            .filter(DBScore.hidden == False) \
             .order_by(DBScore.max_combo.desc()) \
             .first()
 
@@ -137,6 +138,7 @@ def restore(user_id: int, session: Session = ...) -> None:
             func.sum(DBScore.total_score)
         ) \
             .filter(DBScore.user_id == user_id) \
+            .filter(DBScore.hidden == False) \
             .filter(DBScore.mode == mode) \
             .scalar() or 0
 
@@ -204,6 +206,7 @@ def restore(user_id: int, session: Session = ...) -> None:
         ) \
             .filter(DBScore.user_id == stats.user_id) \
             .filter(DBScore.mode == stats.mode) \
+            .filter(DBScore.hidden == False) \
             .scalar() or 0
 
         # Update replay views
