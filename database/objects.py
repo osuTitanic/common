@@ -91,6 +91,7 @@ class DBScore(Base):
     checksum       = Column('score_checksum', String)
     mode           = Column('mode', SmallInteger)
     pp             = Column('pp', Float)
+    ppv1           = Column('ppv1', Float)
     acc            = Column('acc', Float)
     total_score    = Column('total_score', BigInteger)
     max_combo      = Column('max_combo', Integer)
