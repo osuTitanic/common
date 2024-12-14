@@ -72,7 +72,7 @@ def calculate_ppv1(
     if score.mode != 1 and (beatmap.passcount / beatmap.playcount) > 0.3:
         base_pp *= 0.2
 
-    result_pp = math.prod([
+    score.ppv1 = math.prod([
         base_pp,
         age_factor,
         ss_bonus,
@@ -85,7 +85,13 @@ def calculate_ppv1(
         acc_factor
     ])
 
-    return max(0, result_pp)
+    scores.update(
+        score.id,
+        {'ppv1': score.ppv1},
+        session=session
+    )
+
+    return max(0, score.ppv1)
 
 def calculate_weight(pps: List[float]) -> float:
     """Calculate the sum of weighted pp for each score"""
@@ -93,15 +99,20 @@ def calculate_weight(pps: List[float]) -> float:
     return sum(pp * 0.95**index for index, pp in enumerate(pps))
 
 @wrapper.session_wrapper
-def calculate_weighted_ppv1(
+def calculate_weighted_ppv1(scores: List[DBScore]) -> float:
+    """Calculate weighted ppv1 with from a list of scores"""
+    return calculate_weight([
+        score.ppv1
+        for score in scores
+    ])
+
+@wrapper.session_wrapper
+def recalculate_weighted_ppv1(
     scores: List[DBScore],
     session: Session = ...
 ) -> float:
     """Calculate weighted ppv1 with from a list of scores"""
     return calculate_weight([
-        calculate_ppv1(
-            score,
-            session
-        )
+        calculate_ppv1(score, session=session)
         for score in scores
     ])
