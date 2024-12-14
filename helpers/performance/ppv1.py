@@ -43,7 +43,6 @@ def calculate_ppv1(
 
     # TODO: Use old eyup star rating
     star_rating = calculate_star_rating(beatmap)
-
     base_pp = math.pow(star_rating, 4) / math.pow(score_rank, 0.5)
 
     # Older scores will give less pp
@@ -57,7 +56,7 @@ def calculate_ppv1(
     # Adjustments for mods
     hr_bonus = 1.1 if (Mods.HardRock in mods) else 1
     dt_bonus = 1.1 if (Mods.DoubleTime in mods) or (Mods.Nightcore in mods) else 1
-    rx_nerf  = 0.6 if (Mods.Relax in mods) or (Mods.Autopilot in mods) else 1
+    rx_nerf  = 0.3 if (Mods.Relax in mods) or (Mods.Autopilot in mods) else 1
     ez_nerf  = 0.2 if (Mods.Easy in mods) or (Mods.HalfTime in mods) else 1
 
     # NOTE: Beatmap popularity is nefed a LOT, since it would inflate pp to the roof
