@@ -98,7 +98,6 @@ def calculate_weight(pps: List[float]) -> float:
     pps.sort(reverse=True)
     return sum(pp * 0.95**index for index, pp in enumerate(pps))
 
-@wrapper.session_wrapper
 def calculate_weighted_ppv1(scores: List[DBScore]) -> float:
     """Calculate weighted ppv1 with from a list of scores"""
     return calculate_weight([
