@@ -12,12 +12,13 @@ from app.common.database.objects import (
     DBBeatmapset,
     DBBeatmap,
     DBRating,
+    DBScore,
     DBPlay
 )
 
 from sqlalchemy.orm import selectinload, Session
+from sqlalchemy import func, select, or_
 from .wrapper import session_wrapper
-from sqlalchemy import func, or_
 
 from datetime import datetime
 from typing import List
@@ -223,6 +224,9 @@ def search_extended(
     genre: int | None,
     language: int | None,
     played: bool | None,
+    unplayed: bool | None,
+    cleared: bool | None,
+    uncleared: bool | None,
     user_id: int | None,
     mode: int | None,
     order: BeatmapOrder,
@@ -284,10 +288,29 @@ def search_extended(
     if titanic_only:
         query = query.filter(DBBeatmapset.server == 1)
 
-    if (played is not None and
-       user_id is not None):
-        query = query.join(DBPlay) \
-                     .filter(DBPlay.user_id == user_id)
+    if user_id is not None:
+        if played is not None:
+            query = query.join(DBPlay) \
+                         .filter(DBPlay.user_id == user_id)
+
+        if cleared is not None:
+            query = query.join(DBScore, DBScore.beatmap_id == DBBeatmap.id) \
+                         .filter(DBScore.user_id == user_id) \
+                         .filter(DBScore.status_pp >= 2)
+
+        if unplayed is not None:
+            subquery = select(DBPlay.beatmap_id) \
+                    .filter(DBPlay.user_id == user_id) \
+                    .subquery()
+
+            query = query.filter(DBBeatmap.id.notin_(subquery))
+
+        if uncleared is not None:
+            subquery = select(DBScore.beatmap_id) \
+                    .filter(DBScore.user_id == user_id) \
+                    .subquery()
+
+            query = query.filter(DBBeatmap.id.notin_(subquery))
 
     query = query.filter({
         BeatmapCategory.Any: (DBBeatmapset.status > -3),
