@@ -7,15 +7,47 @@ from . import officer
 
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+from email.mime.text import MIMEText
+from smtplib import SMTP
 
 import config
 import app
 
 client = SendGridAPIClient(config.SENDGRID_API_KEY)
 
+def smtp(subject: str, message: str, email: str):
+    with SMTP(config.SMTP_HOST, config.SMTP_PORT) as smtp:
+        msg = MIMEText(message, 'plain')
+        msg['Subject'] = subject
+        msg['From'] = config.EMAIL_SENDER
+        msg['To'] = email
+
+        required_extensions = [
+            'starttls',
+            'auth'
+        ]
+
+        for extension in required_extensions:
+            if smtp.has_extn(extension):
+                continue
+
+            app.session.logger.warning(
+                f'Failed to send email: '
+                f'SMTP server does not support {extension}'
+            )
+            return
+
+        try:
+            smtp.starttls()
+            smtp.login(config.SMTP_USER, config.SMTP_PASSWORD)
+            smtp.sendmail(config.EMAIL_SENDER, [email], msg.as_string())
+        except Exception as e:
+            app.session.logger.warning(f'Failed to send email: {e}')
+            officer.call(f'Failed to send email to {email} with subject "{subject}": {e}')
+
 def sendgrid(subject: str, message: str, email: str):
     message = Mail(
-        from_email=config.SENDGRID_EMAIL,
+        from_email=config.EMAIL_SENDER,
         to_emails=email,
         subject=subject,
         html_content=message.replace('\n', '<br>')
@@ -36,10 +68,10 @@ def sendgrid(subject: str, message: str, email: str):
 
 def mailgun(subject: str, message: str, email: str):
     response = app.session.requests.post(
-        f'https://{config.MAILGUN_URL}/v3/{config.MAILGUN_DOMAIN}/messages',
+        f'https://{config.MAILGUN_URL}/v3/{config.EMAIL_DOMAIN}/messages',
         auth=('api', config.MAILGUN_API_KEY),
         data={
-            'from': f'Titanic <{config.MAILGUN_EMAIL}>',
+            'from': f'Titanic <{config.EMAIL_SENDER}>',
             'to': [email],
             'subject': subject,
             'html': message.replace('\n', '<br>')
@@ -64,11 +96,17 @@ def send(subject: str, message: str, email: str):
         app.session.logger.warning(f'Failed to send email: Emails are disabled.')
         return
 
-    if config.SENDGRID_API_KEY:
-        return sendgrid(subject, message, email)
+    providers = {
+        'sendgrid': sendgrid,
+        'mailgun': mailgun,
+        'smtp': smtp
+    }
 
-    if config.MAILGUN_API_KEY:
-        return mailgun(subject, message, email)
+    if not config.EMAIL_PROVIDER in providers:
+        app.session.logger.warning(f'Failed to send email: Invalid email provider ({config.EMAIL_PROVIDER}).')
+        return
+    
+    return providers[config.EMAIL_PROVIDER](subject, message, email)
 
 def send_welcome_email(verification: DBVerification, user: DBUser):
     message = email.WELCOME.format(
