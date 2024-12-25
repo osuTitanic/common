@@ -257,6 +257,20 @@ def fetch_best(
         .all()
 
 @session_wrapper
+def fetch_best_by_score(
+    user_id: int,
+    mode: int,
+    session: Session = ...
+) -> List[DBScore]:
+    return session.query(DBScore) \
+        .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.mode == mode) \
+        .filter(DBScore.status_score == 3) \
+        .filter(DBScore.hidden == False) \
+        .order_by(DBScore.total_score.desc()) \
+        .all()
+
+@session_wrapper
 def fetch_pinned(
     user_id: int,
     mode: int,
