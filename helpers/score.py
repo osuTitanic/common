@@ -26,8 +26,8 @@ def calculate_mod_multiplier(mods: Mods) -> float:
         Mods.DoubleTime: 1.12,
         Mods.Nightcore: 1.12,
         Mods.Flashlight: 1.12,
-        Mods.Relax: 0.5,
-        Mods.Autopilot: 0.5,
+        Mods.Relax: 0.4,
+        Mods.Autopilot: 0.4,
     }
 
     multiplier = functools.reduce(
