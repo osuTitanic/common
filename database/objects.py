@@ -105,6 +105,7 @@ class DBScore(Base):
     nKatu          = Column('nkatu', Integer)
     grade          = Column('grade', String, default='N')
     status_pp      = Column('status', SmallInteger, default=-1)
+    status_score   = Column('status_score', SmallInteger, default=-1)
     pinned         = Column('pinned', Boolean, default=False)
     hidden         = Column('hidden', Boolean, default=False)
     submitted_at   = Column('submitted_at', DateTime, server_default=func.now())
