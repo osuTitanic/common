@@ -75,7 +75,7 @@ def fetch_count(user_id: int, mode: int, session: Session = ...) -> int:
     return session.query(func.count(DBScore.id)) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
         .scalar()
 
@@ -107,10 +107,10 @@ def fetch_count_beatmap(
         query = query.filter(DBScore.user_id.in_(friends))
 
     if mods is not None:
-        query = query.filter(or_(DBScore.status_pp == 3, DBScore.status_pp == 4)) \
+        query = query.filter(or_(DBScore.status_score == 3, DBScore.status_score == 4)) \
                      .filter(DBScore.mods == mods)
     else:
-        query = query.filter(DBScore.status_pp == 3)
+        query = query.filter(DBScore.status_score == 3)
 
     return query.scalar()
 
@@ -176,7 +176,7 @@ def fetch_leader_scores(
         .join(DBScore.beatmap) \
         .filter(DBBeatmap.status > 0) \
         .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
         .group_by(DBScore.beatmap_id, DBScore.mode) \
         .subquery()
@@ -190,7 +190,7 @@ def fetch_leader_scores(
         )) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
         .order_by(DBScore.id.desc()) \
         .limit(limit) \
@@ -210,7 +210,7 @@ def fetch_leader_count(
             func.max(DBScore.total_score).label('max_total_score')
         ) \
         .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
         .group_by(DBScore.beatmap_id, DBScore.mode) \
         .subquery()
@@ -224,7 +224,7 @@ def fetch_leader_count(
         )) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
         .scalar()
 
@@ -318,6 +318,32 @@ def fetch_personal_best(
         .first()
 
 @session_wrapper
+def fetch_personal_best_score(
+    beatmap_id: int,
+    user_id: int,
+    mode: int,
+    mods: int | None = None,
+    session: Session = ...
+) -> int:
+    if mods is None:
+        return session.query(DBScore) \
+            .filter(DBScore.beatmap_id == beatmap_id) \
+            .filter(DBScore.user_id == user_id) \
+            .filter(DBScore.mode == mode) \
+            .filter(DBScore.status_score == 3) \
+            .filter(DBScore.hidden == False) \
+            .first()
+    
+    return session.query(DBScore) \
+        .filter(DBScore.beatmap_id == beatmap_id) \
+        .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.mode == mode) \
+        .filter(or_(DBScore.status_score == 3, DBScore.status_score == 4)) \
+        .filter(DBScore.hidden == False) \
+        .filter(DBScore.mods == mods) \
+        .first()
+
+@session_wrapper
 def fetch_grades(
     user_id: int,
     mode: int,
@@ -335,7 +361,7 @@ def fetch_grades(
         ) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
         .filter(DBScore.grade != 'F') \
         .group_by(DBScore.grade) \
@@ -356,7 +382,7 @@ def fetch_range_scores(
         .options(selectinload(DBScore.user)) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
         .order_by(DBScore.total_score.desc()) \
         .offset(offset) \
@@ -375,7 +401,7 @@ def fetch_range_scores_country(
         .options(selectinload(DBScore.user)) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
         .filter(DBUser.country == country) \
         .join(DBScore.user) \
@@ -394,7 +420,7 @@ def fetch_range_scores_friends(
         .options(selectinload(DBScore.user)) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
         .filter(DBScore.user_id.in_(friends)) \
         .limit(limit) \
@@ -412,7 +438,7 @@ def fetch_range_scores_mods(
         .options(selectinload(DBScore.user)) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
-        .filter(or_(DBScore.status_pp == 3, DBScore.status_pp == 4)) \
+        .filter(or_(DBScore.status_score == 3, DBScore.status_score == 4)) \
         .filter(DBScore.hidden == False) \
         .filter(DBScore.mods == mods) \
         .order_by(DBScore.total_score.desc()) \
@@ -441,9 +467,9 @@ def fetch_score_index(
 
     if mods != None:
         query = query.filter(DBScore.mods == mods) \
-                     .filter(or_(DBScore.status_pp == 3, DBScore.status_pp == 4))
+                     .filter(or_(DBScore.status_score == 3, DBScore.status_score == 4))
     else:
-        query = query.filter(DBScore.status_pp == 3)
+        query = query.filter(DBScore.status_score == 3)
 
     if country != None:
         query = query.join(DBScore.user) \
@@ -487,9 +513,9 @@ def fetch_score_index_by_id(
 
     if mods != None:
         query = query.filter(DBScore.mods == mods) \
-                     .filter(or_(DBScore.status_pp == 3, DBScore.status_pp == 4))
+                     .filter(or_(DBScore.status_score == 3, DBScore.status_score == 4))
     else:
-        query = query.filter(DBScore.status_pp == 3)
+        query = query.filter(DBScore.status_score == 3)
 
     subquery = query.subquery()
     result = session.query(subquery.c.rank) \
@@ -512,7 +538,7 @@ def fetch_score_index_by_tscore(
         .filter(DBScore.total_score > total_score) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
         .order_by(func.abs(DBScore.total_score - total_score)) \
         .first()
@@ -539,7 +565,7 @@ def fetch_score_above(
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.total_score > total_score) \
-        .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
         .order_by(DBScore.total_score.asc()) \
         .first()
@@ -634,7 +660,7 @@ def fetch_clears(
     return session.query(func.count(DBScore.id)) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
         .scalar()
 
