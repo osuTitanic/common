@@ -22,21 +22,6 @@ def smtp(subject: str, message: str, email: str):
         msg['From'] = config.EMAIL_SENDER
         msg['To'] = email
 
-        required_extensions = [
-            'starttls',
-            'auth'
-        ]
-
-        for extension in required_extensions:
-            if smtp.has_extn(extension):
-                continue
-
-            app.session.logger.warning(
-                f'Failed to send email: '
-                f'SMTP server does not support {extension}'
-            )
-            return
-
         try:
             smtp.starttls()
             smtp.login(config.SMTP_USER, config.SMTP_PASSWORD)
