@@ -9,6 +9,7 @@ from redis import Redis
 
 import logging
 import config
+
 class Beatmaps:
     """Wrapper for different beatmap resources, using different API's"""
 
@@ -17,7 +18,7 @@ class Beatmaps:
         self.id_offset = 1000000000
 
         self.session = Session()
-        self.session.headers = {'User-Agent': 'osuTitanic/titanic'}
+        self.session.headers = {'User-Agent': f'osuTitanic ({config.DOMAIN_NAME})'}
         self.cache = cache
 
     def check_ratelimit(self, url: str) -> bool:
