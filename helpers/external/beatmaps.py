@@ -53,11 +53,9 @@ class Beatmaps:
         return beatmapsets.fetch_server_id(id)
 
     def resolve_mirrors(self, type: int, server: int) -> List[DBResourceMirror]:
-        mirror_index = self.cache.get(f'roundrobin:{type}:{server}')
-
-        if mirror_index is None:
-            self.cache.set(f'roundrobin:{type}:{server}', 0, ex=60)
-            mirror_index = 0
+        mirror_index = (
+            self.cache.get(f'roundrobin:{type}:{server}') or 0
+        )
 
         mirrors = [
             mirror for mirror in resources.fetch_by_type(type, server)
