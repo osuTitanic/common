@@ -1,7 +1,9 @@
 
 from __future__ import annotations
+from typing import List
 
 from ...database.repositories import resources, beatmapsets
+from ...database.objects import DBResourceMirror
 
 from requests import Session, Response
 from urllib.parse import urlparse
@@ -37,7 +39,7 @@ class Beatmaps:
 
         self.logger.error(f'Error while sending request to "{url}" ({status_code})')
 
-    def do_safe_request(self, url: str, **kwargs) -> Response | None:
+    def do_safe_request(self, url: str, **kwargs) -> Response:
         try:
             response = self.session.get(url, **kwargs)
         except Exception as e:
@@ -50,18 +52,43 @@ class Beatmaps:
     def determine_server(self, id: int) -> int:
         return beatmapsets.fetch_server_id(id)
 
+    def resolve_mirrors(self, type: int, server: int) -> List[DBResourceMirror]:
+        mirror_index = self.cache.get(f'roundrobin:{type}:{server}')
+
+        if mirror_index is None:
+            self.cache.set(f'roundrobin:{type}:{server}', 0, ex=60)
+            mirror_index = 0
+
+        mirrors = [
+            mirror for mirror in resources.fetch_by_type(type, server)
+            if not self.check_ratelimit(mirror.url)
+        ]
+
+        if not mirrors:
+            return []
+
+        mirror_index = int(mirror_index)
+        next_index = (mirror_index + 1) % len(mirrors)
+
+        self.cache.set(
+            f'roundrobin:{type}:{server}',
+            next_index, ex=60
+        )
+
+        return mirrors[mirror_index:] + mirrors[:mirror_index]
+
     def osz(self, set_id: int, no_video: bool = False) -> Response | None:
         self.logger.debug(f'Downloading osz... ({set_id})')
 
-        mirrors = resources.fetch_by_type(
+        mirrors = self.resolve_mirrors(
             type=1 if no_video else 0,
             server=self.determine_server(set_id)
         )
 
-        for mirror in mirrors:
-            if self.check_ratelimit(mirror.url):
-                continue
+        if not mirrors:
+            return None
 
+        for mirror in mirrors:
             response = self.do_safe_request(
                 self.format_mirror_url(mirror.url, set_id),
                 stream=True
@@ -116,7 +143,7 @@ class Beatmaps:
     def preview(self, set_id: int) -> bytes | None:
         self.logger.debug(f'Downloading preview... ({set_id})')
 
-        mirrors = resources.fetch_by_type(
+        mirrors = self.resolve_mirrors(
             type=5,
             server=self.determine_server(set_id)
         )
@@ -143,7 +170,7 @@ class Beatmaps:
     def background(self, set_id: int, large=False) -> bytes | None:
         self.logger.debug(f'Downloading background... ({set_id})')
 
-        mirrors = resources.fetch_by_type(
+        mirrors = self.resolve_mirrors(
             type=4 if large else 3,
             server=self.determine_server(set_id)
         )
