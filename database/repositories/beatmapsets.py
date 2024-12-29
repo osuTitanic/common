@@ -1,6 +1,7 @@
 
 from __future__ import annotations
 
+from app.common.helpers import caching
 from app.common.constants import (
     BeatmapCategory,
     BeatmapSortBy,
@@ -16,13 +17,14 @@ from app.common.database.objects import (
     DBPlay
 )
 
+from sqlalchemy import func, select, or_, ColumnElement
 from sqlalchemy.orm import selectinload, Session
-from sqlalchemy import func, select, or_
 from .wrapper import session_wrapper
 
 from datetime import datetime
 from typing import List
 
+import app
 import re
 
 def text_search_condition(query_string: str):
@@ -175,7 +177,7 @@ def search(
     elif query_string == 'Top Rated':
         query = query.join(DBRating) \
                      .group_by(DBBeatmapset.id) \
-                     .order_by(func.avg(DBRating.rating).desc())
+                     .order_by(bayesian_rating().desc())
 
     elif query_string == 'Most Played':
         query = query.group_by(DBBeatmapset.id) \
@@ -261,8 +263,8 @@ def search_extended(
         BeatmapSortBy.Creator: DBBeatmapset.creator,
         BeatmapSortBy.Ranked: DBBeatmapset.approved_at,
         BeatmapSortBy.Difficulty: func.max(DBBeatmap.diff),
-        BeatmapSortBy.Rating: func.avg(DBRating.rating),
         BeatmapSortBy.Plays: func.sum(DBBeatmap.playcount),
+        BeatmapSortBy.Rating: bayesian_rating()
     }[sort]
 
     query = query.order_by(
@@ -327,6 +329,21 @@ def search_extended(
     return query.offset(offset) \
                 .limit(limit) \
                 .all()
+
+@caching.ttl_cache(ttl=60*60*4)
+def global_average_rating() -> int:
+    with app.session.database.managed_session() as session:
+        result = session.query(func.avg(DBRating.rating)).scalar()
+        return result or 0
+
+def bayesian_rating() -> ColumnElement:
+    # Use bayesian average to calculate rating
+    # https://en.wikipedia.org/wiki/Bayesian_average
+    confidence_factor = 25
+    rating_sum = func.avg(DBRating.rating) * func.count(DBRating.rating)
+    total_count = func.count(DBRating.rating) + confidence_factor
+    adjusted_avg_rating = global_average_rating() * confidence_factor
+    return (rating_sum + adjusted_avg_rating) / total_count
 
 @session_wrapper
 def fetch_unranked_count(
