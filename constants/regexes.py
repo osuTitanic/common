@@ -5,7 +5,7 @@ OSU_VERSION = re.compile(
     r"^b(?P<date>\d{1,8})"
     r"(?:(?P<name>(?!dev|tourney|test|peppy|arcade|ubertest|digital|mod|modded\b)\w+\b))?"
     r"(?:\.(?P<revision>\d{1,2}|))?"
-    r"(?P<stream>dev|tourney|test|peppy|arcade|cuttingedge|beta|ubertest|digital|mod|modded)?$"
+    r"(?P<stream>dev|tourney|test|peppy|arcade|cuttingedge|ce45|beta|ubertest|digital|mod|modded)?$"
 )
 
 EMAIL = re.compile(
