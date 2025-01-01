@@ -49,8 +49,8 @@ def update_by_beatmap_id(
 @session_wrapper
 def hide_all(user_id: int, session: Session = ...) -> int:
     rows = session.query(DBScore) \
-            .filter(DBScore.user_id == user_id) \
-            .update({'hidden': True})
+        .filter(DBScore.user_id == user_id) \
+        .update({'hidden': True})
     session.commit()
     return rows
 
@@ -91,13 +91,17 @@ def fetch_count_beatmap(
     mode: int,
     mods: int | None = None,
     country: str | None = None,
-    friends: List[int | None] = None,
+    friends: List[int] | None = None,
     session: Session = ...
 ) -> int:
     query = session.query(func.count(DBScore.id)) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.hidden == False)
+
+    if mods is not None:
+        query = query.filter(or_(DBScore.status_score == 3, DBScore.status_score == 4)) \
+                     .filter(DBScore.mods == mods)
 
     if country is not None:
         query = query.filter(DBUser.country == country) \
@@ -106,10 +110,7 @@ def fetch_count_beatmap(
     if friends is not None:
         query = query.filter(DBScore.user_id.in_(friends))
 
-    if mods is not None:
-        query = query.filter(or_(DBScore.status_score == 3, DBScore.status_score == 4)) \
-                     .filter(DBScore.mods == mods)
-    else:
+    if mods is None:
         query = query.filter(DBScore.status_score == 3)
 
     return query.scalar()
@@ -452,10 +453,10 @@ def fetch_range_scores_mods(
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .options(selectinload(DBScore.user)) \
-        .filter(DBScore.beatmap_id == beatmap_id) \
-        .filter(DBScore.mode == mode) \
         .filter(or_(DBScore.status_score == 3, DBScore.status_score == 4)) \
+        .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.hidden == False) \
+        .filter(DBScore.mode == mode) \
         .filter(DBScore.mods == mods) \
         .order_by(DBScore.total_score.desc(), DBScore.id.asc()) \
         .limit(limit) \
@@ -483,23 +484,19 @@ def fetch_score_index(
             .filter(DBScore.hidden == False) \
             .order_by(DBScore.total_score.desc(), DBScore.id.asc())
 
-    if mods != None:
+    if mods is not None:
         query = query.filter(DBScore.mods == mods) \
                      .filter(or_(DBScore.status_score == 3, DBScore.status_score == 4))
-    else:
-        query = query.filter(DBScore.status_score == 3)
 
-    if country != None:
+    if country is not None:
         query = query.join(DBScore.user) \
                      .filter(DBUser.country == country)
 
-    if friends != None:
-        query = query.filter(
-            or_(
-                DBScore.user_id.in_(friends),
-                DBScore.user_id == user_id
-            )
-        )
+    if friends is not None:
+        query = query.filter(or_(DBScore.user_id.in_(friends), DBScore.user_id == user_id))
+
+    if mods is None:
+        query = query.filter(DBScore.status_score == 3)
 
     subquery = query.subquery()
     result = session.query(subquery.c.rank) \
@@ -531,11 +528,15 @@ def fetch_score_index_by_id(
             .filter(DBScore.hidden == False) \
             .order_by(DBScore.total_score.desc(), DBScore.id.asc())
 
-    if mods != None:
-        query = query.filter(DBScore.mods == mods) \
-                     .filter(or_(DBScore.status_score == 3, DBScore.status_score == 4))
-    else:
+    if mods is None:
         query = query.filter(DBScore.status_score == 3)
+
+    else:
+        query = query.filter(DBScore.mods == mods) \
+                     .filter(or_(
+                        DBScore.status_score == 3,
+                        DBScore.status_score == 4
+                     ))
 
     subquery = query.subquery()
     result = session.query(subquery.c.rank) \
@@ -678,10 +679,10 @@ def fetch_clears(
     session: Session = ...
 ) -> int:
     return session.query(func.count(DBScore.id)) \
-        .filter(DBScore.user_id == user_id) \
-        .filter(DBScore.mode == mode) \
         .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
+        .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.mode == mode) \
         .scalar()
 
 @session_wrapper
@@ -700,7 +701,6 @@ def delete_by_beatmap_id(beatmap_id: int, session: Session = ...):
 
 @session_wrapper
 def restore_hidden_scores(user_id: int, session: Session = ...):
-    """This will restore all score status attributes"""
     session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
         .update({'hidden': False})
