@@ -267,7 +267,7 @@ def fetch_best_by_score(
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
-        .order_by(DBScore.total_score.desc()) \
+        .order_by(DBScore.total_score.desc(), DBScore.id.asc()) \
         .all()
 
 @session_wrapper
@@ -398,7 +398,7 @@ def fetch_range_scores(
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
-        .order_by(DBScore.total_score.desc()) \
+        .order_by(DBScore.total_score.desc(), DBScore.id.asc()) \
         .offset(offset) \
         .limit(limit) \
         .all()
@@ -418,6 +418,7 @@ def fetch_range_scores_country(
         .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
         .filter(DBUser.country == country) \
+        .order_by(DBScore.total_score.desc(), DBScore.id.asc()) \
         .join(DBScore.user) \
         .limit(limit) \
         .all()
@@ -437,6 +438,7 @@ def fetch_range_scores_friends(
         .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
         .filter(DBScore.user_id.in_(friends)) \
+        .order_by(DBScore.total_score.desc(), DBScore.id.asc()) \
         .limit(limit) \
         .all()
 
@@ -455,7 +457,7 @@ def fetch_range_scores_mods(
         .filter(or_(DBScore.status_score == 3, DBScore.status_score == 4)) \
         .filter(DBScore.hidden == False) \
         .filter(DBScore.mods == mods) \
-        .order_by(DBScore.total_score.desc()) \
+        .order_by(DBScore.total_score.desc(), DBScore.id.asc()) \
         .limit(limit) \
         .all()
 
@@ -469,15 +471,17 @@ def fetch_score_index(
     country: str | None = None,
     session: Session = ...
 ) -> int:
-    query = session.query(DBScore.user_id, DBScore.mods, func.rank() \
-                .over(
+    query = session.query(
+                DBScore.user_id,
+                DBScore.mods,
+                func.rank().over(
                     order_by=DBScore.total_score.desc()
                 ).label('rank')
             ) \
             .filter(DBScore.beatmap_id == beatmap_id) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.hidden == False) \
-            .order_by(DBScore.total_score.desc())
+            .order_by(DBScore.total_score.desc(), DBScore.id.asc())
 
     if mods != None:
         query = query.filter(DBScore.mods == mods) \
@@ -515,15 +519,17 @@ def fetch_score_index_by_id(
     mods: int | None = None,
     session: Session = ...
 ) -> int:
-    query = session.query(DBScore.id, DBScore.mods, func.rank() \
-                .over(
+    query = session.query(
+                DBScore.id,
+                DBScore.mods,
+                func.rank().over(
                     order_by=DBScore.total_score.desc()
                 ).label('rank')
             ) \
             .filter(DBScore.beatmap_id == beatmap_id) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.hidden == False) \
-            .order_by(DBScore.total_score.desc())
+            .order_by(DBScore.total_score.desc(), DBScore.id.asc())
 
     if mods != None:
         query = query.filter(DBScore.mods == mods) \
@@ -554,7 +560,7 @@ def fetch_score_index_by_tscore(
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
-        .order_by(func.abs(DBScore.total_score - total_score)) \
+        .order_by(func.abs(DBScore.total_score - total_score), DBScore.id.asc()) \
         .first()
 
     if not closest_score:
@@ -581,7 +587,7 @@ def fetch_score_above(
         .filter(DBScore.total_score > total_score) \
         .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
-        .order_by(DBScore.total_score.asc()) \
+        .order_by(DBScore.total_score.asc(), DBScore.id.asc()) \
         .first()
 
 @session_wrapper
