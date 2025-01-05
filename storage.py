@@ -113,7 +113,7 @@ class Storage:
         stream.s32(score.client_version)
         stream.string(score.beatmap.md5)
         stream.string(score.user.name)
-        stream.string(score.checksum)
+        stream.string(replays.compute_score_checksum(score))
         stream.u16(score.n300)
         stream.u16(score.n100)
         stream.u16(score.n50)
