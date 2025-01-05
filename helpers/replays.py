@@ -1,5 +1,8 @@
 
 from ..database.objects import DBScore
+from ..streams import StreamOut
+from ..constants import Mods
+
 from datetime import datetime
 import hashlib
 
@@ -31,3 +34,33 @@ def compute_offline_score_checksum(score: DBScore) -> str:
             score.passed
         ).encode()
     ).hexdigest()
+
+def serialize_replay(score: DBScore, replay: bytes) -> bytes:
+    mods = Mods(score.mods)
+
+    if Mods.Nightcore in mods and Mods.DoubleTime not in mods:
+        # NC requires DT to be present
+        score.mods |= Mods.DoubleTime.value
+
+    stream = StreamOut()
+    stream.u8(score.mode)
+    stream.s32(score.client_version)
+    stream.string(score.beatmap.md5)
+    stream.string(score.user.name)
+    stream.string(compute_offline_score_checksum(score))
+    stream.u16(score.n300)
+    stream.u16(score.n100)
+    stream.u16(score.n50)
+    stream.u16(score.nGeki)
+    stream.u16(score.nKatu)
+    stream.u16(score.nMiss)
+    stream.s32(score.total_score)
+    stream.u16(score.max_combo)
+    stream.bool(score.perfect)
+    stream.s32(score.mods)
+    stream.string('') # TODO: HP Graph
+    stream.s64(get_ticks(score.submitted_at))
+    stream.s32(len(replay))
+    stream.write(replay)
+    stream.s32(score.id)
+    return stream.get()

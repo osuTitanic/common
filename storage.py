@@ -102,34 +102,7 @@ class Storage:
         if not score:
             return
 
-        mods = Mods(score.mods)
-
-        if Mods.Nightcore in mods and Mods.DoubleTime not in mods:
-            # NC requires DT to be present
-            score.mods |= Mods.DoubleTime.value
-
-        stream = StreamOut()
-        stream.u8(score.mode)
-        stream.s32(score.client_version)
-        stream.string(score.beatmap.md5)
-        stream.string(score.user.name)
-        stream.string(replays.compute_offline_score_checksum(score))
-        stream.u16(score.n300)
-        stream.u16(score.n100)
-        stream.u16(score.n50)
-        stream.u16(score.nGeki)
-        stream.u16(score.nKatu)
-        stream.u16(score.nMiss)
-        stream.s32(score.total_score)
-        stream.u16(score.max_combo)
-        stream.bool(score.perfect)
-        stream.s32(score.mods)
-        stream.string('') # TODO: HP Graph
-        stream.s64(replays.get_ticks(score.submitted_at))
-        stream.s32(len(replay))
-        stream.write(replay)
-        stream.s32(score.id)
-        return stream.get()
+        return replays.serialize_replay(score, replay)
 
     def get_osz_internal(self, set_id: int) -> bytes | None:
         return self.get(set_id, 'osz')
