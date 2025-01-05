@@ -115,6 +115,10 @@ class DBScore(Base):
     user    = relationship('DBUser', back_populates='scores')
     beatmap = relationship('DBBeatmap', back_populates='scores')
 
+    @property
+    def passed(self) -> bool:
+        return self.failtime is None
+
 class DBPlay(Base):
     __tablename__ = "plays"
 
