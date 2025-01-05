@@ -64,7 +64,7 @@ def serialize_replay(score: DBScore, replay: bytes) -> bytes:
     stream.write(replay)
 
     if score.client_version >= 20140721:
-        stream.u64(score.replay_id)
+        stream.u64(score.id)
     else:
         stream.u32(score.id)
 
