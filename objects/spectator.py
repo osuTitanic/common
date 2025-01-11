@@ -1,6 +1,7 @@
 
+from __future__ import annotations
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List
 
 from ..constants import (
     ReplayAction,
@@ -128,4 +129,4 @@ class ReplayFrameBundle:
     extra: int
     action: ReplayAction
     frames: List[ReplayFrame]
-    score_frame: Optional[ScoreFrame] = None
+    score_frame: ScoreFrame | None = None

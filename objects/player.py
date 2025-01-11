@@ -1,6 +1,6 @@
 
+from __future__ import annotations
 from dataclasses import dataclass
-from typing import Optional
 
 from ..constants import (
     ClientStatus,
@@ -31,7 +31,7 @@ class UserPresence:
     longitude: float
     latitude: float
     rank: int
-    city: Optional[str] = None
+    city: str | None = None
 
 @dataclass(slots=True)
 class UserStats:

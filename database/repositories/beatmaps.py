@@ -8,10 +8,8 @@ from sqlalchemy import func
 from .wrapper import session_wrapper
 
 from sqlalchemy.orm import Session
-from typing import Optional, List
 from datetime import datetime
-
-import app
+from typing import List
 
 @session_wrapper
 def create(

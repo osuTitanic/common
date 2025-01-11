@@ -1,9 +1,13 @@
 
-from titanic_pp_py import Calculator, Beatmap, DifficultyAttributes
+from __future__ import annotations
+from titanic_pp_py import (
+    DifficultyAttributes,
+    Calculator,
+    Beatmap
+)
 
 from ...database.objects import DBScore
 from ...constants import GameMode, Mods
-from typing import Optional
 
 import math
 import app
@@ -17,7 +21,7 @@ def total_hits(score: DBScore) -> int:
 
     return score.n50 + score.n100 + score.n300 + score.nMiss
 
-def calculate_ppv2(score: DBScore) -> Optional[float]:
+def calculate_ppv2(score: DBScore) -> float | None:
     beatmap_file = app.session.storage.get_beatmap(score.beatmap_id)
 
     if not beatmap_file:
@@ -84,7 +88,7 @@ def calculate_ppv2(score: DBScore) -> Optional[float]:
 
     return result.pp
 
-def calculate_difficulty(beatmap_file: bytes, mode: GameMode, mods: Mods = Mods.NoMod) -> Optional[DifficultyAttributes]:
+def calculate_difficulty(beatmap_file: bytes, mode: GameMode, mods: Mods = Mods.NoMod) -> DifficultyAttributes | None:
     bm = Beatmap(bytes=beatmap_file)
 
     calc = Calculator(
