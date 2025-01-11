@@ -91,6 +91,12 @@ def fetch_by_id(id: int, *options, session: Session = ...) -> DBUser | None:
         .first()
 
 @session_wrapper
+def fetch_by_id_no_options(id: int, session: Session = ...) -> DBUser | None:
+    return session.query(DBUser) \
+        .filter(DBUser.id == id) \
+        .first()
+
+@session_wrapper
 def fetch_by_email(email: str, session: Session = ...) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.email == email) \
