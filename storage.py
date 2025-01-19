@@ -271,6 +271,8 @@ class Storage:
         )
 
     def upload_background(self, set_id: int, content: bytes):
+        self.remove_from_cache(f'mt:{set_id}')
+        self.remove_from_cache(f'mt:{set_id}l')
         self.save(set_id, content, 'thumbnails')
         self.save_to_cache(
             name=f'mt:{set_id}l',
