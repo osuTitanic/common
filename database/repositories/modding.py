@@ -106,6 +106,15 @@ def total_amount(
         .scalar() or 0
 
 @session_wrapper
+def total_entries(
+    post_id: int,
+    session: Session = ...
+) -> int:
+    return session.query(func.count(DBBeatmapModding.id)) \
+        .filter(DBBeatmapModding.post_id == post_id) \
+        .scalar() or 0
+
+@session_wrapper
 def total_amount_by_user(
     user_id: int,
     session: Session = ...
