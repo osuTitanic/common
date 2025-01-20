@@ -10,6 +10,7 @@ from . import (
     screenshots,
     activities,
     favourites,
+    benchmarks,
     usercount,
     histories,
     resources,
