@@ -30,3 +30,12 @@ def create(
 def fetch_all(session: Session = ...) -> List[DBChannel]:
     return session.query(DBChannel) \
                   .all()
+
+@session_wrapper
+def fetch_one(
+    name: str,
+    session: Session = ...
+) -> DBChannel:
+    return session.query(DBChannel) \
+                  .filter(DBChannel.name == name) \
+                  .first()
