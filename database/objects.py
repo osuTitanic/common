@@ -257,7 +257,7 @@ class DBMessage(Base):
 
     id      = Column('id', Integer, primary_key=True, autoincrement=True)
     sender  = Column('sender', String, ForeignKey('users.name'))
-    target  = Column('target', String) # Either channel or username
+    target  = Column('target', String)
     message = Column('message', String)
     time    = Column('time', DateTime, server_default=func.now())
 
@@ -266,6 +266,21 @@ class DBMessage(Base):
         self.sender  = sender
         self.target  = target
         self.time    = datetime.now()
+
+class DBDirectMessage(Base):
+    __tablename__ = "direct_messages"
+
+    id      = Column('id', Integer, primary_key=True, autoincrement=True)
+    sender  = Column('sender', Integer, ForeignKey('users.id'))
+    target  = Column('target', Integer, ForeignKey('users.id'))
+    message = Column('message', String)
+    time    = Column('time', DateTime, server_default=func.now())
+
+    def __init__(self, sender: int, target: int, message: str) -> None:
+        self.sender = sender
+        self.target = target
+        self.message = message
+        self.time = datetime.now()
 
 class DBBeatmapset(Base):
     __tablename__ = "beatmapsets"
