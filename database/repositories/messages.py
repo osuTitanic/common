@@ -71,7 +71,7 @@ def fetch_dms(
             (DBDirectMessage.sender_id == sender_id) & (DBDirectMessage.target_id == target_id),
             (DBDirectMessage.sender_id == target_id) & (DBDirectMessage.target_id == sender_id)
         )) \
-        .order_by(DBMessage.id.desc()) \
+        .order_by(DBDirectMessage.id.desc()) \
         .offset(offset) \
         .limit(limit) \
         .all()
