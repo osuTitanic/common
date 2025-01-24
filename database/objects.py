@@ -271,14 +271,14 @@ class DBDirectMessage(Base):
     __tablename__ = "direct_messages"
 
     id      = Column('id', Integer, primary_key=True, autoincrement=True)
-    sender  = Column('sender', Integer, ForeignKey('users.id'))
-    target  = Column('target', Integer, ForeignKey('users.id'))
+    sender_id  = Column('sender', Integer, ForeignKey('users.id'))
+    target_id  = Column('target', Integer, ForeignKey('users.id'))
     message = Column('message', String)
     time    = Column('time', DateTime, server_default=func.now())
 
     def __init__(self, sender: int, target: int, message: str) -> None:
-        self.sender = sender
-        self.target = target
+        self.sender_id = sender
+        self.target_id = target
         self.message = message
         self.time = datetime.now()
 
