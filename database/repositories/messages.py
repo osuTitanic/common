@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBMessage
+from app.common.database.objects import DBMessage, DBDirectMessage
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from typing import List
@@ -42,16 +42,16 @@ def fetch_recent(
 
 @session_wrapper
 def fetch_dms(
-    sender: str,
-    target: str,
+    sender_id: int,
+    target_id: int,
     limit: int = 10,
     offset: int = 0,
     session: Session = ...
-) -> List[DBMessage]:
-    return session.query(DBMessage) \
+) -> List[DBDirectMessage]:
+    return session.query(DBDirectMessage) \
         .filter(or_(
-            (DBMessage.sender == sender) & (DBMessage.target == target),
-            (DBMessage.sender == target) & (DBMessage.target == sender)
+            (DBDirectMessage.sender_id == sender_id) & (DBDirectMessage.target_id == target_id),
+            (DBDirectMessage.sender_id == target_id) & (DBDirectMessage.target_id == sender_id)
         )) \
         .order_by(DBMessage.id.desc()) \
         .offset(offset) \
