@@ -1,9 +1,9 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBMessage, DBDirectMessage
+from app.common.database.objects import DBUser, DBMessage, DBDirectMessage
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import or_, case
 from typing import List
 
 from .wrapper import session_wrapper
@@ -75,3 +75,34 @@ def fetch_dms(
         .offset(offset) \
         .limit(limit) \
         .all()
+
+@session_wrapper
+def fetch_dm_entries(
+    user_id: int,
+    session: Session = ...
+) -> List[DBUser]:
+    return session.query(DBUser) \
+        .join(DBDirectMessage, case(
+            (DBDirectMessage.sender_id == user_id, DBDirectMessage.target_id),
+            else_=DBDirectMessage.sender_id
+        ) == DBUser.id) \
+        .filter(or_(
+            DBDirectMessage.sender_id == user_id,
+            DBDirectMessage.target_id == user_id
+        )) \
+        .distinct(DBUser.id) \
+        .all()
+
+@session_wrapper
+def fetch_last_dm(
+    sender_id: int,
+    target_id: int,
+    session: Session = ...
+) -> DBDirectMessage | None:
+    return session.query(DBDirectMessage) \
+        .filter(or_(
+            (DBDirectMessage.sender_id == sender_id) & (DBDirectMessage.target_id == target_id),
+            (DBDirectMessage.sender_id == target_id) & (DBDirectMessage.target_id == sender_id)
+        )) \
+        .order_by(DBDirectMessage.id.desc()) \
+        .first()
