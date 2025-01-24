@@ -29,10 +29,12 @@ def create(
 def fetch_recent(
     target: str = '#osu',
     limit: int = 10,
+    offset: int = 0,
     session: Session = ...
 ) -> List[DBMessage]:
     return session.query(DBMessage) \
         .filter(DBMessage.target == target) \
         .order_by(DBMessage.id.desc()) \
+        .offset(offset) \
         .limit(limit) \
         .all()
