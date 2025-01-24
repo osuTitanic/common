@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from app.common.database.objects import DBMessage
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from typing import List
 
 from .wrapper import session_wrapper
@@ -34,6 +35,24 @@ def fetch_recent(
 ) -> List[DBMessage]:
     return session.query(DBMessage) \
         .filter(DBMessage.target == target) \
+        .order_by(DBMessage.id.desc()) \
+        .offset(offset) \
+        .limit(limit) \
+        .all()
+
+@session_wrapper
+def fetch_dms(
+    sender: str,
+    target: str,
+    limit: int = 10,
+    offset: int = 0,
+    session: Session = ...
+) -> List[DBMessage]:
+    return session.query(DBMessage) \
+        .filter(or_(
+            (DBMessage.sender == sender) and (DBMessage.target == target),
+            (DBMessage.sender == target) and (DBMessage.target == sender)
+        )) \
         .order_by(DBMessage.id.desc()) \
         .offset(offset) \
         .limit(limit) \
