@@ -27,6 +27,24 @@ def create(
     return msg
 
 @session_wrapper
+def create_private(
+    sender_id: int,
+    target_id: int,
+    message: str,
+    session: Session = ...
+) -> DBDirectMessage:
+    session.add(
+        msg := DBDirectMessage(
+            sender_id,
+            target_id,
+            message
+        )
+    )
+    session.commit()
+    session.refresh(msg)
+    return msg
+
+@session_wrapper
 def fetch_recent(
     target: str = '#osu',
     limit: int = 10,
