@@ -50,8 +50,8 @@ def fetch_dms(
 ) -> List[DBMessage]:
     return session.query(DBMessage) \
         .filter(or_(
-            (DBMessage.sender == sender) and (DBMessage.target == target),
-            (DBMessage.sender == target) and (DBMessage.target == sender)
+            (DBMessage.sender == sender) & (DBMessage.target == target),
+            (DBMessage.sender == target) & (DBMessage.target == sender)
         )) \
         .order_by(DBMessage.id.desc()) \
         .offset(offset) \
