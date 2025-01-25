@@ -300,6 +300,7 @@ class DBBeatmapset(Base):
     has_video            = Column('has_video', Boolean, default=False)
     has_storyboard       = Column('has_storyboard', Boolean, default=False)
     server               = Column('server', SmallInteger, default=0)
+    download_server      = Column('download_server', SmallInteger, default=0)
     topic_id             = Column('topic_id', Integer, nullable=True)
     creator_id           = Column('creator_id', Integer, ForeignKey('users.id'), nullable=True)
     available            = Column('available', Boolean, default=True)
