@@ -50,7 +50,7 @@ class Beatmaps:
             return response
 
     def determine_server(self, id: int) -> int:
-        return beatmapsets.fetch_server_id(id)
+        return beatmapsets.fetch_download_server_id(id)
 
     def resolve_mirrors(self, type: int, server: int) -> List[DBResourceMirror]:
         mirror_index = (

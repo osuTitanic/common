@@ -385,6 +385,15 @@ def fetch_server_id(
         .scalar() or 0
 
 @session_wrapper
+def fetch_download_server_id(
+    beatmapset_id: int,
+    session: Session = ...
+) -> int:
+    return session.query(DBBeatmapset.download_server) \
+        .filter(DBBeatmapset.id == beatmapset_id) \
+        .scalar() or 0
+
+@session_wrapper
 def update(
     beatmapset_id: int,
     updates: dict,
