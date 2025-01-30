@@ -26,7 +26,7 @@ def calculate_ppv2(score: DBScore) -> float | None:
 
     if not beatmap_file:
         app.session.logger.error(
-            f'pp calculation failed: Beatmap file was not found! ({score.user_id})'
+            f'pp calculation failed: Beatmap file was not found! ({score.beatmap_id})'
         )
         return
 
