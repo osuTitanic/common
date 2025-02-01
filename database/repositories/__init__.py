@@ -22,6 +22,8 @@ from . import (
     modding,
     clients,
     ratings,
+    matches,
+    events,
     forums,
     topics,
     groups,
