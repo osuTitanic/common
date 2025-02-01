@@ -21,8 +21,8 @@ def call(content: str, exc_info: Exception | None = None) -> bool:
     if exc_info is not None:
         content += '```'
         content += '\n\n' + ''.join(
-            traceback.format_exception(exc_info)
-        )
+            traceback.format_exception(exc_info, limit=2)
+        )[:1950]
         content += '```'
 
     return webhooks.Webhook(
