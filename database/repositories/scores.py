@@ -624,6 +624,38 @@ def fetch_recent_until(
         .all()
 
 @session_wrapper
+def fetch_recent_by_status(
+    user_id: int,
+    limit: int = 3,
+    min_status: int = 2,
+    session: Session = ...
+) -> List[DBScore]:
+    return session.query(DBScore) \
+        .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.status_pp >= min_status) \
+        .filter(DBScore.hidden == False) \
+        .order_by(DBScore.id.desc()) \
+        .limit(limit) \
+        .all()
+
+@session_wrapper
+def fetch_recent_by_status_and_mode(
+    user_id: int,
+    mode: int,
+    limit: int = 3,
+    min_status: int = 2,
+    session: Session = ...
+) -> List[DBScore]:
+    return session.query(DBScore) \
+        .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.mode == mode) \
+        .filter(DBScore.status_pp >= min_status) \
+        .filter(DBScore.hidden == False) \
+        .order_by(DBScore.id.desc()) \
+        .limit(limit) \
+        .all()
+
+@session_wrapper
 def fetch_recent_all(
     user_id: int,
     limit: int = 3,
