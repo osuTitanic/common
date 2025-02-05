@@ -3,16 +3,14 @@ from __future__ import annotations
 
 from boto3_type_annotations.s3 import Client
 from botocore.exceptions import ClientError
+from typing import Iterator, List, Dict
 from sqlalchemy.orm import Session
 from datetime import timedelta
-from typing import List, Dict
 from redis import Redis
 
 from .database.repositories import scores, wrapper
 from .helpers.external import Beatmaps
-from .streams import StreamOut
 from .helpers import replays
-from .constants import Mods
 
 import hashlib
 import logging
@@ -104,11 +102,11 @@ class Storage:
 
         return replays.serialize_replay(score, replay)
 
-    def get_osz(self, set_id: int, no_video: bool = False) -> bytes | None:
+    def get_osz(self, set_id: int, no_video: bool = False) -> Iterator | None:
         if not (osz := self.api.osz(set_id, no_video)):
             return
 
-        return osz.content
+        return osz.iter_content(chunk_size=4096)
 
     def get_osz_internal(self, set_id: int) -> bytes | None:
         return self.get(set_id, 'osz')
