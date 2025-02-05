@@ -104,17 +104,23 @@ class Storage:
 
         return replays.serialize_replay(score, replay)
 
-    def get_osz_internal(self, set_id: int) -> bytes | None:
-        return self.get(set_id, 'osz')
-
-    def get_osz2_internal(self, set_id: int) -> bytes | None:
-        return self.get(set_id, 'osz2')
-
     def get_osz(self, set_id: int, no_video: bool = False) -> bytes | None:
         if not (osz := self.api.osz(set_id, no_video)):
             return
 
         return osz.content
+
+    def get_osz_internal(self, set_id: int) -> bytes | None:
+        return self.get(set_id, 'osz')
+
+    def get_osz_iterable(self, set_id: int) -> io.BytesIO | None:
+        return self.get_iterator(set_id, 'osz')
+
+    def get_osz2_internal(self, set_id: int) -> bytes | None:
+        return self.get(set_id, 'osz2')
+
+    def get_osz2_iterable(self, set_id: int) -> io.BytesIO | None:
+        return self.get_iterator(set_id, 'osz2')
 
     def get_beatmap(self, id: int) -> bytes | None:
         if (osu := self.get_from_cache(f'osu:{id}')):
@@ -126,7 +132,7 @@ class Storage:
         self.save_to_cache(
             name=f'osu:{id}',
             content=osu,
-            expiry=timedelta(days=1)
+            expiry=timedelta(hours=4)
         )
 
         return osu
@@ -143,7 +149,7 @@ class Storage:
         self.save_to_cache(
             name=f'osu:{id}',
             content=osu,
-            expiry=timedelta(days=1)
+            expiry=timedelta(hours=4)
         )
 
         return osu
@@ -164,7 +170,7 @@ class Storage:
         self.save_to_cache(
             name=f'mt:{id}',
             content=image,
-            expiry=timedelta(days=1)
+            expiry=timedelta(hours=12)
         )
 
         return image
@@ -181,7 +187,7 @@ class Storage:
         self.save_to_cache(
             name=f'mt:{set_id}l',
             content=image,
-            expiry=timedelta(days=1)
+            expiry=timedelta(hours=12)
         )
 
         return image
@@ -196,7 +202,7 @@ class Storage:
         self.save_to_cache(
             name=f'mp3:{set_id}',
             content=mp3,
-            expiry=timedelta(days=1)
+            expiry=timedelta(hours=6)
         )
 
         return mp3
@@ -213,7 +219,7 @@ class Storage:
         self.save_to_cache(
             name=f'mp3:{set_id}',
             content=mp3,
-            expiry=timedelta(days=1)
+            expiry=timedelta(hours=6)
         )
 
         return mp3
@@ -223,19 +229,9 @@ class Storage:
 
     def upload_osz(self, set_id: int, content: bytes):
         self.save(set_id, content, 'osz')
-        self.save_to_cache(
-            name=f'osz:{set_id}',
-            content=content,
-            expiry=timedelta(hours=12)
-        )
 
     def upload_osz2(self, set_id: int, content: bytes):
         self.save(set_id, content, 'osz2')
-        self.save_to_cache(
-            name=f'osz2:{set_id}',
-            content=content,
-            expiry=timedelta(hours=12)
-        )
 
     def upload_avatar(self, id: int, content: bytes):
         self.remove_avatar(id)
@@ -243,7 +239,7 @@ class Storage:
         self.save_to_cache(
             name=f'avatar:{id}',
             content=content,
-            expiry=timedelta(days=1)
+            expiry=timedelta(hours=12)
         )
 
     def upload_screenshot(self, id: int, content: bytes):
@@ -251,7 +247,7 @@ class Storage:
         self.save_to_cache(
             name=f'screenshots:{id}',
             content=content,
-            expiry=timedelta(hours=4)
+            expiry=timedelta(hours=2)
         )
     
     def upload_replay(self, id: int, content: bytes):
@@ -259,7 +255,7 @@ class Storage:
         self.save_to_cache(
             name=f'osr:{id}',
             content=content,
-            expiry=timedelta(days=1)
+            expiry=timedelta(hours=6)
         )
 
     def upload_beatmap_file(self, id: int, content: bytes):
@@ -267,7 +263,7 @@ class Storage:
         self.save_to_cache(
             name=f'osu:{id}',
             content=content,
-            expiry=timedelta(days=1)
+            expiry=timedelta(hours=4)
         )
 
     def upload_background(self, set_id: int, content: bytes):
@@ -277,7 +273,7 @@ class Storage:
         self.save_to_cache(
             name=f'mt:{set_id}l',
             content=content,
-            expiry=timedelta(days=1)
+            expiry=timedelta(hours=12)
         )
 
     def upload_mp3(self, set_id: int, content: bytes):
@@ -285,7 +281,7 @@ class Storage:
         self.save_to_cache(
             name=f'mp3:{set_id}',
             content=content,
-            expiry=timedelta(days=1)
+            expiry=timedelta(hours=6)
         )
 
     def cache_replay(self, id: int, content: bytes, time=timedelta(days=1)):
@@ -345,6 +341,13 @@ class Storage:
         else:
             return self.get_file_content(f'{bucket}/{key}')
 
+    def get_iterator(self, key: str, bucket: str) -> io.BytesIO | None:
+        """Get a file iterator from the specified bucket/directory."""
+        if config.S3_ENABLED:
+            return self.get_s3_iterator(str(key), bucket)
+        else:
+            return self.get_file_iterator(f'{bucket}/{key}')
+
     def remove(self, key: str, bucket: str) -> bool:
         """Remove a file from the specified bucket/directory."""
         if config.S3_ENABLED:
@@ -392,6 +395,12 @@ class Storage:
         except Exception as e:
             self.logger.error(f'Failed to read file "{filepath}": {e}')
 
+    def get_file_iterator(self, filepath: str) -> io.BytesIO | None:
+        try:
+            return open(f'{config.DATA_PATH}/{filepath}', 'rb')
+        except Exception as e:
+            self.logger.error(f'Failed to read file "{filepath}": {e}')
+
     def get_from_s3(self, key: str, bucket: str) -> bytes | None:
         buffer = io.BytesIO()
 
@@ -409,6 +418,24 @@ class Storage:
             return
 
         return buffer.getvalue()
+    
+    def get_s3_iterator(self, key: str, bucket: str) -> io.BytesIO | None:
+        buffer = io.BytesIO()
+
+        try:
+            self.s3.download_fileobj(
+                bucket,
+                key,
+                buffer
+            )
+        except ClientError:
+            # Most likely not found
+            return
+        except Exception as e:
+            self.logger.error(f'Failed to download "{key}" from s3: "{e}"')
+            return
+
+        return buffer
 
     def remove_from_s3(self, key: str, bucket: str) -> bool:
         try:
