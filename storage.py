@@ -111,14 +111,14 @@ class Storage:
     def get_osz_internal(self, set_id: int) -> bytes | None:
         return self.get(set_id, 'osz')
 
-    def get_osz_iterable(self, set_id: int) -> io.BytesIO | None:
-        return self.get_iterator(set_id, 'osz')
+    def get_osz_iterable(self, set_id: int, chunk_size: int = 1024 * 64) -> Iterator | None:
+        return self.get_iterator(set_id, 'osz', chunk_size)
 
     def get_osz2_internal(self, set_id: int) -> bytes | None:
         return self.get(set_id, 'osz2')
 
-    def get_osz2_iterable(self, set_id: int) -> io.BytesIO | None:
-        return self.get_iterator(set_id, 'osz2')
+    def get_osz2_iterable(self, set_id: int, chunk_size: int = 1024 * 64) -> Iterator | None:
+        return self.get_iterator(set_id, 'osz2', chunk_size)
 
     def get_beatmap(self, id: int) -> bytes | None:
         if (osu := self.get_from_cache(f'osu:{id}')):
@@ -339,12 +339,12 @@ class Storage:
         else:
             return self.get_file_content(f'{bucket}/{key}')
 
-    def get_iterator(self, key: str, bucket: str) -> io.BytesIO | None:
+    def get_iterator(self, key: str, bucket: str, chunk_size: int = 1024 * 64) -> Iterator | None:
         """Get a file iterator from the specified bucket/directory."""
         if config.S3_ENABLED:
-            return self.get_s3_iterator(str(key), bucket)
+            return self.get_s3_iterator(str(key), bucket, chunk_size)
         else:
-            return self.get_file_iterator(f'{bucket}/{key}')
+            return self.get_file_iterator(f'{bucket}/{key}', chunk_size)
 
     def remove(self, key: str, bucket: str) -> bool:
         """Remove a file from the specified bucket/directory."""
@@ -393,11 +393,14 @@ class Storage:
         except Exception as e:
             self.logger.error(f'Failed to read file "{filepath}": {e}')
 
-    def get_file_iterator(self, filepath: str) -> io.BytesIO | None:
+    def get_file_iterator(self, filepath: str, chunk_size: int = 1024 * 64) -> Iterator | None:
         try:
-            return open(f'{config.DATA_PATH}/{filepath}', 'rb')
+            with open(f'{config.DATA_PATH}/{filepath}', 'rb') as f:
+                while chunk := f.read(chunk_size):
+                    yield chunk
         except Exception as e:
             self.logger.error(f'Failed to read file "{filepath}": {e}')
+            return None
 
     def get_from_s3(self, key: str, bucket: str) -> bytes | None:
         buffer = io.BytesIO()
@@ -416,8 +419,8 @@ class Storage:
             return
 
         return buffer.getvalue()
-    
-    def get_s3_iterator(self, key: str, bucket: str) -> io.BytesIO | None:
+
+    def get_s3_iterator(self, key: str, bucket: str, chunk_size: int = 1024 * 64) -> Iterator | None:
         buffer = io.BytesIO()
 
         try:
@@ -433,7 +436,10 @@ class Storage:
             self.logger.error(f'Failed to download "{key}" from s3: "{e}"')
             return
 
-        return buffer
+        buffer.seek(0)
+
+        while chunk := buffer.read(chunk_size):
+            yield chunk
 
     def remove_from_s3(self, key: str, bucket: str) -> bool:
         try:
