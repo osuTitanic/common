@@ -1,9 +1,9 @@
 
 from __future__ import annotations
 
+from typing import Generator, Iterator, List, Dict
 from boto3_type_annotations.s3 import Client
 from botocore.exceptions import ClientError
-from typing import Iterator, List, Dict
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from redis import Redis
@@ -106,18 +106,18 @@ class Storage:
         if not (osz := self.api.osz(set_id, no_video)):
             return
 
-        return osz.iter_content(chunk_size=4096)
+        return osz.iter_content(chunk_size=1024 * 64)
 
     def get_osz_internal(self, set_id: int) -> bytes | None:
         return self.get(set_id, 'osz')
 
-    def get_osz_iterable(self, set_id: int, chunk_size: int = 1024 * 64) -> Iterator | None:
+    def get_osz_iterable(self, set_id: int, chunk_size: int = 1024 * 64) -> Generator:
         return self.get_iterator(set_id, 'osz', chunk_size)
 
     def get_osz2_internal(self, set_id: int) -> bytes | None:
         return self.get(set_id, 'osz2')
 
-    def get_osz2_iterable(self, set_id: int, chunk_size: int = 1024 * 64) -> Iterator | None:
+    def get_osz2_iterable(self, set_id: int, chunk_size: int = 1024 * 64) -> Generator:
         return self.get_iterator(set_id, 'osz2', chunk_size)
 
     def get_beatmap(self, id: int) -> bytes | None:
@@ -339,7 +339,7 @@ class Storage:
         else:
             return self.get_file_content(f'{bucket}/{key}')
 
-    def get_iterator(self, key: str, bucket: str, chunk_size: int = 1024 * 64) -> Iterator | None:
+    def get_iterator(self, key: str, bucket: str, chunk_size: int = 1024 * 64) -> Generator:
         """Get a file iterator from the specified bucket/directory."""
         if config.S3_ENABLED:
             return self.get_s3_iterator(str(key), bucket, chunk_size)
@@ -393,7 +393,7 @@ class Storage:
         except Exception as e:
             self.logger.error(f'Failed to read file "{filepath}": {e}')
 
-    def get_file_iterator(self, filepath: str, chunk_size: int = 1024 * 64) -> Iterator | None:
+    def get_file_iterator(self, filepath: str, chunk_size: int = 1024 * 64) -> Generator:
         try:
             with open(f'{config.DATA_PATH}/{filepath}', 'rb') as f:
                 while chunk := f.read(chunk_size):
@@ -420,7 +420,7 @@ class Storage:
 
         return buffer.getvalue()
 
-    def get_s3_iterator(self, key: str, bucket: str, chunk_size: int = 1024 * 64) -> Iterator | None:
+    def get_s3_iterator(self, key: str, bucket: str, chunk_size: int = 1024 * 64) -> Generator:
         buffer = io.BytesIO()
 
         try:
