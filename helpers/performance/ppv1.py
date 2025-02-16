@@ -39,6 +39,17 @@ def calculate_ppv1(
         session=session
     )
 
+    relative_playcount = beatmaps.fetch_relative_playcount(
+        beatmap.id,
+        session=session
+    )
+
+    ss_ratio = scores.fetch_ss_ratio(
+        beatmap.id,
+        score.mode,
+        session=session
+    )
+
     mods = Mods(score.mods)
 
     # TODO: Use old eyup star rating
@@ -59,9 +70,11 @@ def calculate_ppv1(
     rx_nerf  = 0.3 if (Mods.Relax in mods) or (Mods.Autopilot in mods) else 1
     ez_nerf  = 0.2 if (Mods.Easy in mods) or (Mods.HalfTime in mods) else 1
 
-    # NOTE: Beatmap popularity is nefed a LOT, since it would inflate pp to the roof
-    populariy_factor = math.pow(beatmap.playcount, 0.145)
+    populariy_factor = math.pow(beatmap.playcount, 0.4) * 3.6
     acc_factor = math.pow(score.acc, 15)
+
+    relative_playcount_factor = 0.24 if relative_playcount < 0.98 else 1
+    ss_ratio_factor = 1 - (3 * ss_ratio)
 
     # Nerf converts
     if score.mode > 0 and score.mode != beatmap.mode:
@@ -81,7 +94,9 @@ def calculate_ppv1(
         rx_nerf,
         ez_nerf,
         populariy_factor,
-        acc_factor
+        acc_factor,
+        relative_playcount_factor,
+        ss_ratio_factor
     ])
 
     scores.update(
