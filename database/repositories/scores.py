@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from app.common.constants import Grade
+from app.common.helpers import caching
 from app.common.database.objects import (
     DBBeatmap,
     DBScore,
@@ -716,6 +717,25 @@ def fetch_clears(
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .scalar()
+
+@session_wrapper
+@caching.ttl_cache(ttl=300)
+def fetch_ss_ratio(beatmap_id: int, session: Session = ...) -> float:
+    ss_count = session.query(func.count(DBScore.id)) \
+        .filter(DBScore.beatmap_id == beatmap_id) \
+        .filter(DBScore.grade.in_(['X', 'XH'])) \
+        .filter(DBScore.status_score == 3) \
+        .filter(DBScore.hidden == False) \
+        .scalar()
+
+    s_count = session.query(func.count(DBScore.id)) \
+        .filter(DBScore.beatmap_id == beatmap_id) \
+        .filter(DBScore.grade.in_(['SH', 'S'])) \
+        .filter(DBScore.status_score == 3) \
+        .filter(DBScore.hidden == False) \
+        .scalar()
+
+    return min(1, ss_count / s_count) if s_count > 0 else 0
 
 @session_wrapper
 def delete(score_id: int, session: Session = ...):
