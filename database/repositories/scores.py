@@ -720,12 +720,13 @@ def fetch_clears(
 
 @session_wrapper
 @caching.ttl_cache(ttl=300)
-def fetch_ss_ratio(beatmap_id: int, session: Session = ...) -> float:
+def fetch_ss_ratio(beatmap_id: int, mode: int, session: Session = ...) -> float:
     ss_count = session.query(func.count(DBScore.id)) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.grade.in_(['X', 'XH'])) \
         .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
+        .filter(DBScore.mode == mode) \
         .scalar()
 
     s_count = session.query(func.count(DBScore.id)) \
@@ -733,6 +734,7 @@ def fetch_ss_ratio(beatmap_id: int, session: Session = ...) -> float:
         .filter(DBScore.grade.in_(['SH', 'S'])) \
         .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
+        .filter(DBScore.mode == mode) \
         .scalar()
 
     return min(1, ss_count / s_count) if s_count > 0 else 0

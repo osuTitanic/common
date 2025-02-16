@@ -116,6 +116,7 @@ def fetch_relative_playcount(beatmap_id: int, session: Session = ...) -> int:
         DBBeatmap.playcount / func.max(DBBeatmap.playcount)
     ) \
         .filter(DBBeatmap.id == beatmap_id) \
+        .group_by(DBBeatmap.playcount) \
         .scalar()
 
 @session_wrapper
