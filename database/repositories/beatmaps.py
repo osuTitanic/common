@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from app.common.database.objects import DBBeatmap
+from app.common.helpers import caching
 from sqlalchemy.orm import selectinload
 from sqlalchemy import func
 
@@ -106,6 +107,15 @@ def fetch_count_with_leaderboards(mode: int, session: Session = ...) -> int:
 def fetch_id_by_filename(filename: str, session: Session = ...) -> int | None:
     return session.query(DBBeatmap.id) \
         .filter(DBBeatmap.filename == filename) \
+        .scalar()
+
+@session_wrapper
+@caching.ttl_cache(ttl=300)
+def fetch_relative_playcount(beatmap_id: int, session: Session = ...) -> int:
+    return session.query(
+        DBBeatmap.playcount / func.max(DBBeatmap.playcount)
+    ) \
+        .filter(DBBeatmap.id == beatmap_id) \
         .scalar()
 
 @session_wrapper
