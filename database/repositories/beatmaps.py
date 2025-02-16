@@ -112,9 +112,9 @@ def fetch_id_by_filename(filename: str, session: Session = ...) -> int | None:
 @session_wrapper
 @caching.ttl_cache(ttl=300)
 def fetch_relative_playcount(beatmap_id: int, session: Session = ...) -> int:
-    return session.query(
-        DBBeatmap.playcount / func.max(DBBeatmap.playcount)
-    ) \
+    maximum_playcount = session.query(func.max(DBBeatmap.playcount)).scalar()
+
+    return session.query(DBBeatmap.playcount / maximum_playcount) \
         .filter(DBBeatmap.id == beatmap_id) \
         .group_by(DBBeatmap.playcount) \
         .scalar()
