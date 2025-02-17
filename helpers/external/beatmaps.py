@@ -5,7 +5,9 @@ from typing import List
 from ...database.repositories import resources, beatmapsets
 from ...database.objects import DBResourceMirror
 
+from requests.adapters import HTTPAdapter
 from requests import Session, Response
+from urllib3.util.retry import Retry
 from urllib.parse import urlparse
 from redis import Redis
 
@@ -22,6 +24,15 @@ class Beatmaps:
         self.session = Session()
         self.session.headers = {'User-Agent': f'osuTitanic ({config.DOMAIN_NAME})'}
         self.cache = cache
+
+        retries = Retry(
+            total=4,
+            backoff_factor=0.3,
+            status_forcelist=[500, 502, 503, 504]
+        )
+
+        self.session.mount('http://', HTTPAdapter(max_retries=retries))
+        self.session.mount('https://', HTTPAdapter(max_retries=retries))
 
     def check_ratelimit(self, url: str) -> bool:
         domain = urlparse(self.format_mirror_url(url, 0)).netloc
