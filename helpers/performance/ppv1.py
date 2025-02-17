@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from ...database.repositories import scores, beatmaps, wrapper
 from ...database.objects import DBScore, DBBeatmap
+from ...helpers import caching
 from ...constants import Mods
 
 from sqlalchemy.orm import Session
@@ -12,11 +13,6 @@ from typing import List
 import math
 
 # ppv1 reference: https://gist.github.com/peppy/4f8fcb6629d300c56ebe80156b20b76c
-
-def calculate_star_rating(beatmap: DBBeatmap) -> float:
-    """Calculate the old eyup star rating"""
-    # TODO: Add an actual implementation
-    return min(5, beatmap.diff * 0.565)
 
 @wrapper.session_wrapper
 def calculate_ppv1(
@@ -44,12 +40,6 @@ def calculate_ppv1(
         session=session
     )
 
-    ss_ratio = scores.fetch_ss_ratio(
-        beatmap.id,
-        score.mode,
-        session=session
-    )
-
     mods = Mods(score.mods)
 
     # TODO: Use old eyup star rating
@@ -74,7 +64,7 @@ def calculate_ppv1(
     acc_factor = math.pow(score.acc, 15)
 
     relative_playcount_factor = 0.24 if relative_playcount < 0.98 else 1
-    ss_ratio_factor = 1 - (3 * ss_ratio)
+    ss_ratio_factor = calculate_ss_ratio_factor(beatmap, score.mode, session)
 
     # Nerf converts
     if score.mode > 0 and score.mode != beatmap.mode:
@@ -106,6 +96,32 @@ def calculate_ppv1(
     )
 
     return max(0, score.ppv1)
+
+@caching.ttl_cache(ttl=60*8)
+def calculate_ss_ratio_factor(beatmap: DBBeatmap, mode: int, session: Session) -> float:
+    """Calculate the ss ratio factor"""
+    ss_ranks = scores.fetch_ss_ranks(beatmap.id, mode, session)
+    s_ranks = scores.fetch_s_ranks(beatmap.id, mode, session)
+    total_ranks = s_ranks + ss_ranks
+
+    # Ensure we have enough plays for the calculation to make sense
+    if total_ranks <= 10 and ss_ranks <= 1:
+        return 1
+
+    # Avoid division by zero
+    if s_ranks <= 0:
+        return 1
+
+    # Original ss ratio factor, which we won't use
+    # ss_ratio_factor = 1 - (3 * ss_ratio)
+
+    # Improved ss ratio factor
+    return max(0.1, 1 - min(1.0, ss_ranks / s_ranks))
+
+def calculate_star_rating(beatmap: DBBeatmap) -> float:
+    """Calculate the old eyup star rating"""
+    # TODO: Add an actual implementation
+    return min(5, beatmap.diff * 0.565)
 
 def calculate_weight(pps: List[float]) -> float:
     """Calculate the sum of weighted pp for each score"""
