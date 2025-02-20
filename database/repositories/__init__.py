@@ -35,5 +35,6 @@ from . import (
     stats,
     plays,
     users,
+    wiki,
     logs
 )
