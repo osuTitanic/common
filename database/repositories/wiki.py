@@ -20,7 +20,8 @@ def create_page(
     session.refresh(page)
     content = create_content_entry(
         page_id=page.id,
-        entry=content,
+        title=name,
+        content=content,
         language=language,
         session=session
     )
@@ -29,20 +30,22 @@ def create_page(
 @session_wrapper
 def create_content_entry(
     page_id: int,
-    entry: str,
+    title: str,
+    content: str,
     language: str,
     session: Session = ...
 ) -> DBWikiContent:
     session.add(
-        entry := DBWikiContent(
+        content := DBWikiContent(
             page_id=page_id,
-            content=entry,
+            title=title,
+            content=content,
             language=language
         )
     )
     session.commit()
-    session.refresh(entry)
-    return entry
+    session.refresh(content)
+    return content
 
 @session_wrapper
 def create_outlink(
