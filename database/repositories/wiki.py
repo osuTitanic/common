@@ -1,12 +1,14 @@
 
 from __future__ import annotations
+from .wrapper import session_wrapper
 
 from app.common.database.objects import DBWikiPage, DBWikiContent, DBWikiOutlink
 from sqlalchemy.orm import Session
+from sqlalchemy import func, or_
 from typing import List, Tuple
 from datetime import datetime
 
-from .wrapper import session_wrapper
+import re
 
 @session_wrapper
 def create_page(
@@ -96,6 +98,42 @@ def fetch_content(
 def fetch_languages(session: Session = ...) -> List[str]:
     return session.query(DBWikiContent.language) \
         .distinct() \
+        .all()
+
+@session_wrapper
+def search(
+    query: str,
+    limit: int = 50,
+    offset: int = 0,
+    session: Session = ...
+) -> List[DBWikiContent]:
+    sanitized_query = re.sub(
+        r'[^\w\s]', '',
+        query
+    )
+
+    words = [
+        word.strip()
+        for word in sanitized_query.split()
+    ]
+
+    main_tsquery = func.plainto_tsquery(
+        'simple',
+        query
+    )
+
+    fuzzy_tsquery = func.to_tsquery(
+        'simple',
+        ' & '.join(f'{word}:*' for word in words)
+    )
+
+    return session.query(DBWikiContent) \
+        .filter(or_(
+            DBWikiContent.search.op('@@')(main_tsquery),
+            DBWikiContent.search.op('@@')(fuzzy_tsquery)
+        )) \
+        .limit(limit) \
+        .offset(offset) \
         .all()
 
 @session_wrapper

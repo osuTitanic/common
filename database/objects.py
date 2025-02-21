@@ -1179,6 +1179,11 @@ class DBWikiContent(Base):
     title        = Column('title', String)
     content      = Column('content', String)
 
+    search = Column('search', TSVECTOR, Computed(
+        "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(content, ''))",
+        persisted=True
+    ))
+
     page = relationship('DBWikiPage', back_populates='content')
 
 class DBWikiOutlink(Base):
