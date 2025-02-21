@@ -101,6 +101,10 @@ def fetch_languages(session: Session = ...) -> List[str]:
         .all()
 
 @session_wrapper
+def fetch_page_count(session: Session = ...) -> int:
+    return session.query(DBWikiPage).count()
+
+@session_wrapper
 def search(
     query: str,
     limit: int = 50,
