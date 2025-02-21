@@ -116,6 +116,28 @@ def update_content(
     return rows
 
 @session_wrapper
+def delete_page(
+    page_id: int,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBWikiPage) \
+        .filter(DBWikiPage.id == page_id) \
+        .delete()
+    session.commit()
+    return rows
+
+@session_wrapper
+def delete_content(
+    page_id: int,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBWikiContent) \
+        .filter(DBWikiContent.page_id == page_id) \
+        .delete()
+    session.commit()
+    return rows
+
+@session_wrapper
 def delete_outlinks(
     page_id: int,
     session: Session = ...
