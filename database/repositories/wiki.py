@@ -103,6 +103,7 @@ def update_content(
     page_id: int,
     language: str,
     content: str,
+    title: str | None = None,
     session: Session = ...
 ) -> int:
     rows = session.query(DBWikiContent) \
@@ -110,7 +111,8 @@ def update_content(
         .filter(DBWikiContent.language == language) \
         .update({
             'content': content,
-            'last_updated': datetime.now()
+            'last_updated': datetime.now(),
+            'title': title or DBWikiContent.title
         })
     session.commit()
     return rows
