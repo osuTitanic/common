@@ -1160,10 +1160,11 @@ class DBWikiPage(Base):
 class DBWikiCategory(Base):
     __tablename__ = "wiki_categories"
 
-    id         = Column('id', Integer, primary_key=True, autoincrement=True)
-    name       = Column('name', String)
-    parent_id  = Column('parent_id', Integer, ForeignKey('wiki_categories.id'), nullable=True)
-    created_at = Column('created_at', DateTime, server_default=func.now())
+    id           = Column('id', Integer, primary_key=True, autoincrement=True)
+    name         = Column('name', String)
+    translations = Column('translations', JSONB, default={})
+    parent_id    = Column('parent_id', Integer, ForeignKey('wiki_categories.id'), nullable=True)
+    created_at   = Column('created_at', DateTime, server_default=func.now())
 
     parent = relationship('DBWikiCategory', remote_side=[id])
     pages  = relationship('DBWikiPage', back_populates='category')
@@ -1171,11 +1172,12 @@ class DBWikiCategory(Base):
 class DBWikiContent(Base):
     __tablename__ = "wiki_content"
 
-    page_id     = Column('page_id', Integer, ForeignKey('wiki_pages.id'), primary_key=True)
-    language    = Column('language', String, primary_key=True)
-    created_at  = Column('created_at', DateTime, server_default=func.now())
+    page_id      = Column('page_id', Integer, ForeignKey('wiki_pages.id'), primary_key=True)
+    language     = Column('language', String, primary_key=True)
+    created_at   = Column('created_at', DateTime, server_default=func.now())
     last_updated = Column('last_updated', DateTime, server_default=func.now())
-    content     = Column('content', String)
+    title        = Column('title', String)
+    content      = Column('content', String)
 
     page = relationship('DBWikiPage', back_populates='content')
 
