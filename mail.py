@@ -21,14 +21,9 @@ def smtp(subject: str, message: str, email: str):
         msg['Subject'] = subject
         msg['From'] = config.EMAIL_SENDER
         msg['To'] = email
-
-        try:
-            smtp.starttls()
-            smtp.login(config.SMTP_USER, config.SMTP_PASSWORD)
-            smtp.sendmail(config.EMAIL_SENDER, [email], msg.as_string())
-        except Exception as e:
-            app.session.logger.warning(f'Failed to send email: {e}')
-            officer.call(f'Failed to send email to {email} with subject "{subject}": {e}')
+        smtp.starttls()
+        smtp.login(config.SMTP_USER, config.SMTP_PASSWORD)
+        smtp.sendmail(config.EMAIL_SENDER, [email], msg.as_string())
 
 def sendgrid(subject: str, message: str, email: str):
     message = Mail(
@@ -41,13 +36,7 @@ def sendgrid(subject: str, message: str, email: str):
     response = client.send(message)
 
     if response.status_code != 200:
-        app.session.logger.warning(
-            f'Failed to send email: {response.body}'
-        )
-        officer.call(
-            f'Failed to send email to {email} with subject "{subject}": '
-            f'{response.body} ({response.status_code})'
-        )
+        raise Exception(f'{response.body} ({response.status_code})')
 
     return response
 
@@ -62,19 +51,10 @@ def mailgun(subject: str, message: str, email: str):
             'html': message.replace('\n', '<br>')
         }
     )
-
-    if not response.ok:
-        app.session.logger.warning(
-            f'Failed to send email: {response.text}'
-        )
-        officer.call(
-            f'Failed to send email to {email} with subject "{subject}": '
-            f'{response.text} ({response.status_code})'
-        )
-
+    response.raise_for_status()
     return response
 
-def send(subject: str, message: str, email: str):
+def send(subject: str, message: str, email: str, retries: int = 0):
     app.session.logger.info(f'Sending email to {email} with subject "{subject}"...')
 
     if not config.EMAILS_ENABLED:
@@ -90,8 +70,16 @@ def send(subject: str, message: str, email: str):
     if not config.EMAIL_PROVIDER in providers:
         app.session.logger.warning(f'Failed to send email: Invalid email provider ({config.EMAIL_PROVIDER}).')
         return
-    
-    return providers[config.EMAIL_PROVIDER](subject, message, email)
+
+    try:
+        return providers[config.EMAIL_PROVIDER](subject, message, email)
+    except Exception as e:
+        if retries > 2:
+            officer.call(f'Failed to send email to {email} with subject "{subject}".')
+            return
+
+        officer.call(f'Failed to send email to {email} with subject "{subject}". Retrying...', exc_info=e)
+        return send(subject, message, email, retries + 1)
 
 def send_welcome_email(verification: DBVerification, user: DBUser):
     message = email.WELCOME.format(
