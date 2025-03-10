@@ -70,13 +70,13 @@ def resolve_ip_address_twisted(request):
 
 def resolve_ip_address_autobahn(request):
     """Resolve the IP address of an autobahn request"""
-    if ip := request.headers.get("CF-Connecting-IP"):
+    if ip := request.headers.get("cf-connecting-ip"):
         return ip
 
-    if forwards := request.headers.get("X-Forwarded-For"):
+    if forwards := request.headers.get("x-forwarded-for"):
         return forwards.split(",")[0].strip()
 
-    if ip := request.headers.get("X-Real-IP"):
+    if ip := request.headers.get("x-real-ip"):
         return ip.strip()
 
     peer = request.peer
