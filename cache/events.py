@@ -37,6 +37,9 @@ class EventQueue:
         if not message:
             return
 
+        if message.get('data') == 1:
+            return
+
         try:
             name, args, kwargs = eval(message['data'])
             self.logger.debug(f'Got event for "{name}" with {args} and {kwargs}')
