@@ -183,6 +183,15 @@ def search(
         query = query.group_by(DBBeatmapset.id) \
                      .order_by(func.sum(DBBeatmap.playcount).desc())
 
+    elif query_string.isdigit():
+        query = query.filter(
+            or_(
+                DBBeatmapset.id == int(query_string),
+                DBBeatmap.id == int(query_string),
+                text_search_condition(query_string)
+            )) \
+            .group_by(DBBeatmapset.id)
+
     else:
         query = query.filter(text_search_condition(query_string)) \
                      .order_by(func.sum(DBBeatmap.playcount).desc()) \
