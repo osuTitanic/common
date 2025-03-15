@@ -256,10 +256,20 @@ def fetch_bookmarks(
         .filter(DBForumBookmark.topic_id == topic_id) \
         .all()
 
+@session_wrapper
+def fetch_user_bookmarks(
+    user_id: int,
+    session: Session = ...
+) -> List[DBForumBookmark]:
+    return session.query(DBForumBookmark) \
+        .filter(DBForumBookmark.user_id == user_id) \
+        .all()
+
+@session_wrapper
 def is_bookmarked(
     topic_id: int,
     user_id: int,
-    session: Session
+    session: Session = ...
 ) -> bool:
     return fetch_bookmark(
         topic_id,
