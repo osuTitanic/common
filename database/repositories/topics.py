@@ -259,10 +259,18 @@ def fetch_bookmarks(
 @session_wrapper
 def fetch_user_bookmarks(
     user_id: int,
+    include_hidden: bool = False,
     session: Session = ...
 ) -> List[DBForumBookmark]:
+    if include_hidden:
+        return session.query(DBForumBookmark) \
+            .filter(DBForumBookmark.user_id == user_id) \
+            .all()
+
     return session.query(DBForumBookmark) \
+        .join(DBForumTopic) \
         .filter(DBForumBookmark.user_id == user_id) \
+        .filter(DBForumTopic.hidden == False) \
         .all()
 
 @session_wrapper
