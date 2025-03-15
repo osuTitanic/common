@@ -10,6 +10,7 @@ from redis import Redis
 
 from .database.repositories import scores, wrapper
 from .helpers.external import Beatmaps
+from .database.objects import DBScore
 from .helpers import replays
 
 import hashlib
@@ -92,12 +93,15 @@ class Storage:
 
     @wrapper.session_wrapper
     def get_full_replay(self, id: int, session: Session = ...) -> bytes | None:
-        if not (replay := self.get_replay(id)):
-            return
-
         score = scores.fetch_by_id(id, session=session)
 
         if not score:
+            return
+
+        return self.get_full_replay_from_score(score)
+
+    def get_full_replay_from_score(self, score: DBScore) -> bytes | None:
+        if not (replay := self.get_replay(score.id)):
             return
 
         return replays.serialize_replay(score, replay)
