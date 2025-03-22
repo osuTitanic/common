@@ -1083,19 +1083,17 @@ class DBForumSubscriber(Base):
 class DBRelease(Base):
     __tablename__ = "releases"
 
-    name         = Column('name', String, primary_key=True)
-    version      = Column('version', Integer)
-    description  = Column('description', String, default='')
-    category     = Column('category', String, default='Uncategorized')
-    known_bugs   = Column('known_bugs', String, nullable=True)
-    supported    = Column('supported', Boolean, default=True)
-    recommended  = Column('recommended', Boolean, default=False)
-    preview      = Column('preview', Boolean, default=False)
-    downloads    = Column('downloads', ARRAY(String), default=[])
-    hashes       = Column('hashes', JSONB, default=[])
-    screenshots  = Column('screenshots', JSONB, default=[])
-    actions      = Column('actions', JSONB, default=[])
-    created_at   = Column('created_at', DateTime, server_default=func.now())
+    name        = Column('name', String, primary_key=True)
+    version     = Column('version', Integer)
+    description = Column('description', String, default='')
+    category    = Column('category', String, default='Uncategorized')
+    known_bugs  = Column('known_bugs', String, nullable=True)
+    supported   = Column('supported', Boolean, default=True)
+    preview     = Column('preview', Boolean, default=False)
+    downloads   = Column('downloads', ARRAY(String), default=[])
+    screenshots = Column('screenshots', ARRAY(String), default=[])
+    hashes      = Column('hashes', JSONB, default=[])
+    created_at  = Column('created_at', DateTime, server_default=func.now())
 
 class DBResourceMirror(Base):
     __tablename__ = "resource_mirrors"
