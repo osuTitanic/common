@@ -16,8 +16,9 @@ def fetch_hashes(version: int) -> List[str]:
     return [
         hash
         for release in releases.fetch_hashes(version) or []
-        for file in release[0]
-        for hash in file['md5']
+        for entry in release[0]
+        for hash in entry['md5']
+        if entry['file'] in ('osu!.exe', 'osu.exe', 'osu!test.exe', 'osu!shine1.exe')
     ]
 
 def is_valid_client_hash(version: int, hash: str) -> bool:
