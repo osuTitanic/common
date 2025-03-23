@@ -14,8 +14,8 @@ def is_valid_mod(identifier: str, hash: str, session: Session = ...) -> bool:
     if not (release := releases.fetch_modded(identifier)):
         return False
 
-    for file in release.hashes:
-        if file.endswith('.exe') and hash in release.hashes[file]:
+    for entry in release.hashes:
+        if entry['file'].endswith('.exe') and hash in entry['md5']:
             return True
 
     return False
