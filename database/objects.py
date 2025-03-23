@@ -1095,6 +1095,31 @@ class DBRelease(Base):
     hashes      = Column('hashes', JSONB, default=[])
     created_at  = Column('created_at', DateTime, server_default=func.now())
 
+class DBModdedRelease(Base):
+    __tablename__ = "releases_modding"
+
+    name            = Column('name', String, primary_key=True)
+    description     = Column('description', String)
+    creator_id      = Column('creator_id', Integer, ForeignKey('users.id'))
+    topic_id        = Column('topic_id', Integer, ForeignKey('forum_topics.id'))
+    client_version  = Column('client_version', Integer)
+    client_extension = Column('client_extension', String)
+    downloads       = Column('downloads', ARRAY(String), default=[])
+    screenshots     = Column('screenshots', ARRAY(String), default=[])
+    hashes          = Column('hashes', JSONB, default=[])
+    created_at      = Column('created_at', DateTime, server_default=func.now())
+
+    creator = relationship('DBUser')
+    topic   = relationship('DBForumTopic')
+
+class DBExtraRelease(Base):
+    __tablename__ = "releases_extra"
+
+    name        = Column('name', String, primary_key=True)
+    description = Column('description', String)
+    download    = Column('download', String)
+    filename    = Column('filename', String)
+
 class DBResourceMirror(Base):
     __tablename__ = "resource_mirrors"
 

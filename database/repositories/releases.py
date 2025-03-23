@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBRelease
+from app.common.database.objects import DBRelease, DBExtraRelease, DBModdedRelease
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -52,3 +52,13 @@ def fetch_hashes(version: int, session: Session = ...) -> List[dict]:
     return session.query(DBRelease.hashes) \
         .filter(DBRelease.version == version) \
         .all()
+
+@session_wrapper
+def fetch_modded(identifier: str, session: Session = ...) -> DBModdedRelease | None:
+    return session.query(DBModdedRelease) \
+        .filter(DBModdedRelease.client_extension == identifier) \
+        .first()
+
+@session_wrapper
+def fetch_extras(session: Session = ...) -> List[DBExtraRelease]:
+    return session.query(DBExtraRelease).all()
