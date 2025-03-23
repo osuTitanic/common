@@ -68,7 +68,11 @@ def fetch_db(ip: str) -> Geolocation | None:
 
 def fetch_web(ip: str = "") -> Geolocation | None:
     try:
-        response = app.session.requests.get(f'http://ip-api.com/line/{ip or ""}')
+        response = app.session.requests.get(
+            f'http://ip-api.com/line/{ip or ""}',
+            allow_redirects=True,
+            timeout=5
+        )
 
         if not response.ok:
             return None
