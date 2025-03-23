@@ -39,7 +39,7 @@ class EventQueue:
 
         message = self.channel.get_message(ignore_subscribe_messages=True)
 
-        if not message:
+        if message is None:
             return
 
         try:
@@ -60,9 +60,7 @@ class EventQueue:
             try:
                 if message['data'] == 1: continue
                 name, args, kwargs = eval(message['data'])
-                self.logger.debug(
-                    f'Got event for "{name}" with {args} and {kwargs}'
-                )
+                self.logger.debug(f'Got event for "{name}" with {args} and {kwargs}')
                 yield self.events[name], args, kwargs
             except KeyError:
                 self.logger.warning(f'No callback found for "{name}"')
