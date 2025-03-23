@@ -47,7 +47,7 @@ class EventQueue:
         try:
             name, args, kwargs = eval(message['data'])
             self.logger.debug(f'Got event for "{name}" with {args} and {kwargs}')
-            return self.events[name], args
+            return self.events[name], args, kwargs
         except KeyError:
             self.logger.warning(f'No callback found for "{name}"')
         except Exception as e:
