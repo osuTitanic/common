@@ -32,6 +32,10 @@ class EventQueue:
 
     def poll(self) -> Tuple[Callable, Tuple, Dict] | None:
         """Poll for events from the queue"""
+        if self.name not in self.channel.channels:
+            # Ensure we are subscribed to the channel
+            self.channel.subscribe(self.name)
+
         message = self.channel.get_message()
 
         if not message:
