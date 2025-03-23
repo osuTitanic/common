@@ -37,12 +37,9 @@ class EventQueue:
             self.channel.subscribe(self.name)
             self.logger.info(f'Subscribed to pubsub channel "{self.name}".')
 
-        message = self.channel.get_message()
+        message = self.channel.get_message(ignore_subscribe_messages=True)
 
         if not message:
-            return
-
-        if message.get('data') == 1:
             return
 
         try:
