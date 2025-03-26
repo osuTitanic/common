@@ -4,6 +4,7 @@ from sqlalchemy import create_engine, text
 from contextlib import contextmanager
 
 from .objects import Base
+from . import extensions
 from .. import officer
 
 import logging
