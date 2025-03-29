@@ -11,7 +11,7 @@ from app.common.database.objects import (
     DBUser
 )
 
-from sqlalchemy.orm import selectinload, Session
+from sqlalchemy.orm import selectinload, joinedload, Session
 from sqlalchemy import func, or_
 
 from .wrapper import session_wrapper
@@ -153,9 +153,9 @@ def fetch_user_id(username: str, session: Session = ...) -> int | None:
             .scalar()
 
 @session_wrapper
-def fetch_many(user_ids: tuple, *options, session: Session = ...) -> List[DBUser]:
+def fetch_many(user_ids: list, *options, session: Session = ...) -> List[DBUser]:
     return session.query(DBUser) \
-              .options(*[selectinload(item) for item in options]) \
+              .options(*[joinedload(item) for item in options]) \
               .filter(DBUser.id.in_(user_ids)) \
               .all()
 
