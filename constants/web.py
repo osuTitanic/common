@@ -28,3 +28,4 @@ class DisplayMode(IntEnum):
     All       = 4
     Graveyard = 5
     Played    = 7
+    Loved     = 8
