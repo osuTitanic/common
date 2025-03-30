@@ -203,6 +203,7 @@ def search(
         DisplayMode.Pending: query.filter(DBBeatmapset.status == 0),
         DisplayMode.Graveyard: query.filter(DBBeatmapset.status == -2),
         DisplayMode.Qualified: query.filter(DBBeatmapset.status == 3),
+        DisplayMode.Loved: query.filter(DBBeatmapset.status == 4),
         DisplayMode.Played: query.join(DBPlay) \
             .filter(DBPlay.user_id == user_id) \
             .filter(DBBeatmapset.status > 0)
