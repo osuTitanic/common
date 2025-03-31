@@ -29,3 +29,13 @@ def fetch_hashes(version: int, session: Session = ...) -> List[str]:
         for hash in entry['md5']
         if entry['file'].startswith('osu') and entry['file'].endswith('.exe')
     ]
+
+@releases.session_wrapper
+def fetch_hashes_by_filename(filename: str, session: Session = ...) -> List[str]:
+    return [
+        hash
+        for release in releases.fetch_all(session)
+        for file in release.hashes
+        if file['file'] == filename
+        for hash in file['md5']
+    ]
