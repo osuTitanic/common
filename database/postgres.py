@@ -24,7 +24,6 @@ class Postgres:
             echo=None
         )
 
-        self.engine.dispose()
         self.sessionmaker = sessionmaker(
             bind=self.engine,
             autoflush=False,
