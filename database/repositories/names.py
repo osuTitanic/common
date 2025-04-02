@@ -41,3 +41,14 @@ def fetch_by_name_extended(name: str, session: Session = ...) -> DBName | None:
         )) \
         .order_by(func.length(DBName.name).asc()) \
         .first()
+
+@session_wrapper
+def fetch_by_name_reserved(name: str, session: Session = ...) -> DBName | None:
+    return session.query(DBName) \
+        .filter(or_(
+            DBName.name.ilike(name),
+            DBName.name.ilike(f'%{name}%')
+        )) \
+        .filter(DBName.reserved == True) \
+        .order_by(func.length(DBName.name).asc()) \
+        .first()
