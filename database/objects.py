@@ -515,9 +515,10 @@ class DBName(Base):
     __tablename__ = "name_history"
 
     id         = Column('id', Integer, primary_key=True, autoincrement=True)
-    user_id    = Column('user_id', Integer, ForeignKey('users.id'))
-    changed_at = Column('changed_at', DateTime, server_default=func.now())
     name       = Column('name', String)
+    user_id    = Column('user_id', Integer, ForeignKey('users.id'))
+    reserved   = Column('reserved', Boolean, default=True)
+    changed_at = Column('changed_at', DateTime, server_default=func.now())
 
     user = relationship('DBUser', back_populates='names')
 
