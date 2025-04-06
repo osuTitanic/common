@@ -2,9 +2,9 @@
 from __future__ import annotations
 from typing import List
 
-from app.common.database.objects import DBPlay
+from app.common.database.objects import DBPlay, DBBeatmap, DBBeatmapset
+from sqlalchemy import func, text, desc
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 
 from .wrapper import session_wrapper
 
@@ -80,6 +80,38 @@ def fetch_most_played_by_user(
         .limit(limit) \
         .offset(offset) \
         .all()
+
+@session_wrapper
+def fetch_most_played(limit: int = 5, session: Session = ...) -> List[dict]:
+    results = session.query(
+        DBPlay.beatmap_id,
+        DBBeatmapset.id,
+        DBBeatmapset.title,
+        DBBeatmapset.artist,
+        DBBeatmap.version,
+        DBBeatmapset.creator,
+        DBBeatmapset.creator_id,
+        DBBeatmapset.server,
+        func.sum(DBPlay.count).label('total_count')
+    ) \
+    .join(DBPlay.beatmapset) \
+    .join(DBPlay.beatmap) \
+    .group_by(DBPlay.beatmap_id, DBBeatmapset.id, DBBeatmap.version) \
+    .order_by(desc(text('total_count'))) \
+    .limit(limit) \
+    .all()
+
+    return [{
+        'beatmap_id': result[0],
+        'set_id': result[1],
+        'title': result[2],
+        'artist': result[3],
+        'version': result[4],
+        'creator': result[5],
+        'creator_id': result[6],
+        'server': result[7],
+        'count': result[8]
+    } for result in results]
 
 @session_wrapper
 def delete_by_id(id: int, session: Session = ...) -> int:
