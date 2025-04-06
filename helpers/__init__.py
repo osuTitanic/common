@@ -2,6 +2,7 @@
 from .external import location
 
 from . import performance
+from . import browsers
 from . import external
 from . import caching
 from . import replays
