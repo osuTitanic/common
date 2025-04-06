@@ -1,10 +1,10 @@
 
 from __future__ import annotations
-from typing import List, Tuple
+from typing import List
 
-from app.common.database.objects import DBPlay, DBBeatmapset, DBBeatmap
-from sqlalchemy import func, desc, text
+from app.common.database.objects import DBPlay
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from .wrapper import session_wrapper
 
@@ -66,31 +66,6 @@ def fetch_count_for_beatmap(beatmap_id: int, session: Session = ...) -> int:
             .first()
 
     return count[0] if count else 0
-
-@session_wrapper
-def fetch_most_played(
-    limit: int = 5,
-    offset: int = 0,
-    session: Session = ...
-) -> List[dict]:
-    results = session.query(
-        DBBeatmapset,
-        func.sum(DBBeatmap.playcount).label('total_count')
-    ) \
-        .join(DBBeatmap, DBBeatmap.set_id == DBBeatmapset.id) \
-        .group_by(DBBeatmapset.id) \
-        .order_by(desc(text('total_count'))) \
-        .limit(limit) \
-        .offset(offset) \
-        .all()
-    
-    return [
-        {
-            "beatmapset": beatmapset,
-            "playcount": playcount
-        }
-        for beatmapset, playcount in results
-    ]
     
 @session_wrapper
 def fetch_most_played_by_user(

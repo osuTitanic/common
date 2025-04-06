@@ -17,7 +17,7 @@ from app.common.database.objects import (
     DBPlay
 )
 
-from sqlalchemy import func, select, or_, ColumnElement
+from sqlalchemy import func, select, or_, desc, text, ColumnElement
 from sqlalchemy.orm import selectinload, Session
 from .wrapper import session_wrapper
 
@@ -384,6 +384,31 @@ def fetch_inactive(
         .filter(DBBeatmapset.creator_id == user_id) \
         .filter(DBBeatmapset.status == -3) \
         .all()
+
+@session_wrapper
+def fetch_most_played(
+    limit: int = 5,
+    offset: int = 0,
+    session: Session = ...
+) -> List[dict]:
+    results = session.query(
+        DBBeatmapset,
+        func.sum(DBBeatmap.playcount).label('total_count')
+    ) \
+        .join(DBBeatmap, DBBeatmap.set_id == DBBeatmapset.id) \
+        .group_by(DBBeatmapset.id) \
+        .order_by(desc(text('total_count'))) \
+        .limit(limit) \
+        .offset(offset) \
+        .all()
+    
+    return [
+        {
+            "beatmapset": beatmapset,
+            "playcount": playcount
+        }
+        for beatmapset, playcount in results
+    ]
 
 @session_wrapper
 def fetch_server_id(
