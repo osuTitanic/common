@@ -504,6 +504,19 @@ def ap_pp(
     )
     return pp if pp is not None else 0
 
+def rank(
+    user_id: int,
+    mode: int,
+    type: str = 'performance',
+    country: str | None = None
+) -> int:
+    """Get player's rank on a specific leaderboard"""
+    rank = app.session.redis.zrevrank(
+        f'bancho:{type}:{mode}{f":{country.lower()}" if country else ""}',
+        user_id
+    )
+    return (rank + 1 if rank is not None else 0)
+
 def top_players(
     mode: int,
     offset: int = 0,
