@@ -169,6 +169,15 @@ def fetch_top(limit: int = 50, session: Session = ...) -> List[DBUser]:
         .all()
 
 @session_wrapper
+def fetch_recent(limit: int = 50, session: Session = ...) -> List[DBUser]:
+    return session.query(DBUser) \
+        .filter(DBUser.restricted == False) \
+        .filter(DBUser.activated == True) \
+        .order_by(DBUser.created_at.desc()) \
+        .limit(limit) \
+        .all()
+
+@session_wrapper
 def fetch_post_count(user_id: int, session: Session = ...) -> int:
     return session.query(DBForumPost) \
         .filter(DBForumPost.user_id == user_id) \
