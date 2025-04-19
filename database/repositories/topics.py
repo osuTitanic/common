@@ -144,6 +144,21 @@ def fetch_recent_many(
         .all()
 
 @session_wrapper
+def fetch_recent_by_last_post(
+    forum_id: int,
+    limit: int = 5,
+    offset: int = 0,
+    session: Session = ...
+) -> List[DBForumTopic]:
+    return session.query(DBForumTopic) \
+        .filter(DBForumTopic.forum_id == forum_id) \
+        .filter(DBForumTopic.hidden == False) \
+        .order_by(DBForumTopic.last_post_at.desc()) \
+        .limit(limit) \
+        .offset(offset) \
+        .all()
+
+@session_wrapper
 def add_subscriber(
     topic_id: int,
     user_id: int,
