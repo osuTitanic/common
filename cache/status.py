@@ -11,11 +11,10 @@ import app
 def update(
     player_id: int,
     stats: bUserStats,
+    status: bStatusUpdate,
     hash: str,
     version: int
 ) -> None:
-    status = copy(stats.status)
-
     status_update = {
         'beatmap_checksum': status.beatmap_checksum,
         'beatmap_id': status.beatmap_id,
