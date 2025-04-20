@@ -67,6 +67,7 @@ def resolve_ip_address_autobahn(request):
     if ip := request.headers.get("x-real-ip"):
         return ip.strip()
 
-    peer = request.peer
-    parts = peer.rsplit(":", 1)
-    return parts[0] if len(parts) == 2 else peer
+    ip = request.peer.strip()
+    ip = ip.split(":", 1)[-1]
+    ip = ip.rsplit(":", 1)[0]
+    return ip
