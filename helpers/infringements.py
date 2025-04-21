@@ -101,9 +101,6 @@ def restrict_user(
         user.country
     )
 
-    scores.hide_all(user.id, session=session)
-    stats.update_all(user.id, {'rank': 0}, session=session)
-
     groups.delete_entry(user.id, 999, session=session)
     groups.delete_entry(user.id, 1000, session=session)
 
@@ -119,6 +116,9 @@ def restrict_user(
         is_permanent=True if not until else False,
         session=session
     )
+
+    stats.update_all(user.id, {'rank': 0}, session=session)
+    scores.hide_all(user.id, session=session)
 
     officer.call(
         f'{user.name} was {"auto-" if autoban else ""}restricted. '
