@@ -43,6 +43,11 @@ def silence_user(
         session=session
     )
 
+    officer.call(
+        f'{user.name} was silenced for {duration} seconds. '
+        f'Reason: "{reason}"'
+    )
+
     return user.silence_end
 
 @wrapper.session_wrapper
@@ -69,11 +74,16 @@ def unsilence_user(
             session=session
         )
 
+    officer.call(
+        f'{user.name} was unsilenced.'
+    )
+
 @wrapper.session_wrapper
 def restrict_user(
     user: DBUser,
     reason: str | None = None,
     until: datetime | None = None,
+    autoban: bool = False,
     session: Session | None = None
 ) -> None:
     user.restricted = True
@@ -110,7 +120,10 @@ def restrict_user(
         session=session
     )
 
-    officer.call(f'{user.name} was restricted. Reason: "{reason}"')
+    officer.call(
+        f'{user.name} was {"auto-" if autoban else ""}restricted. '
+        f'Reason: "{reason}"'
+    )
 
 @wrapper.session_wrapper
 def unrestrict_user(
@@ -138,3 +151,5 @@ def unrestrict_user(
             user_stats,
             user.country
         )
+
+    officer.call(f'Player "{user.name}" was unrestricted.')
