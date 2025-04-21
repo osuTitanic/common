@@ -1,4 +1,21 @@
 
+ANCHOR_ASCII_ART = r'''
+        _-_
+       |(_)|
+        |||
+        |||
+        |||
+
+        |||
+        |||
+  ^     |^|     ^
+< ^ >   <+>   < ^ >
+ | |    |||    | |
+  \ \__/ | \__/ /
+    \,__.|.__,/
+        (_)
+'''
+
 ANCHOR_WEB_RESPONSE = r'''
 <pre>
         _-_
@@ -20,6 +37,7 @@ titanic: <a href="https://github.com/osuTitanic/titanic">https://github.com/osuT
 anchor: <a href="https://github.com/osuTitanic/anchor">https://github.com/osuTitanic/anchor</a>
 stern: <a href="https://github.com/osuTitanic/stern">https://github.com/osuTitanic/stern</a>
 deck: <a href="https://github.com/osuTitanic/deck">https://github.com/osuTitanic/deck</a>
+keel: <a href="https://github.com/osuTitanic/keel">https://github.com/osuTitanic/keel</a>
 
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <marquee style="white-space:pre; margin: 0;" scrollamount="5">
@@ -34,23 +52,6 @@ hooooonk!!
   \              < < <       |
 </marquee><p style="word-wrap: break-word; overflow: hidden; margin: 0;">^~^~^~^~^~^~^~^~^^~^~rr^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^</p>
 </pre>
-'''
-
-ANCHOR_ASCII_ART = r'''
-        _-_
-       |(_)|
-        |||
-        |||
-        |||
-
-        |||
-        |||
-  ^     |^|     ^
-< ^ >   <+>   < ^ >
- | |    |||    | |
-  \ \__/ | \__/ /
-    \,__.|.__,/
-        (_)
 '''
 
 LOGGED_IN_FROM_ANOTHER_LOCATION = '\n'.join([
