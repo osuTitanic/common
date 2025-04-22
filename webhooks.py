@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from requests import Response
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, List
 
 import app
@@ -94,9 +94,7 @@ class Webhook:
         self.tts = is_tts
         self.file = file
         self.embeds = embeds
-
-    def add_embed(self, embed: Embed) -> None:
-        self.embeds.append(embed)
+        self.ensure_avatar_caching_disabled()
 
     @property
     def json(self) -> Any:
@@ -140,6 +138,19 @@ class Webhook:
 
         return payload
 
+    def add_embed(self, embed: Embed) -> None:
+        self.embeds.append(embed)
+
+    def ensure_avatar_caching_disabled(self) -> None:
+        if type(self.avatar_url) != str:
+            return
+
+        # Prevent Discord caching avatars indefinetly, only cache for 1 day
+        now: datetime = datetime.now(timezone.utc)
+        epoch: datetime = datetime(1970, 1, 1, tzinfo=timezone.utc)
+        days_since_epoch = (now - epoch).days
+        self.avatar_url = f"{self.avatar_url}?t={days_since_epoch}"
+
     def post(self) -> bool:
         """Post the webhook in json format"""
         try:
@@ -154,11 +165,10 @@ class Webhook:
                     )
                 }
             ).raise_for_status()
+            return True
         except Exception as e:
             app.session.logger.info(
                 f"Failed to post webhook: {e}",
                 exc_info=e
             )
             return False
-
-        return True
