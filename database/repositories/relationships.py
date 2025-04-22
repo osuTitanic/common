@@ -77,6 +77,18 @@ def fetch_target_ids(user_id: int, session: Session = ...) -> List[int]:
     return [id[0] for id in result]
 
 @session_wrapper
+def is_friend(
+    user_id: int,
+    target_id: int,
+    session: Session = ...
+) -> bool:
+    return session.query(DBRelationship) \
+        .filter(DBRelationship.user_id == user_id) \
+        .filter(DBRelationship.target_id == target_id) \
+        .filter(DBRelationship.status == 0) \
+        .count() > 0
+
+@session_wrapper
 def fetch_users(
     user_id: int,
     status: int = 0,
