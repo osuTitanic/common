@@ -82,11 +82,11 @@ def is_friend(
     target_id: int,
     session: Session = ...
 ) -> bool:
-    return session.query(DBRelationship) \
+    return session.query(DBRelationship.target_id) \
         .filter(DBRelationship.user_id == user_id) \
         .filter(DBRelationship.target_id == target_id) \
         .filter(DBRelationship.status == 0) \
-        .count() > 0
+        .first() is not None
 
 @session_wrapper
 def fetch_users(
