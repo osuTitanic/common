@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from requests import Response
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, List
 
 import app
@@ -91,6 +91,12 @@ class Webhook:
         self.content = content
         self.username = username
         self.avatar_url = avatar_url
+        if type(avatar_url) == str:
+            # Prevent Discord caching avatars indefinetly, only cache for 1 day
+            now: datetime = datetime.now(timezone.utc)
+            epoch: datetime = datetime(1970, 1, 1, tzinfo=timezone.utc)
+            days_since_epoch = (now - epoch).days
+            self.avatar_url = f"{self.avatar_url}?t={days_since_epoch}"
         self.tts = is_tts
         self.file = file
         self.embeds = embeds
