@@ -14,6 +14,7 @@ ANCHOR_ASCII_ART = r'''
   \ \__/ | \__/ /
     \,__.|.__,/
         (_)
+
 '''
 
 ANCHOR_WEB_RESPONSE = r'''
