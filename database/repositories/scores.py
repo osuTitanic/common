@@ -152,9 +152,23 @@ def fetch_top_scores(
 def fetch_top_scores_count(
     user_id: int,
     mode: int,
+    exclude_approved: bool = False,
     session: Session = ...
 ) -> int:
+    allowed_status = [
+        1, # Ranked
+        2  # Approved
+    ]
+
+    if not exclude_approved:
+        allowed_status.extend([
+            3, # Qualified
+            4  # Loved
+        ])
+
     return session.query(func.count(DBScore.id)) \
+        .join(DBScore.beatmap) \
+        .filter(DBBeatmap.status.in_(allowed_status)) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
