@@ -1,11 +1,10 @@
 
 from __future__ import annotations
+from typing import List, Dict
 
 from app.common.database.objects import DBRating
-
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from typing import List
 
 from .wrapper import session_wrapper
 
@@ -55,6 +54,18 @@ def fetch_average(beatmap_hash: str, session: Session = ...) -> float:
         .first()[0]
 
     return float(result) if result else 0.0
+
+@session_wrapper
+def fetch_range(beatmap_hash: str, session: Session = ...) -> Dict[int, int]:
+    result = session.query(DBRating.rating, func.count()) \
+        .filter(DBRating.map_checksum == beatmap_hash) \
+        .group_by(DBRating.rating) \
+        .all()
+
+    return {
+        rating: count
+        for rating, count in result
+    }
 
 @session_wrapper
 def delete(beatmap_hash: str, user_id: int, session: Session = ...) -> None:
