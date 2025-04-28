@@ -56,6 +56,15 @@ def fetch_average(beatmap_hash: str, session: Session = ...) -> float:
     return float(result) if result else 0.0
 
 @session_wrapper
+def fetch_average_by_set(set_id: int, session: Session = ...) -> float:
+    result = session.query(
+        func.avg(DBRating.rating).label('average')) \
+        .filter(DBRating.set_id == set_id) \
+        .first()[0]
+
+    return float(result) if result else 0.0
+
+@session_wrapper
 def fetch_range(beatmap_hash: str, session: Session = ...) -> Dict[int, int]:
     result = session.query(DBRating.rating, func.count()) \
         .filter(DBRating.map_checksum == beatmap_hash) \
