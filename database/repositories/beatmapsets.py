@@ -53,7 +53,12 @@ def text_search_condition(query_string: str):
         ' & '.join(f'{word}:*' for word in words)
     )
 
-    return or_(
+    rank = func.ts_rank(
+        DBBeatmapset.search,
+        main_tsquery
+    )
+
+    query = or_(
         *[
             column.op('@@')(main_tsquery)
             for column in search_columns
@@ -63,6 +68,8 @@ def text_search_condition(query_string: str):
             for column in search_columns
         ]
     )
+
+    return query, rank
 
 @session_wrapper
 def create(
@@ -167,6 +174,8 @@ def search(
     query = session.query(DBBeatmapset) \
                    .join(DBBeatmap, isouter=True)
 
+    text_condition, text_sort = text_search_condition(query_string)
+
     if mode != -1:
         query = query.filter(DBBeatmap.mode == mode)
 
@@ -188,13 +197,14 @@ def search(
             or_(
                 DBBeatmapset.id == int(query_string),
                 DBBeatmap.id == int(query_string),
-                text_search_condition(query_string)
+                text_condition
             )) \
+            .order_by(text_sort.desc()) \
             .group_by(DBBeatmapset.id)
 
     else:
-        query = query.filter(text_search_condition(query_string)) \
-                     .order_by(func.sum(DBBeatmap.playcount).desc()) \
+        query = query.filter(text_condition) \
+                     .order_by(text_sort.desc()) \
                      .group_by(DBBeatmapset.id)
 
     query = {
@@ -222,11 +232,13 @@ def search_one(
     offset: int = 0,
     session: Session = ...
 ) -> DBBeatmapset | None:
+    condition, sort = text_search_condition(query_string)
+
     return session.query(DBBeatmapset) \
         .join(DBBeatmap) \
         .filter(DBBeatmapset.status > -3) \
-        .filter(text_search_condition(query_string)) \
-        .order_by(DBBeatmap.playcount.desc()) \
+        .filter(condition) \
+        .order_by(sort.desc()) \
         .offset(offset) \
         .first()
 
@@ -260,12 +272,6 @@ def search_extended(
             .group_by(DBBeatmapset.id) \
             .join(DBBeatmap)
 
-    if query_string:
-        query = query.filter(text_search_condition(query_string))
-
-    if sort == BeatmapSortBy.Rating:
-        query = query.join(DBRating)
-
     order_type = {
         BeatmapSortBy.Created: DBBeatmapset.id,
         BeatmapSortBy.Title: DBBeatmapset.title,
@@ -281,6 +287,12 @@ def search_extended(
         order_type.asc() if order == BeatmapOrder.Ascending else
         order_type.desc()
     )
+
+    if query_string:
+        query = query.filter(text_search_condition(query_string)[0])
+
+    if sort == BeatmapSortBy.Rating:
+        query = query.join(DBRating)
 
     if genre is not None:
         query = query.filter(DBBeatmapset.genre_id == genre)
