@@ -68,6 +68,18 @@ def fetch_range(beatmap_hash: str, session: Session = ...) -> Dict[int, int]:
     }
 
 @session_wrapper
+def fetch_range_by_set(set_id: int, session: Session = ...) -> Dict[int, int]:
+    result = session.query(DBRating.rating, func.count()) \
+        .filter(DBRating.set_id == set_id) \
+        .group_by(DBRating.rating) \
+        .all()
+
+    return {
+        rating: count
+        for rating, count in result
+    }
+
+@session_wrapper
 def delete(beatmap_hash: str, user_id: int, session: Session = ...) -> None:
     session.query(DBRating) \
         .filter(DBRating.map_checksum == beatmap_hash) \
