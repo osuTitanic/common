@@ -9,7 +9,7 @@ from .wrapper import session_wrapper
 
 from sqlalchemy.orm import Session
 from datetime import datetime
-from typing import List
+from typing import List, Dict
 
 @session_wrapper
 def create(
@@ -88,6 +88,21 @@ def fetch_by_set(set_id: int, session: Session = ...) -> List[DBBeatmap]:
 def fetch_count(session: Session = ...) -> int:
     return session.query(func.count(DBBeatmap.id)) \
                   .scalar()
+
+@session_wrapper
+def fetch_count_by_mode(mode: int, session: Session = ...) -> int:
+    return session.query(func.count(DBBeatmap.id)) \
+                  .filter(DBBeatmap.mode == mode) \
+                  .scalar()
+
+@session_wrapper
+def fetch_count_grouped_status(mode: int, session: Session = ...) -> Dict[int, int]:
+    result = session.query(DBBeatmap.status, func.count(DBBeatmap.id)) \
+        .filter(DBBeatmap.mode == mode) \
+        .group_by(DBBeatmap.status) \
+        .all()
+
+    return {status: count for status, count in result}
 
 @session_wrapper
 def fetch_count_with_leaderboards(mode: int, session: Session = ...) -> int:
