@@ -136,6 +136,11 @@ def fetch_one(id: int, session: Session = ...) -> DBBeatmapset | None:
             .first()
 
 @session_wrapper
+def fetch_count(session: Session = ...) -> int:
+    return session.query(func.count(DBBeatmapset.id)) \
+                  .scalar()
+
+@session_wrapper
 def fetch_by_creator(
     creator_id: int,
     session: Session = ...
