@@ -83,23 +83,26 @@ def fetch_most_played_by_user(
 
 @session_wrapper
 def fetch_most_played(limit: int = 5, session: Session = ...) -> List[dict]:
+    total_count = func.sum(DBPlay.count).label("total_count")
+
     results = session.query(
-        DBPlay.beatmap_id,
-        DBBeatmapset.id,
-        DBBeatmapset.title,
-        DBBeatmapset.artist,
-        DBBeatmap.version,
-        DBBeatmapset.creator,
-        DBBeatmapset.creator_id,
-        DBBeatmapset.server,
-        func.sum(DBPlay.count).label('total_count')
-    ) \
-    .join(DBPlay.beatmapset) \
-    .join(DBPlay.beatmap) \
-    .group_by(DBPlay.beatmap_id, DBBeatmapset.id, DBBeatmap.version) \
-    .order_by(desc(text('total_count'))) \
-    .limit(limit) \
-    .all()
+            DBPlay.beatmap_id,
+            DBBeatmapset.id,
+            DBBeatmapset.title,
+            DBBeatmapset.artist,
+            DBBeatmap.version,
+            DBBeatmapset.creator,
+            DBBeatmapset.creator_id,
+            DBBeatmapset.server,
+            total_count
+        ) \
+        .select_from(DBPlay) \
+        .join(DBBeatmap, DBPlay.beatmap) \
+        .join(DBBeatmapset, DBPlay.beatmapset) \
+        .group_by(DBPlay.beatmap_id, DBBeatmapset.id, DBBeatmap.version) \
+        .order_by(total_count.desc()) \
+        .limit(limit) \
+        .all()
 
     return [{
         'beatmap_id': result[0],
