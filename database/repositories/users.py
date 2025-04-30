@@ -147,6 +147,12 @@ def fetch_username(user_id: int, session: Session = ...) -> str | None:
             .scalar()
 
 @session_wrapper
+def fetch_irc_token(safe_name: str, session: Session = ...) -> str | None:
+    return session.query(DBUser.irc_token) \
+            .filter(DBUser.safe_name == safe_name) \
+            .scalar()
+
+@session_wrapper
 def fetch_user_id(username: str, session: Session = ...) -> int | None:
     return session.query(DBUser.id) \
             .filter(DBUser.name == username) \
