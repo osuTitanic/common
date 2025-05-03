@@ -208,6 +208,16 @@ def remove_country(
             user_id
         )
 
+        app.session.redis.zrem(
+            f'bancho:leader:{mode}:{country.lower()}',
+            user_id
+        )
+
+    app.session.redis.zrem(
+        f'bancho:kudosu:{country.lower()}',
+        user_id
+    )
+
 def remove(
     user_id: int,
     country: str
@@ -303,6 +313,26 @@ def remove(
             f'bancho:ppap:{mode}:{country.lower()}',
             user_id
         )
+
+        app.session.redis.zrem(
+            f'bancho:leader:{mode}',
+            user_id
+        )
+
+        app.session.redis.zrem(
+            f'bancho:leader:{mode}:{country.lower()}',
+            user_id
+        )
+
+    app.session.redis.zrem(
+        f'bancho:kudosu',
+        user_id
+    )
+
+    app.session.redis.zrem(
+        f'bancho:kudosu:{country.lower()}',
+        user_id
+    )
 
 def global_rank(
     user_id: int,
