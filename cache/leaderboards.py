@@ -471,6 +471,17 @@ def accuracy(
     )
     return acc if acc is not None else 0
 
+def ppv1(
+    user_id: int,
+    mode: int
+) -> float:
+    """Get player's ppv1"""
+    pp = app.session.redis.zscore(
+        f'bancho:ppv1:{mode}',
+        user_id
+    )
+    return pp if pp is not None else 0
+
 def vn_pp(
     user_id: int,
     mode: int
