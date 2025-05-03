@@ -22,10 +22,10 @@ def calculate_ppv2(score: DBScore) -> float | None:
         )
         return
 
+
     # Some older clients need adjustments to mods
     mods = adjust_mods(score)
     mode = convert_mode(score.mode)
-    mode_multiplier = 1.0
 
     # Load beatmap file & convert it
     beatmap = Beatmap(bytes=beatmap_file)
@@ -44,8 +44,8 @@ def calculate_ppv2(score: DBScore) -> float | None:
         passed_objects=total_hits(score),
     )
 
-    if mode == GameMode.Catch:
-        mode_multiplier = 0.15
+    relaxing = Mods.Relax in mods or Mods.Autopilot in mods
+    mode_multiplier = 1.0 if mode != GameMode.Catch and not relaxing else 0.15
 
     if not (result := perf.calculate(beatmap)):
         app.session.logger.error(
