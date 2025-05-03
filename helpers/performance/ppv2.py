@@ -1,13 +1,14 @@
 
 from __future__ import annotations
-from titanic_pp_py import (
+from rosu_pp_py import (
     DifficultyAttributes,
-    Calculator,
+    Performance,
+    GameMode,
     Beatmap
 )
 
 from ...database.objects import DBScore
-from ...constants import GameMode, Mods
+from ...constants import Mods
 
 import math
 import app
@@ -23,22 +24,26 @@ def calculate_ppv2(score: DBScore) -> float | None:
 
     # Some older clients need adjustments to mods
     mods = adjust_mods(score)
-    beatmap = Beatmap(bytes=beatmap_file)
+    mode = convert_mode(score.mode)
 
-    calc = Calculator(
+    # Load beatmap file & convert it
+    beatmap = Beatmap(bytes=beatmap_file)
+    beatmap.convert(mode, mods.value)
+
+    perf = Performance(
+        lazer=False,
         mods=mods.value,
-        mode=score.mode,
         n_geki=score.nGeki,
         n_katu=score.nKatu,
         n300=score.n300,
         n100=score.n100,
         n50=score.n50,
-        n_misses=score.nMiss,
+        misses=score.nMiss,
         combo=score.max_combo,
-        passed_objects=total_hits(score)
+        passed_objects=total_hits(score),
     )
 
-    if not (result := calc.performance(beatmap)):
+    if not (result := perf.calculate(beatmap)):
         app.session.logger.error(
             'pp calculation failed: No result'
         )
@@ -59,11 +64,17 @@ def calculate_ppv2(score: DBScore) -> float | None:
     app.session.logger.debug(f"Calculated pp: {result}")
     return result.pp
 
-def calculate_difficulty(beatmap_file: bytes, mode: GameMode, mods: Mods = Mods.NoMod) -> DifficultyAttributes | None:
-    calculator = Calculator(mode=mode, mods=mods.value)
+def calculate_difficulty(
+    beatmap_file: bytes,
+    mode: GameMode = GameMode.Osu,
+    mods: Mods = Mods.NoMod
+) -> DifficultyAttributes | None:
+    perf = Performance(mods=mods.value)
     beatmap = Beatmap(bytes=beatmap_file)
+    beatmap.convert(mode, mods.value)
+    difficulty = perf.difficulty()
 
-    if not (result := calculator.difficulty(beatmap)):
+    if not (result := difficulty.calculate(beatmap)):
         app.session.logger.error(
             'Difficulty calculation failed: No result'
         )
@@ -83,7 +94,6 @@ def calculate_difficulty(beatmap_file: bytes, mode: GameMode, mods: Mods = Mods.
 
     app.session.logger.debug(f"Calculated difficulty: {result}")
     return result
-
 
 def adjust_mods(score: DBScore) -> Mods:
     mods = Mods(score.mods)
@@ -108,10 +118,19 @@ def adjust_mods(score: DBScore) -> Mods:
     return mods
 
 def total_hits(score: DBScore) -> int:
-    if score.mode == GameMode.CatchTheBeat:
+    if score.mode == GameMode.Catch:
         return score.n50 + score.n100 + score.n300 + score.nMiss + score.nKatu
 
-    elif score.mode == GameMode.OsuMania:
+    elif score.mode == GameMode.Mania:
         return score.n300 + score.n100 + score.n50 + score.nGeki + score.nKatu + score.nMiss
 
     return score.n50 + score.n100 + score.n300 + score.nMiss
+
+def convert_mode(mode: int) -> GameMode:
+    mapping = {
+        0: GameMode.Osu,
+        1: GameMode.Taiko,
+        2: GameMode.Catch,
+        3: GameMode.Mania
+    }
+    return mapping.get(mode, GameMode.Osu)
