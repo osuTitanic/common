@@ -25,6 +25,7 @@ def calculate_ppv2(score: DBScore) -> float | None:
     # Some older clients need adjustments to mods
     mods = adjust_mods(score)
     mode = convert_mode(score.mode)
+    mode_multiplier = 1.0
 
     # Load beatmap file & convert it
     beatmap = Beatmap(bytes=beatmap_file)
@@ -42,6 +43,9 @@ def calculate_ppv2(score: DBScore) -> float | None:
         combo=score.max_combo,
         passed_objects=total_hits(score),
     )
+
+    if mode == GameMode.Catch:
+        mode_multiplier = 0.15
 
     if not (result := perf.calculate(beatmap)):
         app.session.logger.error(
@@ -62,7 +66,7 @@ def calculate_ppv2(score: DBScore) -> float | None:
         return 0.0
 
     app.session.logger.debug(f"Calculated pp: {result}")
-    return result.pp
+    return result.pp * mode_multiplier
 
 def calculate_difficulty(
     beatmap_file: bytes,
