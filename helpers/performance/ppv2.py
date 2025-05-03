@@ -45,7 +45,7 @@ def calculate_ppv2(score: DBScore) -> float | None:
     )
 
     relaxing = Mods.Relax in mods or Mods.Autopilot in mods
-    mode_multiplier = 1.0 if mode != GameMode.Catch and not relaxing else 0.15
+    mode_multiplier = 0.15 if mode == GameMode.Catch and relaxing else 1.0
 
     if not (result := perf.calculate(beatmap)):
         app.session.logger.error(
