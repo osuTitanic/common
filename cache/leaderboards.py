@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 from ..constants import COUNTRIES as countries
-from ..database.repositories import users
+from ..database.repositories import users, modding, scores
 from ..database.objects import DBStats
 
-from typing import Tuple, List
+from typing import Tuple, List, Optional
+from sqlalchemy.orm import Session
 
 import app
 
@@ -119,6 +120,41 @@ def update(stats: DBStats, country: str) -> None:
     app.session.redis.zadd(
         f'bancho:ppap:{stats.mode}:{country.lower()}',
         {stats.user_id: stats.pp_ap}
+    )
+
+def update_leader_scores(stats: DBStats, country: str, session: Optional[Session] = None) -> None:
+    """Update #1 count"""
+    count = scores.fetch_leader_count(
+        stats.user_id,
+        stats.mode,
+        session=session
+    )
+
+    app.session.redis.zadd(
+        f'bancho:leader:{stats.mode}',
+        {stats.user_id: count}
+    )
+
+    app.session.redis.zadd(
+        f'bancho:leader:{stats.mode}:{country.lower()}',
+        {stats.user_id: count}
+    )
+
+def update_kudosu(user_id: int, country: str, session: Optional[Session] = None) -> None:
+    """Update #1 count"""
+    kudosu = modding.total_amount_by_user(
+        user_id,
+        session=session
+    )
+
+    app.session.redis.zadd(
+        f'bancho:kudosu',
+        {user_id: kudosu}
+    )
+
+    app.session.redis.zadd(
+        f'bancho:kudosu:{country.lower()}',
+        {user_id: kudosu}
     )
 
 def remove_country(
@@ -514,6 +550,29 @@ def ap_pp(
         user_id
     )
     return pp if pp is not None else 0
+
+def leader_scores(
+    user_id: int,
+    mode: int
+) -> int:
+    """Get player's #1 scores"""
+    count = app.session.redis.zscore(
+        f'bancho:leader:{mode}',
+        user_id
+    )
+    return count if count is not None else 0
+
+def kudosu(
+    user_id: int,
+    country: str | None = None
+) -> int:
+    """Get player's kudosu"""
+    kudosu = app.session.redis.zscore(
+        f'bancho:kudosu'
+        f'{f":{country.lower()}" if country else ""}',
+        user_id
+    )
+    return kudosu if kudosu is not None else 0
 
 def rank(
     user_id: int,
