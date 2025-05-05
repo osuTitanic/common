@@ -628,8 +628,11 @@ def top_players(
 
     `returns`: List[Tuple[player_id, score/pp]]
     """
+    country_suffix = f":{country.lower()}" if country else ""
+    mode_suffix = f":{mode}" if mode != None else ""
+
     players = app.session.redis.zrevrangebyscore(
-        f'bancho:{type}:{mode}{f":{country.lower()}" if country else ""}',
+        f'bancho:{type}{mode_suffix}{country_suffix}',
         '+inf',
         '1',
         offset,
