@@ -706,10 +706,13 @@ def player_count(
     type: str = 'performance',
     country: str | None = None
 ) -> int:
+    """Get the number of players on a specific leaderboard"""
+    country_suffix = f":{country.lower()}" if country else ""
+    mode_suffix = f":{mode}" if mode != None else ""
+
     return app.session.redis.zcount(
-        f'bancho:{type}:{mode}{f":{country.lower()}" if country else ""}',
-        '1',
-        '+inf'
+        f'bancho:{type}{mode_suffix}{country_suffix}',
+        '1', '+inf'
     )
 
 def player_above(
