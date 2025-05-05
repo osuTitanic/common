@@ -624,8 +624,7 @@ def top_players(
     type: str = 'performance',
     country: str | None = None
 ) -> List[Tuple[int, float]]:
-    """Get a list of top players
-
+    """Get a list of top players  
     `returns`: List[Tuple[player_id, score/pp]]
     """
     country_suffix = f":{country.lower()}" if country else ""
@@ -718,8 +717,9 @@ def player_above(
     mode: int,
     type: str = 'rscore',
 ) -> Tuple[int, str]:
-    """Get a player above your ranked score, used in score submission response.\n
-    Returns: Tuple[score, username]
+    """
+    Get a player above your ranked score, used in score submission response.  
+    `returns`: Tuple[score, username]
     """
     position = app.session.redis.zrevrank(
         f'bancho:{type}:{mode}',
