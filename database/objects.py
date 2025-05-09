@@ -1,8 +1,5 @@
 
-from __future__ import annotations
-
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.sql import func
 
 from datetime import datetime
@@ -26,6 +23,7 @@ from sqlalchemy import (
 import config
 
 Base = declarative_base()
+Base.__allow_unmapped__ = True
 
 class DBAchievement(Base):
     __tablename__ = "achievements"
