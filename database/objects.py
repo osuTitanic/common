@@ -362,7 +362,7 @@ class DBBeatmap(Base):
     playcount     = Column('playcount', BigInteger, default=0)
     passcount     = Column('passcount', BigInteger, default=0)
     total_length  = Column('total_length', Integer)
-    drain_length  = Column('drain_length', Integer)
+    drain_length  = Column('drain_length', Integer, default=0)
     count_normal  = Column('count_normal', Integer, default=0)
     count_slider  = Column('count_slider', Integer, default=0)
     count_spinner = Column('count_spinner', Integer, default=0)
