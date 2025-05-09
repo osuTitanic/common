@@ -107,8 +107,9 @@ class DBScore(Base):
     pinned         = Column('pinned', Boolean, default=False)
     hidden         = Column('hidden', Boolean, default=False)
     submitted_at   = Column('submitted_at', DateTime, server_default=func.now())
-    replay_md5     = Column('replay_md5', String, nullable=True)
     failtime       = Column('failtime',  Integer, nullable=True)
+    replay_md5     = Column('replay_md5', String, nullable=True)
+    replay_views   = Column('replay_views', Integer, default=0)
 
     user    = relationship('DBUser', back_populates='scores')
     beatmap = relationship('DBBeatmap', back_populates='scores')
