@@ -70,9 +70,12 @@ def calculate_ppv2(score: DBScore) -> float | None:
 
 def calculate_difficulty(
     beatmap_file: bytes,
-    mode: GameMode = GameMode.Osu,
+    mode: GameMode | int = GameMode.Osu,
     mods: Mods = Mods.NoMod
 ) -> DifficultyAttributes | None:
+    if isinstance(mode, int):
+        mode = convert_mode(mode)
+
     perf = Performance(mods=mods.value)
     beatmap = Beatmap(bytes=beatmap_file)
     beatmap.convert(mode, mods.value)
