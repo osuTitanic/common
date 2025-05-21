@@ -44,6 +44,46 @@ def create_group_permission(
     return group_permission
 
 @session_wrapper
+def create_many_for_user(
+    user_id: int,
+    permissions: List[str],
+    rejected: bool = False,
+    session: Session = ...
+) -> List[DBUserPermission]:
+    user_permissions = [
+        DBUserPermission(
+            user_id=user_id,
+            permission=permission,
+            rejected=rejected
+        )
+        for permission in permissions
+    ]
+    session.add_all(user_permissions)
+    session.commit()
+    session.flush()
+    return user_permissions
+
+@session_wrapper
+def create_many_for_group(
+    group_id: int,
+    permissions: List[str],
+    rejected: bool = False,
+    session: Session = ...
+) -> List[DBGroupPermission]:
+    group_permissions = [
+        DBGroupPermission(
+            group_id=group_id,
+            permission=permission,
+            rejected=rejected
+        )
+        for permission in permissions
+    ]
+    session.add_all(group_permissions)
+    session.commit()
+    session.flush()
+    return group_permissions
+
+@session_wrapper
 def fetch_user_permissions(
     user_id: int,
     session: Session = ...
@@ -82,3 +122,51 @@ def fetch_group_permissions(
         [permission for (permission,) in granted],
         [permission for (permission,) in rejected]
     )
+
+@session_wrapper
+def delete_user_permission(
+    user_id: int,
+    permission: str,
+    session: Session = ...
+) -> None:
+    session.query(DBUserPermission) \
+        .filter(DBUserPermission.user_id == user_id) \
+        .filter(DBUserPermission.permission == permission) \
+        .delete()
+    session.commit()
+
+@session_wrapper
+def delete_group_permission(
+    group_id: int,
+    permission: str,
+    session: Session = ...
+) -> None:
+    session.query(DBGroupPermission) \
+        .filter(DBGroupPermission.group_id == group_id) \
+        .filter(DBGroupPermission.permission == permission) \
+        .delete()
+    session.commit()
+
+@session_wrapper
+def delete_many_for_user(
+    user_id: int,
+    permissions: List[str],
+    session: Session = ...
+) -> None:
+    session.query(DBUserPermission) \
+        .filter(DBUserPermission.user_id == user_id) \
+        .filter(DBUserPermission.permission.in_(permissions)) \
+        .delete()
+    session.commit()
+
+@session_wrapper
+def delete_many_for_group(
+    group_id: int,
+    permissions: List[str],
+    session: Session = ...
+) -> None:
+    session.query(DBGroupPermission) \
+        .filter(DBGroupPermission.group_id == group_id) \
+        .filter(DBGroupPermission.permission.in_(permissions)) \
+        .delete()
+    session.commit()
