@@ -46,7 +46,7 @@ def create_group_permission(
 @session_wrapper
 def fetch_user_permissions(
     user_id: int,
-    session: Session
+    session: Session = ...
 ) -> Tuple[List[str], List[str]]:
     granted = session.query(DBUserPermission.permission) \
         .filter(DBUserPermission.user_id == user_id) \
@@ -66,7 +66,7 @@ def fetch_user_permissions(
 @session_wrapper
 def fetch_group_permissions(
     group_id: int,
-    session: Session
+    session: Session = ...
 ) -> Tuple[List[str], List[str]]:
     granted = session.query(DBGroupPermission.permission) \
         .filter(DBGroupPermission.group_id == group_id) \
