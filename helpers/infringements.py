@@ -5,6 +5,7 @@ from .. import officer
 
 from ..database.repositories import (
     infringements,
+    permissions,
     clients,
     wrapper,
     scores,
@@ -15,6 +16,20 @@ from ..database.repositories import (
 
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
+
+REJECTED_PERMISSIONS_FOR_SILENCED = (
+    'chat.messages.private.create',
+    'chat.messages.create',
+    'users.profile.update',
+    'beatmaps.comments.submit',
+    'bancho.screenshots.upload',
+    'bancho.matches.create',
+    'bancho.matches.join',
+    'forum.topics.create',
+    'forum.posts.create',
+    'forum.posts.edit',
+    'benchmarks.submit'
+)
 
 @wrapper.session_wrapper
 def silence_user(
@@ -42,6 +57,14 @@ def silence_user(
         description=reason,
         session=session
     )
+    
+    # Update user permissions
+    permissions.create_many_for_user(
+        permissions=REJECTED_PERMISSIONS_FOR_SILENCED,
+        user_id=user.id,
+        rejected=True,
+        session=session
+    )
 
     officer.call(
         f'{user.name} was silenced for {duration} seconds. '
@@ -53,11 +76,19 @@ def silence_user(
 @wrapper.session_wrapper
 def unsilence_user(
     user: DBUser,
+    expired: bool = False,
     session: Session | None = None
 ) -> None:
     users.update(
         user.id,
         {'silence_end': None},
+        session=session
+    )
+
+    # Remove permission entries
+    permissions.delete_many_for_user(
+        permissions=REJECTED_PERMISSIONS_FOR_SILENCED,
+        user_id=user.id,
         session=session
     )
 
@@ -74,9 +105,8 @@ def unsilence_user(
             session=session
         )
 
-    officer.call(
-        f'{user.name} was unsilenced.'
-    )
+    if not expired:
+        officer.call(f'{user.name} was unsilenced.')
 
 @wrapper.session_wrapper
 def restrict_user(
