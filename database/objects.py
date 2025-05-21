@@ -825,6 +825,7 @@ class DBGroup(Base):
     bancho_permissions = Column('bancho_permissions', SmallInteger, nullable=True, default=0)
     hidden             = Column('hidden', Boolean, default=False)
 
+    permissions = relationship('DBGroupPermission', back_populates='group')
     entries = relationship('DBGroupEntry', back_populates='group')
 
 class DBGroupEntry(Base):
@@ -839,6 +840,30 @@ class DBGroupEntry(Base):
     def __init__(self, user_id: int, group_id: int) -> None:
         self.group_id = group_id
         self.user_id = user_id
+
+class DBUserPermission(Base):
+    __tablename__ = "user_permissions"
+
+    id          = Column('id', Integer, primary_key=True, autoincrement=True)
+    user_id     = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    permission  = Column('permission', String)
+    rejected    = Column('rejected', Boolean, default=False)
+    created_at  = Column('created_at', DateTime, server_default=func.now())
+    updated_at  = Column('updated_at', DateTime, server_default=func.now(), onupdate=func.now())
+
+    user = relationship('DBUser', back_populates='permissions')
+
+class DBGroupPermission(Base):
+    __tablename__ = "group_permissions"
+
+    id          = Column('id', Integer, primary_key=True, autoincrement=True)
+    group_id    = Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True)
+    permission  = Column('permission', String)
+    rejected    = Column('rejected', Boolean, default=False)
+    created_at  = Column('created_at', DateTime, server_default=func.now())
+    updated_at  = Column('updated_at', DateTime, server_default=func.now(), onupdate=func.now())
+
+    group = relationship('DBGroup', back_populates='permissions')
 
 class DBNotification(Base):
     __tablename__ = "notifications"
@@ -1265,6 +1290,7 @@ class DBUser(Base):
     created_topics = relationship('DBForumTopic', back_populates='creator')
     starred_topics = relationship('DBForumStar', back_populates='user')
     created_posts = relationship('DBForumPost', back_populates='user')
+    permissions = relationship('DBUserPermission', back_populates='user')
     rank_history = relationship('DBRankHistory', back_populates='user')
     play_history = relationship('DBPlayHistory', back_populates='user')
     achievements = relationship('DBAchievement', back_populates='user')

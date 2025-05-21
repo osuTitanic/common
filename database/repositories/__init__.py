@@ -6,6 +6,7 @@ from . import (
     infringements,
     achievements,
     nominations,
+    permissions,
     beatmapsets,
     screenshots,
     activities,
