@@ -14,43 +14,40 @@ def fetch_all(user_id: int) -> Tuple[List[str], List[str]]:
 
     return granted, rejected
 
-def is_granted(permission: str, user_id: int) -> bool:
-    permission = permission.lower().removesuffix('.*')
-    granted, rejected = fetch_all(user_id)
-
-    for granted_permission in granted:
-        if granted_permission == permission:
-            return True
-        
-        if granted_permission == '*':
+def includes_permission(permission: str, permissions: List[str]) -> bool:
+    for entry in permissions:
+        if entry == permission:
             return True
 
-        if not granted_permission.endswith('.*'):
+        if entry == '*':
+            return True
+
+        if not entry.endswith('.*'):
             continue
 
-        if permission.startswith(granted_permission[:-2]):
+        if permission.startswith(entry[:-2]):
             return True
         
     return False
+
+def is_granted(permission: str, user_id: int) -> bool:
+    permission = permission.lower().removesuffix('.*')
+    granted, rejected = fetch_all(user_id)
+    return includes_permission(permission, granted)
 
 def is_rejected(permission: str, user_id: int) -> bool:
     permission = permission.lower().removesuffix('.*')
     granted, rejected = fetch_all(user_id)
+    return includes_permission(permission, rejected)
 
-    for rejected_permission in rejected:
-        if rejected_permission == permission:
-            return True
-        
-        if rejected_permission == '*':
-            return True
+def has_permission(permission: str, user_id: int) -> bool:
+    permission = permission.lower().removesuffix('.*')
+    granted, rejected = fetch_all(user_id)
 
-        if not rejected_permission.endswith('.*'):
-            continue
-
-        if permission.startswith(rejected_permission[:-2]):
-            return True
-        
-    return False
+    return (
+        includes_permission(permission, granted) and not
+        includes_permission(permission, rejected)
+    )
 
 @caching.ttl_cache(ttl=60*15)
 def cached_group_permissions(group_id: int) -> Tuple[List[str], List[str]]:
