@@ -53,7 +53,7 @@ def has_permission(permission: str, user_id: int) -> bool:
 def cached_group_permissions(group_id: int) -> Tuple[List[str], List[str]]:
     return permissions.fetch_group_permissions(group_id)
 
-@caching.ttl_cache(ttl=30)
+@caching.ttl_cache(ttl=60)
 def cached_user_permissions(user_id: int) -> Tuple[List[str], List[str]]:
     return permissions.fetch_user_permissions(user_id)
 
