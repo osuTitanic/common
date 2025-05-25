@@ -54,13 +54,13 @@ def serialize_replay(score: DBScore, replay: bytes) -> bytes:
     stream.u16(score.nGeki)
     stream.u16(score.nKatu)
     stream.u16(score.nMiss)
-    stream.s32(score.total_score)
+    stream.u32(score.total_score)
     stream.u16(score.max_combo)
     stream.bool(score.perfect)
-    stream.s32(score.mods)
+    stream.u32(score.mods)
     stream.string('') # TODO: HP Graph
     stream.s64(get_ticks(score.submitted_at))
-    stream.s32(len(replay))
+    stream.u32(len(replay))
     stream.write(replay)
 
     if score.client_version >= 20140721:
