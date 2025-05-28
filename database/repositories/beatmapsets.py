@@ -315,7 +315,10 @@ def search_extended(
         query = query.filter(DBBeatmapset.has_video == True)
 
     if titanic_only:
-        query = query.filter(DBBeatmapset.server == 1)
+        query = query.filter(or_(
+            DBBeatmapset.server == 1,
+            DBBeatmapset.enhanced == True
+        ))
 
     if user_id is not None:
         if played is not None:
