@@ -83,38 +83,45 @@ def fetch_most_played_by_user(
 
 @session_wrapper
 def fetch_most_played(limit: int = 5, session: Session = ...) -> List[dict]:
-    total_count = func.sum(DBPlay.count).label("total_count")
+    # Build a subquery that groups only by beatmap_id
+    count_subquery = session.query(
+            DBPlay.beatmap_id.label("beatmap_id"),
+            func.sum(DBPlay.count).label("total_count")
+        ) \
+        .group_by(DBPlay.beatmap_id) \
+        .subquery()
 
-    results = session.query(
-            DBPlay.beatmap_id,
-            DBBeatmapset.id,
+    # Join query back to beatmaps -> beatmapsets to pull in all metadata
+    query = session.query(
+            count_subquery.c.beatmap_id.label("beatmap_id"),
+            DBBeatmapset.id.label("set_id"),
             DBBeatmapset.title,
             DBBeatmapset.artist,
             DBBeatmap.version,
             DBBeatmapset.creator,
             DBBeatmapset.creator_id,
             DBBeatmapset.server,
-            total_count
+            count_subquery.c.total_count.label("count"),
         ) \
-        .select_from(DBPlay) \
-        .join(DBBeatmap, DBPlay.beatmap) \
-        .join(DBBeatmapset, DBPlay.beatmapset) \
-        .group_by(DBPlay.beatmap_id, DBBeatmapset.id, DBBeatmap.version) \
-        .order_by(total_count.desc()) \
-        .limit(limit) \
-        .all()
+        .join(DBBeatmap, DBBeatmap.id == count_subquery.c.beatmap_id) \
+        .join(DBBeatmapset, DBBeatmapset.id == DBBeatmap.set_id) \
+        .order_by(count_subquery.c.total_count.desc()) \
+        .limit(limit)
 
-    return [{
-        'beatmap_id': result[0],
-        'set_id': result[1],
-        'title': result[2],
-        'artist': result[3],
-        'version': result[4],
-        'creator': result[5],
-        'creator_id': result[6],
-        'server': result[7],
-        'count': result[8]
-    } for result in results]
+    return [
+        {
+            "beatmap_id": r.beatmap_id,
+            "set_id":      r.set_id,
+            "title":       r.title,
+            "artist":      r.artist,
+            "version":     r.version,
+            "creator":     r.creator,
+            "creator_id":  r.creator_id,
+            "server":      r.server,
+            "count":       r.count,
+        }
+        for r in query.all()
+    ]
 
 @session_wrapper
 def delete_by_id(id: int, session: Session = ...) -> int:
