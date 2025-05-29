@@ -31,6 +31,12 @@ def create(
     return i
 
 @session_wrapper
+def fetch_one(id: int, session: Session = ...) -> DBInfringement | None:
+    return session.query(DBInfringement) \
+        .filter(DBInfringement.id == id) \
+        .first()
+
+@session_wrapper
 def fetch_recent(user_id: int, session: Session = ...) -> DBInfringement | None:
     return session.query(DBInfringement) \
         .filter(DBInfringement.user_id == user_id) \
@@ -58,6 +64,13 @@ def fetch_recent_until(
         .all()
 
 @session_wrapper
+def fetch_last(user_id: int, session: Session = ...) -> DBInfringement | None:
+    return session.query(DBInfringement) \
+        .filter(DBInfringement.user_id == user_id) \
+        .order_by(DBInfringement.time.desc()) \
+        .first()
+
+@session_wrapper
 def fetch_all(user_id: int, session: Session = ...) -> List[DBInfringement]:
     return session.query(DBInfringement) \
         .filter(DBInfringement.user_id == user_id) \
@@ -71,6 +84,18 @@ def fetch_all_by_action(user_id: int, action: int, session: Session = ...) -> Li
         .filter(DBInfringement.action == action) \
         .order_by(DBInfringement.time.desc()) \
         .all()
+
+@session_wrapper
+def update(
+    id: int,
+    updates: dict,
+    session: Session = ...
+) -> int:
+    columns = session.query(DBInfringement) \
+        .filter(DBInfringement.id == id) \
+        .update(updates)
+    session.commit()
+    return columns
 
 @session_wrapper
 def delete_by_id(id: int, session: Session = ...) -> None:
