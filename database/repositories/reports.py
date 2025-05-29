@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from app.common.database import DBReport
+from app.common.database.objects import DBReport
 from sqlalchemy.orm import Session
 from typing import List
 
