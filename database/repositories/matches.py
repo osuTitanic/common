@@ -37,6 +37,12 @@ def fetch_by_bancho_id(id: int, session: Session = ...) -> DBMatch | None:
     return session.query(DBMatch) \
         .filter(DBMatch.bancho_id == id) \
         .first()
+        
+@session_wrapper
+def exists(id: int, session: Session = ...) -> bool:
+    return session.query(DBMatch) \
+        .filter(DBMatch.id == id) \
+        .count() > 0
 
 @session_wrapper
 def update(id: int, updates: dict, session: Session = ...) -> None:
