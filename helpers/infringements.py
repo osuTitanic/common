@@ -1,5 +1,5 @@
 
-from ..database.objects import DBUser
+from ..database.objects import DBUser, DBInfringement
 from ..cache import leaderboards
 from .. import officer
 
@@ -37,7 +37,7 @@ def silence_user(
     duration: int,
     reason: str | None = None,
     session: Session | None = None
-) -> datetime:
+) -> DBInfringement:
     if user.silence_end:
         user.silence_end += timedelta(seconds=duration)
     else:
@@ -50,7 +50,7 @@ def silence_user(
     )
 
     # Add entry inside infringements table
-    infringements.create(
+    record = infringements.create(
         user.id,
         action=1,
         length=(datetime.now() + timedelta(seconds=duration)),
@@ -71,7 +71,7 @@ def silence_user(
         f'Reason: "{reason}"'
     )
 
-    return user.silence_end
+    return record
 
 @wrapper.session_wrapper
 def unsilence_user(
@@ -115,7 +115,7 @@ def restrict_user(
     until: datetime | None = None,
     autoban: bool = False,
     session: Session | None = None
-) -> None:
+) -> DBInfringement:
     user.restricted = True
 
     # Update user
@@ -138,7 +138,7 @@ def restrict_user(
     clients.update_all(user.id, {'banned': True}, session=session)
 
     # Add entry inside infringements table
-    infringements.create(
+    record = infringements.create(
         user.id,
         action=0,
         length=until,
@@ -154,6 +154,8 @@ def restrict_user(
         f'{user.name} was {"auto-" if autoban else ""}restricted. '
         f'Reason: "{reason}"'
     )
+
+    return record
 
 @wrapper.session_wrapper
 def unrestrict_user(
