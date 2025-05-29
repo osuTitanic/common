@@ -172,7 +172,7 @@ def unrestrict_user(
 
     if not restore_scores:
         stats.delete_all(user.id)
-        leaderboards.remove(user.id, user.country, session=session)
+        leaderboards.remove(user.id, user.country)
     else:
         scores.restore_hidden_scores(user.id, session=session)
 
