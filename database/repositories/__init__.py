@@ -23,6 +23,7 @@ from . import (
     modding,
     clients,
     ratings,
+    reports,
     matches,
     events,
     forums,

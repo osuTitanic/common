@@ -75,3 +75,15 @@ def fetch_by_sender_to_target(
         .filter(DBReport.resolved == False) \
         .order_by(DBReport.time.desc()) \
         .first()
+
+@session_wrapper
+def update(
+    id: int,
+    updates: dict,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBReport) \
+        .filter(DBReport.id == id) \
+        .update(updates)
+    session.commit()
+    return rows
