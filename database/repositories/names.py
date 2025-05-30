@@ -52,3 +52,26 @@ def fetch_by_name_reserved(name: str, session: Session = ...) -> DBName | None:
         .filter(DBName.reserved == True) \
         .order_by(func.length(DBName.name).asc()) \
         .first()
+
+@session_wrapper
+def update(
+    id: int,
+    data: dict,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBName) \
+        .filter(DBName.id == id) \
+        .update(data)
+    session.commit()
+    return rows
+
+@session_wrapper
+def delete(
+    id: int,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBName) \
+        .filter(DBName.id == id) \
+        .delete()
+    session.commit()
+    return rows
