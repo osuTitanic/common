@@ -25,6 +25,7 @@ from . import (
     ratings,
     reports,
     matches,
+    badges,
     events,
     forums,
     topics,
