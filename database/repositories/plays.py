@@ -83,18 +83,19 @@ def fetch_most_played_by_user(
 
 @session_wrapper
 def fetch_most_played(limit: int = 5, session: Session = ...) -> List[dict]:
-    # Build a subquery that groups only by beatmap_id
+    # Build a subquery that groups only by beatmap_id & set_id
     count_subquery = session.query(
             DBPlay.beatmap_id.label("beatmap_id"),
+            DBPlay.set_id.label("set_id"),
             func.sum(DBPlay.count).label("total_count")
         ) \
-        .group_by(DBPlay.beatmap_id) \
+        .group_by(DBPlay.beatmap_id, DBPlay.set_id) \
         .subquery()
 
     # Join query back to beatmaps -> beatmapsets to pull in all metadata
     query = session.query(
             count_subquery.c.beatmap_id.label("beatmap_id"),
-            DBBeatmapset.id.label("set_id"),
+            count_subquery.c.set_id.label("set_id"),
             DBBeatmapset.title,
             DBBeatmapset.artist,
             DBBeatmap.version,
@@ -104,7 +105,7 @@ def fetch_most_played(limit: int = 5, session: Session = ...) -> List[dict]:
             count_subquery.c.total_count.label("count"),
         ) \
         .join(DBBeatmap, DBBeatmap.id == count_subquery.c.beatmap_id) \
-        .join(DBBeatmapset, DBBeatmapset.id == DBBeatmap.set_id) \
+        .join(DBBeatmapset, DBBeatmapset.id == count_subquery.c.set_id) \
         .order_by(count_subquery.c.total_count.desc()) \
         .limit(limit)
 
