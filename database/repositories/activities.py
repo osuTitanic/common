@@ -21,7 +21,7 @@ def create(
         ac := DBActivity(
             user_id=user_id,
             mode=mode,
-            type=type.value,
+            type=type,
             data=data
         )
     )

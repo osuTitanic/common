@@ -10,7 +10,7 @@ class Playstyle(IntFlag):
 
 class UserActivity(IntEnum):
     RanksGained = 1
-    NumberOnes = 2
+    NumberOne = 2
     BeatmapLeaderboardRank = 3
     LostFirstPlace = 4
     PPRecord = 5
