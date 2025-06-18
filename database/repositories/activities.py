@@ -22,11 +22,7 @@ def create(
             user_id=user_id,
             mode=mode,
             type=type.value,
-            data=data,
-            # Outdated columns, removed soon
-            activity_text="",
-            activity_args=None,
-            activity_links=None
+            data=data
         )
     )
     session.commit()

@@ -508,7 +508,7 @@ class DBActivity(Base):
     hidden         = Column('hidden', Boolean, default=False)
 
     # Outdated columns, removed soon
-    activity_text  = Column('activity_text', String)
+    activity_text  = Column('activity_text', String, default="")
     activity_args  = Column('activity_args', String, nullable=True)
     activity_links = Column('activity_links', String, nullable=True)
 
