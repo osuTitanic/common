@@ -15,3 +15,4 @@ class UserActivity(IntEnum):
     LostFirstPlace = 4
     PPRecord = 5
     TopPlay = 6
+    AchievementUnlocked = 7
