@@ -1,5 +1,5 @@
 
-from enum import IntFlag
+from enum import IntFlag, IntEnum
 
 class Playstyle(IntFlag):
     NotSpecified = 0
@@ -7,3 +7,11 @@ class Playstyle(IntFlag):
     Tablet = 2
     Keyboard = 4
     Touch = 8
+
+class UserActivity(IntEnum):
+    RanksGained = 1
+    NumberOnes = 2
+    BeatmapLeaderboardRank = 3
+    LostFirstPlace = 4
+    PPRecord = 5
+    TopPlay = 6
