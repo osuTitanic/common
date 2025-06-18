@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 from app.common.database.objects import DBActivity
+from app.common.constants import UserActivity
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Iterable
 
 from .wrapper import session_wrapper
 
@@ -12,18 +13,20 @@ from .wrapper import session_wrapper
 def create(
     user_id: int,
     mode: int,
-    text: str,
-    args: str,
-    links: str,
+    type: UserActivity,
+    data: dict,
     session: Session = ...
 ) -> DBActivity:
     session.add(
         ac := DBActivity(
-            user_id,
-            mode,
-            text,
-            args,
-            links
+            user_id=user_id,
+            mode=mode,
+            type=type.value,
+            data=data,
+            # Outdated columns, removed soon
+            activity_text="",
+            activity_args=None,
+            activity_links=None
         )
     )
     session.commit()
@@ -35,11 +38,18 @@ def fetch_recent(
     user_id: int,
     mode: int,
     until: timedelta = timedelta(days=30),
+    excluded_types: Iterable[UserActivity] = (),
     session: Session = ...
 ) -> List[DBActivity]:
-    return session.query(DBActivity) \
+    query = session.query(DBActivity) \
         .filter(DBActivity.time > datetime.now() - until) \
         .filter(DBActivity.user_id == user_id) \
         .filter(DBActivity.mode == mode) \
-        .order_by(DBActivity.id.desc()) \
-        .all()
+        .filter(DBActivity.hidden == False) \
+        .order_by(DBActivity.id.desc())
+
+    if excluded_types:
+        excluded = DBActivity.type.notin_([t.value for t in excluded_types])
+        query = query.filter(excluded)
+
+    return query.all()
