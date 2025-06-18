@@ -503,6 +503,11 @@ class DBActivity(Base):
     user_id        = Column('user_id', Integer, ForeignKey('users.id'))
     time           = Column('time', DateTime, server_default=func.now())
     mode           = Column('mode', SmallInteger)
+    type           = Column('type', SmallInteger, default=0)
+    data           = Column('data', JSONB, default={})
+    hidden         = Column('hidden', Boolean, default=False)
+
+    # Outdated columns, removed soon
     activity_text  = Column('activity_text', String)
     activity_args  = Column('activity_args', String, nullable=True)
     activity_links = Column('activity_links', String, nullable=True)
