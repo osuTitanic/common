@@ -7,7 +7,7 @@ import config
 def format_ranks_gained(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
-        f'{config.OSU_BASEURL}/u/{activity.user_id}'
+        f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}'
     )
 
     return (
@@ -19,7 +19,7 @@ def format_ranks_gained(activity: DBActivity) -> str:
 def format_number_one(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
-        f'{config.OSU_BASEURL}/u/{activity.user_id}'
+        f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}'
     )
 
     return (
@@ -30,11 +30,11 @@ def format_number_one(activity: DBActivity) -> str:
 def format_leaderboard_rank(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
-        f'{config.OSU_BASEURL}/u/{activity.user_id}'
+        f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}'
     )
     beatmap_link = format_chat_link(
         activity.data['beatmap'],
-        f'{config.OSU_BASEURL}/b/{activity.data["beatmap_id"]}'
+        f'http://osu.{config.DOMAIN_NAME}/b/{activity.data["beatmap_id"]}'
     )
     data = dict(activity.data)
 
@@ -54,11 +54,11 @@ def format_leaderboard_rank(activity: DBActivity) -> str:
 def format_lost_first_place(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
-        f'{config.OSU_BASEURL}/u/{activity.user_id}'
+        f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}'
     )
     beatmap_link = format_chat_link(
         activity.data['beatmap'],
-        f'{config.OSU_BASEURL}/b/{activity.data["beatmap_id"]}'
+        f'http://osu.{config.DOMAIN_NAME}/b/{activity.data["beatmap_id"]}'
     )
 
     return f'{user_link} has lost first place on {beatmap_link} <{activity.data["mode"]}>'
@@ -66,11 +66,11 @@ def format_lost_first_place(activity: DBActivity) -> str:
 def format_pp_record(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
-        f'{config.OSU_BASEURL}/u/{activity.user_id}'
+        f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}'
     )
     beatmap_link = format_chat_link(
         activity.data['beatmap'],
-        f'{config.OSU_BASEURL}/b/{activity.data["beatmap_id"]}'
+        f'http://osu.{config.DOMAIN_NAME}/b/{activity.data["beatmap_id"]}'
     )
 
     return (
@@ -81,11 +81,11 @@ def format_pp_record(activity: DBActivity) -> str:
 def format_top_play(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
-        f'{config.OSU_BASEURL}/u/{activity.user_id}'
+        f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}'
     )
     beatmap_link = format_chat_link(
         activity.data['beatmap'],
-        f'{config.OSU_BASEURL}/b/{activity.data["beatmap_id"]}'
+        f'http://osu.{config.DOMAIN_NAME}/b/{activity.data["beatmap_id"]}'
     )
 
     return (
@@ -96,7 +96,7 @@ def format_top_play(activity: DBActivity) -> str:
 def format_achievement(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
-        f'{config.OSU_BASEURL}/u/{activity.user_id}'
+        f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}'
     )
 
     return f'{user_link} unlocked an achievement: {activity.data["achievement"]}'
