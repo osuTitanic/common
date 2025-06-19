@@ -1,6 +1,6 @@
 
+from app.common.database.objects import DBActivity
 from app.common.constants import UserActivity
-from app.common.database import DBActivity
 
 import config
 
