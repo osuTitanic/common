@@ -101,12 +101,13 @@ def format_achievement(activity: DBActivity) -> str:
 
     return f'{user_link} unlocked an achievement: {activity.data["achievement"]}'
 
-def format_chat_link(key: str, value: str) -> str:
-    key = key.replace('(', '&#40;').replace(')', '&#41;') \
-             .replace('[', '&#91;').replace(']', '&#93;')
-
-    value = value.replace('(', '&#40;').replace(')', '&#41;') \
+def format_chat_link(key: str, value: str, escape_brackets: bool = False) -> str:
+    if escape_brackets:
+        key = key.replace('(', '&#40;').replace(')', '&#41;') \
                  .replace('[', '&#91;').replace(']', '&#93;')
+
+        value = value.replace('(', '&#40;').replace(')', '&#41;') \
+                     .replace('[', '&#91;').replace(']', '&#93;')
 
     return f'[{value} {key}]'
 
