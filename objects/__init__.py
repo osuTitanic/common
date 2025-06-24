@@ -15,7 +15,7 @@ from .player import (
     UserQuit as bUserQuit
 )
 
-from .beatmaps import(
+from .beatmaps import (
     BeatmapInfoRequest as bBeatmapInfoRequest,
     BeatmapInfoReply as bBeatmapInfoReply,
     BeatmapInfo as bBeatmapInfo
