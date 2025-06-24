@@ -68,10 +68,10 @@ def fetch_all(
     query = session.query(DBNotification) \
         .filter(DBNotification.user_id == user_id)
 
-    if read != None:
+    if read is not None:
         query = query.filter(DBNotification.read == read)
 
-    if until != None:
+    if until is not None:
         query = query.filter(DBNotification.time > until)
 
     return query.all()

@@ -18,7 +18,7 @@ def ttl_cache(maxsize: int = 128, typed: bool = False, ttl: int = -1):
                 func.cache_clear()
                 func.expiration = datetime.now() + func.lifetime
 
-            if (result := func(*args, **kwargs)) == None:
+            if (result := func(*args, **kwargs)) is None:
                 func.cache_clear()
 
             return result

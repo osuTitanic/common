@@ -702,7 +702,7 @@ def fetch_pp_record(
     mods: int | None = None,
     session: Session = ...
 ) -> DBScore:
-    if mods == None:
+    if mods is None:
         return session.query(DBScore) \
             .filter(DBScore.mode == mode) \
             .filter(DBScore.status_pp > 2) \
