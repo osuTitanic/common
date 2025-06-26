@@ -80,4 +80,5 @@ def fetch_by_user(
 ) -> list[DBBeatmapNomination]:
     return session.query(DBBeatmapNomination) \
         .filter(DBBeatmapNomination.user_id == user_id) \
+        .order_by(DBBeatmapNomination.time.desc()) \
         .all()
