@@ -15,6 +15,7 @@ def create(
     mode: int,
     type: UserActivity,
     data: dict,
+    hidden: bool = False,
     session: Session = ...
 ) -> DBActivity:
     session.add(
@@ -22,7 +23,8 @@ def create(
             user_id=user_id,
             mode=mode,
             type=type,
-            data=data
+            data=data,
+            hidden=hidden,
         )
     )
     session.commit()
