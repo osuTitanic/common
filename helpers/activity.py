@@ -150,6 +150,21 @@ def format_achievement(activity: DBActivity, escape_brackets: bool = False) -> s
 
     return f'{user_link} unlocked an achievement: {activity.data["achievement"]}'
 
+def format_beatmap_upload(activity: DBActivity, escape_brackets: bool = False) -> str:
+    user_link = format_chat_link(
+        activity.data['username'],
+        f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+        escape_brackets=escape_brackets
+    )
+
+    beatmapset_link = format_chat_link(
+        activity.data['beatmapset_name'],
+        f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}',
+        escape_brackets=escape_brackets
+    )
+
+    return f'{user_link} uploaded a new beatmapset "{beatmapset_link}"'
+
 def format_chat_link(key: str, value: str, escape_brackets: bool = False) -> str:
     if escape_brackets:
         key = key.replace('(', '&#40;').replace(')', '&#41;') \
@@ -167,5 +182,6 @@ formatters = {
     UserActivity.LostFirstPlace.value: format_lost_first_place,
     UserActivity.PPRecord.value: format_pp_record,
     UserActivity.TopPlay.value: format_top_play,
-    UserActivity.AchievementUnlocked.value: format_achievement
+    UserActivity.AchievementUnlocked.value: format_achievement,
+    UserActivity.BeatmapUploaded.value: format_beatmap_upload
 }
