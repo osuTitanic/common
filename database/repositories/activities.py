@@ -4,8 +4,9 @@ from __future__ import annotations
 from app.common.database.objects import DBActivity
 from app.common.constants import UserActivity
 from datetime import datetime, timedelta
-from sqlalchemy.orm import Session
 from typing import List, Iterable
+from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 from .wrapper import session_wrapper
 
@@ -40,9 +41,9 @@ def fetch_recent(
     session: Session = ...
 ) -> List[DBActivity]:
     query = session.query(DBActivity) \
+        .filter(or_(DBActivity.mode == mode, DBActivity.mode == None)) \
         .filter(DBActivity.time > datetime.now() - until) \
         .filter(DBActivity.user_id == user_id) \
-        .filter(DBActivity.mode == mode) \
         .filter(DBActivity.hidden == False) \
         .order_by(DBActivity.id.desc())
 
