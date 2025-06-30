@@ -17,6 +17,7 @@ class UserActivity(IntEnum):
     TopPlay = 6
     AchievementUnlocked = 7
     BeatmapUploaded = 8
-    BeatmapRevived = 9
-    ForumTopicCreated = 10
-    ForumPostCreated = 11
+    BeatmapUpdated = 9
+    BeatmapRevived = 10
+    ForumTopicCreated = 11
+    ForumPostCreated = 12
