@@ -156,7 +156,6 @@ def format_beatmap_upload(activity: DBActivity, escape_brackets: bool = False) -
         f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
         escape_brackets=escape_brackets
     )
-
     beatmapset_link = format_chat_link(
         activity.data['beatmapset_name'],
         f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}',
@@ -164,6 +163,15 @@ def format_beatmap_upload(activity: DBActivity, escape_brackets: bool = False) -
     )
 
     return f'{user_link} uploaded a new beatmapset "{beatmapset_link}"'
+
+def format_beatmap_revival(activity: DBActivity, escape_brackets: bool = False) -> str:
+    beatmapset_link = format_chat_link(
+        activity.data['beatmapset_name'],
+        f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}',
+        escape_brackets=escape_brackets
+    )
+
+    return f'{beatmapset_link} has been revived from eternal slumber.'
 
 def format_chat_link(key: str, value: str, escape_brackets: bool = False) -> str:
     if escape_brackets:
@@ -183,5 +191,6 @@ formatters = {
     UserActivity.PPRecord.value: format_pp_record,
     UserActivity.TopPlay.value: format_top_play,
     UserActivity.AchievementUnlocked.value: format_achievement,
-    UserActivity.BeatmapUploaded.value: format_beatmap_upload
+    UserActivity.BeatmapUploaded.value: format_beatmap_upload,
+    UserActivity.BeatmapRevived.value: format_beatmap_revival
 }
