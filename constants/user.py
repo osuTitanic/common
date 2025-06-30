@@ -16,3 +16,7 @@ class UserActivity(IntEnum):
     PPRecord = 5
     TopPlay = 6
     AchievementUnlocked = 7
+    BeatmapUploaded = 8
+    BeatmapRevived = 9
+    ForumTopicCreated = 10
+    ForumPostCreated = 11
