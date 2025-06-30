@@ -1,7 +1,7 @@
 
 from app.common.database.repositories import activities, wrapper
+from app.common.constants import UserActivity, DatabaseStatus
 from app.common.database.objects import DBActivity
-from app.common.constants import UserActivity
 from app.common import officer
 from sqlalchemy.orm import Session
 
@@ -201,6 +201,35 @@ def format_topic_created(activity: DBActivity, escape_brackets: bool = False) ->
 
     return f'{user_link} created a new topic "{topic_link}"'
 
+def format_beatmap_status_update(activity: DBActivity, escape_brackets: bool = False) -> str:
+    user_link = format_chat_link(
+        activity.data['username'],
+        f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+        escape_brackets=escape_brackets
+    )
+    beatmapset_link = format_chat_link(
+        activity.data['beatmapset_name'],
+        f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}',
+        escape_brackets=escape_brackets
+    )
+    status_name = DatabaseStatus(activity.data['status']).name
+
+    return f'{beatmapset_link} was set to "{status_name}" by {user_link}'
+
+def format_beatmap_nomination(activity: DBActivity, escape_brackets: bool = False) -> str:
+    user_link = format_chat_link(
+        activity.data['username'],
+        f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+        escape_brackets=escape_brackets
+    )
+    beatmapset_link = format_chat_link(
+        activity.data['beatmapset_name'],
+        f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}',
+        escape_brackets=escape_brackets
+    )
+
+    return f'{beatmapset_link} was nominated by {user_link}'
+
 def format_post_created(activity: DBActivity, escape_brackets: bool = False) -> str:
     user_link = format_chat_link(
         activity.data['username'],
@@ -236,6 +265,8 @@ formatters = {
     UserActivity.BeatmapUploaded.value: format_beatmap_upload,
     UserActivity.BeatmapUpdated.value: format_beatmap_update,
     UserActivity.BeatmapRevived.value: format_beatmap_revival,
+    UserActivity.BeatmapStatusUpdated.value: format_beatmap_status_update,
+    UserActivity.BeatmapNominated.value: format_beatmap_nomination,
     UserActivity.ForumTopicCreated.value: format_topic_created,
     UserActivity.ForumPostCreated.value: format_post_created
 }
