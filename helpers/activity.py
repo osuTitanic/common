@@ -234,6 +234,7 @@ formatters = {
     UserActivity.TopPlay.value: format_top_play,
     UserActivity.AchievementUnlocked.value: format_achievement,
     UserActivity.BeatmapUploaded.value: format_beatmap_upload,
+    UserActivity.BeatmapUpdated.value: format_beatmap_update,
     UserActivity.BeatmapRevived.value: format_beatmap_revival,
     UserActivity.ForumTopicCreated.value: format_topic_created,
     UserActivity.ForumPostCreated.value: format_post_created
