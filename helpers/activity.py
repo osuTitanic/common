@@ -228,7 +228,10 @@ def format_beatmap_nomination(activity: DBActivity, escape_brackets: bool = Fals
         escape_brackets=escape_brackets
     )
 
-    return f'{beatmapset_link} was nominated by {user_link}'
+    if activity.data['type'] != 'reset':
+        return f'{beatmapset_link} was nominated by {user_link}'
+
+    return f'{user_link} popped the bubble for "{beatmapset_link}"'
 
 def format_post_created(activity: DBActivity, escape_brackets: bool = False) -> str:
     user_link = format_chat_link(
