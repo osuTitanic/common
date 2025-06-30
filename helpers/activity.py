@@ -187,6 +187,20 @@ def format_topic_created(activity: DBActivity, escape_brackets: bool = False) ->
 
     return f'{user_link} created a new topic "{topic_link}"'
 
+def format_post_created(activity: DBActivity, escape_brackets: bool = False) -> str:
+    user_link = format_chat_link(
+        activity.data['username'],
+        f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+        escape_brackets=escape_brackets
+    )
+    post_link = format_chat_link(
+        activity.data['topic_name'],
+        f'http://osu.{config.DOMAIN_NAME}/forum/t/{activity.data["topic_id"]}/p/{activity.data["post_id"]}',
+        escape_brackets=escape_brackets
+    )
+
+    return f'{user_link} created a post in "{post_link}"'
+
 def format_chat_link(key: str, value: str, escape_brackets: bool = False) -> str:
     if escape_brackets:
         key = key.replace('(', '&#40;').replace(')', '&#41;') \
@@ -207,5 +221,6 @@ formatters = {
     UserActivity.AchievementUnlocked.value: format_achievement,
     UserActivity.BeatmapUploaded.value: format_beatmap_upload,
     UserActivity.BeatmapRevived.value: format_beatmap_revival,
-    UserActivity.ForumTopicCreated.value: format_topic_created
+    UserActivity.ForumTopicCreated.value: format_topic_created,
+    UserActivity.ForumPostCreated.value: format_post_created
 }
