@@ -173,6 +173,20 @@ def format_beatmap_revival(activity: DBActivity, escape_brackets: bool = False) 
 
     return f'{beatmapset_link} has been revived from eternal slumber.'
 
+def format_topic_created(activity: DBActivity, escape_brackets: bool = False) -> str:
+    user_link = format_chat_link(
+        activity.data['username'],
+        f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+        escape_brackets=escape_brackets
+    )
+    topic_link = format_chat_link(
+        activity.data['topic_name'],
+        f'http://osu.{config.DOMAIN_NAME}/forum/t/{activity.data["topic_id"]}',
+        escape_brackets=escape_brackets
+    )
+
+    return f'{user_link} created a new topic "{topic_link}"'
+
 def format_chat_link(key: str, value: str, escape_brackets: bool = False) -> str:
     if escape_brackets:
         key = key.replace('(', '&#40;').replace(')', '&#41;') \
@@ -192,5 +206,6 @@ formatters = {
     UserActivity.TopPlay.value: format_top_play,
     UserActivity.AchievementUnlocked.value: format_achievement,
     UserActivity.BeatmapUploaded.value: format_beatmap_upload,
-    UserActivity.BeatmapRevived.value: format_beatmap_revival
+    UserActivity.BeatmapRevived.value: format_beatmap_revival,
+    UserActivity.ForumTopicCreated.value: format_topic_created
 }
