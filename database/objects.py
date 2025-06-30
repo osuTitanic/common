@@ -499,13 +499,13 @@ class DBBadge(Base):
 class DBActivity(Base):
     __tablename__ = "profile_activity"
 
-    id             = Column('id', Integer, primary_key=True, autoincrement=True)
-    user_id        = Column('user_id', Integer, ForeignKey('users.id'))
-    time           = Column('time', DateTime, server_default=func.now())
-    mode           = Column('mode', SmallInteger)
-    type           = Column('type', SmallInteger, default=0)
-    data           = Column('data', JSONB, default={})
-    hidden         = Column('hidden', Boolean, default=False)
+    id       = Column('id', Integer, primary_key=True, autoincrement=True)
+    user_id  = Column('user_id', Integer, ForeignKey('users.id'))
+    time     = Column('time', DateTime, server_default=func.now())
+    mode     = Column('mode', SmallInteger, nullable=True)
+    type     = Column('type', SmallInteger, default=0)
+    data     = Column('data', JSONB, default={})
+    hidden   = Column('hidden', Boolean, default=False)
 
     user = relationship('DBUser', back_populates='activity')
 
