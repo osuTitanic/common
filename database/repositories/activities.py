@@ -12,7 +12,7 @@ from .wrapper import session_wrapper
 @session_wrapper
 def create(
     user_id: int,
-    mode: int,
+    mode: int | None,
     type: UserActivity,
     data: dict,
     hidden: bool = False,

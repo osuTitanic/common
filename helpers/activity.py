@@ -17,7 +17,7 @@ def on_submit_fail(e: Exception) -> None:
 @wrapper.exception_wrapper(on_submit_fail)
 def submit(
     user_id: int,
-    mode: int,
+    mode: int | None,
     type: UserActivity,
     data: dict,
     session: Session,
