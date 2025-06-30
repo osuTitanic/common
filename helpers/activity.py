@@ -164,6 +164,20 @@ def format_beatmap_upload(activity: DBActivity, escape_brackets: bool = False) -
 
     return f'{user_link} uploaded a new beatmapset "{beatmapset_link}"'
 
+def format_beatmap_update(activity: DBActivity, escape_brackets: bool = False) -> str:
+    user_link = format_chat_link(
+        activity.data['username'],
+        f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+        escape_brackets=escape_brackets
+    )
+    beatmapset_link = format_chat_link(
+        activity.data['beatmapset_name'],
+        f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}',
+        escape_brackets=escape_brackets
+    )
+
+    return f'{user_link} has updated the beatmap "{beatmapset_link}"'
+
 def format_beatmap_revival(activity: DBActivity, escape_brackets: bool = False) -> str:
     beatmapset_link = format_chat_link(
         activity.data['beatmapset_name'],
