@@ -52,3 +52,10 @@ def fetch_recent(
         query = query.filter(excluded)
 
     return query.all()
+
+@session_wrapper
+def fetch_last(user_id: int, session: Session = ...) -> DBActivity | None:
+    return session.query(DBActivity) \
+        .filter(DBActivity.user_id == user_id) \
+        .order_by(DBActivity.id.desc()) \
+        .first()
