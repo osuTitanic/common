@@ -257,7 +257,7 @@ def format_chat_link(key: str, value: str, escape_brackets: bool = False) -> str
 
     return f'[{value} {key}]'
 
-formatters = {
+text_formatters = {
     UserActivity.RanksGained.value: format_ranks_gained,
     UserActivity.NumberOne.value: format_number_one,
     UserActivity.BeatmapLeaderboardRank.value: format_leaderboard_rank,
