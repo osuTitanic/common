@@ -21,13 +21,31 @@ def format_pp_record(activity: DBActivity) -> Embed:
     ...
 
 def format_beatmap_upload(activity: DBActivity) -> Embed:
-    ...
-
-def format_beatmap_update(activity: DBActivity) -> Embed:
-    ...
+    embed = Embed(title=activity.data["beatmapset_name"])
+    embed.thumbnail = Thumbnail(url=f'http://osu.{config.DOMAIN_NAME}/mt/{activity.data["beatmapset_id"]}')
+    embed.author = Author(
+        name=f"{activity.data["username"]} uploaded a new beatmap!",
+        url=f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+        icon_url=f'http://osu.{config.DOMAIN_NAME}/a/{activity.user_id}'
+    )
+    embed.color = 0x66c453
+    embed.add_field(name="Title", value=activity.data["title"], inline=True)
+    embed.add_field(name="Artist", value=activity.data["artist"], inline=True)
+    embed.add_field(name="Creator", value=activity.data["username"], inline=True)
+    embed.add_field(name="Link", value=f"http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}")
+    return embed
 
 def format_beatmap_revival(activity: DBActivity) -> Embed:
-    ...
+    embed = Embed(title=activity.data["beatmapset_name"])
+    embed.thumbnail = Thumbnail(url=f'http://osu.{config.DOMAIN_NAME}/mt/{activity.data["beatmapset_id"]}')
+    embed.url = f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}'
+    embed.color = 0x23db32
+    embed.author = Author(
+        name=f"{activity.data["username"]} revived a beatmap!",
+        url=f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+        icon_url=f'http://osu.{config.DOMAIN_NAME}/a/{activity.user_id}'
+    )
+    return embed
 
 def format_beatmap_nomination(activity: DBActivity) -> Embed:
     author_text = {
@@ -115,7 +133,6 @@ formatters = {
     UserActivity.NumberOne.value: format_number_one,
     UserActivity.PPRecord.value: format_pp_record,
     UserActivity.BeatmapUploaded.value: format_beatmap_upload,
-    UserActivity.BeatmapUpdated.value: format_beatmap_update,
     UserActivity.BeatmapRevived.value: format_beatmap_revival,
     UserActivity.BeatmapStatusUpdated.value: format_beatmap_status_update,
     UserActivity.BeatmapNominated.value: format_beatmap_nomination,
