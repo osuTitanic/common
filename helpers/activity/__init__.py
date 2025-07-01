@@ -1,6 +1,6 @@
 
 from .text import formatters as text_formatters
-from .text import format_chat_link
+from .web import formatters as web_formatters
 
 from app.common.database.repositories import activities, wrapper
 from app.common.constants import UserActivity
@@ -12,8 +12,8 @@ import app
 
 __all__ = [
     'submit',
-    'text_formatters',
-    'format_chat_link'
+    'web_formatters',
+    'text_formatters'
 ]
 
 def on_submit_fail(e: Exception) -> None:

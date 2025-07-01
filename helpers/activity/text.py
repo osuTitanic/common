@@ -5,11 +5,10 @@ from app.common.database.objects import DBActivity
 import config
 import app
 
-def format_ranks_gained(activity: DBActivity, escape_brackets: bool = False) -> str:
+def format_ranks_gained(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
         f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
-        escape_brackets=escape_brackets
     )
 
     return (
@@ -18,11 +17,10 @@ def format_ranks_gained(activity: DBActivity, escape_brackets: bool = False) -> 
         f'now placed #{activity.data["rank"]} overall in {activity.data["mode"]}.'
     )
 
-def format_number_one(activity: DBActivity, escape_brackets: bool = False) -> str:
+def format_number_one(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
         f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
-        escape_brackets=escape_brackets
     )
 
     return (
@@ -30,16 +28,14 @@ def format_number_one(activity: DBActivity, escape_brackets: bool = False) -> st
         f'{activity.data["mode"]} player.'
     )
 
-def format_leaderboard_rank(activity: DBActivity, escape_brackets: bool = False) -> str:
+def format_leaderboard_rank(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
         f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
-        escape_brackets=escape_brackets
     )
     beatmap_link = format_chat_link(
         activity.data['beatmap'],
         f'http://osu.{config.DOMAIN_NAME}/b/{activity.data["beatmap_id"]}',
-        escape_brackets=escape_brackets
     )
     data = dict(activity.data)
 
@@ -56,30 +52,26 @@ def format_leaderboard_rank(activity: DBActivity, escape_brackets: bool = False)
         )
     ])
 
-def format_lost_first_place(activity: DBActivity, escape_brackets: bool = False) -> str:
+def format_lost_first_place(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
         f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
-        escape_brackets=escape_brackets
     )
     beatmap_link = format_chat_link(
         activity.data['beatmap'],
         f'http://osu.{config.DOMAIN_NAME}/b/{activity.data["beatmap_id"]}',
-        escape_brackets=escape_brackets
     )
 
     return f'{user_link} has lost first place on {beatmap_link} <{activity.data["mode"]}>'
 
-def format_pp_record(activity: DBActivity, escape_brackets: bool = False) -> str:
+def format_pp_record(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
         f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
-        escape_brackets=escape_brackets
     )
     beatmap_link = format_chat_link(
         activity.data['beatmap'],
         f'http://osu.{config.DOMAIN_NAME}/b/{activity.data["beatmap_id"]}',
-        escape_brackets=escape_brackets
     )
 
     return (
@@ -87,16 +79,14 @@ def format_pp_record(activity: DBActivity, escape_brackets: bool = False) -> str
         f' {activity.data["pp"]}pp <{activity.data["mode"]}>'
     )
 
-def format_top_play(activity: DBActivity, escape_brackets: bool = False) -> str:
+def format_top_play(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
         f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
-        escape_brackets=escape_brackets
     )
     beatmap_link = format_chat_link(
         activity.data['beatmap'],
         f'http://osu.{config.DOMAIN_NAME}/b/{activity.data["beatmap_id"]}',
-        escape_brackets=escape_brackets
     )
 
     return (
@@ -104,91 +94,80 @@ def format_top_play(activity: DBActivity, escape_brackets: bool = False) -> str:
         f'{activity.data["pp"]}pp <{activity.data["mode"]}>'
     )
 
-def format_achievement(activity: DBActivity, escape_brackets: bool = False) -> str:
+def format_achievement(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
         f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
-        escape_brackets=escape_brackets
     )
 
     return f'{user_link} unlocked an achievement: {activity.data["achievement"]}'
 
-def format_beatmap_upload(activity: DBActivity, escape_brackets: bool = False) -> str:
+def format_beatmap_upload(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
         f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
-        escape_brackets=escape_brackets
     )
     beatmapset_link = format_chat_link(
         activity.data['beatmapset_name'],
         f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}',
-        escape_brackets=escape_brackets
     )
 
     return f'{user_link} uploaded a new beatmapset "{beatmapset_link}"'
 
-def format_beatmap_update(activity: DBActivity, escape_brackets: bool = False) -> str:
+def format_beatmap_update(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
         f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
-        escape_brackets=escape_brackets
     )
     beatmapset_link = format_chat_link(
         activity.data['beatmapset_name'],
         f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}',
-        escape_brackets=escape_brackets
     )
 
     return f'{user_link} has updated the beatmap "{beatmapset_link}"'
 
-def format_beatmap_revival(activity: DBActivity, escape_brackets: bool = False) -> str:
+def format_beatmap_revival(activity: DBActivity) -> str:
     beatmapset_link = format_chat_link(
         activity.data['beatmapset_name'],
         f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}',
-        escape_brackets=escape_brackets
     )
 
     return f'{beatmapset_link} has been revived from eternal slumber.'
 
-def format_topic_created(activity: DBActivity, escape_brackets: bool = False) -> str:
+def format_topic_created(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
         f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
-        escape_brackets=escape_brackets
+
     )
     topic_link = format_chat_link(
         activity.data['topic_name'],
         f'http://osu.{config.DOMAIN_NAME}/forum/t/{activity.data["topic_id"]}',
-        escape_brackets=escape_brackets
     )
 
     return f'{user_link} created a new topic "{topic_link}"'
 
-def format_beatmap_status_update(activity: DBActivity, escape_brackets: bool = False) -> str:
+def format_beatmap_status_update(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
         f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
-        escape_brackets=escape_brackets
     )
     beatmapset_link = format_chat_link(
         activity.data['beatmapset_name'],
         f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}',
-        escape_brackets=escape_brackets
     )
     status_name = DatabaseStatus(activity.data['status']).name
 
     return f'{beatmapset_link} was set to "{status_name}" by {user_link}'
 
-def format_beatmap_nomination(activity: DBActivity, escape_brackets: bool = False) -> str:
+def format_beatmap_nomination(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
         f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
-        escape_brackets=escape_brackets
     )
     beatmapset_link = format_chat_link(
         activity.data['beatmapset_name'],
         f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}',
-        escape_brackets=escape_brackets
     )
 
     if activity.data['type'] != 'reset':
@@ -196,28 +175,19 @@ def format_beatmap_nomination(activity: DBActivity, escape_brackets: bool = Fals
 
     return f'{user_link} popped the bubble for "{beatmapset_link}"'
 
-def format_post_created(activity: DBActivity, escape_brackets: bool = False) -> str:
+def format_post_created(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
         f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
-        escape_brackets=escape_brackets
     )
     post_link = format_chat_link(
         activity.data['topic_name'],
-        f'http://osu.{config.DOMAIN_NAME}/forum/t/{activity.data["topic_id"]}/p/{activity.data["post_id"]}',
-        escape_brackets=escape_brackets
+        f'http://osu.{config.DOMAIN_NAME}/forum/t/{activity.data["topic_id"]}/p/{activity.data["post_id"]}'
     )
 
     return f'{user_link} created a post in "{post_link}"'
 
-def format_chat_link(key: str, value: str, escape_brackets: bool = False) -> str:
-    if escape_brackets:
-        key = key.replace('(', '&#40;').replace(')', '&#41;') \
-                 .replace('[', '&#91;').replace(']', '&#93;')
-
-        value = value.replace('(', '&#40;').replace(')', '&#41;') \
-                     .replace('[', '&#91;').replace(']', '&#93;')
-
+def format_chat_link(key: str, value: str) -> str:
     return f'[{value} {key}]'
 
 formatters = {
