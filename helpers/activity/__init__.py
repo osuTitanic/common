@@ -1,4 +1,5 @@
 
+from .discord import formatters as discord_formatters
 from .text import formatters as text_formatters
 from .web import formatters as web_formatters
 
