@@ -45,3 +45,4 @@ class UserActivity(IntEnum):
     UserMatchCreated = 34
     UserMatchJoined = 35
     UserMatchLeft = 36
+    BeatmapNuked = 37
