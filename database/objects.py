@@ -1331,16 +1331,24 @@ class DBUser(Base):
         return [group.group_id for group in self.groups]
 
     @property
-    def is_admin(self):
+    def is_admin(self) -> bool:
         return self.check_groups([1, 2])
 
     @property
-    def is_moderator(self):
+    def is_bat(self) -> bool:
+        return self.check_groups([1, 2, 3])
+
+    @property
+    def is_moderator(self) -> bool:
         return self.check_groups([1, 2, 4])
 
     @property
-    def is_bat(self):
-        return self.check_groups([1, 2, 3])
+    def is_donator(self) -> bool:
+        return self.check_groups([1, 2, 6])
+
+    @property
+    def has_preview_access(self) -> bool:
+        return self.check_groups([1, 2, 997])
 
     @property
     def is_verified(self) -> bool:
@@ -1353,19 +1361,19 @@ class DBUser(Base):
     def check_groups(self, ids: List[int]) -> bool:
         return any(group in self.group_ids for group in ids)
 
-    ## Required attributes for Flask-Login
+    """Required attributes for Flask-Login"""
 
     @property
-    def is_active(self):
+    def is_active(self) -> bool:
         return True
 
     @property
-    def is_authenticated(self):
+    def is_authenticated(self) -> bool:
         return True
 
     @property
-    def is_anonymous(self):
+    def is_anonymous(self) -> bool:
         return False
 
-    def get_id(self):
+    def get_id(self) -> int:
         return self.id
