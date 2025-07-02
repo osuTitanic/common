@@ -177,7 +177,8 @@ def search(
     session: Session = ...
 ) -> List[DBBeatmapset]:
     query = session.query(DBBeatmapset) \
-                   .join(DBBeatmap, isouter=True)
+        .join(DBBeatmap, isouter=True) \
+        .filter(DBBeatmapset.beatmaps.any())
 
     text_condition, text_sort = text_search_condition(query_string)
 
@@ -275,7 +276,8 @@ def search_extended(
                 selectinload(DBBeatmapset.favourites)
             ) \
             .group_by(DBBeatmapset.id) \
-            .join(DBBeatmap)
+            .join(DBBeatmap) \
+            .filter(DBBeatmapset.beatmaps.any())
 
     order_type = {
         BeatmapSortBy.Created: DBBeatmapset.id,
