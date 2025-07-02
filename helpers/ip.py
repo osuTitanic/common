@@ -1,21 +1,6 @@
 
+import functools
 import ipaddress
-
-def is_local_ip(ip: str) -> bool:
-    """Check if the given IP address is a local IP address"""
-    try:
-        address = ipaddress.ip_address(ip)
-    except ValueError:
-        return False
-
-    return any((
-        address.is_private,
-        address.is_loopback,
-        address.is_link_local,
-        address.is_reserved,
-        address.is_multicast,
-        address.is_unspecified
-    ))
 
 def resolve_ip_address_flask(request):
     """Resolve the IP address of a flask request"""
@@ -71,3 +56,20 @@ def resolve_ip_address_autobahn(request):
     ip = ip.split(":", 1)[-1]
     ip = ip.rsplit(":", 1)[0]
     return ip
+
+@functools.lru_cache(maxsize=1024)
+def is_local_ip(ip: str) -> bool:
+    """Check if the given IP address is a local IP address"""
+    try:
+        address = ipaddress.ip_address(ip)
+    except ValueError:
+        return False
+
+    return any((
+        address.is_private,
+        address.is_loopback,
+        address.is_link_local,
+        address.is_reserved,
+        address.is_multicast,
+        address.is_unspecified
+    ))
