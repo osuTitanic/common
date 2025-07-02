@@ -126,6 +126,18 @@ def format_beatmap_update(activity: DBActivity) -> str:
 
     return f'{user_link} has updated the beatmap "{beatmapset_link}"'
 
+def format_beatmap_nuke(activity: DBActivity) -> str:
+    user_link = format_chat_link(
+        activity.data['username'],
+        f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+    )
+    beatmapset_link = format_chat_link(
+        activity.data['beatmapset_name'],
+        f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}',
+    )
+
+    return f'{user_link} has nuked "{beatmapset_link}"'
+
 def format_beatmap_revival(activity: DBActivity) -> str:
     beatmapset_link = format_chat_link(
         activity.data['beatmapset_name'],
@@ -203,6 +215,7 @@ formatters = {
     UserActivity.BeatmapRevived.value: format_beatmap_revival,
     UserActivity.BeatmapStatusUpdated.value: format_beatmap_status_update,
     UserActivity.BeatmapNominated.value: format_beatmap_nomination,
+    UserActivity.BeatmapNuked.value: format_beatmap_nuke,
     UserActivity.ForumTopicCreated.value: format_topic_created,
     UserActivity.ForumPostCreated.value: format_post_created
 }
