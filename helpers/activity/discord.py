@@ -91,6 +91,20 @@ def format_beatmap_status_update(activity: DBActivity) -> Embed:
     ]
     return embed
 
+def format_beatmap_nuked(activity: DBActivity) -> Embed:
+    embed = Embed(
+        title=activity.data["beatmapset_name"],
+        url=f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}',
+        thumbnail=Thumbnail(f'http://osu.{config.DOMAIN_NAME}/mt/{activity.data["beatmapset_id"]}'),
+        color=0xff0000
+    )
+    embed.author = Author(
+        name=f'{activity.data["username"]} nuked a Beatmap',
+        url=f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+        icon_url=f'http://osu.{config.DOMAIN_NAME}/a/{activity.user_id}'
+    )
+    return embed
+
 def format_topic_created(activity: DBActivity) -> Embed:
     embed = Embed(
         title=activity.data["topic_name"],
@@ -136,6 +150,7 @@ formatters = {
     UserActivity.BeatmapRevived.value: format_beatmap_revival,
     UserActivity.BeatmapStatusUpdated.value: format_beatmap_status_update,
     UserActivity.BeatmapNominated.value: format_beatmap_nomination,
+    UserActivity.BeatmapNuked.value: format_beatmap_nuked,
     UserActivity.ForumTopicCreated.value: format_topic_created,
     UserActivity.ForumPostCreated.value: format_post_created
 }
