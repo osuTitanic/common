@@ -105,7 +105,7 @@ class Beatmaps:
 
             if response.status_code == 429:
                 # Rate limited, try again later
-                self.set_ratelimit(mirror.url)
+                self.set_ratelimit(mirror.url, response.headers.get('Retry-After', 120))
                 continue
 
             if not response.ok:
@@ -133,7 +133,7 @@ class Beatmaps:
 
             if response.status_code == 429:
                 # Rate limited, try again later
-                self.set_ratelimit(mirror.url)
+                self.set_ratelimit(mirror.url, response.headers.get('Retry-After', 120))
                 continue
 
             if not response.ok:
@@ -167,7 +167,7 @@ class Beatmaps:
 
             if response.status_code == 429:
                 # Rate limited, try again later
-                self.set_ratelimit(mirror.url)
+                self.set_ratelimit(mirror.url, response.headers.get('Retry-After', 120))
                 continue
 
             if not response.ok:
@@ -194,7 +194,7 @@ class Beatmaps:
 
             if response.status_code == 429:
                 # Rate limited, try again later
-                self.set_ratelimit(mirror.url)
+                self.set_ratelimit(mirror.url, response.headers.get('Retry-After', 120))
                 continue
 
             if not response.ok:
