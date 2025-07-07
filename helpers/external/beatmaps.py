@@ -1,6 +1,6 @@
 
 from __future__ import annotations
-from typing import List
+from typing import List, Any
 
 from ...database.repositories import resources, beatmapsets
 from ...database.objects import DBResourceMirror
@@ -34,14 +34,44 @@ class Beatmaps:
         self.session.mount('http://', HTTPAdapter(max_retries=retries))
         self.session.mount('https://', HTTPAdapter(max_retries=retries))
 
-    def check_ratelimit(self, url: str) -> bool:
-        domain = urlparse(self.format_mirror_url(url, 0)).netloc
-        return self.cache.exists(f'ratelimit:{domain}')
+    def perform_mirror_request(self, url: str, mirror: DBResourceMirror) -> Response:
+        if self.check_ratelimit(mirror.url):
+            return None
 
-    def set_ratelimit(self, url: str, ex: int = 120) -> None:
-        domain = urlparse(self.format_mirror_url(url, 0)).netloc
-        self.cache.set(f'ratelimit:{domain}', 1, ex=ex)
-        self.logger.warning(f'Rate limited on "{domain}", will expire in {ex} seconds')
+        response = self.do_safe_request(
+            url=url,
+            stream=True
+        )
+
+        ratelimit_remaining = self.resolve_header(response, 'X-Ratelimit-Remaining', cast=int)
+        ratelimit_reset = self.resolve_header(response, 'X-Ratelimit-Reset', cast=int)
+        
+        if ratelimit_remaining is not None and ratelimit_remaining <= 1:
+            self.logger.warning(f'Remaining units on "{mirror.url}" low, blocking for {ratelimit_reset} seconds.')
+            self.set_ratelimit(mirror.url, ratelimit_reset)
+
+        daily_remaining = self.resolve_header(response, 'X-Daily-Remaining', cast=int)
+        daily_reset = self.resolve_header(response, 'X-Ratelimit-Daily-Reset', cast=int)
+
+        if daily_remaining is not None and daily_remaining <= 1:
+            self.logger.warning(f'Daily limit reached on "{mirror.url}", available again in {daily_reset} seconds.')
+            self.set_ratelimit(mirror.url, daily_reset)
+
+        if response.status_code == 429:
+            retry = self.resolve_header(response, 'Retry-After', 120, cast=int)
+            self.logger.warning(f'Rate limited on "{mirror.url}", available again in {retry} seconds.')
+            self.set_ratelimit(mirror.url, retry)
+            return None
+
+        if not response.ok:
+            self.log_error(response.url, response.status_code)
+            return None
+
+        if 'application/json' in response.headers.get('Content-Type', ''):
+            self.log_error(response.url, response.json().get('code', 500))
+            return None
+
+        return response
 
     def log_error(self, url: str, status_code: int) -> None:
         if status_code == 404:
@@ -59,6 +89,15 @@ class Beatmaps:
             self.logger.error(f'Failed to send request to "{url}": {e}')
         finally:
             return response
+
+    def check_ratelimit(self, url: str) -> bool:
+        domain = urlparse(self.format_mirror_url(url, 0)).netloc
+        return self.cache.exists(f'ratelimit:{domain}')
+
+    def set_ratelimit(self, url: str, ex: int = 120) -> None:
+        domain = urlparse(self.format_mirror_url(url, 0)).netloc
+        self.cache.set(f'ratelimit:{domain}', 1, ex=ex)
+        self.logger.warning(f'Rate limited on "{domain}", will expire in {ex} seconds')
 
     def determine_server(self, id: int) -> int:
         return beatmapsets.fetch_download_server_id(id)
@@ -98,22 +137,12 @@ class Beatmaps:
             return None
 
         for mirror in mirrors:
-            response = self.do_safe_request(
+            response = self.perform_mirror_request(
                 self.format_mirror_url(mirror.url, set_id),
-                stream=True
+                mirror=mirror
             )
 
-            if response.status_code == 429:
-                # Rate limited, try again later
-                self.set_ratelimit(mirror.url, response.headers.get('Retry-After', 120))
-                continue
-
-            if not response.ok:
-                self.log_error(response.url, response.status_code)
-                continue
-
-            if 'application/json' in response.headers.get('Content-Type', ''):
-                self.log_error(response.url, response.json().get('code', 500))
+            if not response:
                 continue
 
             return response
@@ -124,24 +153,12 @@ class Beatmaps:
         mirrors = resources.fetch_by_type_all(2)
 
         for mirror in mirrors:
-            if self.check_ratelimit(mirror.url):
-                continue
-
-            response = self.do_safe_request(
-                self.format_mirror_url(mirror.url, beatmap_id)
+            response = self.perform_mirror_request(
+                self.format_mirror_url(mirror.url, beatmap_id),
+                mirror=mirror
             )
 
-            if response.status_code == 429:
-                # Rate limited, try again later
-                self.set_ratelimit(mirror.url, response.headers.get('Retry-After', 120))
-                continue
-
-            if not response.ok:
-                self.log_error(response.url, response.status_code)
-                continue
-
-            if 'application/json' in response.headers.get('Content-Type', ''):
-                self.log_error(response.url, response.json()['code'])
+            if not response:
                 continue
 
             if not response.content:
@@ -158,20 +175,12 @@ class Beatmaps:
         )
 
         for mirror in mirrors:
-            if self.check_ratelimit(mirror.url):
-                continue
-
-            response = self.do_safe_request(
-                self.format_mirror_url(mirror.url, set_id)
+            response = self.perform_mirror_request(
+                self.format_mirror_url(mirror.url, set_id),
+                mirror=mirror
             )
 
-            if response.status_code == 429:
-                # Rate limited, try again later
-                self.set_ratelimit(mirror.url, response.headers.get('Retry-After', 120))
-                continue
-
-            if not response.ok:
-                self.log_error(response.url, response.status_code)
+            if not response:
                 continue
 
             return response.content
@@ -185,23 +194,32 @@ class Beatmaps:
         )
 
         for mirror in mirrors:
-            if self.check_ratelimit(mirror.url):
-                continue
-
-            response = self.do_safe_request(
-                self.format_mirror_url(mirror.url, set_id)
+            response = self.perform_mirror_request(
+                self.format_mirror_url(mirror.url, set_id),
+                mirror=mirror
             )
 
-            if response.status_code == 429:
-                # Rate limited, try again later
-                self.set_ratelimit(mirror.url, response.headers.get('Retry-After', 120))
-                continue
-
-            if not response.ok:
-                self.log_error(response.url, response.status_code)
+            if not response:
                 continue
 
             return response.content
+        
+    @staticmethod
+    def resolve_header(
+        response: Response,
+        header: str,
+        default: Any = None,
+        cast: type = str
+    ) -> Any:
+        value = response.headers.get(header, default)
+
+        if type == default:
+            return value
+
+        try:
+            return cast(value)
+        except (ValueError, TypeError):
+            return default
 
     @staticmethod
     def format_mirror_url(url: str, id: int) -> str:
