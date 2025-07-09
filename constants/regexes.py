@@ -21,7 +21,7 @@ DISCORD_USERNAME = re.compile(
 )
 
 DISCORD_EMOTE = re.compile(
-    r'<a?:[a-zA-Z0-9_]{2,32}:\d{17,20}>'
+    r'<a?:([a-zA-Z0-9_]{2,32}):\d{17,20}>'
 )
 
 URL = re.compile(
