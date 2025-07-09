@@ -1,15 +1,32 @@
 
 from app.common.constants import UserActivity, DatabaseStatus
-from app.common.database.repositories import wrapper
 from app.common.database.objects import DBActivity
-from sqlalchemy.orm import Session
 from app.common.webhooks import *
 
 import config
 import app
 
 def format_leaderboard_rank(activity: DBActivity) -> Embed:
-    ...
+    if activity.data["beatmap_rank"] > 1:
+        return
+    
+    embed = Embed(
+        description=(
+            f'{activity.data["username"]} achieved rank #{activity.data["beatmap_rank"]} '
+            f'on [{activity.data["beatmap"]}](http://osu.{config.DOMAIN_NAME}/b/{activity.data["beatmap_id"]}) '
+            f'with {activity.data["mods"]} <{activity.data["mode"]}>'
+            f' ({activity.data["pp"]}pp)' if activity.data.get("pp") else ''
+        ),
+        author=Author(
+            name=activity.data["username"],
+            url=f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+            icon_url=f'http://osu.{config.DOMAIN_NAME}/a/{activity.user_id}'
+        ),
+        url=f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+        thumbnail=Thumbnail(url=f'http://api.{config.DOMAIN_NAME}/beatmaps/{activity.data["beatmap_id"]}/background'),
+        color=0x00ff00
+    )
+    return embed
 
 def format_ranks_gained(activity: DBActivity) -> Embed:
     if activity.data["rank"] > 20:
@@ -48,7 +65,12 @@ def format_pp_record(activity: DBActivity) -> Embed:
             f'{activity.data["username"]} achieved a new pp record of **{activity.data["pp"]}pp** '
             f'on [{activity.data["beatmap"]}](http://osu.{config.DOMAIN_NAME}/b/{activity.data["beatmap_id"]})'
         ),
-        thumbnail=Thumbnail(url=f'http://osu.{config.DOMAIN_NAME}/a/{activity.user_id}'),
+        author=Author(
+            name=activity.data["username"],
+            url=f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+            icon_url=f'http://osu.{config.DOMAIN_NAME}/a/{activity.user_id}'
+        ),
+        thumbnail=Thumbnail(url=f'http://api.{config.DOMAIN_NAME}/beatmaps/{activity.data["beatmap_id"]}/background'),
         url=f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
         color=0x00ff00
     )
