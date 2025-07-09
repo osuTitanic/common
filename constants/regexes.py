@@ -20,8 +20,16 @@ DISCORD_USERNAME = re.compile(
     r'^@?[a-z0-9_-]{3,32}$'
 )
 
+DISCORD_EMOTE = re.compile(
+    r'<a?:[a-zA-Z0-9_]{2,32}:\d{17,20}>'
+)
+
 URL = re.compile(
     r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+)
+
+MARKDOWN_LINK = re.compile(
+    r"\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)"
 )
 
 OSU_USER_AGENT = re.compile(
