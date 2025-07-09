@@ -9,7 +9,10 @@ import app
 def format_leaderboard_rank(activity: DBActivity) -> Embed:
     if activity.data["beatmap_rank"] > 1:
         return
-    
+
+    if activity.data.get("pp", 0) <= 100:
+        return
+
     embed = Embed(
         description=(
             f'{activity.data["username"]} achieved rank #{activity.data["beatmap_rank"]} '
