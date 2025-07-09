@@ -147,6 +147,7 @@ def fetch_by_creator(
 ) -> List[DBBeatmapset]:
     return session.query(DBBeatmapset) \
         .filter(DBBeatmapset.creator_id == creator_id) \
+        .order_by(DBBeatmapset.created_at.desc()) \
         .all()
 
 @session_wrapper
