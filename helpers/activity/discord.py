@@ -12,7 +12,21 @@ def format_leaderboard_rank(activity: DBActivity) -> Embed:
     ...
 
 def format_ranks_gained(activity: DBActivity) -> Embed:
-    ...
+    if activity.data["rank"] > 20:
+        return
+
+    embed = Embed(
+        title='Climbing the ranks',
+        description=(
+            f'{activity.data["username"]} has risen {activity.data["ranks_gained"]} '
+            f'rank{"s" if activity.data["ranks_gained"] != 1 else ""}, '
+            f'now placed #{activity.data["rank"]} overall in {activity.data["mode"]}.'
+        ),
+        url=f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+        thumbnail=Thumbnail(url=f'http://osu.{config.DOMAIN_NAME}/a/{activity.user_id}'),
+        color=0x00ff00
+    )
+    return embed
 
 def format_number_one(activity: DBActivity) -> Embed:
     embed = Embed(
