@@ -18,7 +18,17 @@ def format_number_one(activity: DBActivity) -> Embed:
     ...
 
 def format_pp_record(activity: DBActivity) -> Embed:
-    ...
+    embed = Embed(
+        title=f'New pp record ({activity.data["mode"]})',
+        description=(
+            f'{activity.data["username"]} achieved a new pp record of **{activity.data["pp"]}pp** '
+            f'on [{activity.data["beatmap"]}](http://osu.{config.DOMAIN_NAME}/b/{activity.data["beatmap_id"]})'
+        ),
+        thumbnail=Thumbnail(url=f'http://osu.{config.DOMAIN_NAME}/a/{activity.user_id}'),
+        url=f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+        color=0x00ff00
+    )
+    return embed
 
 def format_beatmap_upload(activity: DBActivity) -> Embed:
     embed = Embed(title=activity.data["beatmapset_name"])
