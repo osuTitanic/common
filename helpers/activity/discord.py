@@ -15,7 +15,17 @@ def format_ranks_gained(activity: DBActivity) -> Embed:
     ...
 
 def format_number_one(activity: DBActivity) -> Embed:
-    ...
+    embed = Embed(
+        title='I can see the top',
+        description=(
+            f'{activity.data["username"]} has taken the lead as the top-ranked '
+            f'{activity.data["mode"]} player.'
+        ),
+        url=f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
+        thumbnail=Thumbnail(url=f'http://osu.{config.DOMAIN_NAME}/a/{activity.user_id}'),
+        color=0x00ff00
+    )
+    return embed
 
 def format_pp_record(activity: DBActivity) -> Embed:
     embed = Embed(
