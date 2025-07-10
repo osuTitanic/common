@@ -37,6 +37,7 @@ class UploadRequest:
     @property
     def osz_filename(self) -> str:
         return sanitize_filename(
+            f'{self.set_id} '
             f'{self.metadata["Artist"]} - {self.metadata["Title"]} '
             f'({self.metadata["Creator"]})'
         ) + '.osz'
