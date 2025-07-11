@@ -50,6 +50,6 @@ class ChatFilter:
             return None, chat_filter.block_timeout_duration or 60
 
         if was_modified:
-            officer.log(f'Applied chat filter: "{message}"')
+            officer.call(f'Applied chat filter: "{message}"')
 
         return message, None
