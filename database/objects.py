@@ -1,10 +1,10 @@
 
-from sqlalchemy.orm import relationship, declarative_base
-from sqlalchemy.sql import func
-
+from functools import cached_property
 from datetime import datetime
 from typing import List
 
+from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy import (
     SmallInteger,
@@ -21,6 +21,7 @@ from sqlalchemy import (
 )
 
 import config
+import re
 
 Base = declarative_base()
 Base.__allow_unmapped__ = True
@@ -290,6 +291,10 @@ class DBChatFilter(Base):
     block                  = Column('block', Boolean, nullable=False, default=False)
     block_timeout_duration = Column('block_timeout_duration', Integer, nullable=True, default=None)
     created_at             = Column('created_at', DateTime, server_default=func.now())
+
+    @cached_property
+    def regex_pattern(self) -> re.Pattern:
+        return re.compile(self.pattern)
 
 class DBBeatmapset(Base):
     __tablename__ = "beatmapsets"
@@ -728,8 +733,6 @@ class DBReport(Base):
     time      = Column('time', DateTime, server_default=func.now())
     reason    = Column('reason', String, nullable=True)
     resolved  = Column('resolved', Boolean, default=False)
-
-    # TODO: Relationships
 
     def __init__(
         self,
