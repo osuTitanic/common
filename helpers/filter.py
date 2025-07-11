@@ -1,8 +1,8 @@
 
 from app.common.database.objects import DBChatFilter
 from app.common.database import filters
+from re import RegexFlag, Pattern, compile
 from typing import List, Tuple, Dict
-from re import Pattern, compile
 
 class ChatFilter:
     def __init__(self) -> None:
@@ -19,7 +19,10 @@ class ChatFilter:
         self.filters = filters.fetch_all()
 
         for filter in self.filters:
-            self.patterns[filter.name] = compile(filter.pattern)
+            self.patterns[filter.name] = compile(
+                filter.pattern,
+                flags=RegexFlag.IGNORECASE
+            )
 
     def apply(self, message: str) -> Tuple[str | None, int | None]:
         for chat_filter in self.filters:
