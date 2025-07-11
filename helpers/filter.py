@@ -1,6 +1,8 @@
 
 from app.common.database.objects import DBChatFilter
 from app.common.database import filters
+from app.common import officer
+
 from re import RegexFlag, Pattern, compile
 from typing import List, Tuple, Dict
 
@@ -25,6 +27,8 @@ class ChatFilter:
             )
 
     def apply(self, message: str) -> Tuple[str | None, int | None]:
+        was_modified = False
+
         for chat_filter in self.filters:
             replacement = chat_filter.replacement or ""
             filter = self.patterns[chat_filter.name]
@@ -35,6 +39,7 @@ class ChatFilter:
 
             # Update message with filtered content
             message = filtered_message
+            was_modified = was_modified or is_filtered
 
             if not is_filtered:
                 continue
@@ -43,5 +48,8 @@ class ChatFilter:
                 continue
 
             return None, chat_filter.block_timeout_duration or 60
+
+        if was_modified:
+            officer.log(f'Applied chat filter: "{message}"')
 
         return message, None
