@@ -281,6 +281,16 @@ class DBDirectMessage(Base):
         self.message = message
         self.time = datetime.now()
 
+class DBChatFilter(Base):
+    __tablename__ = "filters"
+
+    name                   = Column('name', String, primary_key=True)
+    pattern                = Column('pattern', String, nullable=False)
+    replacement            = Column('replacement', String, nullable=True)
+    block                  = Column('block', Boolean, nullable=False, default=False)
+    block_timeout_duration = Column('block_timeout_duration', Integer, nullable=True, default=None)
+    created_at             = Column('created_at', DateTime, server_default=func.now())
+
 class DBBeatmapset(Base):
     __tablename__ = "beatmapsets"
 
