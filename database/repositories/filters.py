@@ -39,6 +39,7 @@ def fetch_by_name(name: str, session: Session = ...) -> DBChatFilter | None:
 @session_wrapper
 def fetch_all(session: Session = ...) -> List[DBChatFilter]:
     return session.query(DBChatFilter) \
+        .order_by(DBChatFilter.created_at.asc()) \
         .all()
 
 @session_wrapper
