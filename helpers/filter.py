@@ -39,6 +39,6 @@ class ChatFilter:
             if not chat_filter.block:
                 continue
 
-            return None, chat_filter.timeout or 60
+            return None, chat_filter.block_timeout_duration or 60
 
         return message, None
