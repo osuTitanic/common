@@ -292,10 +292,6 @@ class DBChatFilter(Base):
     block_timeout_duration = Column('block_timeout_duration', Integer, nullable=True, default=None)
     created_at             = Column('created_at', DateTime, server_default=func.now())
 
-    @cached_property
-    def regex_pattern(self) -> re.Pattern:
-        return re.compile(self.pattern)
-
 class DBBeatmapset(Base):
     __tablename__ = "beatmapsets"
 

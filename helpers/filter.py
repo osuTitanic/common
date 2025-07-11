@@ -1,10 +1,12 @@
 
 from app.common.database.objects import DBChatFilter
 from app.common.database import filters
-from typing import List, Tuple
+from typing import List, Tuple, Dict
+from re import Pattern, compile
 
 class ChatFilter:
     def __init__(self) -> None:
+        self.patterns: Dict[str, Pattern] = {}
         self.filters: List[DBChatFilter] = []
 
     def __repr__(self) -> str:
@@ -16,11 +18,16 @@ class ChatFilter:
     def populate(self) -> None:
         self.filters = filters.fetch_all()
 
+        for filter in self.filters:
+            self.patterns[filter.name] = compile(filter.pattern)
+
     def apply(self, message: str) -> Tuple[str | None, int | None]:
         for chat_filter in self.filters:
-            # Apply filter & check if content has changed
             replacement = chat_filter.replacement or ""
-            filtered_message = chat_filter.regex_pattern.sub(replacement, message)
+            filter = self.patterns[chat_filter.name]
+
+            # Apply filter & check if content has changed
+            filtered_message = filter.sub(replacement, message)
             is_filtered = filtered_message != message
 
             # Update message with filtered content
