@@ -1,5 +1,5 @@
 
-from functools import cached_property
+from app.common.constants import GameMode
 from datetime import datetime
 from typing import List
 
@@ -118,6 +118,23 @@ class DBScore(Base):
     @property
     def passed(self) -> bool:
         return self.failtime is None
+
+    @property
+    def total_hits(self) -> int:
+        if self.mode in (GameMode.OsuMania, GameMode.Taiko):
+            return self.n50 + self.n100 + self.n00 + self.nGeki + self.nKatu
+
+        return self.n50 + self.n100 + self.n300
+
+    @property
+    def total_objects(self) -> int:
+        if self.mode in (GameMode.Osu, GameMode.Taiko):
+            return self.n50 + self.n100 + self.n300 + self.nMiss
+
+        elif self.mode == GameMode.CatchTheBeat:
+            return self.n50 + self.n100 + self.n300 + self.nKatu + self.nMiss
+
+        return self.n50 + self.n100 + self.n300 + self.nGeki + self.nKatu + self.nMiss
 
 class DBPlay(Base):
     __tablename__ = "plays"
