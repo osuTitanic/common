@@ -191,7 +191,7 @@ def search(
 
     order_column = (
         DBBeatmapset.approved_at if is_approved else
-        DBBeatmapset.created_at
+        DBBeatmapset.last_update
     )
 
     if mode != -1:
