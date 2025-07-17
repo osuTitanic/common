@@ -183,12 +183,22 @@ def search(
 
     text_condition, text_sort = text_search_condition(query_string)
 
+    is_approved = display_mode not in (
+        DisplayMode.Graveyard,
+        DisplayMode.Pending,
+        DisplayMode.All
+    )
+
+    order_column = (
+        DBBeatmapset.approved_at if is_approved else
+        DBBeatmapset.created_at
+    )
+
     if mode != -1:
         query = query.filter(DBBeatmap.mode == mode)
 
     if query_string == 'Newest':
-        query = query.order_by(DBBeatmapset.created_at.desc()) \
-                     .distinct()
+        query = query.order_by(order_column.desc())
 
     elif query_string == 'Top Rated':
         query = query.join(DBRating) \
