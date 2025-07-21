@@ -12,7 +12,7 @@ from app.common.database.objects import (
 )
 
 from sqlalchemy.orm import selectinload, joinedload, Session
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, case
 
 from .wrapper import session_wrapper
 
@@ -69,12 +69,17 @@ def fetch_by_name_case_insensitive(username: str, session: Session = ...) -> DBU
 @session_wrapper
 def fetch_by_name_extended(query: str, session: Session = ...) -> DBUser | None:
     """Used for searching users"""
+    exact_match = case(
+        (func.lower(DBUser.name) == query.lower(), 0),
+        else_=1
+    )
+
     return session.query(DBUser) \
         .filter(or_(
             func.lower(DBUser.name) == query.lower(),
             DBUser.name.ilike(f'%{query}%')
         )) \
-        .order_by(func.length(DBUser.name).asc()) \
+        .order_by(exact_match, func.length(DBUser.name).asc()) \
         .first()
 
 @session_wrapper
