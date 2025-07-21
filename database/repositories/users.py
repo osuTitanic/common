@@ -71,7 +71,7 @@ def fetch_by_name_extended(query: str, session: Session = ...) -> DBUser | None:
     """Used for searching users"""
     return session.query(DBUser) \
         .filter(or_(
-            DBUser.name.ilike(query),
+            func.lower(DBUser.name) == query.lower(),
             DBUser.name.ilike(f'%{query}%')
         )) \
         .order_by(func.length(DBUser.name).asc()) \
