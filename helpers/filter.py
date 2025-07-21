@@ -27,7 +27,7 @@ class ChatFilter:
             )
 
     @lru_cache(maxsize=128)
-    def apply(self, message: str) -> Tuple[str | None, int | None]:
+    def apply(self, message: str) -> Tuple[str, int | None]:
         for chat_filter in self.filters:
             replacement = chat_filter.replacement or ""
             filter = self.patterns[chat_filter.name]
@@ -51,7 +51,7 @@ class ChatFilter:
             if not chat_filter.block:
                 continue
 
-            return None, chat_filter.block_timeout_duration or 60
+            return message, chat_filter.block_timeout_duration or 60
 
         return message, None
 
