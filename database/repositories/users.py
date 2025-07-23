@@ -164,6 +164,12 @@ def fetch_user_id(username: str, session: Session = ...) -> int | None:
             .scalar()
 
 @session_wrapper
+def fetch_avatar_checksum(user_id: int, session: Session = ...) -> str | None:
+    return session.query(DBUser.avatar_hash) \
+            .filter(DBUser.id == user_id) \
+            .scalar()
+
+@session_wrapper
 def fetch_many(user_ids: list, *options, session: Session = ...) -> List[DBUser]:
     return session.query(DBUser) \
               .options(*[joinedload(item) for item in options]) \
