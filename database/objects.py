@@ -1350,10 +1350,18 @@ class DBUser(Base):
 
     def __repr__(self) -> str:
         return f'<DBUser "{self.name}" ({self.id})>'
+    
+    @property
+    def url(self) -> str:
+        return f'http://osu.{config.DOMAIN_NAME}/u/{self.id}'
 
     @property
     def link(self) -> str:
-        return f'[http://osu.{config.DOMAIN_NAME}/u/{self.id} {self.name}]'
+        return f'[{self.url} {self.name}]'
+
+    @property
+    def avatar_filename(self) -> str:
+        return f'{self.id}_{self.avatar_hash or "unknown"}.png'
 
     @property
     def group_ids(self):
