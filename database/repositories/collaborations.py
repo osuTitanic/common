@@ -145,3 +145,24 @@ def delete_by_beatmap(
         .filter(DBBeatmapCollaboration.beatmap_id == beatmap_id) \
         .delete(synchronize_session=False)
     session.commit()
+
+@session_wrapper
+def delete_request(id: int, session: Session = ...) -> bool:
+    deleted_rows = session.query(DBBeatmapCollaborationRequest) \
+        .filter(DBBeatmapCollaborationRequest.id == id) \
+        .delete(synchronize_session=False)
+    session.commit()
+    return deleted_rows > 0
+
+@session_wrapper
+def delete_blacklist(
+    user_id: int,
+    target_id: int,
+    session: Session = ...
+) -> bool:
+    deleted_rows = session.query(DBBeatmapCollaborationBlacklist) \
+        .filter(DBBeatmapCollaborationBlacklist.user_id == user_id) \
+        .filter(DBBeatmapCollaborationBlacklist.target_id == target_id) \
+        .delete(synchronize_session=False)
+    session.commit()
+    return deleted_rows > 0
