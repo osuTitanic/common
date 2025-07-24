@@ -14,7 +14,7 @@ from datetime import datetime
 from typing import List
 
 @session_wrapper
-def create_collaboration(
+def create(
     beatmap_id: int,
     user_id: int,
     is_beatmap_author: bool = False,
