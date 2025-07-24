@@ -124,6 +124,12 @@ def fetch_id_by_filename(filename: str, session: Session = ...) -> int | None:
         .scalar()
 
 @session_wrapper
+def fetch_filename_by_id(beatmap_id: int, session: Session = ...) -> str | None:
+    return session.query(DBBeatmap.filename) \
+        .filter(DBBeatmap.id == beatmap_id) \
+        .scalar()
+
+@session_wrapper
 def update(
     beatmap_id: int,
     updates: dict,
