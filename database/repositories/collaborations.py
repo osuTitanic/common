@@ -5,7 +5,8 @@ from .wrapper import session_wrapper
 from app.common.database.objects import (
     DBBeatmapCollaborationBlacklist,
     DBBeatmapCollaborationRequest,
-    DBBeatmapCollaboration
+    DBBeatmapCollaboration,
+    DBUser
 )
 
 from sqlalchemy.orm import Session
@@ -59,6 +60,13 @@ def fetch_by_user(user_id: int, session: Session = ...) -> List[DBBeatmapCollabo
 def fetch_by_beatmaps(beatmap_ids: List[int], session: Session = ...) -> List[DBBeatmapCollaboration]:
     return session.query(DBBeatmapCollaboration) \
         .filter(DBBeatmapCollaboration.beatmap_id.in_(beatmap_ids)) \
+        .all()
+
+@session_wrapper
+def fetch_usernames(beatmap_id: int, session: Session = ...) -> List[str]:
+    return session.query(DBUser.name) \
+        .join(DBBeatmapCollaboration, DBUser.id == DBBeatmapCollaboration.user_id) \
+        .filter(DBBeatmapCollaboration.beatmap_id == beatmap_id) \
         .all()
 
 @session_wrapper
