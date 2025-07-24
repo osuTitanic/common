@@ -510,7 +510,7 @@ class DBBeatmapCollaborationRequest(Base):
     user = relationship('DBUser', foreign_keys=[user_id])
     target = relationship('DBUser', foreign_keys=[target_id])
     beatmap = relationship('DBBeatmap', back_populates='collaboration_requests')
-    
+
 class DBBeatmapCollaborationBlacklist(Base):
     __tablename__ = "beatmap_collaboration_blacklist"
 

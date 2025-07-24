@@ -113,6 +113,17 @@ def exists(
         .count() > 0
 
 @session_wrapper
+def is_blacklisted(
+    user_id: int,
+    target_id: int,
+    session: Session = ...
+) -> bool:
+    return session.query(DBBeatmapCollaborationBlacklist) \
+        .filter(DBBeatmapCollaborationBlacklist.user_id == user_id) \
+        .filter(DBBeatmapCollaborationBlacklist.target_id == target_id) \
+        .count() > 0
+
+@session_wrapper
 def delete(
     beatmap_id: int,
     user_id: int,
