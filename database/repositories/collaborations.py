@@ -33,6 +33,38 @@ def create(
     return entry
 
 @session_wrapper
+def create_request(
+    user_id: int,
+    target_id: int,
+    beatmap_id: int,
+    session: Session = ...
+) -> DBBeatmapCollaborationRequest:
+    entry = DBBeatmapCollaborationRequest(
+        user_id=user_id,
+        target_id=target_id,
+        beatmap_id=beatmap_id,
+        created_at=datetime.now()
+    )
+    session.add(entry)
+    session.commit()
+    return entry
+
+@session_wrapper
+def create_blacklist(
+    user_id: int,
+    target_id: int,
+    session: Session = ...
+) -> DBBeatmapCollaborationBlacklist:
+    entry = DBBeatmapCollaborationBlacklist(
+        user_id=user_id,
+        target_id=target_id,
+        created_at=datetime.now()
+    )
+    session.add(entry)
+    session.commit()
+    return entry
+
+@session_wrapper
 def fetch_one(
     beatmap_id: int,
     user_id: int,
