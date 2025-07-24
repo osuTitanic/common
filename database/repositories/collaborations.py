@@ -102,6 +102,27 @@ def fetch_usernames(beatmap_id: int, session: Session = ...) -> List[str]:
         .all()
 
 @session_wrapper
+def fetch_requests_outgoing(beatmap_id: int, session: Session = ...) -> List[DBBeatmapCollaborationRequest]:
+    return session.query(DBBeatmapCollaborationRequest) \
+        .filter(DBBeatmapCollaborationRequest.beatmap_id == beatmap_id) \
+        .order_by(DBBeatmapCollaborationRequest.created_at.desc()) \
+        .all()
+
+@session_wrapper
+def fetch_requests_incoming(user_id: int, session: Session = ...) -> List[DBBeatmapCollaborationRequest]:
+    return session.query(DBBeatmapCollaborationRequest) \
+        .filter(DBBeatmapCollaborationRequest.target_id == user_id) \
+        .order_by(DBBeatmapCollaborationRequest.created_at.desc()) \
+        .all()
+
+@session_wrapper
+def fetch_blacklist(user_id: int, session: Session = ...) -> List[DBBeatmapCollaborationBlacklist]:
+    return session.query(DBBeatmapCollaborationBlacklist) \
+        .filter(DBBeatmapCollaborationBlacklist.user_id == user_id) \
+        .order_by(DBBeatmapCollaborationBlacklist.created_at.desc()) \
+        .all()
+
+@session_wrapper
 def exists(
     beatmap_id: int,
     user_id: int,
