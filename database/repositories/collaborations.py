@@ -113,6 +113,20 @@ def exists(
         .count() > 0
 
 @session_wrapper
+def update(
+    beatmap_id: int,
+    user_id: int,
+    updates: dict,
+    session: Session = ...
+) -> int:
+    rows_updated = session.query(DBBeatmapCollaboration) \
+        .filter(DBBeatmapCollaboration.beatmap_id == beatmap_id) \
+        .filter(DBBeatmapCollaboration.user_id == user_id) \
+        .update(updates)
+    session.commit()
+    return rows_updated
+
+@session_wrapper
 def is_blacklisted(
     user_id: int,
     target_id: int,
