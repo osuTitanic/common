@@ -136,6 +136,18 @@ def update(
     return rows
 
 @session_wrapper
+def exists(beatmap_id: int, session: Session = ...) -> bool:
+    return session.query(DBBeatmap.id) \
+        .filter(DBBeatmap.id == beatmap_id) \
+        .scalar() is not None
+
+@session_wrapper
+def filename_exists(filename: str, session: Session = ...) -> bool:
+    return session.query(DBBeatmap.id) \
+        .filter(DBBeatmap.filename == filename) \
+        .scalar() is not None
+
+@session_wrapper
 def update_by_set_id(
     set_id: int,
     updates: dict,
