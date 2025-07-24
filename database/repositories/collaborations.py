@@ -47,6 +47,7 @@ def create_request(
     )
     session.add(entry)
     session.commit()
+    session.refresh(entry)
     return entry
 
 @session_wrapper
