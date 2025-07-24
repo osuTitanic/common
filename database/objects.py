@@ -358,6 +358,7 @@ class DBBeatmapset(Base):
         persisted=True
     ))
 
+    creator_user = relationship('DBUser', foreign_keys=[creator_id])
     nominations = relationship('DBBeatmapNomination', back_populates='beatmapset')
     modding = relationship('DBBeatmapModding', back_populates='beatmapset')
     favourites = relationship('DBFavourite', back_populates='beatmapset')
@@ -410,10 +411,12 @@ class DBBeatmap(Base):
         persisted=True
     ))
 
+    collaboration_requests = relationship('DBBeatmapCollaborationRequest', back_populates='beatmap')
+    collaborations = relationship('DBBeatmapCollaboration', back_populates='beatmap')
     beatmapset = relationship('DBBeatmapset', back_populates='beatmaps')
-    ratings    = relationship('DBRating', back_populates='beatmap')
-    scores     = relationship('DBScore', back_populates='beatmap')
-    plays      = relationship('DBPlay', back_populates='beatmap')
+    ratings = relationship('DBRating', back_populates='beatmap')
+    scores = relationship('DBScore', back_populates='beatmap')
+    plays = relationship('DBPlay', back_populates='beatmap')
 
     def __repr__(self) -> str:
         return f'<Beatmap ({self.id}) {self.beatmapset.artist} - {self.beatmapset.title} [{self.version}]>'
@@ -481,6 +484,42 @@ class DBBeatmap(Base):
         self.od = od
         self.hp = hp
         self.diff = diff
+
+class DBBeatmapCollaboration(Base):
+    __tablename__ = "beatmap_collaboration"
+
+    user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    beatmap_id = Column('beatmap_id', Integer, ForeignKey('beatmaps.id'), primary_key=True)
+    is_beatmap_author = Column('is_beatmap_author', Boolean, default=False)
+    allow_resource_updates = Column('allow_resource_updates', Boolean, default=False)
+    created_at = Column('created_at', DateTime, server_default=func.now())
+
+    user = relationship('DBUser', back_populates='collaborations')
+    beatmap = relationship('DBBeatmap', back_populates='collaborations')
+
+class DBBeatmapCollaborationRequest(Base):
+    __tablename__ = "beatmap_collaboration_requests"
+
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    user_id = Column('user_id', Integer, ForeignKey('users.id'))
+    target_id = Column('target_id', Integer, ForeignKey('users.id'))
+    beatmap_id = Column('beatmap_id', Integer, ForeignKey('beatmaps.id'))
+    allow_resource_updates = Column('allow_resource_updates', Boolean, default=False)
+    created_at = Column('created_at', DateTime, server_default=func.now())
+
+    user = relationship('DBUser', foreign_keys=[user_id])
+    target = relationship('DBUser', foreign_keys=[target_id])
+    beatmap = relationship('DBBeatmap', back_populates='collaboration_requests')
+    
+class DBBeatmapCollaborationBlacklist(Base):
+    __tablename__ = "beatmap_collaboration_blacklist"
+
+    user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    target_id = Column('target_id', Integer, ForeignKey('users.id'), primary_key=True)
+    created_at = Column('created_at', DateTime, server_default=func.now())
+
+    user = relationship('DBUser', foreign_keys=[user_id])
+    target = relationship('DBUser', foreign_keys=[target_id])
 
 class DBBeatmapNomination(Base):
     __tablename__ = "beatmap_nominations"
@@ -1304,6 +1343,7 @@ class DBUser(Base):
 
     target_relationships = relationship('DBRelationship', back_populates='target', foreign_keys='DBRelationship.target_id')
     relationships = relationship('DBRelationship', back_populates='user', foreign_keys='DBRelationship.user_id')
+    collaborations = relationship('DBBeatmapCollaboration', back_populates='user')
     replay_history = relationship('DBReplayHistory', back_populates='user')
     nominations = relationship('DBBeatmapNomination', back_populates='user')
     bookmarked_topics = relationship('DBForumBookmark', back_populates='user')
