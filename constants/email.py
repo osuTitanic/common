@@ -24,7 +24,7 @@ Hi {username},
 We have noticed that your account was accessed from a new device in {country}.
 If that was not you, please REPLY IMMEDIATELY and RESET YOUR PASSWORD, as your account may be in danger.
 
-You can reset your password here: https://osu.{domain}/account/settings/profile#edit
+You can reset your password here: https://osu.{domain}/account/settings/security
 
 --
 {signature}
@@ -50,7 +50,7 @@ Hi {username},
 You are receiving this notification because your account password was changed.
 If that was not you, please REPLY IMMEDIATELY and RESET YOUR PASSWORD, as your account may be in danger.
 
-You can reset your password here: https://osu.{domain}/account/settings/profile#edit
+You can reset your password here: https://osu.{domain}/account/settings/security
 
 --
 {signature}
