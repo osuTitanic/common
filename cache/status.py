@@ -25,13 +25,6 @@ def update(
         'version': version,
         'hash': hash
     }
-
-    for key, value in status_update.items():
-        app.session.redis.hset(
-            f'bancho:status:{player_id}',
-            key, value
-        )
-
     stats_update = {
         'rscore': stats.rscore,
         'tscore': stats.tscore,
@@ -41,26 +34,19 @@ def update(
         'pp': stats.pp,
     }
 
-    for key, value in stats_update.items():
-        app.session.redis.hset(
-            f'bancho:stats:{player_id}',
-            key, value
-        )
+    with app.session.redis.pipeline() as pipe:
+        pipe.hset(f"bancho:status:{player_id}", mapping=status_update)
+        pipe.hset(f"bancho:stats:{player_id}", mapping=stats_update)
+        pipe.execute()
 
 def get(player_id: int) -> bUserStats | None:
-    status = app.session.redis.hgetall(
-        f'bancho:status:{player_id}'
-    )
+    with app.session.redis.pipeline() as pipe:
+        pipe.hgetall(f"bancho:status:{player_id}")
+        pipe.hgetall(f"bancho:stats:{player_id}")
+        status, stats = pipe.execute()
 
-    if not status:
-        return
-    
-    stats = app.session.redis.hgetall(
-        f'bancho:stats:{player_id}'
-    )
-
-    if not stats:
-        return
+    if not status or not stats:
+        return None
 
     return bUserStats(
         player_id,
