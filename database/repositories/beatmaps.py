@@ -124,6 +124,12 @@ def fetch_id_by_filename(filename: str, session: Session = ...) -> int | None:
         .scalar()
 
 @session_wrapper
+def fetch_filename_by_id(beatmap_id: int, session: Session = ...) -> str | None:
+    return session.query(DBBeatmap.filename) \
+        .filter(DBBeatmap.id == beatmap_id) \
+        .scalar()
+
+@session_wrapper
 def update(
     beatmap_id: int,
     updates: dict,
@@ -134,6 +140,18 @@ def update(
         .update(updates)
     session.commit()
     return rows
+
+@session_wrapper
+def exists(beatmap_id: int, session: Session = ...) -> bool:
+    return session.query(DBBeatmap.id) \
+        .filter(DBBeatmap.id == beatmap_id) \
+        .scalar() is not None
+
+@session_wrapper
+def filename_exists(filename: str, session: Session = ...) -> bool:
+    return session.query(DBBeatmap.id) \
+        .filter(DBBeatmap.filename == filename) \
+        .scalar() is not None
 
 @session_wrapper
 def update_by_set_id(
