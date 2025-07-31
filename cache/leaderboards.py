@@ -12,115 +12,109 @@ import app
 
 def update(stats: DBStats, country: str) -> None:
     """Update ppv1, ppv2, country and score ranks"""
-    # Performance
-    app.session.redis.zadd(
-        f'bancho:performance:{stats.mode}',
-        {stats.user_id: float(stats.pp)}
-    )
+    with app.session.redis.pipeline() as pipe:
+        # Performance
+        pipe.zadd(
+            f'bancho:performance:{stats.mode}',
+            {stats.user_id: float(stats.pp)}
+        )
+        pipe.zadd(
+            f'bancho:performance:{stats.mode}:{country.lower()}',
+            {stats.user_id: float(stats.pp)}
+        )
 
-    app.session.redis.zadd(
-        f'bancho:performance:{stats.mode}:{country.lower()}',
-        {stats.user_id: float(stats.pp)}
-    )
+        # Ranked Score
+        pipe.zadd(
+            f'bancho:rscore:{stats.mode}',
+            {stats.user_id: stats.rscore}
+        )
+        pipe.zadd(
+            f'bancho:rscore:{stats.mode}:{country.lower()}',
+            {stats.user_id: stats.rscore}
+        )
 
-    # Ranked Score
-    app.session.redis.zadd(
-        f'bancho:rscore:{stats.mode}',
-        {stats.user_id: stats.rscore}
-    )
+        # Total Score
+        pipe.zadd(
+            f'bancho:tscore:{stats.mode}',
+            {stats.user_id: stats.tscore}
+        )
+        pipe.zadd(
+            f'bancho:tscore:{stats.mode}:{country.lower()}',
+            {stats.user_id: stats.tscore}
+        )
 
-    app.session.redis.zadd(
-        f'bancho:rscore:{stats.mode}:{country.lower()}',
-        {stats.user_id: stats.rscore}
-    )
+        # PPV1
+        pipe.zadd(
+            f'bancho:ppv1:{stats.mode}',
+            {stats.user_id: stats.ppv1}
+        )
+        pipe.zadd(
+            f'bancho:ppv1:{stats.mode}:{country.lower()}',
+            {stats.user_id: stats.ppv1}
+        )
 
-    # Total Score
-    app.session.redis.zadd(
-        f'bancho:tscore:{stats.mode}',
-        {stats.user_id: stats.tscore}
-    )
+        # Accuracy
+        pipe.zadd(
+            f'bancho:acc:{stats.mode}',
+            {stats.user_id: stats.acc}
+        )
+        pipe.zadd(
+            f'bancho:acc:{stats.mode}:{country.lower()}',
+            {stats.user_id: stats.acc}
+        )
 
-    app.session.redis.zadd(
-        f'bancho:tscore:{stats.mode}:{country.lower()}',
-        {stats.user_id: stats.tscore}
-    )
+        clears = sum([
+            stats.xh_count,
+            stats.x_count,
+            stats.sh_count,
+            stats.s_count,
+            stats.a_count,
+            stats.b_count,
+            stats.c_count,
+            stats.d_count
+        ])
 
-    # PPV1
-    app.session.redis.zadd(
-        f'bancho:ppv1:{stats.mode}',
-        {stats.user_id: stats.ppv1}
-    )
+        # Clears
+        pipe.zadd(
+            f'bancho:clears:{stats.mode}',
+            {stats.user_id: clears}
+        )
+        pipe.zadd(
+            f'bancho:clears:{stats.mode}:{country.lower()}',
+            {stats.user_id: clears}
+        )
 
-    app.session.redis.zadd(
-        f'bancho:ppv1:{stats.mode}:{country.lower()}',
-        {stats.user_id: stats.ppv1}
-    )
+        # PP VN
+        pipe.zadd(
+            f'bancho:ppvn:{stats.mode}',
+            {stats.user_id: stats.pp_vn}
+        )
+        pipe.zadd(
+            f'bancho:ppvn:{stats.mode}:{country.lower()}',
+            {stats.user_id: stats.pp_vn}
+        )
 
-    # Accuracy
-    app.session.redis.zadd(
-        f'bancho:acc:{stats.mode}',
-        {stats.user_id: stats.acc}
-    )
+        # PP RX
+        pipe.zadd(
+            f'bancho:pprx:{stats.mode}',
+            {stats.user_id: stats.pp_rx}
+        )
+        pipe.zadd(
+            f'bancho:pprx:{stats.mode}:{country.lower()}',
+            {stats.user_id: stats.pp_rx}
+        )
 
-    app.session.redis.zadd(
-        f'bancho:acc:{stats.mode}:{country.lower()}',
-        {stats.user_id: stats.acc}
-    )
+        # PP AP
+        pipe.zadd(
+            f'bancho:ppap:{stats.mode}',
+            {stats.user_id: stats.pp_ap}
+        )
+        pipe.zadd(
+            f'bancho:ppap:{stats.mode}:{country.lower()}',
+            {stats.user_id: stats.pp_ap}
+        )
 
-    clears = sum([
-        stats.xh_count,
-        stats.x_count,
-        stats.sh_count,
-        stats.s_count,
-        stats.a_count,
-        stats.b_count,
-        stats.c_count,
-        stats.d_count
-    ])
-
-    # Clears
-    app.session.redis.zadd(
-        f'bancho:clears:{stats.mode}',
-        {stats.user_id: clears}
-    )
-
-    app.session.redis.zadd(
-        f'bancho:clears:{stats.mode}:{country.lower()}',
-        {stats.user_id: clears}
-    )
-
-    # PP VN
-    app.session.redis.zadd(
-        f'bancho:ppvn:{stats.mode}',
-        {stats.user_id: stats.pp_vn}
-    )
-
-    app.session.redis.zadd(
-        f'bancho:ppvn:{stats.mode}:{country.lower()}',
-        {stats.user_id: stats.pp_vn}
-    )
-
-    # PP RX
-    app.session.redis.zadd(
-        f'bancho:pprx:{stats.mode}',
-        {stats.user_id: stats.pp_rx}
-    )
-
-    app.session.redis.zadd(
-        f'bancho:pprx:{stats.mode}:{country.lower()}',
-        {stats.user_id: stats.pp_rx}
-    )
-
-    # PP AP
-    app.session.redis.zadd(
-        f'bancho:ppap:{stats.mode}',
-        {stats.user_id: stats.pp_ap}
-    )
-
-    app.session.redis.zadd(
-        f'bancho:ppap:{stats.mode}:{country.lower()}',
-        {stats.user_id: stats.pp_ap}
-    )
+        pipe.execute()
 
 def update_leader_scores(stats: DBStats, country: str, session: Optional[Session] = None) -> None:
     """Update #1 count"""
@@ -130,15 +124,16 @@ def update_leader_scores(stats: DBStats, country: str, session: Optional[Session
         session=session
     )
 
-    app.session.redis.zadd(
-        f'bancho:leader:{stats.mode}',
-        {stats.user_id: count}
-    )
-
-    app.session.redis.zadd(
-        f'bancho:leader:{stats.mode}:{country.lower()}',
-        {stats.user_id: count}
-    )
+    with app.session.redis.pipeline() as pipe:
+        pipe.zadd(
+            f'bancho:leader:{stats.mode}',
+            {stats.user_id: count}
+        )
+        pipe.zadd(
+            f'bancho:leader:{stats.mode}:{country.lower()}',
+            {stats.user_id: count}
+        )
+        pipe.execute()
 
 def update_kudosu(user_id: int, country: str, session: Optional[Session] = None) -> None:
     """Update #1 count"""
@@ -147,192 +142,186 @@ def update_kudosu(user_id: int, country: str, session: Optional[Session] = None)
         session=session
     )
 
-    app.session.redis.zadd(
-        f'bancho:kudosu',
-        {user_id: kudosu}
-    )
-
-    app.session.redis.zadd(
-        f'bancho:kudosu:{country.lower()}',
-        {user_id: kudosu}
-    )
+    with app.session.redis.pipeline() as pipe:
+        pipe.zadd(
+            f'bancho:kudosu',
+            {user_id: kudosu}
+        )
+        pipe.zadd(
+            f'bancho:kudosu:{country.lower()}',
+            {user_id: kudosu}
+        )
+        pipe.execute()
 
 def remove_country(
     user_id: int,
     country: str
 ) -> None:
     """Remove player from country leaderboards"""
-    for mode in range(4):
-        app.session.redis.zrem(
-            f'bancho:performance:{mode}:{country.lower()}',
+    with app.session.redis.pipeline() as pipe:
+        for mode in range(4):
+            pipe.zrem(
+                f'bancho:performance:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:rscore:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:tscore:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:ppv1:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:acc:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:clears:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:ppvn:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:pprx:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:ppap:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:leader:{mode}:{country.lower()}',
+                user_id
+            )
+
+        pipe.zrem(
+            f'bancho:kudosu:{country.lower()}',
             user_id
         )
-
-        app.session.redis.zrem(
-            f'bancho:rscore:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:tscore:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:ppv1:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:acc:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:clears:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:ppvn:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:pprx:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:ppap:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:leader:{mode}:{country.lower()}',
-            user_id
-        )
-
-    app.session.redis.zrem(
-        f'bancho:kudosu:{country.lower()}',
-        user_id
-    )
+        pipe.execute()
 
 def remove(
     user_id: int,
     country: str
 ) -> None:
     """Remove player from leaderboards"""
-    for mode in range(4):
-        app.session.redis.zrem(
-            f'bancho:performance:{mode}',
+    with app.session.redis.pipeline() as pipe:
+        for mode in range(4):
+            pipe.zrem(
+                f'bancho:performance:{mode}',
+                user_id
+            )
+            pipe.zrem(
+                f'bancho:performance:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:rscore:{mode}',
+                user_id
+            )
+            pipe.zrem(
+                f'bancho:rscore:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:tscore:{mode}',
+                user_id
+            )
+            pipe.zrem(
+                f'bancho:tscore:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:ppv1:{mode}',
+                user_id
+            )
+            pipe.zrem(
+                f'bancho:ppv1:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:acc:{mode}',
+                user_id
+            )
+            pipe.zrem(
+                f'bancho:acc:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:clears:{mode}',
+                user_id
+            )
+            pipe.zrem(
+                f'bancho:clears:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:ppvn:{mode}',
+                user_id
+            )
+            pipe.zrem(
+                f'bancho:ppvn:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:pprx:{mode}',
+                user_id
+            )
+            pipe.zrem(
+                f'bancho:pprx:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:ppap:{mode}',
+                user_id
+            )
+            pipe.zrem(
+                f'bancho:ppap:{mode}:{country.lower()}',
+                user_id
+            )
+
+            pipe.zrem(
+                f'bancho:leader:{mode}',
+                user_id
+            )
+            pipe.zrem(
+                f'bancho:leader:{mode}:{country.lower()}',
+                user_id
+            )
+
+        pipe.zrem(
+            f'bancho:kudosu',
             user_id
         )
-
-        app.session.redis.zrem(
-            f'bancho:performance:{mode}:{country.lower()}',
+        pipe.zrem(
+            f'bancho:kudosu:{country.lower()}',
             user_id
         )
-
-        app.session.redis.zrem(
-            f'bancho:rscore:{mode}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:rscore:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:tscore:{mode}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:tscore:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:ppv1:{mode}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:ppv1:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:acc:{mode}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:acc:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:clears:{mode}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:clears:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:ppvn:{mode}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:ppvn:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:pprx:{mode}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:pprx:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:ppap:{mode}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:ppap:{mode}:{country.lower()}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:leader:{mode}',
-            user_id
-        )
-
-        app.session.redis.zrem(
-            f'bancho:leader:{mode}:{country.lower()}',
-            user_id
-        )
-
-    app.session.redis.zrem(
-        f'bancho:kudosu',
-        user_id
-    )
-
-    app.session.redis.zrem(
-        f'bancho:kudosu:{country.lower()}',
-        user_id
-    )
+        pipe.execute()
 
 def global_rank(
     user_id: int,
