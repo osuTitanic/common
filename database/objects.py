@@ -20,6 +20,7 @@ from sqlalchemy import (
     Float
 )
 
+import app.common
 import config
 import re
 
@@ -1402,6 +1403,10 @@ class DBUser(Base):
     @property
     def avatar_filename(self) -> str:
         return f'{self.id}_{self.avatar_hash or "unknown"}.png'
+
+    @property
+    def rankings(self) -> dict:
+        return app.common.cache.leaderboards.player_rankings_all_modes(self.id, self.country)
 
     @property
     def group_ids(self):

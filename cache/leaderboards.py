@@ -1,9 +1,9 @@
 
 from __future__ import annotations
 
-from ..constants import COUNTRIES as countries
-from ..database.repositories import users, modding, scores
-from ..database.objects import DBStats
+from app.common.constants import COUNTRIES as countries
+from app.common.database.repositories import users, modding, scores
+from app.common.database.objects import DBStats
 
 from typing import Tuple, List, Optional
 from sqlalchemy.orm import Session
@@ -703,6 +703,57 @@ def player_count(
         f'bancho:{type}{mode_suffix}{country_suffix}',
         '1', '+inf'
     )
+
+def player_rankings(
+    user_id: int,
+    mode: int,
+    country: str,
+    leaderboards = (
+        "performance",
+        "rscore", "tscore",
+        "ppv1", "clears",
+        "ppvn", "pprx",
+        "ppap", "leader"
+    )
+) -> dict:
+    """Get player's rankings on various leaderboards"""
+    with app.session.redis.pipeline() as pipe:
+        for leaderboard in leaderboards:
+            pipe.zrevrank(
+                f'bancho:{leaderboard}:{mode}',
+                user_id, withscore=True
+            )
+            pipe.zrevrank(
+                f'bancho:{leaderboard}:{mode}:{country.lower()}',
+                user_id
+            )
+        result = pipe.execute()
+
+    return {
+        leaderboard: {
+            'value': float(result[index * 2][1] or b'0'), 
+            'global': (result[index * 2][0] or 0) + 1,
+            'country': (result[index * 2 + 1] or 0) + 1,
+        }
+        for index, leaderboard in enumerate(leaderboards)
+    }
+
+def player_rankings_all_modes(
+    user_id: int,
+    country: str,
+    leaderboards = (
+        "performance",
+        "rscore", "tscore",
+        "ppv1", "clears",
+        "ppvn", "pprx",
+        "ppap", "leader"
+    )
+) -> dict:
+    """Get player's rankings on various leaderboards for all modes"""
+    return {
+        mode: player_rankings(user_id, mode, country, leaderboards)
+        for mode in range(4)
+    }
 
 def player_above(
     user_id: int,
