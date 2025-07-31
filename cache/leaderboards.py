@@ -7,6 +7,7 @@ from app.common.database.objects import DBStats
 
 from typing import Tuple, List, Optional
 from sqlalchemy.orm import Session
+from redis.client import Pipeline
 
 import app
 
@@ -714,24 +715,29 @@ def player_rankings(
         "ppv1", "clears",
         "ppvn", "pprx",
         "ppap", "leader"
-    )
+    ),
+    pipe: Pipeline | None = None
 ) -> dict:
     """Get player's rankings on various leaderboards"""
-    with app.session.redis.pipeline() as pipe:
-        for leaderboard in leaderboards:
-            pipe.zscore(
-                f'bancho:{leaderboard}:{mode}',
-                user_id
-            )
-            pipe.zrevrank(
-                f'bancho:{leaderboard}:{mode}',
-                user_id
-            )
-            pipe.zrevrank(
-                f'bancho:{leaderboard}:{mode}:{country.lower()}',
-                user_id
-            )
-        result = pipe.execute()
+    if pipe is None:
+        pipe = app.session.redis.pipeline()
+
+    for leaderboard in leaderboards:
+        pipe.zscore(
+            f'bancho:{leaderboard}:{mode}',
+            user_id
+        )
+        pipe.zrevrank(
+            f'bancho:{leaderboard}:{mode}',
+            user_id
+        )
+        pipe.zrevrank(
+            f'bancho:{leaderboard}:{mode}:{country.lower()}',
+            user_id
+        )
+
+    result = pipe.execute()
+    pipe.reset()
 
     return {
         leaderboard: {
@@ -754,10 +760,15 @@ def player_rankings_all_modes(
     )
 ) -> dict:
     """Get player's rankings on various leaderboards for all modes"""
-    return {
-        mode: player_rankings(user_id, mode, country, leaderboards)
-        for mode in range(4)
-    }
+    with app.session.redis.pipeline() as pipe:
+        return {
+            mode: player_rankings(
+                user_id, mode,
+                country, leaderboards,
+                pipe=pipe
+            )
+            for mode in range(4)
+        }
 
 def player_above(
     user_id: int,
