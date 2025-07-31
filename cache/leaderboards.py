@@ -719,9 +719,13 @@ def player_rankings(
     """Get player's rankings on various leaderboards"""
     with app.session.redis.pipeline() as pipe:
         for leaderboard in leaderboards:
+            pipe.zscore(
+                f'bancho:{leaderboard}:{mode}',
+                user_id
+            )
             pipe.zrevrank(
                 f'bancho:{leaderboard}:{mode}',
-                user_id, withscore=True
+                user_id
             )
             pipe.zrevrank(
                 f'bancho:{leaderboard}:{mode}:{country.lower()}',
@@ -731,9 +735,9 @@ def player_rankings(
 
     return {
         leaderboard: {
-            'value': float(result[index * 2][1] if result[index * 2] else b'0'), 
-            'global': (result[index * 2][0] if result[index * 2] else -1) + 1,
-            'country': (result[index * 2 + 1] or -1) + 1,
+            'value': float(result[index * 2] or b'0'),
+            'global': (result[index * 2 + 1] if result[index * 2 + 1] is not None else -1) + 1,
+            'country': (result[index * 2 + 2] if result[index * 2 + 2] is not None else -1) + 1
         }
         for index, leaderboard in enumerate(leaderboards)
     }
