@@ -741,9 +741,9 @@ def player_rankings(
 
     return {
         leaderboard: {
-            'value': float(result[index * 2] or b'0'),
-            'global': (result[index * 2 + 1] if result[index * 2 + 1] is not None else -1) + 1,
-            'country': (result[index * 2 + 2] if result[index * 2 + 2] is not None else -1) + 1
+            'value': float(result[index * 3] or b'0'),
+            'global': (result[index * 3 + 1] if result[index * 2 + 1] is not None else -1) + 1,
+            'country': (result[index * 3 + 2] if result[index * 2 + 2] is not None else -1) + 1
         }
         for index, leaderboard in enumerate(leaderboards)
     }
