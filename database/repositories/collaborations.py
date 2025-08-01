@@ -103,6 +103,12 @@ def fetch_usernames(beatmap_id: int, session: Session = ...) -> List[str]:
         .all()
 
 @session_wrapper
+def fetch_request(id: int, session: Session = ...) -> DBBeatmapCollaborationRequest | None:
+    return session.query(DBBeatmapCollaborationRequest) \
+        .filter(DBBeatmapCollaborationRequest.id == id) \
+        .first()
+
+@session_wrapper
 def fetch_requests_outgoing(beatmap_id: int, session: Session = ...) -> List[DBBeatmapCollaborationRequest]:
     return session.query(DBBeatmapCollaborationRequest) \
         .filter(DBBeatmapCollaborationRequest.beatmap_id == beatmap_id) \
