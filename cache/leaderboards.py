@@ -741,7 +741,7 @@ def player_rankings(
 
     return {
         leaderboard: {
-            'value': float(result[index * 3] or b'0'),
+            'value': round(float(result[index * 3] or -1) + 1),
             'global': (result[index * 3 + 1] if result[index * 3 + 1] is not None else -1) + 1,
             'country': (result[index * 3 + 2] if result[index * 3 + 2] is not None else -1) + 1
         }
