@@ -143,3 +143,11 @@ def fetch_verified(type: int, session: Session = ...) -> List[str]:
             .filter(DBVerifiedClient.type == type) \
             .all()
     ]
+
+@session_wrapper
+def is_verified(
+    checksum: str,
+    type: int,
+    session: Session = ...
+) -> bool:
+    return checksum in fetch_verified(type, session)
