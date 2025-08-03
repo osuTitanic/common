@@ -70,11 +70,11 @@ UNSUPPORTED_HASH = '\n'.join([
     'Please download a different version of osu! from the website!'
 ])
 
-MULTIACCOUNTING_DETECTED = '\n'.join([
-    'We have detected that you are using multiple accounts on this server.',
-    'Please note that multiaccounting is not allowed, and will result in a ban.',
+MULTIACCOUNTING_WARNING = (
+    'We have found that you are using multiple accounts on this server. '
+    'Please note that multiaccounting is not allowed, and will result in a ban. '
     'If you believe this is a mistake, please contact an admin for further assistance!'
-])
+)
 
 MAINTENANCE_MODE = 'Bancho is currently in maintenance mode. Please check back later!'
 MAINTENANCE_MODE_ADMIN = 'Bancho is currently in maintenance mode. Type !system maintenance off to disable it.'
