@@ -18,7 +18,7 @@ from app.common.database.objects import (
 )
 
 from sqlalchemy import func, select, or_, desc, text, ColumnElement
-from sqlalchemy.orm import selectinload, contains_eager, Session
+from sqlalchemy.orm import selectinload, Session
 from .wrapper import session_wrapper
 
 from datetime import datetime
@@ -202,11 +202,11 @@ def search(
 
     elif query_string == 'Top Rated':
         query = query.join(DBRating) \
-                     .group_by(DBBeatmapset.id, DBBeatmap.id) \
+                     .group_by(DBBeatmapset.id) \
                      .order_by(bayesian_rating().desc())
 
     elif query_string == 'Most Played':
-        query = query.group_by(DBBeatmapset.id, DBBeatmap.id) \
+        query = query.group_by(DBBeatmapset.id) \
                      .order_by(func.sum(DBBeatmap.playcount).desc())
 
     elif query_string.isdigit():
@@ -217,12 +217,12 @@ def search(
                 text_condition
             )) \
             .order_by(text_sort.desc()) \
-            .group_by(DBBeatmapset.id, DBBeatmap.id)
+            .group_by(DBBeatmapset.id)
 
     else:
         query = query.filter(text_condition) \
                      .order_by(text_sort.desc()) \
-                     .group_by(DBBeatmapset.id, DBBeatmap.id)
+                     .group_by(DBBeatmapset.id)
 
     query = {
         DisplayMode.All: query.filter(DBBeatmapset.status > -3),
@@ -239,7 +239,7 @@ def search(
     return query.limit(100) \
         .offset(offset) \
         .options(
-            contains_eager(DBBeatmapset.beatmaps),
+            selectinload(DBBeatmapset.beatmaps),
             selectinload(DBBeatmapset.ratings)
         ).all()
 
@@ -281,12 +281,13 @@ def search_extended(
     session: Session = ...
 ) -> List[DBBeatmapset]:
     query = session.query(DBBeatmapset) \
-            .join(DBBeatmap) \
             .options(
-                contains_eager(DBBeatmapset.beatmaps),
+                selectinload(DBBeatmapset.beatmaps),
                 selectinload(DBBeatmapset.ratings),
                 selectinload(DBBeatmapset.favourites)
             ) \
+            .group_by(DBBeatmapset.id) \
+            .join(DBBeatmap) \
             .filter(DBBeatmapset.beatmaps.any())
 
     order_type = {
@@ -310,9 +311,6 @@ def search_extended(
 
     if sort == BeatmapSortBy.Rating:
         query = query.join(DBRating)
-
-    if sort in (BeatmapSortBy.Plays, BeatmapSortBy.Rating, BeatmapSortBy.Difficulty):
-        query = query.group_by(DBBeatmapset.id, DBBeatmap.id)
 
     if genre is not None:
         query = query.filter(DBBeatmapset.genre_id == genre)
