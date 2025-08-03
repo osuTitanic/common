@@ -18,7 +18,7 @@ from app.common.database.objects import (
 )
 
 from sqlalchemy import func, select, or_, desc, text, ColumnElement
-from sqlalchemy.orm import selectinload, Session
+from sqlalchemy.orm import selectinload, contains_eager, Session
 from .wrapper import session_wrapper
 
 from datetime import datetime
@@ -178,8 +178,7 @@ def search(
     session: Session = ...
 ) -> List[DBBeatmapset]:
     query = session.query(DBBeatmapset) \
-        .join(DBBeatmap, isouter=True) \
-        .filter(DBBeatmapset.beatmaps.any())
+        .join(DBBeatmap, isouter=True)
 
     text_condition, text_sort = text_search_condition(query_string)
 
@@ -239,7 +238,7 @@ def search(
     return query.limit(100) \
         .offset(offset) \
         .options(
-            selectinload(DBBeatmapset.beatmaps),
+            contains_eager(DBBeatmapset.beatmaps),
             selectinload(DBBeatmapset.ratings)
         ).all()
 
@@ -281,14 +280,13 @@ def search_extended(
     session: Session = ...
 ) -> List[DBBeatmapset]:
     query = session.query(DBBeatmapset) \
+            .join(DBBeatmap) \
             .options(
-                selectinload(DBBeatmapset.beatmaps),
+                contains_eager(DBBeatmapset.beatmaps),
                 selectinload(DBBeatmapset.ratings),
                 selectinload(DBBeatmapset.favourites)
             ) \
-            .group_by(DBBeatmapset.id) \
-            .join(DBBeatmap) \
-            .filter(DBBeatmapset.beatmaps.any())
+            .group_by(DBBeatmapset.id, DBBeatmap.id)
 
     order_type = {
         BeatmapSortBy.Created: DBBeatmapset.id,
