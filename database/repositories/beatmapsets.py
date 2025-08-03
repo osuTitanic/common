@@ -201,11 +201,11 @@ def search(
 
     elif query_string == 'Top Rated':
         query = query.join(DBRating) \
-                     .group_by(DBBeatmapset.id) \
+                     .group_by(DBBeatmapset.id, DBBeatmap.id) \
                      .order_by(bayesian_rating().desc())
 
     elif query_string == 'Most Played':
-        query = query.group_by(DBBeatmapset.id) \
+        query = query.group_by(DBBeatmapset.id, DBBeatmap.id) \
                      .order_by(func.sum(DBBeatmap.playcount).desc())
 
     elif query_string.isdigit():
@@ -216,12 +216,12 @@ def search(
                 text_condition
             )) \
             .order_by(text_sort.desc()) \
-            .group_by(DBBeatmapset.id)
+            .group_by(DBBeatmapset.id, DBBeatmap.id)
 
     else:
         query = query.filter(text_condition) \
                      .order_by(text_sort.desc()) \
-                     .group_by(DBBeatmapset.id)
+                     .group_by(DBBeatmapset.id, DBBeatmap.id)
 
     query = {
         DisplayMode.All: query.filter(DBBeatmapset.status > -3),
