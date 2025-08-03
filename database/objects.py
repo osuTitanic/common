@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List
 
 from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.orm import relationship, declarative_base, deferred
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy import (
     SmallInteger,
@@ -348,7 +348,7 @@ class DBBeatmapset(Base):
     info_hash            = Column('info_hash', String, nullable=True)
     body_hash            = Column('body_hash', String, nullable=True)
 
-    search = Column('search', TSVECTOR, Computed(
+    search = deferred(Column('search', TSVECTOR, Computed(
         "setweight(to_tsvector('simple', coalesce(title, '')), 'B') || "
         "setweight(to_tsvector('simple', coalesce(title_unicode, '')), 'A') || "
         "setweight(to_tsvector('simple', coalesce(artist, '')), 'B') || "
@@ -357,7 +357,7 @@ class DBBeatmapset(Base):
         "setweight(to_tsvector('simple', coalesce(source, '')), 'B') || "
         "setweight(to_tsvector('simple', coalesce(tags, '')), 'B')",
         persisted=True
-    ))
+    )))
 
     creator_user = relationship('DBUser', foreign_keys=[creator_id])
     nominations = relationship('DBBeatmapNomination', back_populates='beatmapset')
@@ -407,10 +407,10 @@ class DBBeatmap(Base):
     diff      = Column('diff', Float, default=0.0)
     diff_eyup = Column('diff_eyup', Float, default=0.0)
 
-    search = Column('search', TSVECTOR, Computed(
+    search = deferred(Column('search', TSVECTOR, Computed(
         "to_tsvector('simple', coalesce(version, ''))",
         persisted=True
-    ))
+    )))
 
     collaboration_requests = relationship('DBBeatmapCollaborationRequest', back_populates='beatmap')
     collaborations = relationship('DBBeatmapCollaboration', back_populates='beatmap')
