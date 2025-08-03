@@ -123,6 +123,12 @@ def fetch_requests_incoming(user_id: int, session: Session = ...) -> List[DBBeat
         .all()
 
 @session_wrapper
+def fetch_request_count(beatmap_id: int, session: Session = ...) -> int:
+    return session.query(DBBeatmapCollaborationRequest) \
+        .filter(DBBeatmapCollaborationRequest.beatmap_id == beatmap_id) \
+        .count()
+
+@session_wrapper
 def fetch_blacklist(user_id: int, session: Session = ...) -> List[DBBeatmapCollaborationBlacklist]:
     return session.query(DBBeatmapCollaborationBlacklist) \
         .filter(DBBeatmapCollaborationBlacklist.user_id == user_id) \
