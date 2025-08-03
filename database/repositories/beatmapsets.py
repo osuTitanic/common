@@ -178,7 +178,8 @@ def search(
     session: Session = ...
 ) -> List[DBBeatmapset]:
     query = session.query(DBBeatmapset) \
-        .join(DBBeatmap, isouter=True)
+        .join(DBBeatmap, isouter=True) \
+        .filter(DBBeatmapset.beatmaps.any())
 
     text_condition, text_sort = text_search_condition(query_string)
 
@@ -286,7 +287,7 @@ def search_extended(
                 selectinload(DBBeatmapset.ratings),
                 selectinload(DBBeatmapset.favourites)
             ) \
-            .group_by(DBBeatmapset.id, DBBeatmap.id)
+            .filter(DBBeatmapset.beatmaps.any())
 
     order_type = {
         BeatmapSortBy.Created: DBBeatmapset.id,
@@ -309,6 +310,9 @@ def search_extended(
 
     if sort == BeatmapSortBy.Rating:
         query = query.join(DBRating)
+
+    if sort in (BeatmapSortBy.Plays, BeatmapSortBy.Rating, BeatmapSortBy.Difficulty):
+        query = query.group_by(DBBeatmapset.id, DBBeatmap.id)
 
     if genre is not None:
         query = query.filter(DBBeatmapset.genre_id == genre)
