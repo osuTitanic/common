@@ -203,6 +203,16 @@ def delete_request(id: int, session: Session = ...) -> bool:
     return deleted_rows > 0
 
 @session_wrapper
+def delete_requests_by_beatmap(
+    beatmap_id: int,
+    session: Session = ...
+) -> None:
+    session.query(DBBeatmapCollaborationRequest) \
+        .filter(DBBeatmapCollaborationRequest.beatmap_id == beatmap_id) \
+        .delete(synchronize_session=False)
+    session.commit()
+
+@session_wrapper
 def delete_blacklist(
     user_id: int,
     target_id: int,
