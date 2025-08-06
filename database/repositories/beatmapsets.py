@@ -125,6 +125,106 @@ def fetch_by_status(
         .all()
 
 @session_wrapper
+def fetch_unranked_count(
+    user_id: int,
+    session: Session = ...
+) -> int:
+    return session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.creator_id == user_id) \
+        .filter(DBBeatmapset.status <= 0) \
+        .count()
+
+@session_wrapper
+def fetch_ranked_count(
+    user_id: int,
+    session: Session = ...
+) -> int:
+    return session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.creator_id == user_id) \
+        .filter(DBBeatmapset.status > 0) \
+        .count()
+
+@session_wrapper
+def fetch_inactive(
+    user_id: int,
+    session: Session = ...
+) -> List[DBBeatmapset]:
+    return session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.creator_id == user_id) \
+        .filter(DBBeatmapset.status == -3) \
+        .all()
+
+@session_wrapper
+def fetch_most_played(
+    limit: int = 5,
+    offset: int = 0,
+    session: Session = ...
+) -> List[dict]:
+    results = session.query(DBBeatmapset) \
+        .order_by(DBBeatmapset.total_playcount.desc()) \
+        .limit(limit) \
+        .offset(offset) \
+        .all()
+
+    return [
+        {
+            "beatmapset": beatmapset,
+            "playcount": beatmapset.total_playcount
+        }
+        for beatmapset in results
+    ]
+
+@session_wrapper
+def fetch_server_id(
+    beatmapset_id: int,
+    session: Session = ...
+) -> int:
+    return session.query(DBBeatmapset.server) \
+        .filter(DBBeatmapset.id == beatmapset_id) \
+        .scalar() or 0
+
+@session_wrapper
+def fetch_download_server_id(
+    beatmapset_id: int,
+    session: Session = ...
+) -> int:
+    return session.query(DBBeatmapset.download_server) \
+        .filter(DBBeatmapset.id == beatmapset_id) \
+        .scalar() or 0
+
+@session_wrapper
+def update(
+    beatmapset_id: int,
+    updates: dict,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.id == beatmapset_id) \
+        .update(updates)
+    session.commit()
+    return rows
+
+@session_wrapper
+def delete_by_id(
+    id: int,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.id == id) \
+        .delete()
+    session.commit()
+    return rows
+
+@session_wrapper
+def delete_inactive(user_id: int, session: Session = ...) -> int:
+    rows = session.query(DBBeatmapset) \
+        .filter(DBBeatmapset.creator_id == user_id) \
+        .filter(DBBeatmapset.status == -3) \
+        .delete()
+    session.commit()
+    return rows
+
+@session_wrapper
 def search_one(
     query_string: str,
     offset: int = 0,
@@ -239,8 +339,8 @@ def search_extended(
                 selectinload(DBBeatmapset.ratings),
                 selectinload(DBBeatmapset.favourites)
             ) \
-            .group_by(DBBeatmapset.id) \
             .join(DBBeatmap) \
+            .group_by(DBBeatmapset.id) \
             .filter(DBBeatmapset.beatmaps.any())
 
     text_condition, text_sort = None, DBBeatmapset.approved_at
@@ -315,7 +415,7 @@ def search_extended(
     )
 
     query = query.filter({
-        BeatmapCategory.Any: (DBBeatmapset.status > -3),
+        BeatmapCategory.Any: (DBBeatmapset.status != -3),
         BeatmapCategory.Leaderboard: (DBBeatmapset.status > 0),
         BeatmapCategory.Graveyard: (DBBeatmapset.status == -2),
         BeatmapCategory.WIP: (DBBeatmapset.status == -1),
@@ -329,106 +429,6 @@ def search_extended(
     return query.offset(offset) \
                 .limit(limit) \
                 .all()
-
-@session_wrapper
-def fetch_unranked_count(
-    user_id: int,
-    session: Session = ...
-) -> int:
-    return session.query(DBBeatmapset) \
-        .filter(DBBeatmapset.creator_id == user_id) \
-        .filter(DBBeatmapset.status <= 0) \
-        .count()
-
-@session_wrapper
-def fetch_ranked_count(
-    user_id: int,
-    session: Session = ...
-) -> int:
-    return session.query(DBBeatmapset) \
-        .filter(DBBeatmapset.creator_id == user_id) \
-        .filter(DBBeatmapset.status > 0) \
-        .count()
-
-@session_wrapper
-def fetch_inactive(
-    user_id: int,
-    session: Session = ...
-) -> List[DBBeatmapset]:
-    return session.query(DBBeatmapset) \
-        .filter(DBBeatmapset.creator_id == user_id) \
-        .filter(DBBeatmapset.status == -3) \
-        .all()
-
-@session_wrapper
-def fetch_most_played(
-    limit: int = 5,
-    offset: int = 0,
-    session: Session = ...
-) -> List[dict]:
-    results = session.query(DBBeatmapset) \
-        .order_by(DBBeatmapset.total_playcount.desc()) \
-        .limit(limit) \
-        .offset(offset) \
-        .all()
-
-    return [
-        {
-            "beatmapset": beatmapset,
-            "playcount": beatmapset.total_playcount
-        }
-        for beatmapset in results
-    ]
-
-@session_wrapper
-def fetch_server_id(
-    beatmapset_id: int,
-    session: Session = ...
-) -> int:
-    return session.query(DBBeatmapset.server) \
-        .filter(DBBeatmapset.id == beatmapset_id) \
-        .scalar() or 0
-
-@session_wrapper
-def fetch_download_server_id(
-    beatmapset_id: int,
-    session: Session = ...
-) -> int:
-    return session.query(DBBeatmapset.download_server) \
-        .filter(DBBeatmapset.id == beatmapset_id) \
-        .scalar() or 0
-
-@session_wrapper
-def update(
-    beatmapset_id: int,
-    updates: dict,
-    session: Session = ...
-) -> int:
-    rows = session.query(DBBeatmapset) \
-        .filter(DBBeatmapset.id == beatmapset_id) \
-        .update(updates)
-    session.commit()
-    return rows
-
-@session_wrapper
-def delete_by_id(
-    id: int,
-    session: Session = ...
-) -> int:
-    rows = session.query(DBBeatmapset) \
-        .filter(DBBeatmapset.id == id) \
-        .delete()
-    session.commit()
-    return rows
-
-@session_wrapper
-def delete_inactive(user_id: int, session: Session = ...) -> int:
-    rows = session.query(DBBeatmapset) \
-        .filter(DBBeatmapset.creator_id == user_id) \
-        .filter(DBBeatmapset.status == -3) \
-        .delete()
-    session.commit()
-    return rows
 
 @caching.ttl_cache(ttl=60*60*12)
 def global_average_rating() -> int:
