@@ -339,18 +339,28 @@ def search_extended(
                 selectinload(DBBeatmapset.ratings),
                 selectinload(DBBeatmapset.favourites)
             ) \
-            .join(DBBeatmap) \
-            .group_by(DBBeatmapset.id) \
             .filter(DBBeatmapset.beatmaps.any())
 
     text_condition, text_sort = None, DBBeatmapset.approved_at
+    join_ratings = sort == BeatmapSortBy.Rating
+    join_beatmaps = sort == BeatmapSortBy.Difficulty or any([
+        unplayed is not None,
+        cleared is not None,
+        uncleared is not None,
+        mode is not None
+    ])
+
+    if join_ratings:
+        query = query.join(DBRating, DBBeatmapset.ratings) \
+                     .group_by(DBBeatmapset.id)
+
+    if join_beatmaps:
+        query = query.join(DBBeatmap, DBBeatmapset.beatmaps) \
+                     .group_by(DBBeatmapset.id)
 
     if query_string:
         text_condition, text_sort = text_search_condition(query_string)
         query = query.filter(text_condition)
-
-    if sort == BeatmapSortBy.Rating:
-        query = query.join(DBRating)
 
     if genre is not None:
         query = query.filter(DBBeatmapset.genre_id == genre)
@@ -397,6 +407,18 @@ def search_extended(
 
             query = query.filter(DBBeatmap.id.notin_(subquery))
 
+    query = query.filter({
+        BeatmapCategory.Any: (DBBeatmapset.status != -3),
+        BeatmapCategory.Leaderboard: (DBBeatmapset.status > 0),
+        BeatmapCategory.Graveyard: (DBBeatmapset.status == -2),
+        BeatmapCategory.WIP: (DBBeatmapset.status == -1),
+        BeatmapCategory.Pending: (DBBeatmapset.status == 0),
+        BeatmapCategory.Ranked: (DBBeatmapset.status == 1),
+        BeatmapCategory.Approved: (DBBeatmapset.status == 2),
+        BeatmapCategory.Qualified: (DBBeatmapset.status == 3),
+        BeatmapCategory.Loved: (DBBeatmapset.status == 4),
+    }[category])
+
     order_type = {
         BeatmapSortBy.Created: DBBeatmapset.id,
         BeatmapSortBy.Title: DBBeatmapset.title,
@@ -413,18 +435,6 @@ def search_extended(
         order_type.asc() if order == BeatmapOrder.Ascending else
         order_type.desc()
     )
-
-    query = query.filter({
-        BeatmapCategory.Any: (DBBeatmapset.status != -3),
-        BeatmapCategory.Leaderboard: (DBBeatmapset.status > 0),
-        BeatmapCategory.Graveyard: (DBBeatmapset.status == -2),
-        BeatmapCategory.WIP: (DBBeatmapset.status == -1),
-        BeatmapCategory.Pending: (DBBeatmapset.status == 0),
-        BeatmapCategory.Ranked: (DBBeatmapset.status == 1),
-        BeatmapCategory.Approved: (DBBeatmapset.status == 2),
-        BeatmapCategory.Qualified: (DBBeatmapset.status == 3),
-        BeatmapCategory.Loved: (DBBeatmapset.status == 4),
-    }[category])
 
     return query.offset(offset) \
                 .limit(limit) \
