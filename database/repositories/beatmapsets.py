@@ -249,11 +249,7 @@ def search(
     mode: int = -1,
     session: Session = ...
 ) -> List[DBBeatmapset]:
-    query = session.query(DBBeatmapset) \
-        .join(DBBeatmap, isouter=True) \
-        .filter(DBBeatmapset.beatmaps.any()) \
-        .group_by(DBBeatmapset.id)
-
+    query = session.query(DBBeatmapset).filter(DBBeatmapset.beatmaps.any())
     text_condition, text_sort = text_search_condition(query_string)
 
     is_approved = display_mode not in (
@@ -267,6 +263,16 @@ def search(
         DBBeatmapset.last_update
     )
 
+    join_beatmaps = any([
+        mode != -1,
+        display_mode == DisplayMode.Played,
+        query_string.isdigit()
+    ])
+    
+    if join_beatmaps:
+        query = query.join(DBBeatmap, DBBeatmapset.beatmaps) \
+                     .group_by(DBBeatmapset.id)
+
     if mode != -1:
         query = query.filter(DBBeatmap.mode == mode)
 
@@ -278,7 +284,8 @@ def search(
 
     elif query_string == 'Top Rated':
         query = query.join(DBRating) \
-                     .order_by(bayesian_rating().desc())
+                     .order_by(bayesian_rating().desc()) \
+                     .group_by(DBBeatmapset.id)
 
     elif query_string.isdigit():
         query = query.filter(
