@@ -339,6 +339,7 @@ class DBBeatmapset(Base):
     last_update          = Column('last_updated', DateTime, server_default=func.now())
     added_at             = Column('added_at', DateTime, nullable=True, server_default=func.now())
     total_playcount      = Column('total_playcount', BigInteger, default=0)
+    max_diff             = Column('max_diff', Float, default=0.0)
     osz_filesize         = Column('osz_filesize', Integer, default=0)
     osz_filesize_novideo = Column('osz_filesize_novideo', Integer, default=0)
     language_id          = Column('language_id', SmallInteger, default=1)

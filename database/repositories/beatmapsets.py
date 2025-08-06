@@ -350,7 +350,7 @@ def search_extended(
 
     text_condition, text_sort = None, DBBeatmapset.approved_at
     join_ratings = sort == BeatmapSortBy.Rating
-    join_beatmaps = sort == BeatmapSortBy.Difficulty or any([
+    join_beatmaps = any([
         query_string,
         unplayed is not None,
         cleared is not None,
@@ -433,8 +433,8 @@ def search_extended(
         BeatmapSortBy.Artist: DBBeatmapset.artist,
         BeatmapSortBy.Creator: DBBeatmapset.creator,
         BeatmapSortBy.Ranked: DBBeatmapset.approved_at,
+        BeatmapSortBy.Difficulty: DBBeatmapset.max_diff,
         BeatmapSortBy.Plays: DBBeatmapset.total_playcount,
-        BeatmapSortBy.Difficulty: func.max(DBBeatmap.diff),
         BeatmapSortBy.Rating: bayesian_rating(),
         BeatmapSortBy.Relevance: text_sort
     }[sort]
