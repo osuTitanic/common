@@ -201,12 +201,12 @@ def search(
     if query_string == 'Newest':
         query = query.order_by(order_column.desc())
 
+    elif query_string == 'Most Played':
+        query = query.order_by(DBBeatmapset.total_playcount.desc())
+
     elif query_string == 'Top Rated':
         query = query.join(DBRating) \
                      .order_by(bayesian_rating().desc())
-
-    elif query_string == 'Most Played':
-        query = query.order_by(func.sum(DBBeatmap.playcount).desc())
 
     elif query_string.isdigit():
         query = query.filter(
