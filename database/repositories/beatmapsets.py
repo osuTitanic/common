@@ -125,6 +125,22 @@ def fetch_by_status(
         .all()
 
 @session_wrapper
+def search_one(
+    query_string: str,
+    offset: int = 0,
+    session: Session = ...
+) -> DBBeatmapset | None:
+    condition, sort = text_search_condition(query_string)
+
+    return session.query(DBBeatmapset) \
+        .join(DBBeatmap) \
+        .filter(DBBeatmapset.status > -3) \
+        .filter(condition) \
+        .order_by(sort.desc()) \
+        .offset(offset) \
+        .first()
+
+@session_wrapper
 def search(
     query_string: str,
     user_id: int,
@@ -197,38 +213,22 @@ def search(
         ).all()
 
 @session_wrapper
-def search_one(
-    query_string: str,
-    offset: int = 0,
-    session: Session = ...
-) -> DBBeatmapset | None:
-    condition, sort = text_search_condition(query_string)
-
-    return session.query(DBBeatmapset) \
-        .join(DBBeatmap) \
-        .filter(DBBeatmapset.status > -3) \
-        .filter(condition) \
-        .order_by(sort.desc()) \
-        .offset(offset) \
-        .first()
-
-@session_wrapper
 def search_extended(
-    query_string: str | None,
-    genre: int | None,
-    language: int | None,
-    played: bool | None,
-    unplayed: bool | None,
-    cleared: bool | None,
-    uncleared: bool | None,
-    user_id: int | None,
-    mode: int | None,
-    order: BeatmapOrder,
-    category: BeatmapCategory,
-    sort: BeatmapSortBy,
-    has_storyboard: bool,
-    has_video: bool,
-    titanic_only: bool,
+    query_string: str | None = None,
+    genre: int | None = None,
+    language: int | None = None,
+    played: bool | None = None,
+    unplayed: bool | None = None,
+    cleared: bool | None = None,
+    uncleared: bool | None = None,
+    user_id: int | None = None,
+    mode: int | None = None,
+    order: BeatmapOrder = BeatmapOrder.Descending,
+    category: BeatmapCategory = BeatmapCategory.Leaderboard,
+    sort: BeatmapSortBy = BeatmapSortBy.Relevance,
+    has_storyboard: bool = False,
+    has_video: bool = False,
+    titanic_only: bool = False,
     offset: int = 0,
     limit: int = 50,
     session: Session = ...
