@@ -293,8 +293,8 @@ def search_extended(
         BeatmapSortBy.Artist: DBBeatmapset.artist,
         BeatmapSortBy.Creator: DBBeatmapset.creator,
         BeatmapSortBy.Ranked: DBBeatmapset.approved_at,
+        BeatmapSortBy.Plays: DBBeatmapset.total_playcount,
         BeatmapSortBy.Difficulty: func.max(DBBeatmap.diff),
-        BeatmapSortBy.Plays: func.sum(DBBeatmap.playcount),
         BeatmapSortBy.Rating: bayesian_rating()
     }[sort]
 
@@ -421,23 +421,18 @@ def fetch_most_played(
     offset: int = 0,
     session: Session = ...
 ) -> List[dict]:
-    results = session.query(
-        DBBeatmapset,
-        func.sum(DBBeatmap.playcount).label('total_count')
-    ) \
-        .join(DBBeatmap, DBBeatmap.set_id == DBBeatmapset.id) \
-        .group_by(DBBeatmapset.id) \
-        .order_by(desc(text('total_count'))) \
+    results = session.query(DBBeatmapset) \
+        .order_by(DBBeatmapset.total_playcount.desc()) \
         .limit(limit) \
         .offset(offset) \
         .all()
-    
+
     return [
         {
             "beatmapset": beatmapset,
-            "playcount": playcount
+            "playcount": beatmapset.total_playcount
         }
-        for beatmapset, playcount in results
+        for beatmapset in results
     ]
 
 @session_wrapper
