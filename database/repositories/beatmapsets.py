@@ -17,7 +17,7 @@ from app.common.database.objects import (
     DBPlay
 )
 
-from sqlalchemy import func, select, or_, desc, text, ColumnElement
+from sqlalchemy import func, select, or_, ColumnElement
 from sqlalchemy.orm import selectinload, Session
 from .wrapper import session_wrapper
 
@@ -26,50 +26,6 @@ from typing import List
 
 import app
 import re
-
-def text_search_condition(query_string: str):
-    search_columns = [
-        DBBeatmapset.search,
-        DBBeatmap.search
-    ]
-
-    sanitized_query = re.sub(
-        r'[^\w\s]', '',
-        query_string
-    )
-
-    words = [
-        word.strip()
-        for word in sanitized_query.split()
-    ]
-
-    main_tsquery = func.plainto_tsquery(
-        'simple',
-        query_string
-    )
-
-    fuzzy_tsquery = func.to_tsquery(
-        'simple',
-        ' & '.join(f'{word}:*' for word in words)
-    )
-
-    rank = func.ts_rank(
-        DBBeatmapset.search,
-        main_tsquery
-    )
-
-    query = or_(
-        *[
-            column.op('@@')(main_tsquery)
-            for column in search_columns
-        ],
-        *[
-            column.op('@@')(fuzzy_tsquery)
-            for column in search_columns
-        ]
-    )
-
-    return query, rank
 
 @session_wrapper
 def create(
@@ -287,24 +243,11 @@ def search_extended(
             .join(DBBeatmap) \
             .filter(DBBeatmapset.beatmaps.any())
 
-    order_type = {
-        BeatmapSortBy.Created: DBBeatmapset.id,
-        BeatmapSortBy.Title: DBBeatmapset.title,
-        BeatmapSortBy.Artist: DBBeatmapset.artist,
-        BeatmapSortBy.Creator: DBBeatmapset.creator,
-        BeatmapSortBy.Ranked: DBBeatmapset.approved_at,
-        BeatmapSortBy.Plays: DBBeatmapset.total_playcount,
-        BeatmapSortBy.Difficulty: func.max(DBBeatmap.diff),
-        BeatmapSortBy.Rating: bayesian_rating()
-    }[sort]
-
-    query = query.order_by(
-        order_type.asc() if order == BeatmapOrder.Ascending else
-        order_type.desc()
-    )
+    text_condition, text_sort = None, DBBeatmapset.approved_at
 
     if query_string:
-        query = query.filter(text_search_condition(query_string)[0])
+        text_condition, text_sort = text_search_condition(query_string)
+        query = query.filter(text_condition)
 
     if sort == BeatmapSortBy.Rating:
         query = query.join(DBRating)
@@ -354,6 +297,23 @@ def search_extended(
 
             query = query.filter(DBBeatmap.id.notin_(subquery))
 
+    order_type = {
+        BeatmapSortBy.Created: DBBeatmapset.id,
+        BeatmapSortBy.Title: DBBeatmapset.title,
+        BeatmapSortBy.Artist: DBBeatmapset.artist,
+        BeatmapSortBy.Creator: DBBeatmapset.creator,
+        BeatmapSortBy.Ranked: DBBeatmapset.approved_at,
+        BeatmapSortBy.Plays: DBBeatmapset.total_playcount,
+        BeatmapSortBy.Difficulty: func.max(DBBeatmap.diff),
+        BeatmapSortBy.Rating: bayesian_rating(),
+        BeatmapSortBy.Relevance: text_sort
+    }[sort]
+
+    query = query.order_by(
+        order_type.asc() if order == BeatmapOrder.Ascending else
+        order_type.desc()
+    )
+
     query = query.filter({
         BeatmapCategory.Any: (DBBeatmapset.status > -3),
         BeatmapCategory.Leaderboard: (DBBeatmapset.status > 0),
@@ -369,21 +329,6 @@ def search_extended(
     return query.offset(offset) \
                 .limit(limit) \
                 .all()
-
-@caching.ttl_cache(ttl=60*60*4)
-def global_average_rating() -> int:
-    with app.session.database.managed_session() as session:
-        result = session.query(func.avg(DBRating.rating)).scalar()
-        return result or 0
-
-def bayesian_rating() -> ColumnElement:
-    # Use bayesian average to calculate rating
-    # https://en.wikipedia.org/wiki/Bayesian_average
-    confidence_factor = 25
-    rating_sum = func.avg(DBRating.rating) * func.count(DBRating.rating)
-    total_count = func.count(DBRating.rating) + confidence_factor
-    adjusted_avg_rating = global_average_rating() * confidence_factor
-    return (rating_sum + adjusted_avg_rating) / total_count
 
 @session_wrapper
 def fetch_unranked_count(
@@ -484,3 +429,62 @@ def delete_inactive(user_id: int, session: Session = ...) -> int:
         .delete()
     session.commit()
     return rows
+
+@caching.ttl_cache(ttl=60*60*12)
+def global_average_rating() -> int:
+    with app.session.database.managed_session() as session:
+        result = session.query(func.avg(DBRating.rating)).scalar()
+        return result or 0
+
+def bayesian_rating() -> ColumnElement:
+    # Use bayesian average to calculate rating
+    # https://en.wikipedia.org/wiki/Bayesian_average
+    confidence_factor = 25
+    rating_sum = func.avg(DBRating.rating) * func.count(DBRating.rating)
+    total_count = func.count(DBRating.rating) + confidence_factor
+    adjusted_avg_rating = global_average_rating() * confidence_factor
+    return (rating_sum + adjusted_avg_rating) / total_count
+
+def text_search_condition(query_string: str):
+    search_columns = [
+        DBBeatmapset.search,
+        DBBeatmap.search
+    ]
+
+    sanitized_query = re.sub(
+        r'[^\w\s]', '',
+        query_string
+    )
+
+    words = [
+        word.strip()
+        for word in sanitized_query.split()
+    ]
+
+    main_tsquery = func.plainto_tsquery(
+        'simple',
+        query_string
+    )
+
+    fuzzy_tsquery = func.to_tsquery(
+        'simple',
+        ' & '.join(f'{word}:*' for word in words)
+    )
+
+    rank = func.ts_rank(
+        DBBeatmapset.search,
+        main_tsquery
+    )
+
+    query = or_(
+        *[
+            column.op('@@')(main_tsquery)
+            for column in search_columns
+        ],
+        *[
+            column.op('@@')(fuzzy_tsquery)
+            for column in search_columns
+        ]
+    )
+
+    return query, rank

@@ -2,9 +2,9 @@
 from __future__ import annotations
 from typing import List
 
-from app.common.database.objects import DBPlay, DBBeatmap, DBBeatmapset
-from sqlalchemy import func, text, desc
+from app.common.database.objects import DBPlay
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from .wrapper import session_wrapper
 
@@ -80,49 +80,6 @@ def fetch_most_played_by_user(
         .limit(limit) \
         .offset(offset) \
         .all()
-
-@session_wrapper
-def fetch_most_played(limit: int = 5, session: Session = ...) -> List[dict]:
-    # Build a subquery that groups only by beatmap_id & set_id
-    count_subquery = session.query(
-            DBPlay.beatmap_id.label("beatmap_id"),
-            DBPlay.set_id.label("set_id"),
-            func.sum(DBPlay.count).label("total_count")
-        ) \
-        .group_by(DBPlay.beatmap_id, DBPlay.set_id) \
-        .subquery()
-
-    # Join query back to beatmaps -> beatmapsets to pull in all metadata
-    query = session.query(
-            count_subquery.c.beatmap_id.label("beatmap_id"),
-            count_subquery.c.set_id.label("set_id"),
-            DBBeatmapset.title,
-            DBBeatmapset.artist,
-            DBBeatmap.version,
-            DBBeatmapset.creator,
-            DBBeatmapset.creator_id,
-            DBBeatmapset.server,
-            count_subquery.c.total_count.label("count"),
-        ) \
-        .join(DBBeatmap, DBBeatmap.id == count_subquery.c.beatmap_id) \
-        .join(DBBeatmapset, DBBeatmapset.id == count_subquery.c.set_id) \
-        .order_by(count_subquery.c.total_count.desc()) \
-        .limit(limit)
-
-    return [
-        {
-            "beatmap_id": r.beatmap_id,
-            "set_id":      r.set_id,
-            "title":       r.title,
-            "artist":      r.artist,
-            "version":     r.version,
-            "creator":     r.creator,
-            "creator_id":  r.creator_id,
-            "server":      r.server,
-            "count":       r.count,
-        }
-        for r in query.all()
-    ]
 
 @session_wrapper
 def delete_by_id(id: int, session: Session = ...) -> int:

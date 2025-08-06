@@ -51,6 +51,7 @@ class BeatmapSortBy(IntEnum):
     Rating = 5
     Plays = 6
     Created = 7
+    Relevance = 8
 
     @classmethod
     def values(cls) -> list:
