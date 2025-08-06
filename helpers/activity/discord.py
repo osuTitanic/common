@@ -83,7 +83,7 @@ def format_beatmap_upload(activity: DBActivity) -> Embed:
     embed = Embed(title=activity.data["beatmapset_name"])
     embed.thumbnail = Thumbnail(url=f'http://osu.{config.DOMAIN_NAME}/mt/{activity.data["beatmapset_id"]}')
     embed.author = Author(
-        name=f"{activity.data["username"]} uploaded a new beatmap!",
+        name=f"{activity.data['username']} uploaded a new beatmap!",
         url=f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
         icon_url=f'http://osu.{config.DOMAIN_NAME}/a/{activity.user_id}'
     )
@@ -91,7 +91,7 @@ def format_beatmap_upload(activity: DBActivity) -> Embed:
     embed.add_field(name="Title", value=activity.data["title"], inline=True)
     embed.add_field(name="Artist", value=activity.data["artist"], inline=True)
     embed.add_field(name="Creator", value=activity.data["username"], inline=True)
-    embed.add_field(name="Link", value=f"http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}")
+    embed.add_field(name="Link", value=f"http://osu.{config.DOMAIN_NAME}/s/{activity.data['beatmapset_id']}")
     return embed
 
 def format_beatmap_revival(activity: DBActivity) -> Embed:
@@ -100,7 +100,7 @@ def format_beatmap_revival(activity: DBActivity) -> Embed:
     embed.url = f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}'
     embed.color = 0x23db32
     embed.author = Author(
-        name=f"{activity.data["username"]} revived a beatmap!",
+        name=f"{activity.data['username']} revived a beatmap!",
         url=f'http://osu.{config.DOMAIN_NAME}/u/{activity.user_id}',
         icon_url=f'http://osu.{config.DOMAIN_NAME}/a/{activity.user_id}'
     )
