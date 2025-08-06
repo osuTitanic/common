@@ -266,9 +266,9 @@ def search(
     join_beatmaps = any([
         mode != -1,
         display_mode == DisplayMode.Played,
-        query_string.isdigit()
+        query_string not in ('Newest', 'Most Played', 'Top Rated')
     ])
-    
+
     if join_beatmaps:
         query = query.join(DBBeatmap, DBBeatmapset.beatmaps) \
                      .group_by(DBBeatmapset.id)
@@ -351,6 +351,7 @@ def search_extended(
     text_condition, text_sort = None, DBBeatmapset.approved_at
     join_ratings = sort == BeatmapSortBy.Rating
     join_beatmaps = sort == BeatmapSortBy.Difficulty or any([
+        query_string,
         unplayed is not None,
         cleared is not None,
         uncleared is not None,
