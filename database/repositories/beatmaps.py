@@ -130,6 +130,21 @@ def fetch_filename_by_id(beatmap_id: int, session: Session = ...) -> str | None:
         .scalar()
 
 @session_wrapper
+def fetch_most_played(limit: int = 5, session: Session = ...) -> List[DBBeatmap]:
+    return session.query(DBBeatmap) \
+        .order_by(DBBeatmap.playcount.desc()) \
+        .limit(limit) \
+        .all()
+
+@session_wrapper
+def fetch_most_played_approved(limit: int = 5, session: Session = ...) -> List[DBBeatmap]:
+    return session.query(DBBeatmap) \
+        .filter(DBBeatmap.status > 0) \
+        .order_by(DBBeatmap.playcount.desc()) \
+        .limit(limit) \
+        .all()
+
+@session_wrapper
 def update(
     beatmap_id: int,
     updates: dict,
