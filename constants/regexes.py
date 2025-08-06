@@ -35,3 +35,11 @@ MARKDOWN_LINK = re.compile(
 OSU_USER_AGENT = re.compile(
     r"^osu!*|Mozilla/\d+\.\d+ \(compatible; Clever Internet Suite \d+\.\d+\)$"
 )
+
+OSU_CHAT_LINK_MODERN = re.compile(
+    r"\[((?:https?:\/\/)[^\s\]]+)\s+(.+?)\]"
+)
+
+OSU_CHAT_LINK_LEGACY = re.compile(
+    r"\[([^\]]+)\]\((https?:\/\/[^)]+)\)"
+)
