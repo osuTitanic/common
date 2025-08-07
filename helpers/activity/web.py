@@ -5,6 +5,22 @@ from app.common.database.objects import DBActivity
 import config
 import app
 
+REPLACE_ESCAPE = (
+    ("&", "&amp;"),
+    ("<", "&lt;"),
+    (">", "&gt;"),
+    ('"', "&quot;"),
+    ("'", "&#39;"),
+    (')', '&#41;'),
+    (']', '&#93;')
+)
+
+REPLACE_COSMETIC = (
+    ("(c)", "&copy;"),
+    ("(reg)", "&reg;"),
+    ("(tm)", "&trade;"),
+)
+
 def format_ranks_gained(activity: DBActivity) -> str:
     user_link = format_chat_link(
         activity.data['username'],
@@ -199,12 +215,17 @@ def format_post_created(activity: DBActivity) -> str:
 
     return f'{user_link} created a post in "{post_link}"'
 
-def format_chat_link(key: str, value: str) -> str:
-    key = key.replace('(', '&#40;').replace(')', '&#41;') \
-             .replace('[', '&#91;').replace(']', '&#93;')
+def format_chat_link(key: str, value: str) -> str:    
+    if not key or not value:
+        return ""
 
-    value = value.replace('(', '&#40;').replace(')', '&#41;') \
-                 .replace('[', '&#91;').replace(']', '&#93;')
+    for k, v in REPLACE_ESCAPE:
+        key = key.replace(k, v)
+        value = value.replace(k, v)
+        
+    for k, v in REPLACE_COSMETIC:
+        key = key.replace(k, v)
+        value = value.replace(k, v)
 
     return f'[{value} {key}]'
 
