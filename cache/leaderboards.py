@@ -95,26 +95,6 @@ def update(stats: DBStats, country: str) -> None:
             {stats.user_id: stats.pp_vn}
         )
 
-        # PP RX
-        pipe.zadd(
-            f'bancho:pprx:{stats.mode}',
-            {stats.user_id: stats.pp_rx}
-        )
-        pipe.zadd(
-            f'bancho:pprx:{stats.mode}:{country.lower()}',
-            {stats.user_id: stats.pp_rx}
-        )
-
-        # PP AP
-        pipe.zadd(
-            f'bancho:ppap:{stats.mode}',
-            {stats.user_id: stats.pp_ap}
-        )
-        pipe.zadd(
-            f'bancho:ppap:{stats.mode}:{country.lower()}',
-            {stats.user_id: stats.pp_ap}
-        )
-
         pipe.execute()
 
 def update_leader_scores(stats: DBStats, country: str, session: Optional[Session] = None) -> None:
@@ -450,28 +430,6 @@ def vn_pp_rank(
     )
     return (rank + 1 if rank is not None else 0)
 
-def rx_pp_rank(
-    user_id: int,
-    mode: int
-) -> int:
-    """Get rx pp rank"""
-    rank = app.session.redis.zrevrank(
-        f'bancho:pprx:{mode}',
-        user_id
-    )
-    return (rank + 1 if rank is not None else 0)
-
-def ap_pp_rank(
-    user_id: int,
-    mode: int
-) -> int:
-    """Get ap pp rank"""
-    rank = app.session.redis.zrevrank(
-        f'bancho:ppap:{mode}', # lol
-        user_id
-    )
-    return (rank + 1 if rank is not None else 0)
-
 def performance(
     user_id: int,
     mode: int
@@ -545,28 +503,6 @@ def vn_pp(
     """Get player's vn pp"""
     pp = app.session.redis.zscore(
         f'bancho:ppvn:{mode}',
-        user_id
-    )
-    return pp if pp is not None else 0
-
-def rx_pp(
-    user_id: int,
-    mode: int
-) -> float:
-    """Get player's rx pp"""
-    pp = app.session.redis.zscore(
-        f'bancho:pprx:{mode}',
-        user_id
-    )
-    return pp if pp is not None else 0
-
-def ap_pp(
-    user_id: int,
-    mode: int
-) -> float:
-    """Get player's ap pp"""
-    pp = app.session.redis.zscore(
-        f'bancho:ppap:{mode}',
         user_id
     )
     return pp if pp is not None else 0
