@@ -6,6 +6,7 @@ from app.common.database.objects import (
     DBBeatmapCollaborationBlacklist,
     DBBeatmapCollaborationRequest,
     DBBeatmapCollaboration,
+    DBBeatmap,
     DBUser
 )
 
@@ -87,6 +88,14 @@ def fetch_by_user(user_id: int, session: Session = ...) -> List[DBBeatmapCollabo
     return session.query(DBBeatmapCollaboration) \
         .filter(DBBeatmapCollaboration.user_id == user_id) \
         .order_by(DBBeatmapCollaboration.created_at.desc()) \
+        .all()
+
+@session_wrapper
+def fetch_beatmaps_by_user(user_id: int, session: Session = ...) -> List[DBBeatmap]:
+    return session.query(DBBeatmap) \
+        .join(DBBeatmapCollaboration, DBBeatmap.id == DBBeatmapCollaboration.beatmap_id) \
+        .filter(DBBeatmapCollaboration.user_id == user_id) \
+        .order_by(DBBeatmap.last_update.desc()) \
         .all()
 
 @session_wrapper
