@@ -1343,6 +1343,10 @@ class DBUser(Base):
     twitter            = Column('userpage_twitter', String, nullable=True)
     location           = Column('userpage_location', String, nullable=True)
     interests          = Column('userpage_interests', String, nullable=True)
+    show_completion    = Column('show_completion', Boolean, default=False)
+    show_rscore_rank   = Column('show_rscore_rank', Boolean, default=False)
+    show_tscore_rank   = Column('show_tscore_rank', Boolean, default=False)
+    show_clears_perc   = Column('show_clears_perc', Boolean, default=False)
 
     target_relationships = relationship('DBRelationship', back_populates='target', foreign_keys='DBRelationship.target_id')
     relationships = relationship('DBRelationship', back_populates='user', foreign_keys='DBRelationship.user_id')
