@@ -45,7 +45,7 @@ class Beatmaps:
 
         ratelimit_remaining = self.resolve_header(response, 'X-Ratelimit-Remaining', cast=int)
         ratelimit_reset = self.resolve_header(response, 'X-Ratelimit-Reset', cast=int)
-        
+
         if ratelimit_remaining is not None and ratelimit_remaining <= 1:
             self.logger.warning(f'Remaining units on "{mirror.url}" low, blocking for {ratelimit_reset} seconds.')
             self.set_ratelimit(mirror.url, ratelimit_reset)
@@ -65,10 +65,6 @@ class Beatmaps:
 
         if not response.ok:
             self.log_error(response.url, response.status_code)
-            return None
-
-        if 'application/json' in response.headers.get('Content-Type', ''):
-            self.log_error(response.url, response.json().get('code', 500))
             return None
 
         return response

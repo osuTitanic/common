@@ -1,8 +1,4 @@
 
-
-
-from __future__ import annotations
-
 from app.common.database.objects import DBResourceMirror
 from app.common.helpers.caching import ttl_cache
 from sqlalchemy.orm import Session
