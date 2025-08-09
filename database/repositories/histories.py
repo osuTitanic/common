@@ -10,8 +10,8 @@ from app.common.database.objects import (
 )
 
 from sqlalchemy.orm import Session
+from sqlalchemy import or_, func
 from datetime import datetime
-from sqlalchemy import or_
 from typing import List
 
 from .wrapper import session_wrapper
@@ -176,10 +176,8 @@ def fetch_peak_global_rank(
     mode: int,
     session: Session = ...
 ) -> int:
-    result = session.query(DBRankHistory.global_rank) \
+    return session.query(func.min(DBRankHistory.global_rank)) \
         .filter(DBRankHistory.user_id == user_id) \
         .filter(DBRankHistory.mode == mode) \
         .filter(DBRankHistory.global_rank != 0) \
-        .order_by(DBRankHistory.global_rank.desc()) \
-        .first()
-    return result[0] if result else 0
+        .scalar() or 0
