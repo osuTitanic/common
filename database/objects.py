@@ -51,6 +51,7 @@ class DBStats(Base):
     mode         = Column('mode', SmallInteger, primary_key=True)
 
     rank         = Column('rank', Integer, default=0)
+    peak_rank    = Column('peak_rank', Integer, default=0)
     tscore       = Column('tscore', BigInteger, default=0)
     rscore       = Column('rscore', BigInteger, default=0)
     pp           = Column('pp', Float, default=0.0)
