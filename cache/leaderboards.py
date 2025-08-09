@@ -391,6 +391,17 @@ def total_score_rank(
     )
     return (rank + 1 if rank is not None else 0)
 
+def leader_scores_rank(
+    user_id: int,
+    mode: int
+) -> int:
+    """Get #1's rank"""
+    rank = app.session.redis.zrevrank(
+        f'bancho:leader:{mode}',
+        user_id
+    )
+    return (rank + 1 if rank is not None else 0)
+
 def score_rank_country(
     user_id: int,
     mode: int,
