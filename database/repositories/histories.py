@@ -176,8 +176,9 @@ def fetch_peak_global_rank(
     mode: int,
     session: Session = ...
 ) -> int:
-    return session.query(DBRankHistory.global_rank) \
+    result = session.query(DBRankHistory.global_rank) \
         .filter(DBRankHistory.user_id == user_id) \
         .filter(DBRankHistory.mode == mode) \
         .order_by(DBRankHistory.global_rank.desc()) \
-        .scalar() or 0
+        .first()
+    return result[0] if result else 0
