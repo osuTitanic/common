@@ -169,3 +169,15 @@ def fetch_rank_history(
         .filter(DBRankHistory.time > until) \
         .order_by(DBRankHistory.time.desc()) \
         .all()
+
+@session_wrapper
+def fetch_peak_global_rank(
+    user_id: int,
+    mode: int,
+    session: Session = ...
+) -> int:
+    return session.query(DBRankHistory.global_rank) \
+        .filter(DBRankHistory.user_id == user_id) \
+        .filter(DBRankHistory.mode == mode) \
+        .order_by(DBRankHistory.global_rank.desc()) \
+        .scalar() or 0
