@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBName
+from app.common.database.objects import DBName, DBUser
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
 from typing import List
@@ -40,6 +40,13 @@ def fetch_by_name_extended(name: str, session: Session = ...) -> DBName | None:
             DBName.name.ilike(f'%{name}%')
         )) \
         .order_by(func.length(DBName.name).asc()) \
+        .first()
+
+@session_wrapper
+def fetch_user_by_past_name(name: str, session: Session = ...) -> DBUser | None:
+    return session.query(DBUser) \
+        .join(DBName, DBUser.id == DBName.user_id) \
+        .filter(DBName.name.ilike(name)) \
         .first()
 
 @session_wrapper
