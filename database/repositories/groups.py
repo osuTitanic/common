@@ -37,6 +37,17 @@ def delete_entry(
     return rows
 
 @session_wrapper
+def entry_exists(
+    user_id: int,
+    group_id: int,
+    session: Session = ...
+) -> bool:
+    return session.query(DBGroupEntry) \
+        .filter(DBGroupEntry.group_id == group_id) \
+        .filter(DBGroupEntry.user_id == user_id) \
+        .count() > 0
+
+@session_wrapper
 def fetch_one(id: int, session: Session = ...) -> DBGroup | None:
     return session.query(DBGroup) \
         .filter(DBGroup.id == id) \
