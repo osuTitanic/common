@@ -104,7 +104,7 @@ def fetch_by_id_no_options(id: int, session: Session = ...) -> DBUser | None:
 @session_wrapper
 def fetch_by_email(email: str, session: Session = ...) -> DBUser | None:
     return session.query(DBUser) \
-        .filter(DBUser.email == email) \
+        .filter(DBUser.email.ilike(email)) \
         .first()
 
 @session_wrapper
