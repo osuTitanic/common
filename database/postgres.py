@@ -12,7 +12,13 @@ import config
 import time
 
 class Postgres:
-    def __init__(self, username: str, password: str, host: str, port: int) -> None:
+    def __init__(
+        self,
+        username: str,
+        password: str,
+        host: str,
+        port: int
+    ) -> None:
         self.engine = create_engine(
             f'postgresql://{username}:{password}@{host}:{port}/{username}',
             max_overflow=config.POSTGRES_POOLSIZE_OVERFLOW,
@@ -23,23 +29,19 @@ class Postgres:
             echo_pool=None,
             echo=None
         )
-
         self.sessionmaker = sessionmaker(
             bind=self.engine,
             autoflush=False,
             autocommit=False,
             expire_on_commit=False
         )
-
-        self.logger = logging.getLogger('postgres')
-        self.wait_for_connection()
-
         self.ignored_exceptions = (
             'HTTPException',
             'Unauthorized',
             'Forbidden',
             'NotFound'
         )
+        self.logger = logging.getLogger('postgres')
 
     @property
     def session(self) -> Session:
@@ -59,19 +61,21 @@ class Postgres:
 
             if exception_name not in self.ignored_exceptions:
                 officer.call(f'Transaction failed: {e}', exc_info=e)
-                self.logger.fatal('Performing rollback...')
+                self.logger.warning('Performing rollback...')
 
             session.rollback()
             raise e
         finally:
             session.close()
 
-    def wait_for_connection(self):
-        while True:
+    def wait_for_connection(self, retries: int = 10, delay: int = 1) -> None:
+        for attempt in range(retries):
             try:
-                self.session.execute(text('SELECT 1'))
-                break
+                with self.managed_session() as session:
+                    session.execute(text('SELECT 1'))
+                    return None
             except Exception as e:
-                self.logger.warning(f'Failed to connect to database: "{e}"')
-                self.logger.warning('Retrying...')
-                time.sleep(1)
+                self.logger.warning(f'Failed to connect: "{e}" (attempt {attempt+1}/{retries})')
+                time.sleep(delay)
+
+        raise ConnectionError('Failed to establish a connection to the database')
