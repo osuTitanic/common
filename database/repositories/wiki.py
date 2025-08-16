@@ -2,7 +2,7 @@
 from __future__ import annotations
 from .wrapper import session_wrapper
 
-from app.common.database.objects import DBWikiPage, DBWikiContent, DBWikiOutlink
+from app.common.database.objects import DBWikiPage, DBWikiContent, DBWikiOutlink, DBWikiCategory
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
 from typing import List, Tuple
@@ -191,3 +191,18 @@ def delete_outlinks(
         .delete()
     session.commit()
     return rows
+
+@session_wrapper
+def fetch_main_categories(session: Session = ...) -> List[DBWikiCategory]:
+    return session.query(DBWikiCategory) \
+        .filter(DBWikiCategory.parent_id == None) \
+        .all()
+
+@session_wrapper
+def fetch_subcategories(
+    parent_id: int,
+    session: Session = ...
+) -> List[DBWikiCategory]:
+    return session.query(DBWikiCategory) \
+        .filter(DBWikiCategory.parent_id == parent_id) \
+        .all()
