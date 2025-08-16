@@ -1266,6 +1266,7 @@ class DBWikiPage(Base):
 
     id         = Column('id', Integer, primary_key=True, autoincrement=True)
     name       = Column('name', String)
+    path       = Column('path', String)
     created_at = Column('created_at', DateTime, server_default=func.now())
     last_updated = Column('last_updated', DateTime, server_default=func.now())
     category_id = Column('category_id', Integer, ForeignKey('wiki_categories.id'))
