@@ -13,11 +13,12 @@ import re
 @session_wrapper
 def create_page(
     name: str,
+    path: str,
     content: str,
     language: str = 'en',
     session: Session = ...
 ) -> Tuple[DBWikiPage, DBWikiContent]:
-    session.add(page := DBWikiPage(name=name))
+    session.add(page := DBWikiPage(name=name, path=path))
     session.commit()
     session.refresh(page)
     content = create_content_entry(
@@ -81,6 +82,15 @@ def fetch_page_by_name(
 ) -> DBWikiPage:
     return session.query(DBWikiPage) \
         .filter(DBWikiPage.name.ilike(name)) \
+        .first()
+
+@session_wrapper
+def fetch_page_by_path(
+    path: str,
+    session: Session = ...
+) -> DBWikiPage:
+    return session.query(DBWikiPage) \
+        .filter(DBWikiPage.path.ilike(path)) \
         .first()
 
 @session_wrapper
