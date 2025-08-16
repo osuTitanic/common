@@ -95,6 +95,17 @@ def fetch_content(
         .first()
 
 @session_wrapper
+def fetch_translated_page_title(
+    page_id: int,
+    language: str,
+    session: Session = ...
+) -> str | None:
+    return session.query(DBWikiContent.title) \
+        .filter(DBWikiContent.page_id == page_id) \
+        .filter(DBWikiContent.language == language) \
+        .scalar()
+
+@session_wrapper
 def fetch_languages(session: Session = ...) -> List[str]:
     return session.query(DBWikiContent.language) \
         .distinct() \
