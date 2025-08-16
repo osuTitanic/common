@@ -217,6 +217,7 @@ def delete_outlinks(
 def fetch_main_categories(session: Session = ...) -> List[DBWikiCategory]:
     return session.query(DBWikiCategory) \
         .filter(DBWikiCategory.parent_id == None) \
+        .order_by(DBWikiCategory.id.asc()) \
         .all()
 
 @session_wrapper
@@ -226,4 +227,5 @@ def fetch_subcategories(
 ) -> List[DBWikiCategory]:
     return session.query(DBWikiCategory) \
         .filter(DBWikiCategory.parent_id == parent_id) \
+        .order_by(DBWikiCategory.id.asc()) \
         .all()
