@@ -29,7 +29,7 @@ class ChatFilter:
     @lru_cache(maxsize=128)
     def apply(self, message: str) -> Tuple[str, int | None]:
         for chat_filter in self.filters:
-            replacement = chat_filter.replacement or ""
+            replacement = chat_filter.replacement or chat_filter.name
             filter = self.patterns[chat_filter.name]
 
             # Create a processor function to handle matches
