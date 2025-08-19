@@ -27,6 +27,13 @@ def fetch_all(user_id: int, session: Session = ...) -> List[DBName]:
         .all()
 
 @session_wrapper
+def fetch_all_reserved(user_id: int, session: Session = ...) -> List[DBName]:
+    return session.query(DBName) \
+        .filter(DBName.user_id == user_id) \
+        .filter(DBName.reserved == True) \
+        .all()
+
+@session_wrapper
 def fetch_by_name(name: str, session: Session = ...) -> DBName | None:
     return session.query(DBName) \
         .filter(DBName.name == name) \
