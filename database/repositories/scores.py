@@ -700,23 +700,28 @@ def fetch_recent_top_scores(
 def fetch_pp_record(
     mode: int,
     mods: int | None = None,
+    exclude_loved: bool = True,
     session: Session = ...
 ) -> DBScore:
-    if mods is None:
-        return session.query(DBScore) \
-            .filter(DBScore.mode == mode) \
-            .filter(DBScore.status_pp > 2) \
-            .filter(DBScore.hidden == False) \
-            .order_by(DBScore.pp.desc()) \
-            .first()
+    # Ranked & Approved
+    allowed_statuses = (1, 2)
 
-    return session.query(DBScore) \
-        .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_pp > 2) \
+    if not exclude_loved:
+        # Qualified & Loved
+        allowed_statuses += (3, 4)
+
+    query = session.query(DBScore) \
+        .join(DBScore.beatmap) \
+        .filter(DBBeatmap.status.in_(allowed_statuses)) \
         .filter(DBScore.hidden == False) \
-        .filter(DBScore.mods == mods) \
-        .order_by(DBScore.pp.desc()) \
-        .first()
+        .filter(DBScore.status_pp > 2) \
+        .filter(DBScore.mode == mode) \
+        .order_by(DBScore.pp.desc())
+
+    if mods is not None:
+        query = query.filter(DBScore.mods == mods)
+
+    return query.first()
 
 @session_wrapper
 def fetch_clears(
