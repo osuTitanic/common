@@ -486,7 +486,7 @@ def ap_pp_rank(
 def performance(
     user_id: int,
     mode: int
-) -> int:
+) -> float:
     """Get player's pp""" # this sounds wrong
     pp = app.session.redis.zscore(
         f'bancho:performace:{mode}',
@@ -514,7 +514,7 @@ def total_score(
         f'bancho:tscore:{mode}',
         user_id
     )
-    return score if score is not None else 0
+    return round(score) if score is not None else 0
 
 def clears(
     user_id: int,
@@ -525,7 +525,7 @@ def clears(
         f'bancho:clears:{mode}',
         user_id
     )
-    return clears if clears is not None else 0
+    return round(clears) if clears is not None else 0
 
 def accuracy(
     user_id: int,
