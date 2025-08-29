@@ -49,19 +49,15 @@ def fetch_plays_history(
     user_id: int,
     mode: int,
     until: datetime,
-    session: Session = ...
+    session: Session = None
 ) -> List[DBPlayHistory]:
     return session.query(DBPlayHistory) \
         .filter(DBPlayHistory.user_id == user_id) \
         .filter(DBPlayHistory.mode == mode) \
-        .filter(or_(
-            DBPlayHistory.year >= until.year,
-            DBPlayHistory.month >= until.month,
-        )) \
-        .order_by(
-            DBPlayHistory.year.desc(),
-            DBPlayHistory.month.desc()
+        .filter( \
+            (DBPlayHistory.year < until.year) | ((DBPlayHistory.year == until.year) & (DBPlayHistory.month <= until.month)) \
         ) \
+        .order_by(DBPlayHistory.year.desc(), DBPlayHistory.month.desc()) \
         .all()
 
 @session_wrapper
@@ -112,19 +108,15 @@ def fetch_replay_history(
     user_id: int,
     mode: int,
     until: datetime,
-    session: Session = ...
+    session: Session = None
 ) -> List[DBReplayHistory]:
     return session.query(DBReplayHistory) \
         .filter(DBReplayHistory.user_id == user_id) \
         .filter(DBReplayHistory.mode == mode) \
-        .filter(or_(
-            DBReplayHistory.year >= until.year,
-            DBReplayHistory.month >= until.month,
-        )) \
-        .order_by(
-            DBReplayHistory.year.desc(),
-            DBReplayHistory.month.desc()
+        .filter( \
+            (DBReplayHistory.year < until.year) | ((DBReplayHistory.year == until.year) & (DBReplayHistory.month <= until.month)) \
         ) \
+        .order_by(DBReplayHistory.year.desc(), DBReplayHistory.month.desc()) \
         .all()
 
 @session_wrapper
