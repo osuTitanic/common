@@ -127,6 +127,9 @@ class Storage:
     def get_osz2_iterable(self, set_id: int, chunk_size: int = 1024 * 64) -> Generator:
         return self.get_iterator(set_id, 'osz2', chunk_size)
 
+    def get_osz2_size(self, set_id: int) -> int | None:
+        return self.get_size(set_id, 'osz2')
+
     def get_beatmap(self, id: int) -> bytes | None:
         if (osu := self.get_from_cache(f'osu:{id}')):
             return osu
