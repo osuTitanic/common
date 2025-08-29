@@ -65,6 +65,21 @@ def fetch_plays_history(
         .all()
 
 @session_wrapper
+def fetch_plays_history_all(
+    user_id: int,
+    mode: int,
+    session: Session = ...
+) -> List[DBPlayHistory]:
+    return session.query(DBPlayHistory) \
+        .filter(DBPlayHistory.user_id == user_id) \
+        .filter(DBPlayHistory.mode == mode) \
+        .order_by(
+            DBPlayHistory.year.desc(),
+            DBPlayHistory.month.desc()
+        ) \
+        .all()
+
+@session_wrapper
 def update_replay_views(
     user_id: int,
     mode: int,
@@ -73,13 +88,13 @@ def update_replay_views(
     time = datetime.now()
 
     updated = session.query(DBReplayHistory) \
-                .filter(DBReplayHistory.user_id == user_id) \
-                .filter(DBReplayHistory.mode == mode) \
-                .filter(DBReplayHistory.year == time.year) \
-                .filter(DBReplayHistory.month == time.month) \
-                .update({
-                    'replay_views': DBReplayHistory.replay_views + 1
-                })
+        .filter(DBReplayHistory.user_id == user_id) \
+        .filter(DBReplayHistory.mode == mode) \
+        .filter(DBReplayHistory.year == time.year) \
+        .filter(DBReplayHistory.month == time.month) \
+        .update({
+            'replay_views': DBReplayHistory.replay_views + 1
+        })
 
     if not updated:
         session.add(
@@ -106,6 +121,21 @@ def fetch_replay_history(
             DBReplayHistory.year >= until.year,
             DBReplayHistory.month >= until.month,
         )) \
+        .order_by(
+            DBReplayHistory.year.desc(),
+            DBReplayHistory.month.desc()
+        ) \
+        .all()
+
+@session_wrapper
+def fetch_replay_history_all(
+    user_id: int,
+    mode: int,
+    session: Session = ...
+) -> List[DBReplayHistory]:
+    return session.query(DBReplayHistory) \
+        .filter(DBReplayHistory.user_id == user_id) \
+        .filter(DBReplayHistory.mode == mode) \
         .order_by(
             DBReplayHistory.year.desc(),
             DBReplayHistory.month.desc()
