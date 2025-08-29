@@ -85,16 +85,6 @@ def update(stats: DBStats, country: str) -> None:
             {stats.user_id: clears}
         )
 
-        # PP VN
-        pipe.zadd(
-            f'bancho:ppvn:{stats.mode}',
-            {stats.user_id: stats.pp_vn}
-        )
-        pipe.zadd(
-            f'bancho:ppvn:{stats.mode}:{country.lower()}',
-            {stats.user_id: stats.pp_vn}
-        )
-
         # PP RX
         pipe.zadd(
             f'bancho:pprx:{stats.mode}',

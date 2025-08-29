@@ -122,8 +122,6 @@ def update_rank(
     global_rank = leaderboards.global_rank(stats.user_id, stats.mode)
     score_rank = leaderboards.score_rank(stats.user_id, stats.mode)
     ppv1_rank = leaderboards.ppv1_rank(stats.user_id, stats.mode)
-
-    pp_vn_rank = leaderboards.vn_pp_rank(stats.user_id, stats.mode)
     pp_rx_rank = leaderboards.rx_pp_rank(stats.user_id, stats.mode)
     pp_ap_rank = leaderboards.ap_pp_rank(stats.user_id, stats.mode)
 
@@ -142,14 +140,12 @@ def update_rank(
             stats.rscore,
             stats.pp,
             stats.ppv1,
-            stats.pp_vn,
             stats.pp_rx,
             stats.pp_ap,
             global_rank,
             country_rank,
             score_rank,
             ppv1_rank,
-            pp_vn_rank,
             pp_rx_rank,
             pp_ap_rank
         )
