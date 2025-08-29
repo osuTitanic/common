@@ -56,8 +56,6 @@ class DBStats(Base):
     rscore       = Column('rscore', BigInteger, default=0)
     pp           = Column('pp', Float, default=0.0)
     ppv1         = Column('ppv1', Float, default=0.0)
-    pp_rx        = Column('pp_rx', Float, default=0.0)
-    pp_ap        = Column('pp_ap', Float, default=0.0)
     playcount    = Column('playcount', BigInteger, default=0)
     playtime     = Column('playtime', Integer, default=0)
     acc          = Column('acc', Float, default=0.0)
@@ -604,14 +602,10 @@ class DBRankHistory(Base):
     rscore       = Column('rscore', BigInteger)
     pp           = Column('pp', Integer)
     ppv1         = Column('ppv1', Integer)
-    pp_rx        = Column('pp_rx', Integer)
-    pp_ap        = Column('pp_ap', Integer)
     global_rank  = Column('global_rank', Integer)
     country_rank = Column('country_rank', Integer)
     score_rank   = Column('score_rank', Integer)
     ppv1_rank    = Column('ppv1_rank', Integer)
-    pp_rx_rank   = Column('pp_rx_rank', Integer)
-    pp_ap_rank   = Column('pp_ap_rank', Integer)
 
     user = relationship('DBUser', back_populates='rank_history')
 
@@ -622,28 +616,20 @@ class DBRankHistory(Base):
         rscore: int,
         pp: int,
         ppv1: int,
-        pp_rx: int,
-        pp_ap: int,
         global_rank: int,
         country_rank: int,
         score_rank: int,
-        ppv1_rank: int,
-        pp_rx_rank: int,
-        pp_ap_rank: int
+        ppv1_rank: int
     ) -> None:
         self.user_id = user_id
         self.mode = mode
         self.rscore = rscore
         self.pp = pp
         self.ppv1 = ppv1
-        self.pp_rx = pp_rx
-        self.pp_ap = pp_ap
         self.global_rank = global_rank
         self.country_rank = country_rank
         self.score_rank = score_rank
         self.ppv1_rank = ppv1_rank
-        self.pp_rx_rank = pp_rx_rank
-        self.pp_ap_rank = pp_ap_rank
         self.time = datetime.now()
 
 class DBPlayHistory(Base):

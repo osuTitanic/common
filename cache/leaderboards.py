@@ -85,26 +85,6 @@ def update(stats: DBStats, country: str) -> None:
             {stats.user_id: clears}
         )
 
-        # PP RX
-        pipe.zadd(
-            f'bancho:pprx:{stats.mode}',
-            {stats.user_id: stats.pp_rx}
-        )
-        pipe.zadd(
-            f'bancho:pprx:{stats.mode}:{country.lower()}',
-            {stats.user_id: stats.pp_rx}
-        )
-
-        # PP AP
-        pipe.zadd(
-            f'bancho:ppap:{stats.mode}',
-            {stats.user_id: stats.pp_ap}
-        )
-        pipe.zadd(
-            f'bancho:ppap:{stats.mode}:{country.lower()}',
-            {stats.user_id: stats.pp_ap}
-        )
-
         pipe.execute()
 
 def update_leader_scores(stats: DBStats, country: str, session: Optional[Session] = None) -> None:
