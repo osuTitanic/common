@@ -639,11 +639,12 @@ class DBRankHistory(Base):
 class DBPlayHistory(Base):
     __tablename__ = "profile_play_history"
 
-    user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
-    mode    = Column('mode', SmallInteger, primary_key=True)
-    year    = Column('year', Integer, primary_key=True)
-    month   = Column('month', Integer, primary_key=True)
-    plays   = Column('plays', Integer, default=0)
+    user_id    = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    mode       = Column('mode', SmallInteger, primary_key=True)
+    year       = Column('year', Integer, primary_key=True)
+    month      = Column('month', Integer, primary_key=True)
+    plays      = Column('plays', Integer, default=0)
+    created_at = Column('created_at', DateTime, server_default=func.now())
 
     user = relationship('DBUser', back_populates='play_history')
 
@@ -654,7 +655,6 @@ class DBPlayHistory(Base):
         plays: int = 0
     ) -> None:
         time = datetime.now()
-
         self.user_id = user_id
         self.mode  = mode
         self.plays = plays
@@ -669,6 +669,7 @@ class DBReplayHistory(Base):
     year         = Column('year', Integer, primary_key=True)
     month        = Column('month', Integer, primary_key=True)
     replay_views = Column('replay_views', Integer, default=0)
+    created_at   = Column('created_at', DateTime, server_default=func.now())
 
     user = relationship('DBUser', back_populates='replay_history')
 
@@ -679,7 +680,6 @@ class DBReplayHistory(Base):
         replay_views: int = 0
     ) -> None:
         time = datetime.now()
-
         self.replay_views = replay_views
         self.user_id = user_id
         self.year  = time.year
