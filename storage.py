@@ -118,6 +118,9 @@ class Storage:
     def get_osz_iterable(self, set_id: int, chunk_size: int = 1024 * 64) -> Generator:
         return self.get_iterator(set_id, 'osz', chunk_size)
 
+    def get_osz_size(self, set_id: int) -> int | None:
+        return self.get_size(set_id, 'osz')
+
     def get_osz2_internal(self, set_id: int) -> bytes | None:
         return self.get(set_id, 'osz2')
 
@@ -362,6 +365,12 @@ class Storage:
             return self.get_s3_iterator(str(key), bucket, chunk_size)
         else:
             return self.get_file_iterator(f'{bucket}/{key}', chunk_size)
+        
+    def get_size(self, key: str, bucket: str) -> int | None:
+        if config.S3_ENABLED:
+            return self.get_s3_size(str(key), bucket)
+        else:
+            return self.get_file_size(f'{bucket}/{key}')
 
     def remove(self, key: str, bucket: str) -> bool:
         """Remove a file from the specified bucket/directory."""
@@ -419,6 +428,13 @@ class Storage:
             self.logger.error(f'Failed to read file "{filepath}": {e}')
             return None
 
+    def get_file_size(self, filepath: str) -> int | None:
+        try:
+            return os.path.getsize(f'{config.DATA_PATH}/{filepath}')
+        except Exception as e:
+            self.logger.error(f'Failed to get size of file "{filepath}": {e}')
+            return None
+
     def get_from_s3(self, key: str, bucket: str) -> bytes | None:
         buffer = io.BytesIO()
 
@@ -457,6 +473,16 @@ class Storage:
 
         while chunk := buffer.read(chunk_size):
             yield chunk
+
+    def get_s3_size(self, key: str, bucket: str) -> int | None:
+        try:
+            response = self.s3.head_object(Bucket=bucket, Key=key)
+            return response['ContentLength']
+        except ClientError:
+            return None
+        except Exception as e:
+            self.logger.error(f'Failed to get size of "{key}" from s3: "{e}"')
+            return None
 
     def remove_from_s3(self, key: str, bucket: str) -> bool:
         try:
