@@ -54,7 +54,7 @@ def fetch_plays_history(
     return session.query(DBPlayHistory) \
         .filter(DBPlayHistory.user_id == user_id) \
         .filter(DBPlayHistory.mode == mode) \
-        .filter(DBPlayHistory.created_at < until) \
+        .filter(DBPlayHistory.created_at >= until) \
         .order_by(DBPlayHistory.created_at.desc()) \
         .all()
 
@@ -67,10 +67,7 @@ def fetch_plays_history_all(
     return session.query(DBPlayHistory) \
         .filter(DBPlayHistory.user_id == user_id) \
         .filter(DBPlayHistory.mode == mode) \
-        .order_by(
-            DBPlayHistory.year.desc(),
-            DBPlayHistory.month.desc()
-        ) \
+        .order_by(DBPlayHistory.created_at.desc()) \
         .all()
 
 @session_wrapper
@@ -111,7 +108,7 @@ def fetch_replay_history(
     return session.query(DBReplayHistory) \
         .filter(DBReplayHistory.user_id == user_id) \
         .filter(DBReplayHistory.mode == mode) \
-        .filter(DBReplayHistory.created_at < until) \
+        .filter(DBReplayHistory.created_at >= until) \
         .order_by(DBReplayHistory.created_at.desc()) \
         .all()
 
@@ -124,10 +121,7 @@ def fetch_replay_history_all(
     return session.query(DBReplayHistory) \
         .filter(DBReplayHistory.user_id == user_id) \
         .filter(DBReplayHistory.mode == mode) \
-        .order_by(
-            DBReplayHistory.year.desc(),
-            DBReplayHistory.month.desc()
-        ) \
+        .order_by(DBReplayHistory.created_at.desc()) \
         .all()
 
 @session_wrapper
