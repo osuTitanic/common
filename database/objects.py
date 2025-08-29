@@ -117,6 +117,10 @@ class DBScore(Base):
     @property
     def passed(self) -> bool:
         return self.failtime is None
+    
+    @property
+    def relaxing(self) -> bool:
+        return (self.mods & 1 << 7) > 0 or (self.mods & 1 << 13) > 0
 
     @property
     def total_hits(self) -> int:
