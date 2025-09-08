@@ -1,8 +1,8 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBBeatmapNomination
-from sqlalchemy.orm import Session
+from app.common.database.objects import DBBeatmapNomination, DBBeatmapset
+from sqlalchemy.orm import Session, selectinload
 
 from .wrapper import session_wrapper
 
@@ -79,6 +79,7 @@ def fetch_by_user(
     session: Session = ...
 ) -> list[DBBeatmapNomination]:
     return session.query(DBBeatmapNomination) \
+        .options(selectinload(DBBeatmapNomination.beatmapset)) \
         .filter(DBBeatmapNomination.user_id == user_id) \
         .order_by(DBBeatmapNomination.time.desc()) \
         .all()
