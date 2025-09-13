@@ -10,7 +10,7 @@ def format_leaderboard_rank(activity: DBActivity) -> Embed:
     if activity.data["beatmap_rank"] > 1:
         return
 
-    if activity.data.get("pp", 0) <= 400:
+    if activity.data.get("pp", 0) <= 500:
         return
 
     embed = Embed(
@@ -32,7 +32,7 @@ def format_leaderboard_rank(activity: DBActivity) -> Embed:
     return embed
 
 def format_ranks_gained(activity: DBActivity) -> Embed:
-    if activity.data["rank"] > 20:
+    if activity.data["rank"] > 10:
         return
 
     embed = Embed(
