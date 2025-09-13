@@ -30,14 +30,14 @@ import re
 @session_wrapper
 def create(
     id: int,
-    title: str = '',
-    title_unicode: str = '',
-    artist: str = '',
-    artist_unicode: str = '',
-    creator: str = '',
-    source: str = '',
-    tags: str = '',
-    description: str = '',
+    title: str = "",
+    title_unicode: str = "",
+    artist: str = "",
+    artist_unicode: str = "",
+    creator: str = "",
+    source: str = "",
+    tags: str = "",
+    description: str = "",
     status: int = -3,
     has_video: bool = False,
     has_storyboard: bool = False,
@@ -277,17 +277,21 @@ def search(
         query = query.filter(DBBeatmap.mode == mode)
 
     if query_string == 'Newest':
+        # Sort by either approved date or last update date
         query = query.order_by(order_column.desc())
 
     elif query_string == 'Most Played':
+        # Sort by total playcount
         query = query.order_by(DBBeatmapset.total_playcount.desc())
 
     elif query_string == 'Top Rated':
+        # Use bayesian rating to sort top rated beatmapsets
         query = query.join(DBRating) \
-                     .order_by(bayesian_rating().desc()) \
-                     .group_by(DBBeatmapset.id)
+            .order_by(bayesian_rating().desc()) \
+            .group_by(DBBeatmapset.id)
 
     elif query_string.isdigit():
+        # Allow for searching beatmap(set)s by IDs
         query = query.filter(
             or_(
                 DBBeatmapset.id == int(query_string),
@@ -297,6 +301,7 @@ def search(
             .order_by(text_sort.desc())
 
     else:
+        # Regular full-text search
         query = query.filter(text_condition) \
                      .order_by(text_sort.desc())
 
@@ -394,24 +399,24 @@ def search_extended(
     if user_id is not None:
         if played is not None:
             query = query.join(DBPlay) \
-                         .filter(DBPlay.user_id == user_id)
+                .filter(DBPlay.user_id == user_id)
 
         if cleared is not None:
             query = query.join(DBScore, DBScore.beatmap_id == DBBeatmap.id) \
-                         .filter(DBScore.user_id == user_id) \
-                         .filter(DBScore.status_pp >= 2)
+                .filter(DBScore.user_id == user_id) \
+                .filter(DBScore.status_pp >= 2)
 
         if unplayed is not None:
             subquery = select(DBPlay.beatmap_id) \
-                    .filter(DBPlay.user_id == user_id) \
-                    .subquery()
+                .filter(DBPlay.user_id == user_id) \
+                .subquery()
 
             query = query.filter(DBBeatmap.id.notin_(subquery))
 
         if uncleared is not None:
             subquery = select(DBScore.beatmap_id) \
-                    .filter(DBScore.user_id == user_id) \
-                    .subquery()
+                .filter(DBScore.user_id == user_id) \
+                .subquery()
 
             query = query.filter(DBBeatmap.id.notin_(subquery))
 
@@ -457,7 +462,7 @@ def global_average_rating() -> int:
 def bayesian_rating() -> ColumnElement:
     # Use bayesian average to calculate rating
     # https://en.wikipedia.org/wiki/Bayesian_average
-    confidence_factor = 25
+    confidence_factor = 10
     rating_sum = func.avg(DBRating.rating) * func.count(DBRating.rating)
     total_count = func.count(DBRating.rating) + confidence_factor
     adjusted_avg_rating = global_average_rating() * confidence_factor
