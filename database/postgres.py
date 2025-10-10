@@ -36,6 +36,7 @@ class Postgres:
             expire_on_commit=False
         )
         self.ignored_exceptions = (
+            'RequestValidationError',
             'HTTPException',
             'Unauthorized',
             'Forbidden',
