@@ -618,12 +618,12 @@ def apply_status_filter(query: Query, condition: Dict[str, Any]) -> Query:
 
     status_value = DatabaseStatus.from_lowercase(val.lower())
 
-    # Try to use integer value if not matched
     if status_value is None:
-        try:
-            status_value = int(val)
-        except ValueError:
+        if not status_value.isdigit():
             return query
+
+        # Try to use integer value if not matched
+        status_value = int(val)
 
     status_filter = apply_operator(status_value, op, DBBeatmapset.status)
     query = query.filter(status_filter)
@@ -631,6 +631,9 @@ def apply_status_filter(query: Query, condition: Dict[str, Any]) -> Query:
     return query
 
 def apply_year_filter(query: Query, condition: Dict[str, Any]):
+    if not condition['value'].isdigit():
+        return query
+
     op = condition['operator']
     val = int(condition['value'])
 
