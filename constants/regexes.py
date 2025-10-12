@@ -43,3 +43,10 @@ OSU_CHAT_LINK_MODERN = re.compile(
 OSU_CHAT_LINK_LEGACY = re.compile(
     r"\[([^\]]+)\]\((https?:\/\/[^)]+)\)"
 )
+
+# Regex to match filter patterns: field(operator)value
+# Supports =, >=, <=, >, <
+# Values can be quoted strings or unquoted
+FILTER_PATTERN = re.compile(
+    r'(\w+)(>=|<=|>|<|=)(?:"([^"]+)"|(\S+))'
+)

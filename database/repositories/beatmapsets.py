@@ -3,7 +3,9 @@ from __future__ import annotations
 
 from app.common.helpers import caching
 from app.common.constants import (
+    FILTER_PATTERN,
     BeatmapCategory,
+    DatabaseStatus,
     BeatmapSortBy,
     BeatmapOrder,
     DisplayMode
@@ -17,12 +19,12 @@ from app.common.database.objects import (
     DBPlay
 )
 
-from sqlalchemy import func, select, or_, ColumnElement
-from sqlalchemy.orm import selectinload, Session
+from sqlalchemy import func, select, or_, extract, ColumnElement
+from sqlalchemy.orm import selectinload, Session, Query
 from .wrapper import session_wrapper
 
+from typing import List, Tuple, Dict, Any
 from datetime import datetime
-from typing import List
 
 import app
 import re
@@ -353,6 +355,11 @@ def search_extended(
             ) \
             .filter(DBBeatmapset.beatmaps.any())
 
+    if query_string:
+        # Apply filters, such as year>=2015
+        query_string, filters = resolve_search_filters(query_string)
+        query = apply_search_filters(query, filters)
+
     text_condition, text_sort = None, DBBeatmapset.approved_at
     join_ratings = sort == BeatmapSortBy.Rating
     join_beatmaps = any([
@@ -511,3 +518,146 @@ def text_search_condition(query_string: str):
     )
 
     return query, rank
+
+def resolve_search_filters(query_string: str) -> Tuple[str, Dict[str, Any]]:
+    if not query_string:
+        return '', {}
+
+    filters = {}
+    cleaned_query = query_string
+
+    matches = FILTER_PATTERN.finditer(query_string)
+
+    for match in matches:
+        field = match.group(1).lower()
+        operator = match.group(2)
+
+        # Value is either the quoted or unquoted part
+        value = match.group(3) if match.group(3) else match.group(4)
+
+        # Store the filter
+        if field not in filters:
+            filters[field] = []
+
+        filters[field].append({
+            'operator': operator,
+            'value': value
+        })
+
+        # Remove this filter from the query string
+        cleaned_query = cleaned_query.replace(match.group(0), '', 1)
+
+    return ' '.join(cleaned_query.split()).strip(), filters
+
+def apply_search_filters(query: Query, filters: Dict[str, Any]) -> Query:
+    for field, conditions in filters.items():
+        if field not in filter_mapping:
+            continue
+
+        for condition in conditions:
+            query = filter_mapping[field](query, condition)
+
+    return query
+
+def apply_artist_filter(query: Query, condition: Dict[str, Any]) -> Query:
+    op = condition['operator']
+    val = condition['value']
+
+    if op != '=':
+        return query
+
+    artist_filter = or_(
+        DBBeatmapset.artist.ilike(f'%{val}%'),
+        DBBeatmapset.artist_unicode.ilike(f'%{val}%')
+    )
+    query = query.filter(artist_filter)
+    return query
+
+def apply_title_filter(query: Query, condition: Dict[str, Any]) -> Query:
+    op = condition['operator']
+    val = condition['value']
+
+    if op != '=':
+        return query
+
+    title_filter = or_(
+        DBBeatmapset.title.ilike(f'%{val}%'),
+        DBBeatmapset.title_unicode.ilike(f'%{val}%')
+    )
+    query = query.filter(title_filter)
+    return query
+
+def apply_creator_filter(query: Query, condition: Dict[str, Any]) -> Query:
+    op = condition['operator']
+    val = condition['value']
+
+    if op != '=':
+        return query
+
+    creator_filter = DBBeatmapset.creator.ilike(f'%{val}%')
+    query = query.filter(creator_filter)
+    return query
+
+def apply_source_filter(query: Query, condition: Dict[str, Any]) -> Query:
+    op = condition['operator']
+    val = condition['value']
+
+    if op != '=':
+        return query
+
+    source_filter = or_(
+        DBBeatmapset.source.ilike(f'%{val}%'),
+        DBBeatmapset.source_unicode.ilike(f'%{val}%')
+    )
+    query = query.filter(source_filter)
+    return query
+
+def apply_status_filter(query: Query, condition: Dict[str, Any]) -> Query:
+    op = condition['operator']
+    val = condition['value']
+
+    status_value = DatabaseStatus.from_lowercase(val.lower())
+
+    # Try to use integer value if not matched
+    if status_value is None:
+        try:
+            status_value = int(val)
+        except ValueError:
+            return query
+
+    status_filter = apply_operator(status_value, op, DBBeatmapset.status)
+    query = query.filter(status_filter)
+
+    return query
+
+def apply_year_filter(query: Query, condition: Dict[str, Any]):
+    op = condition['operator']
+    val = int(condition['value'])
+
+    # Use extract to get year from approved_at
+    year_expr = extract('year', DBBeatmapset.approved_at)
+    year_filter = apply_operator(val, op, year_expr)
+
+    return query.filter(year_filter)
+
+def apply_operator(value: Any, operator: str, column: ColumnElement) -> ColumnElement:
+    assert operator in operator_mapping, f"Unsupported operator: {operator}"
+    return operator_mapping[operator](column, value)
+
+operator_mapping = {
+    '=': lambda col, val: col == val,
+    '!=': lambda col, val: col != val,
+    '>': lambda col, val: col > val,
+    '<': lambda col, val: col < val,
+    '>=': lambda col, val: col >= val,
+    '<=': lambda col, val: col <= val,
+}
+
+filter_mapping = {
+    'creator': apply_creator_filter,
+    'artist': apply_artist_filter,
+    'title': apply_title_filter,
+    'source': apply_source_filter,
+    'status': apply_status_filter,
+    'year': apply_year_filter
+}

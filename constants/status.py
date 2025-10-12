@@ -15,6 +15,19 @@ class DatabaseStatus(IntEnum):
     def values(cls) -> list:
         return list(cls._value2member_map_.keys())
 
+    @classmethod
+    def from_lowercase(cls, status: str):
+        return {
+            'inactive':  cls.Inactive,
+            'graveyard': cls.Graveyard,
+            'wip':       cls.WIP,
+            'pending':   cls.Pending,
+            'ranked':    cls.Ranked,
+            'approved':  cls.Approved,
+            'qualified': cls.Qualified,
+            'loved':     cls.Loved
+        }.get(status, None)
+
 class SubmissionStatus(IntEnum):
     NotSubmitted = -1
     Pending      = 0
