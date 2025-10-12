@@ -356,11 +356,6 @@ def search_extended(
             ) \
             .filter(DBBeatmapset.beatmaps.any())
 
-    if query_string:
-        # Apply filters, such as year>=2015
-        query_string, filters = resolve_search_filters(query_string)
-        query = apply_search_filters(query, filters)
-
     text_condition, text_sort = None, DBBeatmapset.approved_at
     join_ratings = sort == BeatmapSortBy.Rating
     join_beatmaps = any([
@@ -370,6 +365,15 @@ def search_extended(
         uncleared is not None,
         mode is not None
     ])
+
+    if query_string:
+        # Apply filters, such as year>=2015
+        query_string, filters = resolve_search_filters(query_string)
+        query = apply_search_filters(query, filters)
+
+        if any(filter in filters for filter in filters_with_beatmaps):
+            # Filter requires `DBBeatmap` to be joined
+            join_beatmaps = True
 
     if join_ratings:
         query = query.join(DBRating, DBBeatmapset.ratings) \
@@ -654,9 +658,26 @@ def apply_created_filter(query: Query, condition: Dict[str, Any]) -> Query:
 
     return query.filter(year_filter)
 
+def apply_difficulty_filter(query: Query, condition: Dict[str, Any]) -> Query:
+    if not is_float(condition['value']):
+        return query
+
+    op = condition['operator']
+    val = float(condition['value'])
+
+    diff_filter = apply_operator(val, op, DBBeatmap.diff)
+    return query.filter(diff_filter)
+
 def apply_operator(value: Any, operator: str, column: ColumnElement) -> ColumnElement:
     assert operator in operator_mapping, f"Unsupported operator: {operator}"
     return operator_mapping[operator](column, value)
+
+def is_float(value: str) -> bool:
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
 
 operator_mapping = {
     '=': lambda col, val: col == val,
@@ -675,5 +696,19 @@ filter_mapping = {
     'status': apply_status_filter,
     'created': apply_created_filter,
     'ranked': apply_year_filter,
-    'year': apply_year_filter
+    'year': apply_year_filter,
+    'difficulty': apply_difficulty_filter,
+    'diff': apply_difficulty_filter,
+    'stars': apply_difficulty_filter,
+    'sr': apply_difficulty_filter,
 }
+
+filters_with_beatmaps = (
+    'difficulty',
+    'length',
+    'bpm',
+    'ar',
+    'cs',
+    'od',
+    'hp'
+)
