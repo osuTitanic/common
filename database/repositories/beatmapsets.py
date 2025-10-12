@@ -668,6 +668,26 @@ def apply_difficulty_filter(query: Query, condition: Dict[str, Any]) -> Query:
     diff_filter = apply_operator(val, op, DBBeatmap.diff)
     return query.filter(diff_filter)
 
+def apply_length_filter(query: Query, condition: Dict[str, Any]) -> Query:
+    if not condition['value'].isdigit():
+        return query
+
+    op = condition['operator']
+    val = int(condition['value'])
+
+    length_filter = apply_operator(val, op, DBBeatmap.total_length)
+    return query.filter(length_filter)
+
+def apply_drain_filter(query: Query, condition: Dict[str, Any]) -> Query:
+    if not condition['value'].isdigit():
+        return query
+
+    op = condition['operator']
+    val = int(condition['value'])
+
+    drain_filter = apply_operator(val, op, DBBeatmap.drain_length)
+    return query.filter(drain_filter)
+
 def apply_operator(value: Any, operator: str, column: ColumnElement) -> ColumnElement:
     assert operator in operator_mapping, f"Unsupported operator: {operator}"
     return operator_mapping[operator](column, value)
@@ -701,11 +721,14 @@ filter_mapping = {
     'diff': apply_difficulty_filter,
     'stars': apply_difficulty_filter,
     'sr': apply_difficulty_filter,
+    'length': apply_length_filter,
+    'drain': apply_drain_filter,
 }
 
 filters_with_beatmaps = (
     'difficulty',
     'length',
+    'drain',
     'bpm',
     'ar',
     'cs',
