@@ -698,6 +698,46 @@ def apply_bpm_filter(query: Query, condition: Dict[str, Any]) -> Query:
     bpm_filter = apply_operator(val, op, DBBeatmap.bpm)
     return query.filter(bpm_filter)
 
+def apply_ar_filter(query: Query, condition: Dict[str, Any]) -> Query:
+    if not condition['value'].isdigit():
+        return query
+    
+    op = condition['operator']
+    val = int(condition['value'])
+
+    ar_filter = apply_operator(val, op, DBBeatmap.ar)
+    return query.filter(ar_filter)
+
+def apply_cs_filter(query: Query, condition: Dict[str, Any]) -> Query:
+    if not condition['value'].isdigit():
+        return query
+    
+    op = condition['operator']
+    val = int(condition['value'])
+
+    cs_filter = apply_operator(val, op, DBBeatmap.cs)
+    return query.filter(cs_filter)
+
+def apply_od_filter(query: Query, condition: Dict[str, Any]) -> Query:
+    if not condition['value'].isdigit():
+        return query
+    
+    op = condition['operator']
+    val = int(condition['value'])
+
+    od_filter = apply_operator(val, op, DBBeatmap.od)
+    return query.filter(od_filter)
+
+def apply_hp_filter(query: Query, condition: Dict[str, Any]) -> Query:
+    if not condition['value'].isdigit():
+        return query
+    
+    op = condition['operator']
+    val = int(condition['value'])
+
+    hp_filter = apply_operator(val, op, DBBeatmap.hp)
+    return query.filter(hp_filter)
+
 def apply_operator(value: Any, operator: str, column: ColumnElement) -> ColumnElement:
     assert operator in operator_mapping, f"Unsupported operator: {operator}"
     return operator_mapping[operator](column, value)
@@ -734,6 +774,10 @@ filter_mapping = {
     'length': apply_length_filter,
     'drain': apply_drain_filter,
     'bpm': apply_bpm_filter,
+    'ar': apply_ar_filter,
+    'cs': apply_cs_filter,
+    'od': apply_od_filter,
+    'hp': apply_hp_filter
 }
 
 filters_with_beatmaps = (
