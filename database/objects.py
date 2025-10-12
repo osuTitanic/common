@@ -977,6 +977,7 @@ class DBForumIcon(Base):
     id       = Column('id', Integer, primary_key=True, autoincrement=True)
     name     = Column('name', String)
     location = Column('location', String)
+    order    = Column('order', Integer, default=0)
 
     topics = relationship('DBForumTopic', back_populates='icon')
     posts  = relationship('DBForumPost', back_populates='icon')

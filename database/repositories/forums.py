@@ -60,5 +60,5 @@ def fetch_topic_count(forum_id: int, session: Session = ...) -> int:
 @session_wrapper
 def fetch_icons(session: Session = ...) -> List[DBForumIcon]:
     return session.query(DBForumIcon) \
-        .order_by(DBForumIcon.id.asc()) \
+        .order_by(DBForumIcon.order.asc(), DBForumIcon.id.asc()) \
         .all()
