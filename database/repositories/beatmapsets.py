@@ -688,6 +688,16 @@ def apply_drain_filter(query: Query, condition: Dict[str, Any]) -> Query:
     drain_filter = apply_operator(val, op, DBBeatmap.drain_length)
     return query.filter(drain_filter)
 
+def apply_bpm_filter(query: Query, condition: Dict[str, Any]) -> Query:
+    if not is_float(condition['value']):
+        return query
+
+    op = condition['operator']
+    val = float(condition['value'])
+
+    bpm_filter = apply_operator(val, op, DBBeatmap.bpm)
+    return query.filter(bpm_filter)
+
 def apply_operator(value: Any, operator: str, column: ColumnElement) -> ColumnElement:
     assert operator in operator_mapping, f"Unsupported operator: {operator}"
     return operator_mapping[operator](column, value)
@@ -723,6 +733,7 @@ filter_mapping = {
     'sr': apply_difficulty_filter,
     'length': apply_length_filter,
     'drain': apply_drain_filter,
+    'bpm': apply_bpm_filter,
 }
 
 filters_with_beatmaps = (
