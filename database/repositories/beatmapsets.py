@@ -24,6 +24,7 @@ from sqlalchemy.orm import selectinload, Session, Query
 from .wrapper import session_wrapper
 
 from typing import List, Tuple, Dict, Any
+from collections import defaultdict
 from datetime import datetime
 
 import app
@@ -523,7 +524,7 @@ def resolve_search_filters(query_string: str) -> Tuple[str, Dict[str, Any]]:
     if not query_string:
         return '', {}
 
-    filters = {}
+    filters = defaultdict(list)
     cleaned_query = query_string
 
     matches = FILTER_PATTERN.finditer(query_string)
@@ -536,9 +537,6 @@ def resolve_search_filters(query_string: str) -> Tuple[str, Dict[str, Any]]:
         value = match.group(3) if match.group(3) else match.group(4)
 
         # Store the filter
-        if field not in filters:
-            filters[field] = []
-
         filters[field].append({
             'operator': operator,
             'value': value
