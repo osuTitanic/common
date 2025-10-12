@@ -83,3 +83,17 @@ def fetch_by_user(
         .filter(DBBeatmapNomination.user_id == user_id) \
         .order_by(DBBeatmapNomination.time.desc()) \
         .all()
+
+@session_wrapper
+def fetch_by_user_and_server(
+    user_id: int,
+    server: int,
+    session: Session = ...
+) -> list[DBBeatmapNomination]:
+    return session.query(DBBeatmapNomination) \
+        .join(DBBeatmapNomination.beatmapset) \
+        .options(selectinload(DBBeatmapNomination.beatmapset)) \
+        .filter(DBBeatmapNomination.user_id == user_id) \
+        .filter(DBBeatmapset.server == server) \
+        .order_by(DBBeatmapNomination.time.desc()) \
+        .all()
