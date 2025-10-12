@@ -673,6 +673,7 @@ filter_mapping = {
     'title': apply_title_filter,
     'source': apply_source_filter,
     'status': apply_status_filter,
-    'year': apply_year_filter,
-    'created': apply_created_filter
+    'created': apply_created_filter,
+    'ranked': apply_year_filter,
+    'year': apply_year_filter
 }
