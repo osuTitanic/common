@@ -641,6 +641,19 @@ def apply_year_filter(query: Query, condition: Dict[str, Any]):
 
     return query.filter(year_filter)
 
+def apply_created_filter(query: Query, condition: Dict[str, Any]) -> Query:
+    if not condition['value'].isdigit():
+        return query
+
+    op = condition['operator']
+    val = int(condition['value'])
+
+    # Use extract to get year from created_at
+    year_expr = extract('year', DBBeatmapset.created_at)
+    year_filter = apply_operator(val, op, year_expr)
+
+    return query.filter(year_filter)
+
 def apply_operator(value: Any, operator: str, column: ColumnElement) -> ColumnElement:
     assert operator in operator_mapping, f"Unsupported operator: {operator}"
     return operator_mapping[operator](column, value)
@@ -660,5 +673,6 @@ filter_mapping = {
     'title': apply_title_filter,
     'source': apply_source_filter,
     'status': apply_status_filter,
-    'year': apply_year_filter
+    'year': apply_year_filter,
+    'created': apply_created_filter
 }
