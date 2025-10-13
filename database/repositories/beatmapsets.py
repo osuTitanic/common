@@ -2,14 +2,13 @@
 from __future__ import annotations
 
 from app.common.helpers import caching
-from app.common.cache import status
 from app.common.constants import (
     FILTER_PATTERN,
+    DirectDisplayMode,
     BeatmapCategory,
     DatabaseStatus,
     BeatmapSortBy,
-    BeatmapOrder,
-    DirectDisplayMode
+    BeatmapOrder
 )
 
 from app.common.database.objects import (
