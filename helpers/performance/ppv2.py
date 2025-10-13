@@ -9,6 +9,7 @@ from rosu_pp_py import (
 
 from ...database.objects import DBScore
 from ...constants import Mods
+from copy import copy
 
 import math
 import app
@@ -68,6 +69,12 @@ def calculate_ppv2(score: DBScore) -> float | None:
     app.session.logger.debug(f"Calculated pp: {result}")
     return result.pp * mode_multiplier
 
+def calculate_ppv2_if_fc(score: DBScore) -> float | None:
+    fc_score = copy(score)
+    fc_score.max_combo = score.beatmap.max_combo
+    fc_score.nMiss = 0
+    return calculate_ppv2(fc_score)
+
 def calculate_difficulty(
     beatmap_file: bytes,
     mode: GameMode | int = GameMode.Osu,
@@ -75,6 +82,12 @@ def calculate_difficulty(
 ) -> DifficultyAttributes | None:
     if isinstance(mode, int):
         mode = convert_mode(mode)
+        
+    if not beatmap_file:
+        app.session.logger.error(
+            'Difficulty calculation failed: Beatmap file was not found!'
+        )
+        return
 
     perf = Performance(mods=mods.value)
     beatmap = Beatmap(bytes=beatmap_file)
