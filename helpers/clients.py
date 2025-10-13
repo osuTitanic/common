@@ -11,7 +11,7 @@ def is_valid_client_hash(version: int, hash: str, session: Session = ...) -> boo
 
 @releases.session_wrapper
 def is_valid_mod(identifier: str, hash: str, session: Session = ...) -> bool:
-    if not (release := releases.fetch_modded(identifier)):
+    if not (release := releases.fetch_modded(identifier, session)):
         return False
 
     for entry in release.hashes:
