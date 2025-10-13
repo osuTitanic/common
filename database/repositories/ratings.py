@@ -125,6 +125,13 @@ def delete(beatmap_hash: str, user_id: int, session: Session = ...) -> None:
     session.commit()
 
 @session_wrapper
+def delete_by_beatmap_hash(beatmap_hash: str, session: Session = ...) -> None:
+    session.query(DBRating) \
+        .filter(DBRating.map_checksum == beatmap_hash) \
+        .delete()
+    session.commit()
+
+@session_wrapper
 def delete_by_set_id(set_id: int, session: Session = ...) -> None:
     session.query(DBRating) \
         .filter(DBRating.set_id == set_id) \
