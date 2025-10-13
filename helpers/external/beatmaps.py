@@ -25,14 +25,14 @@ class Beatmaps:
         self.session.headers = {'User-Agent': f'osuTitanic ({config.DOMAIN_NAME})'}
         self.cache = cache
 
-        retries = Retry(
-            total=4,
-            backoff_factor=0.3,
-            status_forcelist=[500, 502, 503, 504]
-        )
+        # retries = Retry(
+        #     total=4,
+        #     backoff_factor=0.3,
+        #     status_forcelist=[500, 502, 503, 504]
+        # )
 
-        self.session.mount('http://', HTTPAdapter(max_retries=retries))
-        self.session.mount('https://', HTTPAdapter(max_retries=retries))
+        # self.session.mount('http://', HTTPAdapter(max_retries=retries))
+        # self.session.mount('https://', HTTPAdapter(max_retries=retries))
 
     def perform_mirror_request(self, url: str, mirror: DBResourceMirror) -> Response:
         if self.check_ratelimit(mirror.url):
