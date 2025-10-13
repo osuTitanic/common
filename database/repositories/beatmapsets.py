@@ -4,11 +4,11 @@ from __future__ import annotations
 from app.common.helpers import caching
 from app.common.constants import (
     FILTER_PATTERN,
+    DirectDisplayMode,
     BeatmapCategory,
     DatabaseStatus,
     BeatmapSortBy,
-    BeatmapOrder,
-    DisplayMode
+    BeatmapOrder
 )
 
 from app.common.database.objects import (
@@ -244,31 +244,32 @@ def search_one(
         .first()
 
 @session_wrapper
-def search(
+def search_direct(
     query_string: str,
     user_id: int,
-    display_mode = DisplayMode.All,
+    display_mode = DirectDisplayMode.All,
     offset: int = 0,
     mode: int = -1,
     session: Session = ...
 ) -> List[DBBeatmapset]:
+    """Query beatmapsets for osu!direct"""
+
     query = session.query(DBBeatmapset).filter(DBBeatmapset.beatmaps.any())
     text_condition, text_sort = text_search_condition(query_string)
 
-    is_approved = display_mode not in (
-        DisplayMode.Graveyard,
-        DisplayMode.Pending,
-        DisplayMode.All
+    sort_by_last_update = display_mode in (
+        DirectDisplayMode.Graveyard,
+        DirectDisplayMode.Pending,
+        DirectDisplayMode.All
     )
-
     order_column = (
-        DBBeatmapset.approved_at if is_approved else
-        DBBeatmapset.last_update
+        DBBeatmapset.last_update if sort_by_last_update else
+        DBBeatmapset.approved_at
     )
 
     join_beatmaps = any([
         mode != -1,
-        display_mode == DisplayMode.Played,
+        display_mode == DirectDisplayMode.RankedPlayed,
         query_string not in ('Newest', 'Most Played', 'Top Rated')
     ])
 
@@ -309,15 +310,17 @@ def search(
                      .order_by(text_sort.desc())
 
     query = {
-        DisplayMode.All: query.filter(DBBeatmapset.status > -3),
-        DisplayMode.Ranked: query.filter(DBBeatmapset.status > 0),
-        DisplayMode.Pending: query.filter(DBBeatmapset.status == 0),
-        DisplayMode.Graveyard: query.filter(DBBeatmapset.status == -2),
-        DisplayMode.Qualified: query.filter(DBBeatmapset.status == 3),
-        DisplayMode.Loved: query.filter(DBBeatmapset.status == 4),
-        DisplayMode.Played: query.join(DBBeatmapset.plays) \
+        DirectDisplayMode.Ranked: query.filter(DBBeatmapset.status.in_([1, 2])),
+        DirectDisplayMode.RankedStrict: query.filter(DBBeatmapset.status == 1),
+        DirectDisplayMode.Pending: query.filter(DBBeatmapset.status.in_([-1, 0])),
+        DirectDisplayMode.Qualified: query.filter(DBBeatmapset.status == 3),
+        DirectDisplayMode.All: query.filter(DBBeatmapset.status > -3),
+        DirectDisplayMode.Graveyard: query.filter(DBBeatmapset.status == -2),
+        DirectDisplayMode.Approved: query.filter(DBBeatmapset.status == 2),
+        DirectDisplayMode.RankedPlayed: query.join(DBBeatmapset.plays) \
             .filter(DBPlay.user_id == user_id) \
-            .filter(DBBeatmapset.status > 0)
+            .filter(DBBeatmapset.status.in_([1, 2])),
+        DirectDisplayMode.Loved: query.filter(DBBeatmapset.status == 4)
     }.get(display_mode, query)
 
     return query.limit(100) \

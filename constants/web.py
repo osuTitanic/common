@@ -21,11 +21,14 @@ class ScoreStatus(IntEnum):
     Best      = 3
     Mods      = 4
 
-class DisplayMode(IntEnum):
-    Ranked    = 0
-    Pending   = 2
-    Qualified = 3
-    All       = 4
-    Graveyard = 5
-    Played    = 7
-    Loved     = 8
+class DirectDisplayMode(IntEnum):
+    """Search category for osu!direct"""
+    Ranked       = 0
+    RankedStrict = 1
+    Pending      = 2
+    Qualified    = 3
+    All          = 4
+    Graveyard    = 5
+    Approved     = 6
+    RankedPlayed = 7
+    Loved        = 8
