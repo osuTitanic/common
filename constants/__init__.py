@@ -31,7 +31,7 @@ from .web import (
     CommentTarget,
     RankingType,
     ScoreStatus,
-    DisplayMode
+    DirectDisplayMode
 )
 
 from .multiplayer import (
