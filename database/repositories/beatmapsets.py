@@ -624,7 +624,7 @@ def apply_status_filter(query: Query, condition: Dict[str, Any]) -> Query:
     status_value = DatabaseStatus.from_lowercase(val.lower())
 
     if status_value is None:
-        if not status_value.isdigit():
+        if not val.isdigit():
             return query
 
         # Try to use integer value if not matched
