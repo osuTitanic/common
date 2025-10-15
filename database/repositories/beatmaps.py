@@ -7,9 +7,9 @@ from sqlalchemy import func
 
 from .wrapper import session_wrapper
 
-from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
-from typing import List, Dict
+from typing import List, Dict, Tuple
+from sqlalchemy.orm import Session
 
 @session_wrapper
 def create(
@@ -149,7 +149,7 @@ def fetch_most_played_delta(
     limit: int = 5,
     delta: timedelta = timedelta(hours=24),
     session: Session = ...
-) -> List[DBBeatmap]:
+) -> List[Tuple[int, DBBeatmap]]:
     time_threshold = datetime.now() - delta
 
     # Subquery to count scores per beatmap in the last delta
@@ -163,8 +163,11 @@ def fetch_most_played_delta(
         .subquery()
 
     # Join with beatmaps and order by play count
-    return session.query(DBBeatmap) \
-        .join(subquery, DBBeatmap.id == subquery.c.beatmap_id) \
+    return session.query(
+            subquery.c.play_count,
+            DBBeatmap
+        ) \
+        .join(DBBeatmap, DBBeatmap.id == subquery.c.beatmap_id) \
         .order_by(subquery.c.play_count.desc()) \
         .limit(limit) \
         .all()
