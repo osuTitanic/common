@@ -1,14 +1,14 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBBeatmap
+from app.common.database.objects import DBBeatmap, DBScore
 from sqlalchemy.orm import selectinload
 from sqlalchemy import func
 
 from .wrapper import session_wrapper
 
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Dict
 
 @session_wrapper
@@ -141,6 +141,31 @@ def fetch_most_played_approved(limit: int = 5, session: Session = ...) -> List[D
     return session.query(DBBeatmap) \
         .filter(DBBeatmap.status > 0) \
         .order_by(DBBeatmap.playcount.desc()) \
+        .limit(limit) \
+        .all()
+
+@session_wrapper
+def fetch_most_played_delta(
+    limit: int = 5,
+    delta: timedelta = timedelta(hours=24),
+    session: Session = ...
+) -> List[DBBeatmap]:
+    time_threshold = datetime.now() - delta
+
+    # Subquery to count scores per beatmap in the last delta
+    subquery = session.query(
+            DBScore.beatmap_id,
+            func.count(DBScore.id).label('play_count')
+        ) \
+        .filter(DBScore.submitted_at >= time_threshold) \
+        .filter(DBScore.hidden == False) \
+        .group_by(DBScore.beatmap_id) \
+        .subquery()
+
+    # Join with beatmaps and order by play count
+    return session.query(DBBeatmap) \
+        .join(subquery, DBBeatmap.id == subquery.c.beatmap_id) \
+        .order_by(subquery.c.play_count.desc()) \
         .limit(limit) \
         .all()
 
