@@ -1415,10 +1415,6 @@ class DBUser(Base):
         return self.check_groups([1, 2, 4])
 
     @property
-    def is_donator(self) -> bool:
-        return self.check_groups([1, 2, 6])
-
-    @property
     def has_preview_access(self) -> bool:
         return self.check_groups([1, 2, 997])
 
@@ -1429,6 +1425,10 @@ class DBUser(Base):
     @property
     def is_supporter(self) -> bool:
         return self.check_groups([1, 2, 999])
+
+    @property
+    def is_donator(self) -> bool:
+        return 6 in self.group_ids
 
     def check_groups(self, ids: List[int]) -> bool:
         return any(group in self.group_ids for group in ids)
