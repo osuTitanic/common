@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List
 
 from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship, declarative_base, deferred
+from sqlalchemy.orm import Mapped, relationship, declarative_base, deferred
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy import (
     SmallInteger,
@@ -22,7 +22,6 @@ from sqlalchemy import (
 
 import app.common
 import config
-import re
 
 Base = declarative_base()
 Base.__allow_unmapped__ = True
@@ -36,7 +35,7 @@ class DBAchievement(Base):
     filename    = Column('filename', String)
     unlocked_at = Column('unlocked_at', DateTime, server_default=func.now())
 
-    user = relationship('DBUser', back_populates='achievements')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='achievements')
 
     def __init__(self, user_id: int, name: str, category: str, filename: str) -> None:
         self.category = category
@@ -72,7 +71,7 @@ class DBStats(Base):
     c_count   = Column('c_count', Integer, default=0)
     d_count   = Column('d_count', Integer, default=0)
 
-    user = relationship('DBUser', back_populates='stats')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='stats')
 
     def __init__(self, user_id: int, mode: int) -> None:
         self.user_id = user_id
@@ -111,8 +110,8 @@ class DBScore(Base):
     replay_md5     = Column('replay_md5', String, nullable=True)
     replay_views   = Column('replay_views', Integer, default=0)
 
-    user    = relationship('DBUser', back_populates='scores')
-    beatmap = relationship('DBBeatmap', back_populates='scores')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='scores')
+    beatmap: Mapped["DBBeatmap"] = relationship('DBBeatmap', back_populates='scores')
 
     @property
     def passed(self) -> bool:
@@ -148,9 +147,9 @@ class DBPlay(Base):
     count        = Column('count', Integer)
     beatmap_file = Column('beatmap_file', String)
 
-    user       = relationship('DBUser', back_populates='plays')
-    beatmap    = relationship('DBBeatmap', back_populates='plays')
-    beatmapset = relationship('DBBeatmapset', back_populates='plays')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='plays')
+    beatmap: Mapped["DBBeatmap"] = relationship('DBBeatmap', back_populates='plays')
+    beatmapset: Mapped["DBBeatmapset"] = relationship('DBBeatmapset', back_populates='plays')
 
     def __init__(self, user_id: int, beatmap_id: int, set_id: int, beatmap_file: str, count: int = 1) -> None:
         self.beatmap_file = beatmap_file
@@ -166,8 +165,8 @@ class DBFavourite(Base):
     set_id     = Column('set_id', Integer, ForeignKey('beatmapsets.id'), primary_key=True)
     created_at = Column('created_at', DateTime, server_default=func.now())
 
-    user       = relationship('DBUser', back_populates='favourites')
-    beatmapset = relationship('DBBeatmapset', back_populates='favourites')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='favourites')
+    beatmapset: Mapped["DBBeatmapset"] = relationship('DBBeatmapset', back_populates='favourites')
 
     def __init__(self, user_id: int, set_id: int) -> None:
         self.user_id = user_id
@@ -181,9 +180,9 @@ class DBRating(Base):
     map_checksum = Column('map_checksum', String, ForeignKey('beatmaps.md5'), primary_key=True)
     rating       = Column('rating', SmallInteger)
 
-    user       = relationship('DBUser', back_populates='ratings')
-    beatmap    = relationship('DBBeatmap', back_populates='ratings')
-    beatmapset = relationship('DBBeatmapset', back_populates='ratings')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='ratings')
+    beatmap: Mapped["DBBeatmap"] = relationship('DBBeatmap', back_populates='ratings')
+    beatmapset: Mapped["DBBeatmapset"] = relationship('DBBeatmapset', back_populates='ratings')
 
     def __init__(self, user_id: int, set_id: int, map_checksum: str, rating: int) -> None:
         self.rating  = rating
@@ -199,7 +198,7 @@ class DBScreenshot(Base):
     created_at = Column('created_at', DateTime, server_default=func.now())
     hidden     = Column('hidden', Boolean, default=False)
 
-    user = relationship('DBUser', back_populates='screenshots')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='screenshots')
 
     def __init__(self, user_id: int, hidden: bool):
         self.user_id = user_id
@@ -212,8 +211,8 @@ class DBRelationship(Base):
     target_id = Column('target_id', Integer, ForeignKey('users.id'), primary_key=True)
     status = Column('status', SmallInteger)
 
-    user = relationship('DBUser', back_populates='relationships', foreign_keys=[user_id])
-    target = relationship('DBUser', back_populates='target_relationships', foreign_keys=[target_id])
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='relationships', foreign_keys=[user_id])
+    target: Mapped["DBUser"] = relationship('DBUser', back_populates='target_relationships', foreign_keys=[target_id])
 
     def __init__(self, user: int, target: int, status: int) -> None:
         self.user_id = user
@@ -364,13 +363,13 @@ class DBBeatmapset(Base):
         persisted=True
     )))
 
-    creator_user = relationship('DBUser', foreign_keys=[creator_id])
-    nominations = relationship('DBBeatmapNomination', back_populates='beatmapset')
-    modding = relationship('DBBeatmapModding', back_populates='beatmapset')
-    favourites = relationship('DBFavourite', back_populates='beatmapset')
-    beatmaps = relationship('DBBeatmap', back_populates='beatmapset')
-    ratings = relationship('DBRating', back_populates='beatmapset')
-    plays = relationship('DBPlay', back_populates='beatmapset')
+    creator_user: Mapped["DBUser"] = relationship('DBUser', foreign_keys=[creator_id])
+    nominations: Mapped[List["DBBeatmapNomination"]] = relationship('DBBeatmapNomination', back_populates='beatmapset')
+    modding: Mapped[List["DBBeatmapModding"]] = relationship('DBBeatmapModding', back_populates='beatmapset')
+    favourites: Mapped[List["DBFavourite"]] = relationship('DBFavourite', back_populates='beatmapset')
+    beatmaps: Mapped[List["DBBeatmap"]] = relationship('DBBeatmap', back_populates='beatmapset')
+    ratings: Mapped[List["DBRating"]] = relationship('DBRating', back_populates='beatmapset')
+    plays: Mapped[List["DBPlay"]] = relationship('DBPlay', back_populates='beatmapset')
 
     @property
     def full_name(self):
@@ -417,12 +416,12 @@ class DBBeatmap(Base):
         persisted=True
     )))
 
-    collaboration_requests = relationship('DBBeatmapCollaborationRequest', back_populates='beatmap')
-    collaborations = relationship('DBBeatmapCollaboration', back_populates='beatmap')
-    beatmapset = relationship('DBBeatmapset', back_populates='beatmaps')
-    ratings = relationship('DBRating', back_populates='beatmap')
-    scores = relationship('DBScore', back_populates='beatmap')
-    plays = relationship('DBPlay', back_populates='beatmap')
+    collaboration_requests: Mapped[List["DBBeatmapCollaborationRequest"]] = relationship('DBBeatmapCollaborationRequest', back_populates='beatmap')
+    collaborations: Mapped[List["DBBeatmapCollaboration"]] = relationship('DBBeatmapCollaboration', back_populates='beatmap')
+    beatmapset: Mapped["DBBeatmapset"] = relationship('DBBeatmapset', back_populates='beatmaps')
+    ratings: Mapped[List["DBRating"]] = relationship('DBRating', back_populates='beatmap')
+    scores: Mapped[List["DBScore"]] = relationship('DBScore', back_populates='beatmap')
+    plays: Mapped[List["DBPlay"]] = relationship('DBPlay', back_populates='beatmap')
 
     def __repr__(self) -> str:
         return f'<Beatmap ({self.id}) {self.beatmapset.artist} - {self.beatmapset.title} [{self.version}]>'
@@ -500,8 +499,8 @@ class DBBeatmapCollaboration(Base):
     allow_resource_updates = Column('allow_resource_updates', Boolean, default=False)
     created_at = Column('created_at', DateTime, server_default=func.now())
 
-    user = relationship('DBUser', back_populates='collaborations')
-    beatmap = relationship('DBBeatmap', back_populates='collaborations')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='collaborations')
+    beatmap: Mapped["DBBeatmap"] = relationship('DBBeatmap', back_populates='collaborations')
 
 class DBBeatmapCollaborationRequest(Base):
     __tablename__ = "beatmap_collaboration_requests"
@@ -513,9 +512,9 @@ class DBBeatmapCollaborationRequest(Base):
     allow_resource_updates = Column('allow_resource_updates', Boolean, default=False)
     created_at = Column('created_at', DateTime, server_default=func.now())
 
-    user = relationship('DBUser', foreign_keys=[user_id])
-    target = relationship('DBUser', foreign_keys=[target_id])
-    beatmap = relationship('DBBeatmap', back_populates='collaboration_requests')
+    user: Mapped["DBUser"] = relationship('DBUser', foreign_keys=[user_id])
+    target: Mapped["DBUser"] = relationship('DBUser', foreign_keys=[target_id])
+    beatmap: Mapped["DBBeatmap"] = relationship('DBBeatmap', back_populates='collaboration_requests')
 
 class DBBeatmapCollaborationBlacklist(Base):
     __tablename__ = "beatmap_collaboration_blacklist"
@@ -524,8 +523,8 @@ class DBBeatmapCollaborationBlacklist(Base):
     target_id = Column('target_id', Integer, ForeignKey('users.id'), primary_key=True)
     created_at = Column('created_at', DateTime, server_default=func.now())
 
-    user = relationship('DBUser', foreign_keys=[user_id])
-    target = relationship('DBUser', foreign_keys=[target_id])
+    user: Mapped["DBUser"] = relationship('DBUser', foreign_keys=[user_id])
+    target: Mapped["DBUser"] = relationship('DBUser', foreign_keys=[target_id])
 
 class DBBeatmapNomination(Base):
     __tablename__ = "beatmap_nominations"
@@ -534,8 +533,8 @@ class DBBeatmapNomination(Base):
     set_id    = Column('set_id', Integer, ForeignKey('beatmapsets.id'), primary_key=True)
     time      = Column('time', DateTime, server_default=func.now())
 
-    user = relationship('DBUser', back_populates='nominations')
-    beatmapset = relationship('DBBeatmapset', back_populates='nominations')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='nominations')
+    beatmapset: Mapped["DBBeatmapset"] = relationship('DBBeatmapset', back_populates='nominations')
 
     def __init__(self, user_id: int, set_id: int) -> None:
         self.user_id = user_id
@@ -552,10 +551,10 @@ class DBBeatmapModding(Base):
     amount    = Column('amount', Integer, default=0)
     time      = Column('time', DateTime, server_default=func.now())
 
-    beatmapset = relationship('DBBeatmapset', back_populates='modding')
-    post = relationship('DBForumPost', back_populates='modding')
-    target = relationship('DBUser', foreign_keys=[target_id])
-    sender = relationship('DBUser', foreign_keys=[sender_id])
+    beatmapset: Mapped["DBBeatmapset"] = relationship('DBBeatmapset', back_populates='modding')
+    post: Mapped["DBForumPost"] = relationship('DBForumPost', back_populates='modding')
+    target: Mapped["DBUser"] = relationship('DBUser', foreign_keys=[target_id])
+    sender: Mapped["DBUser"] = relationship('DBUser', foreign_keys=[sender_id])
 
 class DBBadge(Base):
     __tablename__ = "profile_badges"
@@ -567,7 +566,7 @@ class DBBadge(Base):
     badge_url         = Column('badge_url', String, nullable=True)
     badge_description = Column('badge_description', String, nullable=True)
 
-    user = relationship('DBUser', back_populates='badges')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='badges')
 
 class DBActivity(Base):
     __tablename__ = "profile_activity"
@@ -580,7 +579,7 @@ class DBActivity(Base):
     data     = Column('data', JSONB, default={})
     hidden   = Column('hidden', Boolean, default=False)
 
-    user = relationship('DBUser', back_populates='activity')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='activity')
 
 class DBName(Base):
     __tablename__ = "name_history"
@@ -591,7 +590,7 @@ class DBName(Base):
     reserved   = Column('reserved', Boolean, default=True)
     changed_at = Column('changed_at', DateTime, server_default=func.now())
 
-    user = relationship('DBUser', back_populates='names')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='names')
 
     def __init__(self, user_id: int, name: str) -> None:
         self.user_id = user_id
@@ -612,7 +611,7 @@ class DBRankHistory(Base):
     score_rank   = Column('score_rank', Integer)
     ppv1_rank    = Column('ppv1_rank', Integer)
 
-    user = relationship('DBUser', back_populates='rank_history')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='rank_history')
 
     def __init__(
         self,
@@ -647,7 +646,7 @@ class DBPlayHistory(Base):
     plays      = Column('plays', Integer, default=0)
     created_at = Column('created_at', DateTime, server_default=func.now())
 
-    user = relationship('DBUser', back_populates='play_history')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='play_history')
 
     def __init__(
         self,
@@ -672,7 +671,7 @@ class DBReplayHistory(Base):
     replay_views = Column('replay_views', Integer, default=0)
     created_at   = Column('created_at', DateTime, server_default=func.now())
 
-    user = relationship('DBUser', back_populates='replay_history')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='replay_history')
 
     def __init__(
         self,
@@ -795,8 +794,8 @@ class DBMatch(Base):
     created_at = Column('created_at', DateTime)
     ended_at   = Column('ended_at', DateTime, nullable=True)
 
-    creator = relationship('DBUser', back_populates='matches')
-    events  = relationship('DBMatchEvent', back_populates='match')
+    creator: Mapped["DBUser"] = relationship('DBUser', back_populates='matches')
+    events: Mapped[List["DBMatchEvent"]] = relationship('DBMatchEvent', back_populates='match')
 
     def __init__(
         self,
@@ -817,7 +816,7 @@ class DBMatchEvent(Base):
     type     = Column('type', SmallInteger)
     data     = Column('data', JSONB)
 
-    match = relationship('DBMatch', back_populates='events')
+    match: Mapped["DBMatch"] = relationship('DBMatch', back_populates='events')
 
     def __init__(
         self,
@@ -848,7 +847,7 @@ class DBVerification(Base):
     sent_at = Column('sent_at', DateTime, server_default=func.now())
     type    = Column('type', SmallInteger, default=0)
 
-    user = relationship('DBUser', back_populates='verifications')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='verifications')
 
     def __init__(
         self,
@@ -872,8 +871,8 @@ class DBGroup(Base):
     bancho_permissions = Column('bancho_permissions', SmallInteger, nullable=True, default=0)
     hidden             = Column('hidden', Boolean, default=False)
 
-    permissions = relationship('DBGroupPermission', back_populates='group')
-    entries = relationship('DBGroupEntry', back_populates='group')
+    permissions: Mapped[List["DBGroupPermission"]] = relationship('DBGroupPermission', back_populates='group')
+    entries: Mapped[List["DBGroupEntry"]] = relationship('DBGroupEntry', back_populates='group')
 
 class DBGroupEntry(Base):
     __tablename__ = "groups_entries"
@@ -881,8 +880,8 @@ class DBGroupEntry(Base):
     group_id = Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True)
     user_id  = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
 
-    group = relationship('DBGroup', back_populates='entries')
-    user  = relationship('DBUser', back_populates='groups')
+    group: Mapped["DBGroup"] = relationship('DBGroup', back_populates='entries')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='groups')
 
     def __init__(self, user_id: int, group_id: int) -> None:
         self.group_id = group_id
@@ -898,7 +897,7 @@ class DBUserPermission(Base):
     created_at  = Column('created_at', DateTime, server_default=func.now())
     updated_at  = Column('updated_at', DateTime, server_default=func.now(), onupdate=func.now())
 
-    user = relationship('DBUser', back_populates='permissions')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='permissions')
 
 class DBGroupPermission(Base):
     __tablename__ = "group_permissions"
@@ -910,7 +909,7 @@ class DBGroupPermission(Base):
     created_at  = Column('created_at', DateTime, server_default=func.now())
     updated_at  = Column('updated_at', DateTime, server_default=func.now(), onupdate=func.now())
 
-    group = relationship('DBGroup', back_populates='permissions')
+    group: Mapped["DBGroup"] = relationship('DBGroup', back_populates='permissions')
 
 class DBNotification(Base):
     __tablename__ = "notifications"
@@ -924,7 +923,7 @@ class DBNotification(Base):
     read    = Column('read', Boolean, default=False)
     time    = Column('time', DateTime, server_default=func.now())
 
-    user = relationship('DBUser', back_populates='notifications')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='notifications')
 
     def __init__(
         self,
@@ -954,11 +953,10 @@ class DBForum(Base):
     allow_icons = Column('allow_icons', Boolean, default=True)
     hidden      = Column('hidden', Boolean, default=False)
 
-    parent    = relationship('DBForum', back_populates='subforums', remote_side=[id])
-    subforums = relationship('DBForum', back_populates='parent')
-
-    topics    = relationship('DBForumTopic', back_populates='forum')
-    posts     = relationship('DBForumPost', back_populates='forum')
+    parent: Mapped["DBForum"] = relationship('DBForum', back_populates='subforums', remote_side=[id])
+    subforums: Mapped[List["DBForum"]] = relationship('DBForum', back_populates='parent')
+    topics: Mapped[List["DBForumTopic"]] = relationship('DBForumTopic', back_populates='forum')
+    posts: Mapped[List["DBForumPost"]] = relationship('DBForumPost', back_populates='forum')
 
     def __init__(
         self,
@@ -980,8 +978,8 @@ class DBForumIcon(Base):
     location = Column('location', String)
     order    = Column('order', Integer, default=0)
 
-    topics = relationship('DBForumTopic', back_populates='icon')
-    posts  = relationship('DBForumPost', back_populates='icon')
+    topics: Mapped[List["DBForumTopic"]] = relationship('DBForumTopic', back_populates='icon')
+    posts: Mapped[List["DBForumPost"]] = relationship('DBForumPost', back_populates='icon')
 
     def __init__(
         self,
@@ -1010,13 +1008,13 @@ class DBForumTopic(Base):
     hidden          = Column('hidden', Boolean, default=False)
     pinned          = Column('pinned', Boolean, default=False)
 
-    subscribers = relationship('DBForumSubscriber', back_populates='topic')
-    bookmarks   = relationship('DBForumBookmark', back_populates='topic')
-    creator     = relationship('DBUser', back_populates='created_topics')
-    icon        = relationship('DBForumIcon', back_populates='topics')
-    posts       = relationship('DBForumPost', back_populates='topic')
-    forum       = relationship('DBForum', back_populates='topics')
-    stars       = relationship('DBForumStar', back_populates='topic')
+    forum: Mapped["DBForum"] = relationship('DBForum', back_populates='topics')
+    icon: Mapped["DBForumIcon"] = relationship('DBForumIcon', back_populates='topics')
+    posts: Mapped[List["DBForumPost"]] = relationship('DBForumPost', back_populates='topic')
+    stars: Mapped[List["DBForumStar"]] = relationship('DBForumStar', back_populates='topic')
+    creator: Mapped["DBUser"] = relationship('DBUser', back_populates='created_topics')
+    bookmarks: Mapped[List["DBForumBookmark"]] = relationship('DBForumBookmark', back_populates='topic')
+    subscribers: Mapped[List["DBForumSubscriber"]] = relationship('DBForumSubscriber', back_populates='topic')
 
     def __init__(
         self,
@@ -1049,8 +1047,8 @@ class DBForumStar(Base):
     user_id    = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
     created_at = Column('created_at', DateTime, server_default=func.now())
 
-    user  = relationship('DBUser', back_populates='starred_topics')
-    topic = relationship('DBForumTopic', back_populates='stars')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='starred_topics')
+    topic: Mapped["DBForumTopic"] = relationship('DBForumTopic', back_populates='stars')
 
     def __init__(
         self,
@@ -1078,11 +1076,11 @@ class DBForumPost(Base):
     draft       = Column('draft', Boolean, default=False)
     deleted     = Column('deleted', Boolean, default=False)
 
-    modding = relationship('DBBeatmapModding', back_populates='post')
-    user  = relationship('DBUser', back_populates='created_posts')
-    icon  = relationship('DBForumIcon', back_populates='posts')
-    topic = relationship('DBForumTopic', back_populates='posts')
-    forum = relationship('DBForum', back_populates='posts')
+    modding: Mapped['DBBeatmapModding'] = relationship('DBBeatmapModding', back_populates='post')
+    user: Mapped['DBUser'] = relationship('DBUser', back_populates='created_posts')
+    icon: Mapped['DBForumIcon'] = relationship('DBForumIcon', back_populates='posts')
+    topic: Mapped['DBForumTopic'] = relationship('DBForumTopic', back_populates='posts')
+    forum: Mapped['DBForum'] = relationship('DBForum', back_populates='posts')
 
     def __init__(
         self,
@@ -1132,8 +1130,8 @@ class DBForumBookmark(Base):
     user_id  = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
     topic_id = Column('topic_id', Integer, ForeignKey('forum_topics.id'), primary_key=True)
 
-    user  = relationship('DBUser', back_populates='bookmarked_topics')
-    topic = relationship('DBForumTopic', back_populates='bookmarks')
+    user: Mapped['DBUser'] = relationship('DBUser', back_populates='bookmarked_topics')
+    topic: Mapped['DBForumTopic'] = relationship('DBForumTopic', back_populates='bookmarks')
 
     def __init__(
         self,
@@ -1149,8 +1147,8 @@ class DBForumSubscriber(Base):
     user_id  = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
     topic_id = Column('topic_id', Integer, ForeignKey('forum_topics.id'), primary_key=True)
 
-    user  = relationship('DBUser', back_populates='subscribed_topics')
-    topic = relationship('DBForumTopic', back_populates='subscribers')
+    user: Mapped['DBUser'] = relationship('DBUser', back_populates='subscribed_topics')
+    topic: Mapped['DBForumTopic'] = relationship('DBForumTopic', back_populates='subscribers')
 
     def __init__(
         self,
@@ -1189,8 +1187,8 @@ class DBModdedRelease(Base):
     hashes          = Column('hashes', JSONB, default=[])
     created_at      = Column('created_at', DateTime, server_default=func.now())
 
-    creator = relationship('DBUser')
-    topic   = relationship('DBForumTopic')
+    creator: Mapped['DBUser'] = relationship('DBUser')
+    topic: Mapped['DBForumTopic'] = relationship('DBForumTopic')
 
 class DBExtraRelease(Base):
     __tablename__ = "releases_extra"
@@ -1221,7 +1219,7 @@ class DBBenchmark(Base):
     client     = Column('client', String)
     hardware   = Column('hardware', JSONB)
 
-    user = relationship('DBUser', back_populates='benchmarks')
+    user: Mapped['DBUser'] = relationship('DBUser', back_populates='benchmarks')
 
 class DBBeatmapPack(Base):
     __tablename__ = "beatmap_packs"
@@ -1235,8 +1233,8 @@ class DBBeatmapPack(Base):
     created_at    = Column('created_at', DateTime, server_default=func.now())
     updated_at    = Column('updated_at', DateTime, server_default=func.now())
 
-    entries = relationship('DBBeatmapPackEntry', back_populates='pack')
-    creator = relationship('DBUser')
+    entries: Mapped[List['DBBeatmapPackEntry']] = relationship('DBBeatmapPackEntry', back_populates='pack')
+    creator: Mapped['DBUser'] = relationship('DBUser')
 
 class DBBeatmapPackEntry(Base):
     __tablename__ = "beatmap_pack_entries"
@@ -1245,8 +1243,8 @@ class DBBeatmapPackEntry(Base):
     beatmapset_id = Column('beatmapset_id', Integer, ForeignKey('beatmapsets.id'), primary_key=True)
     created_at = Column('created_at', DateTime, server_default=func.now())
 
-    pack = relationship('DBBeatmapPack', back_populates='entries')
-    beatmapset = relationship('DBBeatmapset')
+    pack: Mapped['DBBeatmapPack'] = relationship('DBBeatmapPack', back_populates='entries')
+    beatmapset: Mapped['DBBeatmapset'] = relationship('DBBeatmapset')
 
 class DBWikiPage(Base):
     __tablename__ = "wiki_pages"
@@ -1258,8 +1256,8 @@ class DBWikiPage(Base):
     last_updated = Column('last_updated', DateTime, server_default=func.now())
     category_id = Column('category_id', Integer, ForeignKey('wiki_categories.id'))
 
-    category = relationship('DBWikiCategory', back_populates='pages')
-    content  = relationship('DBWikiContent', back_populates='page')
+    category: Mapped['DBWikiCategory'] = relationship('DBWikiCategory', back_populates='pages')
+    content: Mapped['DBWikiContent'] = relationship('DBWikiContent', back_populates='page')
 
 class DBWikiCategory(Base):
     __tablename__ = "wiki_categories"
@@ -1270,8 +1268,8 @@ class DBWikiCategory(Base):
     parent_id    = Column('parent_id', Integer, ForeignKey('wiki_categories.id'), nullable=True)
     created_at   = Column('created_at', DateTime, server_default=func.now())
 
-    parent = relationship('DBWikiCategory', remote_side=[id])
-    pages  = relationship('DBWikiPage', back_populates='category')
+    parent: Mapped['DBWikiCategory'] = relationship('DBWikiCategory', remote_side=[id])
+    pages: Mapped[List['DBWikiPage']] = relationship('DBWikiPage', back_populates='category')
 
 class DBWikiContent(Base):
     __tablename__ = "wiki_content"
@@ -1288,7 +1286,7 @@ class DBWikiContent(Base):
         persisted=True
     ))
 
-    page = relationship('DBWikiPage', back_populates='content')
+    page: Mapped['DBWikiPage'] = relationship('DBWikiPage', back_populates='content')
 
 class DBWikiOutlink(Base):
     __tablename__ = "wiki_outlinks"
@@ -1297,8 +1295,8 @@ class DBWikiOutlink(Base):
     target_id  = Column('target_id', Integer, ForeignKey('wiki_pages.id'), primary_key=True)
     created_at = Column('created_at', DateTime, server_default=func.now())
 
-    page = relationship('DBWikiPage', foreign_keys=[page_id])
-    target = relationship('DBWikiPage', foreign_keys=[target_id])
+    page: Mapped['DBWikiPage'] = relationship('DBWikiPage', foreign_keys=[page_id])
+    target: Mapped['DBWikiPage'] = relationship('DBWikiPage', foreign_keys=[target_id])
 
 class DBUser(Base):
     __tablename__ = "users"
@@ -1333,34 +1331,34 @@ class DBUser(Base):
     location           = Column('userpage_location', String, nullable=True)
     interests          = Column('userpage_interests', String, nullable=True)
 
-    target_relationships = relationship('DBRelationship', back_populates='target', foreign_keys='DBRelationship.target_id')
-    relationships = relationship('DBRelationship', back_populates='user', foreign_keys='DBRelationship.user_id')
-    collaborations = relationship('DBBeatmapCollaboration', back_populates='user')
-    replay_history = relationship('DBReplayHistory', back_populates='user')
-    nominations = relationship('DBBeatmapNomination', back_populates='user')
-    bookmarked_topics = relationship('DBForumBookmark', back_populates='user')
-    subscribed_topics = relationship('DBForumSubscriber', back_populates='user')
-    verifications = relationship('DBVerification', back_populates='user')
-    notifications = relationship('DBNotification', back_populates='user')
-    created_topics = relationship('DBForumTopic', back_populates='creator')
-    starred_topics = relationship('DBForumStar', back_populates='user')
-    created_posts = relationship('DBForumPost', back_populates='user')
-    permissions = relationship('DBUserPermission', back_populates='user')
-    rank_history = relationship('DBRankHistory', back_populates='user')
-    play_history = relationship('DBPlayHistory', back_populates='user')
-    achievements = relationship('DBAchievement', back_populates='user')
-    screenshots = relationship('DBScreenshot', back_populates='user')
-    favourites = relationship('DBFavourite', back_populates='user')
-    benchmarks = relationship('DBBenchmark', back_populates='user')
-    activity = relationship('DBActivity', back_populates='user')
-    groups = relationship('DBGroupEntry', back_populates='user')
-    matches = relationship('DBMatch', back_populates='creator')
-    ratings = relationship('DBRating', back_populates='user')
-    scores = relationship('DBScore', back_populates='user')
-    badges = relationship('DBBadge', back_populates='user')
-    stats = relationship('DBStats', back_populates='user')
-    names = relationship('DBName', back_populates='user')
-    plays = relationship('DBPlay', back_populates='user')
+    target_relationships: Mapped[List['DBRelationship']] = relationship('DBRelationship', back_populates='target', foreign_keys='DBRelationship.target_id')
+    relationships: Mapped[List['DBRelationship']] = relationship('DBRelationship', back_populates='user', foreign_keys='DBRelationship.user_id')
+    collaborations: Mapped[List['DBBeatmapCollaboration']] = relationship('DBBeatmapCollaboration', back_populates='user')
+    replay_history: Mapped[List['DBReplayHistory']] = relationship('DBReplayHistory', back_populates='user')
+    nominations: Mapped[List['DBBeatmapNomination']] = relationship('DBBeatmapNomination', back_populates='user')
+    bookmarked_topics: Mapped[List['DBForumBookmark']] = relationship('DBForumBookmark', back_populates='user')
+    subscribed_topics: Mapped[List['DBForumSubscriber']] = relationship('DBForumSubscriber', back_populates='user')
+    verifications: Mapped[List['DBVerification']] = relationship('DBVerification', back_populates='user')
+    notifications: Mapped[List['DBNotification']] = relationship('DBNotification', back_populates='user')
+    created_topics: Mapped[List['DBForumTopic']] = relationship('DBForumTopic', back_populates='creator')
+    starred_topics: Mapped[List['DBForumStar']] = relationship('DBForumStar', back_populates='user')
+    created_posts: Mapped[List['DBForumPost']] = relationship('DBForumPost', back_populates='user')
+    permissions: Mapped[List['DBUserPermission']] = relationship('DBUserPermission', back_populates='user')
+    rank_history: Mapped[List['DBRankHistory']] = relationship('DBRankHistory', back_populates='user')
+    play_history: Mapped[List['DBPlayHistory']] = relationship('DBPlayHistory', back_populates='user')
+    achievements: Mapped[List['DBAchievement']] = relationship('DBAchievement', back_populates='user')
+    screenshots: Mapped[List['DBScreenshot']] = relationship('DBScreenshot', back_populates='user')
+    favourites: Mapped[List['DBFavourite']] = relationship('DBFavourite', back_populates='user')
+    benchmarks: Mapped[List['DBBenchmark']] = relationship('DBBenchmark', back_populates='user')
+    activity: Mapped[List['DBActivity']] = relationship('DBActivity', back_populates='user')
+    groups: Mapped[List['DBGroupEntry']] = relationship('DBGroupEntry', back_populates='user')
+    matches: Mapped[List['DBMatch']] = relationship('DBMatch', back_populates='creator')
+    ratings: Mapped[List['DBRating']] = relationship('DBRating', back_populates='user')
+    scores: Mapped[List['DBScore']] = relationship('DBScore', back_populates='user')
+    badges: Mapped[List['DBBadge']] = relationship('DBBadge', back_populates='user')
+    stats: Mapped[List['DBStats']] = relationship('DBStats', back_populates='user')
+    names: Mapped[List['DBName']] = relationship('DBName', back_populates='user')
+    plays: Mapped[List['DBPlay']] = relationship('DBPlay', back_populates='user')
 
     def __init__(
         self,
