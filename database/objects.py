@@ -295,6 +295,7 @@ class DBDirectMessage(Base):
     target_id = Column('target_id', Integer, ForeignKey('users.id'))
     message   = Column('message', String)
     time      = Column('time', DateTime, server_default=func.now())
+    read      = Column('read', Boolean, default=False)
 
     def __init__(self, sender: int, target: int, message: str) -> None:
         self.sender_id = sender
