@@ -2,10 +2,10 @@
 from __future__ import annotations
 
 from app.common.database.objects import DBUser, DBMessage, DBDirectMessage
+from sqlalchemy import or_, case, func
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, case
 from datetime import datetime
-from typing import List
+from typing import List, Dict
 
 from .wrapper import session_wrapper
 
@@ -85,6 +85,35 @@ def fetch_dms(
         .offset(offset) \
         .limit(limit) \
         .all()
+
+@session_wrapper
+def fetch_dms_unread_count(
+    user_id: int,
+    target_id: int,
+    session: Session = ...
+) -> int:
+    count = session.query(DBDirectMessage) \
+        .filter(DBDirectMessage.target_id == target_id) \
+        .filter(DBDirectMessage.sender_id == user_id) \
+        .filter(DBDirectMessage.read == False) \
+        .count()
+    return count or 0
+
+@session_wrapper
+def fetch_dms_unread_count_all(
+    user_id: int,
+    session: Session = ...
+) -> Dict[int, int]:
+    results = session.query(
+        DBDirectMessage.sender_id,
+        func.count(DBDirectMessage.id)
+    ) \
+        .filter(DBDirectMessage.target_id == user_id) \
+        .filter(DBDirectMessage.read == False) \
+        .group_by(DBDirectMessage.sender_id) \
+        .all()
+
+    return {sender_id: count for sender_id, count in results}
 
 @session_wrapper
 def fetch_dm_entries(
