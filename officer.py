@@ -9,7 +9,12 @@ import traceback
 import config
 import app
 
-def call(content: str, exc_info: Exception | None = None) -> bool:
+def call(
+    content: str,
+    exc_info: Exception | None = None,
+    exc_limit: int = 2,
+    exc_offset: int = 0
+) -> bool:
     """Send logs to the officer webhook"""
     app.session.logger.warning(content, exc_info=exc_info)
     app.session.logger.debug('Calling officer...')
@@ -19,10 +24,10 @@ def call(content: str, exc_info: Exception | None = None) -> bool:
         return
 
     if exc_info is not None:
+        formatted_traceback = traceback.format_exception(exc_info, limit=exc_limit)
+        formatted_traceback = formatted_traceback[exc_offset:]
         content += '```'
-        content += '\n\n' + ''.join(
-            traceback.format_exception(exc_info, limit=1)
-        )[:1900]
+        content += '\n\n' + ''.join(formatted_traceback)[:1900]
         content += '```'
 
     return webhooks.Webhook(

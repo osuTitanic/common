@@ -84,5 +84,5 @@ class Postgres:
         if exception_name in self.ignored_exceptions:
             return
 
-        self.executor.submit(officer.call, 'Database transaction failed', exc_info=e)
+        self.executor.submit(officer.call, 'Database transaction failed', exc_info=e, exc_offset=1)
         self.logger.warning('Performing rollback...')
