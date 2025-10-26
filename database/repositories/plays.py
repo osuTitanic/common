@@ -1,8 +1,10 @@
 
 from __future__ import annotations
+from contextlib import suppress
 from typing import List
 
 from app.common.database.objects import DBPlay
+from sqlalchemy.exc import DatabaseError
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -39,23 +41,22 @@ def update(
     count: int = 1,
     session: Session = ...
 ) -> None:
-    updated = session.query(DBPlay) \
-        .filter(DBPlay.beatmap_id == beatmap_id) \
-        .filter(DBPlay.user_id == user_id) \
-        .update({
-            'count': DBPlay.count + count
-        })
+    with suppress(DatabaseError):
+        updated = session.query(DBPlay) \
+            .filter(DBPlay.beatmap_id == beatmap_id) \
+            .filter(DBPlay.user_id == user_id) \
+            .update({'count': DBPlay.count + count})
 
-    if not updated:
-        create(
-            beatmap_file,
-            beatmap_id,
-            user_id,
-            set_id,
-            count
-        )
+        if not updated:
+            create(
+                beatmap_file,
+                beatmap_id,
+                user_id,
+                set_id,
+                count
+            )
 
-    session.commit()
+        session.commit()
 
 @session_wrapper
 def fetch_count_for_beatmap(beatmap_id: int, session: Session = ...) -> int:
