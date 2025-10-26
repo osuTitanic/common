@@ -24,6 +24,15 @@ class Geolocation:
     timezone: str = 'UTC'
     city: str = 'Unknown'
 
+    @property
+    def is_local(self) -> bool:
+        return is_local_ip(self.ip)
+
+    def set_country_code(self, code: str) -> None:
+        self.country_code = code
+        self.country_name = COUNTRIES.get(code, 'Unknown')
+        self.country_index = list(COUNTRIES.keys()).index(code)
+
 @cache
 def fetch_geolocation(ip: str) -> Geolocation:
     try:
