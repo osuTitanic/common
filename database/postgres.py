@@ -35,6 +35,13 @@ class Postgres:
             autocommit=False,
             expire_on_commit=False
         )
+        self.ignored_exceptions = (
+            'RequestValidationError',
+            'HTTPException',
+            'Unauthorized',
+            'Forbidden',
+            'NotFound'
+        )
         self.logger = logging.getLogger('postgres')
 
     @property
@@ -51,7 +58,12 @@ class Postgres:
         try:
             yield session
         except Exception as e:
-            self.logger.warning('Performing rollback...')
+            exception_name = e.__class__.__name__
+
+            if exception_name not in self.ignored_exceptions:
+                officer.call(f'Transaction failed: {e}', exc_info=e)
+                self.logger.warning('Performing rollback...')
+
             session.rollback()
             raise e
         finally:
