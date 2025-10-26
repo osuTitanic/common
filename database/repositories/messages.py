@@ -63,6 +63,12 @@ def fetch_recent(
         .all()
 
 @session_wrapper
+def fetch_dm(message_id: int, session: Session = ...) -> DBDirectMessage | None:
+    return session.query(DBDirectMessage) \
+        .filter(DBDirectMessage.id == message_id) \
+        .first()
+
+@session_wrapper
 def fetch_dms(
     sender_id: int,
     target_id: int,
