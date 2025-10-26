@@ -149,10 +149,8 @@ def update_private_all(
     session: Session = ...
 ) -> int:
     result = session.query(DBDirectMessage) \
-        .filter(or_(
-            (DBDirectMessage.sender_id == sender_id) & (DBDirectMessage.target_id == target_id),
-            (DBDirectMessage.sender_id == target_id) & (DBDirectMessage.target_id == sender_id)
-        )) \
+        .filter(DBDirectMessage.sender_id == sender_id) \
+        .filter(DBDirectMessage.target_id == target_id) \
         .update(updates, synchronize_session=False)
     session.commit()
     return result
