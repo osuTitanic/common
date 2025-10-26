@@ -58,12 +58,7 @@ class Postgres:
         try:
             yield session
         except Exception as e:
-            exception_name = e.__class__.__name__
-
-            if exception_name not in self.ignored_exceptions:
-                officer.call(f'Database transaction failed', exc_info=e)
-                self.logger.warning('Performing rollback...')
-
+            self.log_transaction_failure(e)
             session.rollback()
             raise e
         finally:
@@ -80,3 +75,12 @@ class Postgres:
                 time.sleep(delay)
 
         raise ConnectionError('Failed to establish a connection to the database')
+    
+    def log_transaction_failure(self, e: Exception) -> None:
+        exception_name = e.__class__.__name__
+
+        if exception_name in self.ignored_exceptions:
+            return
+
+        officer.call(f'Database transaction failed', exc_info=e)
+        self.logger.warning('Performing rollback...')
