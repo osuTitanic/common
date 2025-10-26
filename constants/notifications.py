@@ -7,3 +7,4 @@ class NotificationType(IntEnum):
     Chat = 2
     Forum = 3
     Beatmaps = 4
+    Security = 5
