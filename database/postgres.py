@@ -61,7 +61,7 @@ class Postgres:
             exception_name = e.__class__.__name__
 
             if exception_name not in self.ignored_exceptions:
-                officer.call(f'Transaction failed: {e}', exc_info=e)
+                officer.call(f'Database transaction failed', exc_info=e)
                 self.logger.warning('Performing rollback...')
 
             session.rollback()
