@@ -99,3 +99,28 @@ def update_by_user_id(
         .update(updates)
     session.commit()
     return rows
+
+@session_wrapper
+def delete(
+    id: int,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBNotification) \
+        .filter(DBNotification.id == id) \
+        .delete()
+    session.commit()
+    return rows
+
+@session_wrapper
+def delete_by_type(
+    user_id: int,
+    type: int,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBNotification) \
+        .filter(DBNotification.user_id == user_id) \
+        .filter(DBNotification.type == type) \
+        .filter(DBNotification.read == False) \
+        .delete()
+    session.commit()
+    return rows
