@@ -5,6 +5,7 @@ from .wrapper import session_wrapper
 from app.common.database.objects import DBWikiPage, DBWikiContent, DBWikiOutlink, DBWikiCategory
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
+from contextlib import suppress
 from typing import List, Tuple
 from datetime import datetime
 
@@ -185,6 +186,11 @@ def delete_page(
     page_id: int,
     session: Session = ...
 ) -> int:
+    # Try to delete all related content and outlinks first
+    with suppress(Exception):
+        delete_content(page_id=page_id, session=session)
+        delete_outlinks(page_id=page_id, session=session)
+
     rows = session.query(DBWikiPage) \
         .filter(DBWikiPage.id == page_id) \
         .delete()
