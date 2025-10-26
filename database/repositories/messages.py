@@ -4,6 +4,7 @@ from __future__ import annotations
 from app.common.database.objects import DBUser, DBMessage, DBDirectMessage
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, case
+from datetime import datetime
 from typing import List
 
 from .wrapper import session_wrapper
@@ -31,13 +32,16 @@ def create_private(
     sender_id: int,
     target_id: int,
     message: str,
+    read: bool = True,
     session: Session = ...
 ) -> DBDirectMessage:
     session.add(
         msg := DBDirectMessage(
-            sender_id,
-            target_id,
-            message
+            time=datetime.now(),
+            sender_id=sender_id,
+            target_id=target_id,
+            message=message,
+            read=read
         )
     )
     session.commit()
@@ -106,3 +110,27 @@ def fetch_last_dm(
         )) \
         .order_by(DBDirectMessage.id.desc()) \
         .first()
+
+@session_wrapper
+def update(
+    message_id: int,
+    updates: dict,
+    session: Session = ...
+) -> int:
+    result = session.query(DBDirectMessage) \
+        .filter(DBDirectMessage.id == message_id) \
+        .update(updates)
+    session.commit()
+    return result
+
+@session_wrapper
+def update_private(
+    message_id: int,
+    updates: dict,
+    session: Session = ...
+) -> int:
+    result = session.query(DBDirectMessage) \
+        .filter(DBDirectMessage.id == message_id) \
+        .update(updates)
+    session.commit()
+    return result
