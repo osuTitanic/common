@@ -1,4 +1,5 @@
 
+from concurrent.futures import ThreadPoolExecutor
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import create_engine, text
 from contextlib import contextmanager
@@ -42,6 +43,7 @@ class Postgres:
             'Forbidden',
             'NotFound'
         )
+        self.executor = ThreadPoolExecutor(max_workers=1)
         self.logger = logging.getLogger('postgres')
 
     @property
@@ -82,5 +84,5 @@ class Postgres:
         if exception_name in self.ignored_exceptions:
             return
 
-        officer.call(f'Database transaction failed', exc_info=e)
+        self.executor.submit(officer.call, 'Database transaction failed', exc_info=e)
         self.logger.warning('Performing rollback...')
