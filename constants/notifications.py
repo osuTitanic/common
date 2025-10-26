@@ -6,4 +6,4 @@ class NotificationType(IntEnum):
     Achievement = 1
     Chat = 2
     Forum = 3
-    Other = 4
+    Beatmaps = 4
