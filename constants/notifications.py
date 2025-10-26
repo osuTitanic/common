@@ -5,5 +5,5 @@ class NotificationType(IntEnum):
     Welcome = 0
     Achievement = 1
     Chat = 2
-    News = 3
+    Forum = 3
     Other = 4
