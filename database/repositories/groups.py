@@ -94,7 +94,7 @@ def fetch_user_groups(
         .all()
 
 @session_wrapper
-def get_player_permissions(
+def fetch_bancho_permissions(
     user_id: int,
     session: Session = ...
 ) -> int:
