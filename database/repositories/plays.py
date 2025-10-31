@@ -41,22 +41,23 @@ def update(
     count: int = 1,
     session: Session = ...
 ) -> None:
+    updated = session.query(DBPlay) \
+        .filter(DBPlay.beatmap_id == beatmap_id) \
+        .filter(DBPlay.user_id == user_id) \
+        .update({'count': DBPlay.count + count})
+    session.commit()
+
+    if updated:
+        return
+
     with suppress(DatabaseError):
-        updated = session.query(DBPlay) \
-            .filter(DBPlay.beatmap_id == beatmap_id) \
-            .filter(DBPlay.user_id == user_id) \
-            .update({'count': DBPlay.count + count})
-
-        if not updated:
-            create(
-                beatmap_file,
-                beatmap_id,
-                user_id,
-                set_id,
-                count
-            )
-
-        session.commit()
+        create(
+            beatmap_file,
+            beatmap_id,
+            user_id,
+            set_id,
+            count
+        )
 
 @session_wrapper
 def fetch_count_for_beatmap(beatmap_id: int, session: Session = ...) -> int:
