@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from app.common.database.objects import DBAchievement
-from app.common.objects import bAchievement
 from .wrapper import session_wrapper
 
 from sqlalchemy.orm import Session
@@ -10,7 +9,7 @@ from typing import List
 
 @session_wrapper
 def create_many(
-    achievements: List[bAchievement],
+    achievements: list,
     user_id: int,
     session: Session = ...
 ) -> None:

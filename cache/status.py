@@ -1,17 +1,34 @@
 
-from __future__ import annotations
-from typing import List
-
 from app.common.constants import ClientStatus, GameMode, Mods
-from app.common.objects import bStatusUpdate, bUserStats
-from copy import copy
+from dataclasses import dataclass
+from typing import List
 
 import app
 
+@dataclass(slots=True)
+class StatusUpdate:
+    action: ClientStatus
+    text: str = ""
+    mods: Mods = Mods.NoMod
+    mode: GameMode = GameMode.Osu
+    beatmap_checksum: str = ""
+    beatmap_id: int = -1
+
+@dataclass(slots=True)
+class UserStats:
+    user_id: int
+    status: StatusUpdate
+    rscore: int
+    tscore: int
+    accuracy: float
+    playcount: int
+    rank: int
+    pp: int
+
 def update(
     player_id: int,
-    stats: bUserStats,
-    status: bStatusUpdate,
+    stats: UserStats,
+    status: StatusUpdate,
     hash: str,
     version: int
 ) -> None:
@@ -39,7 +56,7 @@ def update(
         pipe.hset(f"bancho:stats:{player_id}", mapping=stats_update)
         pipe.execute()
 
-def get(player_id: int) -> bUserStats | None:
+def get(player_id: int) -> UserStats | None:
     with app.session.redis.pipeline() as pipe:
         pipe.hgetall(f"bancho:status:{player_id}")
         pipe.hgetall(f"bancho:stats:{player_id}")
@@ -48,9 +65,9 @@ def get(player_id: int) -> bUserStats | None:
     if not status or not stats:
         return None
 
-    return bUserStats(
+    return UserStats(
         player_id,
-        bStatusUpdate(
+        StatusUpdate(
             action=ClientStatus(int(status[b'action'])),
             mode=GameMode(int(status[b'mode'])),
             mods=Mods(int(status[b'mods'])),
