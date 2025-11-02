@@ -146,9 +146,8 @@ def calculate_star_rating(beatmap: DBBeatmap) -> float:
     difficulty = beatmap.hp + beatmap.od + beatmap.cs
 
     if beatmap.count_slider / total_objects >= 0.1:
-        # NOTE: We don't have slider multiplier data, so we'll use a rough estimate
-        bpm = (total_objects / beatmap.drain_length) * 60
-        difficulty = (difficulty + max(0, min(4, (bpm * 1.4 - 1.5) * 2.5))) * 0.75
+        bpm = (beatmap.bpm / 60) * beatmap.slider_multiplier
+        difficulty = (difficulty + max(0, min(4, (bpm - 1.5) * 2.5))) * 0.75
 
     # Songs with insane accuracy/circle size/life drain
     if difficulty > 21:
