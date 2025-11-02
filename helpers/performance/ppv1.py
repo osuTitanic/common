@@ -120,6 +120,10 @@ def resolve_star_rating(beatmap: DBBeatmap, session: Session = ...) -> float:
 
 def calculate_star_rating(beatmap: DBBeatmap) -> float:
     """Calculate the old eyup star rating"""
+    if beatmap.drain_length <= 0:
+        # Fallback to ppv2-based star rating
+        return min(5, beatmap.diff * 0.565)
+
     if beatmap.mode == GameMode.OsuMania:
         notes = (
             beatmap.count_normal + beatmap.count_slider * 1.2
