@@ -1,9 +1,9 @@
 
 from __future__ import annotations
 
-from ...database.repositories import scores, beatmaps, wrapper
-from ...database.objects import DBScore, DBBeatmap
-from ...constants import Mods
+from app.common.database.repositories import scores, beatmaps, wrapper
+from app.common.database.objects import DBScore, DBBeatmap
+from app.common.constants import Mods, GameMode
 
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -12,11 +12,6 @@ from typing import List
 import math
 
 # ppv1 reference: https://gist.github.com/peppy/4f8fcb6629d300c56ebe80156b20b76c
-
-def calculate_star_rating(beatmap: DBBeatmap) -> float:
-    """Calculate the old eyup star rating"""
-    # TODO: Add an actual implementation
-    return min(5, beatmap.diff * 0.565)
 
 @wrapper.session_wrapper
 def calculate_ppv1(
@@ -41,8 +36,7 @@ def calculate_ppv1(
 
     mods = Mods(score.mods)
 
-    # TODO: Use old eyup star rating
-    star_rating = calculate_star_rating(beatmap)
+    star_rating = resolve_star_rating(beatmap, session)
     base_pp = math.pow(star_rating, 4) / math.pow(score_rank, 0.5)
 
     # Older scores will give less pp
@@ -114,3 +108,51 @@ def recalculate_weighted_ppv1(
         calculate_ppv1(score, session=session)
         for score in scores
     ])
+
+@wrapper.session_wrapper
+def resolve_star_rating(beatmap: DBBeatmap, session: Session = ...) -> float:
+    if beatmap.diff_eyup:
+        return beatmap.diff_eyup
+
+    beatmap.diff_eyup = calculate_star_rating(beatmap)
+    beatmaps.update(beatmap.id, {'diff_eyup': beatmap.diff_eyup}, session)
+    return beatmap.diff_eyup
+
+def calculate_star_rating(beatmap: DBBeatmap) -> float:
+    """Calculate the old eyup star rating"""
+    if beatmap.mode == GameMode.OsuMania:
+        notes = (
+            beatmap.count_normal + beatmap.count_slider * 1.2
+        )
+        return (
+            (beatmap.hp / 14 + beatmap.od / 12) +
+            (notes / beatmap.drain_length) / 2.3 * math.pow(1.04, beatmap.cs - 3)
+        )
+
+    total_objects = (
+        beatmap.count_normal +
+        beatmap.count_slider*2 +
+        beatmap.count_spinner*3
+    )
+
+    noteDensity = total_objects / beatmap.drain_length
+    difficulty = beatmap.hp + beatmap.od + beatmap.cs
+
+    if beatmap.count_slider / total_objects >= 0.1:
+        bpm = (total_objects / beatmap.drain_length) * 60
+        difficulty = (difficulty + max(0, min(4, (bpm * 1.4 - 1.5) * 2.5))) * 0.75
+        
+    # Songs with insane accuracy/circle size/life drain
+    if difficulty > 21:
+        return (min(difficulty, 30) / 3 * 4 + min(20 - 0.032 * math.pow(noteDensity - 5, 4), 20)) / 10
+    
+    # Songs with insane number of beats per second
+    if noteDensity >= 2.5:
+        return (min(difficulty, 18) / 18 * 10 + min(40 - 40 / math.pow(5, 3.5) * math.pow(min(noteDensity, 5) - 5, 4), 40)) / 10
+    
+    # Songs with glacial number of beats per second
+    if noteDensity < 1:
+        return (min(difficulty, 18) / 18 * 10) / 10 + 0.25
+
+    # All other songs of medium difficulty
+    return (min(difficulty, 18) / 18 * 10 + min(25 * (noteDensity - 1), 40)) / 10

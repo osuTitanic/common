@@ -7,8 +7,8 @@ from rosu_pp_py import (
     Beatmap
 )
 
-from ...database.objects import DBScore
-from ...constants import Mods
+from app.common.database.objects import DBScore
+from app.common.constants import Mods
 from copy import copy
 
 import math
