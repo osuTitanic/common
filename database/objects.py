@@ -396,14 +396,15 @@ class DBBeatmap(Base):
     count_slider  = Column('count_slider', Integer, default=0)
     count_spinner = Column('count_spinner', Integer, default=0)
 
-    max_combo = Column('max_combo', Integer)
-    bpm       = Column('bpm',Float, default=0.0)
-    cs        = Column('cs', Float, default=0.0)
-    ar        = Column('ar', Float, default=0.0)
-    od        = Column('od', Float, default=0.0)
-    hp        = Column('hp', Float, default=0.0)
-    diff      = Column('diff', Float, default=0.0)
-    diff_eyup = Column('diff_eyup', Float, default=0.0)
+    max_combo         = Column('max_combo', Integer)
+    bpm               = Column('bpm',Float, default=0.0)
+    cs                = Column('cs', Float, default=0.0)
+    ar                = Column('ar', Float, default=0.0)
+    od                = Column('od', Float, default=0.0)
+    hp                = Column('hp', Float, default=0.0)
+    diff              = Column('diff', Float, default=0.0)
+    diff_eyup         = Column('diff_eyup', Float, default=0.0)
+    slider_multiplier = Column('slider_multiplier', Float, default=0.0)
 
     search = deferred(Column('search', TSVECTOR, Computed(
         "to_tsvector('simple', coalesce(version, ''))",
