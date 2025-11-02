@@ -419,14 +419,19 @@ class Storage:
         try:
             with open(f'{config.DATA_PATH}/{filepath}', 'rb') as f:
                 return f.read()
+        except FileNotFoundError:
+            return None
         except Exception as e:
             self.logger.error(f'Failed to read file "{filepath}": {e}')
+            return None
 
     def get_file_iterator(self, filepath: str, chunk_size: int = 1024 * 64) -> Generator:
         try:
             with open(f'{config.DATA_PATH}/{filepath}', 'rb') as f:
                 while chunk := f.read(chunk_size):
                     yield chunk
+        except FileNotFoundError:
+            return None
         except Exception as e:
             self.logger.error(f'Failed to read file "{filepath}": {e}')
             return None
@@ -434,6 +439,8 @@ class Storage:
     def get_file_size(self, filepath: str) -> int | None:
         try:
             return os.path.getsize(f'{config.DATA_PATH}/{filepath}')
+        except FileNotFoundError:
+            return None
         except Exception as e:
             self.logger.error(f'Failed to get size of file "{filepath}": {e}')
             return None
