@@ -1,7 +1,8 @@
 
 from __future__ import annotations
 from sqlalchemy.orm import Session
-from typing import List
+from sqlalchemy import func
+from typing import Dict, List, Tuple
 
 from .wrapper import session_wrapper
 from app.common.database.objects import (
@@ -62,3 +63,43 @@ def fetch_icons(session: Session = ...) -> List[DBForumIcon]:
     return session.query(DBForumIcon) \
         .order_by(DBForumIcon.order.asc(), DBForumIcon.id.asc()) \
         .all()
+
+@session_wrapper
+def fetch_statistics_by_forum_ids(
+    forum_ids: List[int],
+    session: Session = ...
+) -> Dict[int, Tuple[int, int]]:
+    if not forum_ids:
+        return {}
+
+    topic_rows = session.query(
+        DBForumTopic.forum_id,
+        func.count(DBForumTopic.id)
+    ) \
+        .filter(DBForumTopic.hidden == False) \
+        .filter(DBForumTopic.forum_id.in_(forum_ids)) \
+        .group_by(DBForumTopic.forum_id) \
+        .all()
+
+    post_rows = session.query(
+        DBForumPost.forum_id,
+        func.count(DBForumPost.id)
+    ) \
+        .filter(DBForumPost.hidden == False) \
+        .filter(DBForumPost.forum_id.in_(forum_ids)) \
+        .group_by(DBForumPost.forum_id) \
+        .all()
+
+    topic_counts = {forum_id: 0 for forum_id in forum_ids}
+    post_counts = {forum_id: 0 for forum_id in forum_ids}
+
+    for forum_id, count in topic_rows:
+        topic_counts[forum_id] = count
+
+    for forum_id, count in post_rows:
+        post_counts[forum_id] = count
+
+    return {
+        forum_id: (topic_counts[forum_id], post_counts[forum_id])
+        for forum_id in forum_ids
+    }
