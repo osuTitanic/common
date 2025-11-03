@@ -5,7 +5,8 @@ from app.common.database.objects import DBForumPost, DBUser, DBGroupEntry
 from .wrapper import session_wrapper
 
 from sqlalchemy.orm import Session, selectinload
-from typing import List
+from typing import Dict, Iterable, List
+from sqlalchemy import func
 
 @session_wrapper
 def create(
@@ -171,6 +172,27 @@ def fetch_count(topic_id: int, session: Session = ...) -> int:
         .count()
 
 @session_wrapper
+def fetch_statistics_by_topic_ids(
+    topic_ids: Iterable[int],
+    session: Session = ...
+) -> Dict[int, int]:
+    rows = session.query(
+        DBForumPost.topic_id,
+        func.count(DBForumPost.id)
+    ) \
+        .filter(DBForumPost.hidden == False) \
+        .filter(DBForumPost.topic_id.in_(topic_ids)) \
+        .group_by(DBForumPost.topic_id) \
+        .all()
+
+    counts = {topic_id: 0 for topic_id in topic_ids}
+
+    for topic_id, count in rows:
+        counts[topic_id] = count
+
+    return counts
+
+@session_wrapper
 def fetch_count_before_post(
     post_id: int,
     topic_id: int,
@@ -190,6 +212,64 @@ def fetch_drafts(user_id: int, topic_id: int, session: Session = ...) -> List[DB
         .filter(DBForumPost.draft == True) \
         .order_by(DBForumPost.id.desc()) \
         .all()
+
+@session_wrapper
+def fetch_last_for_topics(
+    topic_ids: Iterable[int],
+    session: Session = ...
+) -> Dict[int, DBForumPost]:
+    subquery = session.query(
+        DBForumPost.topic_id.label('topic_id'),
+        func.max(DBForumPost.id).label('max_id')
+    ) \
+        .filter(DBForumPost.hidden == False) \
+        .filter(DBForumPost.topic_id.in_(topic_ids)) \
+        .group_by(DBForumPost.topic_id) \
+        .subquery()
+
+    rows = session.query(DBForumPost) \
+        .options(
+            selectinload(DBForumPost.user)
+            .selectinload(DBUser.groups)
+            .selectinload(DBGroupEntry.group)
+        ) \
+        .join(
+            subquery,
+            (DBForumPost.topic_id == subquery.c.topic_id) &
+            (DBForumPost.id == subquery.c.max_id)
+        ) \
+        .all()
+
+    return {row.topic_id: row for row in rows}
+
+@session_wrapper
+def fetch_last_for_forums(
+    forum_ids: Iterable[int],
+    session: Session = ...
+) -> Dict[int, DBForumPost]:
+    subquery = session.query(
+        DBForumPost.forum_id.label('forum_id'),
+        func.max(DBForumPost.id).label('max_id')
+    ) \
+        .filter(DBForumPost.hidden == False) \
+        .filter(DBForumPost.forum_id.in_(forum_ids)) \
+        .group_by(DBForumPost.forum_id) \
+        .subquery()
+
+    rows = session.query(DBForumPost) \
+        .options(
+            selectinload(DBForumPost.user)
+            .selectinload(DBUser.groups)
+            .selectinload(DBGroupEntry.group)
+        ) \
+        .join(
+            subquery,
+            (DBForumPost.forum_id == subquery.c.forum_id) &
+            (DBForumPost.id == subquery.c.max_id)
+        ) \
+        .all()
+
+    return {row.forum_id: row for row in rows}
 
 @session_wrapper
 def update_by_topic(
