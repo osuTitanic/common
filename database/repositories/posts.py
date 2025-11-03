@@ -4,7 +4,7 @@ from __future__ import annotations
 from app.common.database.objects import DBForumPost, DBUser, DBGroupEntry
 from .wrapper import session_wrapper
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from typing import List
 
 @session_wrapper
@@ -58,6 +58,11 @@ def fetch_range_by_topic(
     session: Session = ...
 ) -> List[DBForumPost]:
     return session.query(DBForumPost) \
+        .options(
+            selectinload(DBForumPost.user)
+            .selectinload(DBUser.groups)
+            .selectinload(DBGroupEntry.group)
+        ) \
         .filter(DBForumPost.topic_id == topic_id) \
         .filter(DBForumPost.hidden == False) \
         .order_by(DBForumPost.id.asc()) \
@@ -95,6 +100,11 @@ def fetch_topic_id(post_id: int, session: Session = ...) -> int | None:
 @session_wrapper
 def fetch_last(topic_id: int, session: Session = ...) -> DBForumPost | None:
     return session.query(DBForumPost) \
+        .options(
+            selectinload(DBForumPost.user)
+            .selectinload(DBUser.groups)
+            .selectinload(DBGroupEntry.group)
+        ) \
         .filter(DBForumPost.topic_id == topic_id) \
         .filter(DBForumPost.hidden == False) \
         .order_by(DBForumPost.id.desc()) \
@@ -119,6 +129,11 @@ def fetch_last_by_forum(
     session: Session = ...
 ) -> DBForumPost | None:
     return session.query(DBForumPost) \
+        .options(
+            selectinload(DBForumPost.user)
+            .selectinload(DBUser.groups)
+            .selectinload(DBGroupEntry.group)
+        ) \
         .filter(DBForumPost.forum_id == forum_id) \
         .filter(DBForumPost.hidden == False) \
         .order_by(DBForumPost.id.desc()) \

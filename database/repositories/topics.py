@@ -1,10 +1,16 @@
 
 from __future__ import annotations
 
-from ..objects import DBForumTopic, DBForumSubscriber, DBForumBookmark
 from .wrapper import session_wrapper
+from ..objects import (
+    DBForumSubscriber,
+    DBForumBookmark,
+    DBForumTopic,
+    DBGroupEntry,
+    DBUser
+)
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import func
 from typing import List
 
@@ -95,6 +101,11 @@ def fetch_pinned_by_forum_id(
     session: Session = ...
 ) -> List[DBForumTopic]:
     return session.query(DBForumTopic) \
+        .options(
+            selectinload(DBForumTopic.creator)
+            .selectinload(DBUser.groups)
+            .selectinload(DBGroupEntry.group)
+        ) \
         .filter(DBForumTopic.forum_id == forum_id) \
         .filter(DBForumTopic.pinned == True) \
         .filter(DBForumTopic.hidden == False) \
@@ -109,6 +120,11 @@ def fetch_announcements_by_forum_id(
     session: Session = ...
 ) -> List[DBForumTopic]:
     return session.query(DBForumTopic) \
+        .options(
+            selectinload(DBForumTopic.creator)
+            .selectinload(DBUser.groups)
+            .selectinload(DBGroupEntry.group)
+        ) \
         .filter(DBForumTopic.forum_id == forum_id) \
         .filter(DBForumTopic.announcement == True) \
         .filter(DBForumTopic.hidden == False) \
@@ -151,6 +167,11 @@ def fetch_recent_by_last_post(
     session: Session = ...
 ) -> List[DBForumTopic]:
     return session.query(DBForumTopic) \
+        .options(
+            selectinload(DBForumTopic.creator)
+            .selectinload(DBUser.groups)
+            .selectinload(DBGroupEntry.group)
+        ) \
         .filter(DBForumTopic.forum_id == forum_id) \
         .filter(DBForumTopic.hidden == False) \
         .order_by(DBForumTopic.last_post_at.desc()) \
