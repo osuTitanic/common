@@ -1,6 +1,6 @@
 
 from __future__ import annotations
-from typing import List
+from typing import Dict, List
 
 from datetime import datetime, timedelta
 from app.common.database.objects import (
@@ -13,7 +13,6 @@ from app.common.database.objects import (
 
 from sqlalchemy.orm import selectinload, joinedload, Session
 from sqlalchemy import func, or_, case
-
 from .wrapper import session_wrapper
 
 @session_wrapper
@@ -150,6 +149,13 @@ def fetch_username(user_id: int, session: Session = ...) -> str | None:
     return session.query(DBUser.name) \
             .filter(DBUser.id == user_id) \
             .scalar()
+
+@session_wrapper
+def fetch_usernames(user_ids: list, session: Session = ...) -> Dict[int, str]:
+    rows = session.query(DBUser.id, DBUser.name) \
+            .filter(DBUser.id.in_(user_ids)) \
+            .all()
+    return {user_id: name for user_id, name in rows}
 
 @session_wrapper
 def fetch_irc_token(safe_name: str, session: Session = ...) -> str | None:
