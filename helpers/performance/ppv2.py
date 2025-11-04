@@ -32,6 +32,12 @@ def calculate_ppv2(score: DBScore) -> float | None:
     beatmap = Beatmap(bytes=beatmap_file)
     beatmap.convert(mode, mods.value)
 
+    if beatmap.is_suspicious():
+        app.session.logger.error(
+            f'pp calculation failed: Beatmap file is suspicious! ({score.beatmap_id})'
+        )
+        return
+
     perf = Performance(
         lazer=False,
         mods=mods.value,
