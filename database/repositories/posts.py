@@ -80,6 +80,35 @@ def fetch_initial_post(topic_id: int, session: Session = ...) -> DBForumPost | N
         .first()
 
 @session_wrapper
+def fetch_initial_posts(
+    topic_ids: Iterable[int],
+    session: Session = ...
+) -> Dict[int, DBForumPost]:
+    topic_ids = tuple(topic_ids)
+
+    if not topic_ids:
+        return {}
+
+    subquery = session.query(
+        DBForumPost.topic_id.label('topic_id'),
+        func.min(DBForumPost.id).label('min_id')
+    ) \
+        .filter(DBForumPost.hidden == False) \
+        .filter(DBForumPost.topic_id.in_(topic_ids)) \
+        .group_by(DBForumPost.topic_id) \
+        .subquery()
+
+    rows = session.query(DBForumPost) \
+        .join(
+            subquery,
+            (DBForumPost.topic_id == subquery.c.topic_id) &
+            (DBForumPost.id == subquery.c.min_id)
+        ) \
+        .all()
+
+    return {row.topic_id: row for row in rows}
+
+@session_wrapper
 def fetch_initial_post_id(topic_id: int, session: Session = ...) -> DBForumPost | None:
     result = session.query(DBForumPost.id) \
         .filter(DBForumPost.topic_id == topic_id) \
