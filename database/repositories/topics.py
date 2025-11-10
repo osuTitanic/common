@@ -88,6 +88,7 @@ def fetch_announcements(
     session: Session = ...
 ) -> List[DBForumTopic]:
     return session.query(DBForumTopic) \
+        .options(selectinload(DBForumTopic.creator)) \
         .filter(DBForumTopic.announcement == True) \
         .filter(DBForumTopic.hidden == False) \
         .order_by(DBForumTopic.id.desc()) \
