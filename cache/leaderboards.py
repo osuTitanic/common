@@ -5,9 +5,9 @@ from app.common.constants import COUNTRIES as countries
 from app.common.database.repositories import users, modding, scores
 from app.common.database.objects import DBStats
 
-from typing import Tuple, List, Optional
 from sqlalchemy.orm import Session
 from redis.client import Pipeline
+from typing import Tuple, List
 
 import app
 
@@ -87,7 +87,7 @@ def update(stats: DBStats, country: str) -> None:
 
         pipe.execute()
 
-def update_leader_scores(stats: DBStats, country: str, session: Optional[Session] = None) -> None:
+def update_leader_scores(stats: DBStats, country: str, session: Session | None = None) -> None:
     """Update #1 count"""
     count = scores.fetch_leader_count(
         stats.user_id,
@@ -106,7 +106,7 @@ def update_leader_scores(stats: DBStats, country: str, session: Optional[Session
         )
         pipe.execute()
 
-def update_kudosu(user_id: int, country: str, session: Optional[Session] = None) -> None:
+def update_kudosu(user_id: int, country: str, session: Session | None = None) -> None:
     """Update #1 count"""
     kudosu = modding.total_amount_by_user(
         user_id,
