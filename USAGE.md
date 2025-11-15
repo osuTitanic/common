@@ -4,7 +4,7 @@ Here is a quick overview of how to use this module.
 
 ## Constants
 
-The `common.constants` module will provide you with various useful enums & flags, like `Mods`, `GameMode`, `Permissions` and much more.
+The `common.constants` module will provide you with various useful enums & flags, like `Mods`, `GameMode` and much more.
 
 Here is an example of `GameMode`, which inherits from `IntEnum`:
 

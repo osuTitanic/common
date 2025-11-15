@@ -6,7 +6,7 @@ class CommentTarget(str, Enum):
     Song   = 'song'
     Map    = 'map'
 
-class RankingType(IntEnum):
+class LeaderboardType(IntEnum):
     Local       = 0
     Top         = 1
     SelectedMod = 2

@@ -27,9 +27,9 @@ from .bancho import (
 )
 
 from .web import (
-    CommentTarget,
-    RankingType,
     ScoreStatus,
+    CommentTarget,
+    LeaderboardType,
     DirectDisplayMode
 )
 
