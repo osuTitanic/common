@@ -25,7 +25,7 @@ def calculate_ppv2(score: DBScore) -> float | None:
 
 
     # Some older clients need adjustments to mods
-    mods = adjust_mods(score)
+    mods = adjust_mods(score.mods, score.mode, score.client_version)
     mode = convert_mode(score.mode)
 
     # Load beatmap file & convert it
@@ -88,12 +88,15 @@ def calculate_difficulty(
 ) -> DifficultyAttributes | None:
     if isinstance(mode, int):
         mode = convert_mode(mode)
-        
+
     if not beatmap_file:
         app.session.logger.error(
             'Difficulty calculation failed: Beatmap file was not found!'
         )
         return
+
+    # Adjust mods to ensure correct sr calculation
+    mods = adjust_mods(mods.value, mode.value)
 
     perf = Performance(mods=mods.value)
     beatmap = Beatmap(bytes=beatmap_file)
@@ -121,8 +124,8 @@ def calculate_difficulty(
     app.session.logger.debug(f"Calculated difficulty: {result}")
     return result
 
-def adjust_mods(score: DBScore) -> Mods:
-    mods = Mods(score.mods)
+def adjust_mods(mods: int, mode: int, client_version: int = 0) -> Mods:
+    mods = Mods(mods)
 
     if Mods.Nightcore in mods and not Mods.DoubleTime in mods:
         # NC somehow only appears with DT enabled at the same time
@@ -133,11 +136,11 @@ def adjust_mods(score: DBScore) -> Mods:
         # The same seems to be the case for PF & SD
         mods |= Mods.SuddenDeath
 
-    if Mods.Hidden in mods and not Mods.FadeIn in mods and score.mode == 3:
+    if Mods.Hidden in mods and not Mods.FadeIn in mods and mode == 3:
         # And also for HD & FI
         mods |= Mods.FadeIn
 
-    if Mods.NoVideo in mods and score.client_version < 20140000:
+    if Mods.NoVideo in mods and client_version < 20140000:
         # NoVideo was changed to TouchDevice, which affects pp a lot
         mods &= ~Mods.NoVideo
 
