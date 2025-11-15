@@ -34,23 +34,23 @@ def create(
 ) -> DBBeatmap:
     session.add(
         m := DBBeatmap(
-            id,
-            set_id,
-            mode,
-            md5,
-            status,
-            version,
-            filename,
-            submit_date or datetime.now(),
-            last_update or datetime.now(),
-            total_length,
-            max_combo,
-            bpm,
-            cs,
-            ar,
-            od,
-            hp,
-            diff
+            id=id,
+            set_id=set_id,
+            mode=mode,
+            md5=md5,
+            status=status,
+            version=version,
+            filename=filename,
+            created_at=submit_date or datetime.now(),
+            last_update=last_update or datetime.now(),
+            total_length=total_length,
+            max_combo=max_combo,
+            bpm=bpm,
+            cs=cs,
+            ar=ar,
+            od=od,
+            hp=hp,
+            diff=diff
         )
     )
     session.commit()

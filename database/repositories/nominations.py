@@ -14,8 +14,8 @@ def create(
 ) -> DBBeatmapNomination:
     session.add(
         nomination := DBBeatmapNomination(
-            user_id,
-            beatmapset_id
+            user_id=user_id,
+            set_id=beatmapset_id
         )
     )
     session.commit()

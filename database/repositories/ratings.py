@@ -18,10 +18,10 @@ def create(
 ) -> DBRating:
     session.add(
         rating := DBRating(
-            user_id,
-            set_id,
-            beatmap_hash,
-            rating
+            user_id=user_id,
+            set_id=set_id,
+            map_checksum=beatmap_hash,
+            rating=rating
         )
     )
     session.commit()

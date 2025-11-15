@@ -168,44 +168,6 @@ class DBBeatmap(Base):
             return self.status > 0
         return self.status in (1, 2)
 
-    def __init__(
-        self,
-        id: int,
-        set_id: int,
-        mode: int,
-        md5: str,
-        status: int,
-        version: str,
-        filename: str,
-        created_at: datetime,
-        last_update: datetime,
-        total_length: int,
-        max_combo: int,
-        bpm: float,
-        cs: float,
-        ar: float,
-        od: float,
-        hp: float,
-        diff: float
-    ) -> None:
-        self.id = id
-        self.set_id = set_id
-        self.mode = mode
-        self.md5 = md5
-        self.status = status
-        self.version = version
-        self.filename = filename
-        self.created_at = created_at
-        self.last_update = last_update
-        self.total_length = total_length
-        self.max_combo = max_combo
-        self.bpm = bpm
-        self.cs = cs
-        self.ar = ar
-        self.od = od
-        self.hp = hp
-        self.diff = diff
-
 class DBBeatmapCollaboration(Base):
     __tablename__ = "beatmap_collaboration"
 
@@ -251,10 +213,6 @@ class DBBeatmapNomination(Base):
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='nominations')
     beatmapset: Mapped["DBBeatmapset"] = relationship('DBBeatmapset', back_populates='nominations')
-
-    def __init__(self, user_id: int, set_id: int) -> None:
-        self.user_id = user_id
-        self.set_id = set_id
 
 class DBBeatmapModding(Base):
     __tablename__ = "beatmap_modding"
@@ -310,13 +268,6 @@ class DBPlay(Base):
     beatmap: Mapped["DBBeatmap"] = relationship('DBBeatmap', back_populates='plays')
     beatmapset: Mapped["DBBeatmapset"] = relationship('DBBeatmapset', back_populates='plays')
 
-    def __init__(self, user_id: int, beatmap_id: int, set_id: int, beatmap_file: str, count: int = 1) -> None:
-        self.beatmap_file = beatmap_file
-        self.beatmap_id = beatmap_id
-        self.user_id = user_id
-        self.set_id = set_id
-        self.count = count
-
 class DBFavourite(Base):
     __tablename__ = "favourites"
 
@@ -326,10 +277,6 @@ class DBFavourite(Base):
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='favourites')
     beatmapset: Mapped["DBBeatmapset"] = relationship('DBBeatmapset', back_populates='favourites')
-
-    def __init__(self, user_id: int, set_id: int) -> None:
-        self.user_id = user_id
-        self.set_id  = set_id
 
 class DBRating(Base):
     __tablename__ = "ratings"
@@ -342,12 +289,6 @@ class DBRating(Base):
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='ratings')
     beatmap: Mapped["DBBeatmap"] = relationship('DBBeatmap', back_populates='ratings')
     beatmapset: Mapped["DBBeatmapset"] = relationship('DBBeatmapset', back_populates='ratings')
-
-    def __init__(self, user_id: int, set_id: int, map_checksum: str, rating: int) -> None:
-        self.rating  = rating
-        self.set_id  = set_id
-        self.user_id = user_id
-        self.map_checksum = map_checksum
 
 class DBComment(Base):
     __tablename__ = "comments"

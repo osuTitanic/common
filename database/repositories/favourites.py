@@ -22,8 +22,8 @@ def create(
 
     session.add(
         fav := DBFavourite(
-            user_id,
-            set_id
+            user_id=user_id,
+            set_id=set_id
         )
     )
     session.commit()

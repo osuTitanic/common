@@ -21,14 +21,14 @@ def create(
 ) -> DBComment:
     session.add(
         c := DBComment(
-            target_id,
-            target,
-            user_id,
-            time,
-            content,
-            comment_format,
-            playmode,
-            color
+            target_id=target_id,
+            target_type=target,
+            user_id=user_id,
+            time=time,
+            comment=content,
+            format=comment_format,
+            mode=playmode,
+            color=color
         )
     )
     session.commit()

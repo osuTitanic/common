@@ -21,11 +21,11 @@ def create(
 ) -> DBPlay:
     session.add(
         p := DBPlay(
-            user_id,
-            beatmap_id,
-            set_id,
-            beatmap_file,
-            count
+            user_id=user_id,
+            beatmap_id=beatmap_id,
+            set_id=set_id,
+            beatmap_file=beatmap_file,
+            count=count
         )
     )
     session.commit()
