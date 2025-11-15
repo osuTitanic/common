@@ -16,3 +16,11 @@ class ClientStatus(IntEnum):
     Lobby        = 11
     Multiplaying = 12
     OsuDirect    = 13
+
+class ButtonState(IntFlag):
+    NoButton = 0
+    Left1    = 1
+    Right1   = 2
+    Left2    = 4
+    Right2   = 8
+    Smoke    = 16
