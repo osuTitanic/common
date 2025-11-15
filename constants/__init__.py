@@ -2,7 +2,6 @@
 from .status import SubmissionStatus, LegacyStatus, DatabaseStatus
 from .notifications import NotificationType
 from .user import Playstyle, UserActivity
-from .permissions import Permissions
 from .modes import GameMode
 from .flags import BadFlags
 from .grade import Grade
