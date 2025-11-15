@@ -27,10 +27,6 @@ class DBScreenshot(Base):
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='screenshots')
 
-    def __init__(self, user_id: int, hidden: bool):
-        self.user_id = user_id
-        self.hidden = hidden
-
 class DBLog(Base):
     __tablename__ = "logs"
 
@@ -39,12 +35,6 @@ class DBLog(Base):
     type    = Column('type', String)
     message = Column('message', String)
     time    = Column('time', DateTime, server_default=func.now())
-
-    def __init__(self, message: str, level: str, type: str) -> None:
-        self.message = message
-        self.level   = level
-        self.type    = type
-        self.time    = datetime.now()
 
 class DBBenchmark(Base):
     __tablename__ = "benchmarks"

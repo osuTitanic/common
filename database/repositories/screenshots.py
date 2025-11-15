@@ -14,8 +14,8 @@ def create(
 ) -> DBScreenshot:
     session.add(
         ss := DBScreenshot(
-            user_id,
-            hidden
+            user_id=user_id,
+            hidden=hidden
         )
     )
     session.commit()
@@ -28,5 +28,5 @@ def fetch_by_id(
     session: Session = ...
 ) -> DBScreenshot | None:
     return session.query(DBScreenshot) \
-            .filter(DBScreenshot.id == id) \
-            .first()
+        .filter(DBScreenshot.id == id) \
+        .first()
