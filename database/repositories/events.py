@@ -18,9 +18,9 @@ def create(
 ) -> DBMatchEvent:
     session.add(
         m := DBMatchEvent(
-            match_id,
-            type.value,
-            data
+            match_id=match_id,
+            type=type.value,
+            data=data
         )
     )
     session.commit()

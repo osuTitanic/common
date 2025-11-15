@@ -18,9 +18,10 @@ def create(
 ) -> DBMessage:
     session.add(
         msg := DBMessage(
-            sender,
-            target,
-            message
+            sender=sender,
+            target=target,
+            message=message,
+            time=datetime.now()
         )
     )
     session.commit()

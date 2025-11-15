@@ -22,12 +22,12 @@ def create(
 ) -> DBClient:
     session.add(
         client := DBClient(
-            user_id,
-            executable,
-            adapters,
-            unique_id,
-            disk_signature,
-            banned
+            user_id=user_id,
+            executable=executable,
+            adapters=adapters,
+            unique_id=unique_id,
+            disk_signature=disk_signature,
+            banned=banned
         )
     )
     session.commit()

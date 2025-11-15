@@ -28,17 +28,6 @@ class DBLogin(Base):
     ip      = Column('ip', String)
     version = Column('osu_version', String)
 
-    def __init__(
-        self,
-        user_id: int,
-        ip: str,
-        version: str
-    ) -> None:
-        self.user_id = user_id
-        self.ip = ip
-        self.version = version
-        self.time = datetime.now()
-
 class DBChannel(Base):
     __tablename__ = "channels"
 
@@ -46,12 +35,6 @@ class DBChannel(Base):
     topic             = Column('topic', String)
     read_permissions  = Column('read_permissions', Integer, default=1)
     write_permissions = Column('write_permissions', Integer, default=1)
-
-    def __init__(self, name: str, topic: str, rp: int, wp: int) -> None:
-        self.name = name
-        self.topic = topic
-        self.read_permissions = rp
-        self.write_permissions = wp
 
 class DBMessage(Base):
     __tablename__ = "messages"
@@ -61,12 +44,6 @@ class DBMessage(Base):
     target  = Column('target', String)
     message = Column('message', String)
     time    = Column('time', DateTime, server_default=func.now())
-
-    def __init__(self, sender: str, target: str, message: str) -> None:
-        self.message = message
-        self.sender  = sender
-        self.target  = target
-        self.time    = datetime.now()
 
 class DBDirectMessage(Base):
     __tablename__ = "direct_messages"
@@ -111,22 +88,6 @@ class DBClient(Base):
     disk_signature = Column('disk_signature', String, primary_key=True)
     banned         = Column('banned', Boolean, default=False)
 
-    def __init__(
-        self,
-        user_id: int,
-        executable: str,
-        adapters: str,
-        unique_id: str,
-        disk_signature: str,
-        banned: bool = False
-    ) -> None:
-        self.user_id = user_id
-        self.executable = executable
-        self.adapters = adapters
-        self.unique_id = unique_id
-        self.disk_signature = disk_signature
-        self.banned = banned
-
 class DBVerifiedClient(Base):
     __tablename__ = "clients_verified"
 
@@ -146,17 +107,6 @@ class DBMatch(Base):
     creator: Mapped["DBUser"] = relationship('DBUser', back_populates='matches')
     events: Mapped[List["DBMatchEvent"]] = relationship('DBMatchEvent', back_populates='match')
 
-    def __init__(
-        self,
-        name: str,
-        creator_id: int,
-        bancho_id: int
-    ) -> None:
-        self.name = name
-        self.bancho_id = bancho_id
-        self.creator_id = creator_id
-        self.created_at = datetime.now()
-
 class DBMatchEvent(Base):
     __tablename__ = "mp_events"
 
@@ -167,25 +117,11 @@ class DBMatchEvent(Base):
 
     match: Mapped["DBMatch"] = relationship('DBMatch', back_populates='events')
 
-    def __init__(
-        self,
-        match_id: int,
-        type: int,
-        data: dict
-    ) -> None:
-        self.match_id = match_id
-        self.type = type
-        self.data = data
-
 class DBUserCount(Base):
     __tablename__ = "user_count"
 
     time  = Column('time', DateTime, primary_key=True, server_default=func.now())
     count = Column('count', Integer, default=0)
-
-    def __init__(self, count: int) -> None:
-        self.time = datetime.now()
-        self.count = count
 
 class DBRelease(Base):
     __tablename__ = "releases"

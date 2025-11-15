@@ -17,9 +17,10 @@ def create(
 ) -> DBLogin:
     session.add(
         login := DBLogin(
-            user_id,
-            ip,
-            version
+            user_id=user_id,
+            ip=ip,
+            version=version,
+            time=datetime.now()
         )
     )
     session.commit()

@@ -5,6 +5,7 @@ from app.common.database.repositories import events
 from app.common.database.objects import DBMatch
 
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from .wrapper import session_wrapper
 
@@ -17,9 +18,10 @@ def create(
 ) -> DBMatch:
     session.add(
         m := DBMatch(
-            name,
-            creator_id,
-            bancho_id
+            name=name,
+            creator_id=creator_id,
+            bancho_id=bancho_id,
+            created_at=datetime.now()
         )
     )
     session.commit()

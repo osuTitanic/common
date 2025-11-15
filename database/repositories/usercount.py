@@ -12,7 +12,10 @@ from .wrapper import session_wrapper
 
 @session_wrapper
 def create(count: int, session: Session = ...) -> DBUserCount:
-    session.add(uc := DBUserCount(count))
+    session.add(uc := DBUserCount(
+        count=count,
+        time=datetime.now()
+    ))
     session.commit()
     return uc
 

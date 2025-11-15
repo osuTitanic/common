@@ -17,10 +17,10 @@ def create(
 ) -> DBChannel:
     session.add(
         chan := DBChannel(
-            name,
-            topic,
-            read_permissions,
-            write_permissions
+            name=name,
+            topic=topic,
+            read_permissions=read_permissions,
+            write_permissions=write_permissions
         )
     )
     session.commit()
