@@ -168,6 +168,7 @@ def fetch_most_played_delta(
             DBBeatmap
         ) \
         .join(DBBeatmap, DBBeatmap.id == subquery.c.beatmap_id) \
+        .options(selectinload(DBBeatmap.beatmapset)) \
         .order_by(subquery.c.play_count.desc()) \
         .limit(limit) \
         .all()
