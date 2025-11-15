@@ -50,43 +50,7 @@ class Mods(IntFlag):
             return "NM"
 
         return ''.join([
-            {
-                Mods.NoMod: "NM",
-                Mods.NoFail: "NF",
-                Mods.Easy: "EZ",
-                Mods.NoVideo: "NV",
-                Mods.Hidden: "HD",
-                Mods.HardRock: "HR",
-                Mods.SuddenDeath: "SD",
-                Mods.DoubleTime: "DT",
-                Mods.Relax: "RX",
-                Mods.HalfTime: "HT",
-                Mods.Nightcore: "NC",
-                Mods.Flashlight: "FL",
-                Mods.Autoplay: "AT",
-                Mods.SpunOut: "SO",
-                Mods.Autopilot: "AP",
-                Mods.Perfect: "PF",
-                Mods.Key4: "K4",
-                Mods.Key5: "K5",
-                Mods.Key6: "K6",
-                Mods.Key7: "K7",
-                Mods.Key8: "K8",
-                Mods.FadeIn: "FI",
-                Mods.Random: "RD",
-                Mods.Cinema: "CN",
-                Mods.Target: "TP",
-                Mods.Key9: "K9",
-                Mods.KeyCoop: "CP",
-                Mods.Key1: "K1",
-                Mods.Key3: "K3",
-                Mods.Key2: "K2",
-                Mods.ScoreV2: "SV2",
-                Mods.Mirror: "MR",
-                Mods.SpeedMods: "",
-                Mods.KeyMod: "",
-                Mods.FreeModAllowed: ""
-            }[mod]
+            ModMapping[mod]
             for mod in self.members
         ])
 
@@ -96,49 +60,87 @@ class Mods(IntFlag):
 
         # Parse mods into their short forms
         parsed_mods = [
-            mod_string[idx : idx + 2].upper() for idx in range(0, len(mod_string), 2)
+            mod_string[idx : idx + 2].upper()
+            for idx in range(0, len(mod_string), 2)
         ]
 
-        dict = {
-            "NM": Mods.NoMod,
-            "NF": Mods.NoFail,
-            "EZ": Mods.Easy,
-            "NV": Mods.NoVideo,
-            "HD": Mods.Hidden,
-            "HR": Mods.HardRock,
-            "SD": Mods.SuddenDeath,
-            "DT": Mods.DoubleTime,
-            "RX": Mods.Relax,
-            "HT": Mods.HalfTime,
-            "NC": Mods.Nightcore,
-            "FL": Mods.Flashlight,
-            "AT": Mods.Autoplay,
-            "SO": Mods.SpunOut,
-            "AP": Mods.Autopilot,
-            "PF": Mods.Perfect,
-            "K4": Mods.Key4,
-            "K5": Mods.Key5,
-            "K6": Mods.Key6,
-            "K7": Mods.Key7,
-            "K8": Mods.Key8,
-            "FI": Mods.FadeIn,
-            "RD": Mods.Random,
-            "CN": Mods.Cinema,
-            "TP": Mods.Target,
-            "K9": Mods.Key9,
-            "CP": Mods.KeyCoop,
-            "K1": Mods.Key1,
-            "K3": Mods.Key3,
-            "K2": Mods.Key2,
-            "SV2": Mods.ScoreV2,
-            "MR": Mods.Mirror
-        }
-
         for mod in parsed_mods:
-            if not (m := dict.get(mod)):
+            if not (m := StringMapping.get(mod)):
                 continue
 
             mods |= m
 
         return mods
 
+StringMapping = {
+    "NM": Mods.NoMod,
+    "NF": Mods.NoFail,
+    "EZ": Mods.Easy,
+    "NV": Mods.NoVideo,
+    "HD": Mods.Hidden,
+    "HR": Mods.HardRock,
+    "SD": Mods.SuddenDeath,
+    "DT": Mods.DoubleTime,
+    "RX": Mods.Relax,
+    "HT": Mods.HalfTime,
+    "NC": Mods.Nightcore,
+    "FL": Mods.Flashlight,
+    "AT": Mods.Autoplay,
+    "SO": Mods.SpunOut,
+    "AP": Mods.Autopilot,
+    "PF": Mods.Perfect,
+    "K4": Mods.Key4,
+    "K5": Mods.Key5,
+    "K6": Mods.Key6,
+    "K7": Mods.Key7,
+    "K8": Mods.Key8,
+    "FI": Mods.FadeIn,
+    "RD": Mods.Random,
+    "CN": Mods.Cinema,
+    "TP": Mods.Target,
+    "K9": Mods.Key9,
+    "CP": Mods.KeyCoop,
+    "K1": Mods.Key1,
+    "K3": Mods.Key3,
+    "K2": Mods.Key2,
+    "SV2": Mods.ScoreV2,
+    "MR": Mods.Mirror
+}
+
+ModMapping = {
+    Mods.NoMod: "NM",
+    Mods.NoFail: "NF",
+    Mods.Easy: "EZ",
+    Mods.NoVideo: "NV",
+    Mods.Hidden: "HD",
+    Mods.HardRock: "HR",
+    Mods.SuddenDeath: "SD",
+    Mods.DoubleTime: "DT",
+    Mods.Relax: "RX",
+    Mods.HalfTime: "HT",
+    Mods.Nightcore: "NC",
+    Mods.Flashlight: "FL",
+    Mods.Autoplay: "AT",
+    Mods.SpunOut: "SO",
+    Mods.Autopilot: "AP",
+    Mods.Perfect: "PF",
+    Mods.Key4: "K4",
+    Mods.Key5: "K5",
+    Mods.Key6: "K6",
+    Mods.Key7: "K7",
+    Mods.Key8: "K8",
+    Mods.FadeIn: "FI",
+    Mods.Random: "RD",
+    Mods.Cinema: "CN",
+    Mods.Target: "TP",
+    Mods.Key9: "K9",
+    Mods.KeyCoop: "CP",
+    Mods.Key1: "K1",
+    Mods.Key3: "K3",
+    Mods.Key2: "K2",
+    Mods.ScoreV2: "SV2",
+    Mods.Mirror: "MR",
+    Mods.SpeedMods: "",
+    Mods.KeyMod: "",
+    Mods.FreeModAllowed: ""
+}
