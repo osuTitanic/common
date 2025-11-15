@@ -1,6 +1,7 @@
 
 from .notifications import NotificationType
 from .user import Playstyle, UserActivity
+from .bancho import ClientStatus
 from .modes import GameMode
 from .flags import BadFlags
 from .grade import Grade
@@ -13,16 +14,6 @@ from .beatmap import (
     BeatmapOrder,
     BeatmapGenre,
     BeatmapStatus
-)
-
-from .bancho import (
-    AvatarExtension,
-    PresenceFilter,
-    ClientStatus,
-    ReplayAction,
-    ButtonState,
-    LoginError,
-    QuitState
 )
 
 from .web import (
