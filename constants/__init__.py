@@ -1,5 +1,4 @@
 
-from .status import SubmissionStatus, LegacyStatus, BeatmapStatus
 from .notifications import NotificationType
 from .user import Playstyle, UserActivity
 from .modes import GameMode
@@ -13,7 +12,7 @@ from .beatmap import (
     BeatmapSortBy,
     BeatmapOrder,
     BeatmapGenre,
-    SendAction
+    BeatmapStatus
 )
 
 from .bancho import (
