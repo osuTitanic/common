@@ -96,7 +96,7 @@ def calculate_difficulty(
         return
 
     # Adjust mods to ensure correct sr calculation
-    mods = adjust_mods(mods.value, mode.value)
+    mods = adjust_mods(mods.value, mode)
 
     perf = Performance(mods=mods.value)
     beatmap = Beatmap(bytes=beatmap_file)
