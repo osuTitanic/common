@@ -145,15 +145,16 @@ def update_rank(
 
     session.add(
         DBRankHistory(
-            stats.user_id,
-            stats.mode,
-            stats.rscore,
-            stats.pp,
-            stats.ppv1,
-            global_rank,
-            country_rank,
-            score_rank,
-            ppv1_rank
+            user_id=stats.user_id,
+            mode=stats.mode,
+            rscore=stats.rscore,
+            pp=stats.pp,
+            ppv1=stats.ppv1,
+            global_rank=global_rank,
+            country_rank=country_rank,
+            score_rank=score_rank,
+            ppv1_rank=ppv1_rank,
+            time=datetime.now()
         )
     )
     session.commit()

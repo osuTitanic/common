@@ -16,9 +16,9 @@ def create(
 ) -> DBRelationship:
     session.add(
         rel := DBRelationship(
-            user_id,
-            target_id,
-            status
+            user_id=user_id,
+            target_id=target_id,
+            status=status
         )
     )
     session.commit()

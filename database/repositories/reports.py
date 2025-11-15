@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from app.common.database.objects import DBReport
 from sqlalchemy.orm import Session
+from datetime import datetime
 from typing import List
 
 from .wrapper import session_wrapper
@@ -16,9 +17,10 @@ def create(
 ) -> DBReport:
     session.add(
         r := DBReport(
-            target_id,
-            sender_id,
-            reason
+            target_id=target_id,
+            sender_id=sender_id,
+            reason=reason,
+            time=datetime.now()
         )
     )
     session.commit()

@@ -19,11 +19,12 @@ def create(
 ) -> DBInfringement:
     session.add(
         i := DBInfringement(
-            user_id,
-            action,
-            length,
-            description,
-            is_permanent
+            user_id=user_id,
+            action=action,
+            length=length,
+            description=description,
+            is_permanent=is_permanent,
+            time=datetime.now()
         )
     )
     session.commit()

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from app.common.database.objects import DBVerification
 from sqlalchemy.orm import Session
+from datetime import datetime
 from typing import List
 
 from .wrapper import session_wrapper
@@ -19,12 +20,13 @@ def create(
 ) -> DBVerification:
     session.add(
         v := DBVerification(
-            ''.join(random.choices(
+            token=''.join(random.choices(
                 string.ascii_lowercase +
                 string.digits, k=token_size
             )),
-            user_id,
-            type
+            user_id=user_id,
+            type=type,
+            sent_at=datetime.now()
         )
     )
     session.commit()

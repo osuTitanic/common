@@ -31,12 +31,6 @@ class DBAchievement(Base):
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='achievements')
 
-    def __init__(self, user_id: int, name: str, category: str, filename: str) -> None:
-        self.category = category
-        self.filename = filename
-        self.user_id = user_id
-        self.name = name
-
 class DBScore(Base):
     __tablename__ = "scores"
 
@@ -113,29 +107,6 @@ class DBRankHistory(Base):
     ppv1_rank    = Column('ppv1_rank', Integer)
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='rank_history')
-
-    def __init__(
-        self,
-        user_id: int,
-        mode: int,
-        rscore: int,
-        pp: int,
-        ppv1: int,
-        global_rank: int,
-        country_rank: int,
-        score_rank: int,
-        ppv1_rank: int
-    ) -> None:
-        self.user_id = user_id
-        self.mode = mode
-        self.rscore = rscore
-        self.pp = pp
-        self.ppv1 = ppv1
-        self.global_rank = global_rank
-        self.country_rank = country_rank
-        self.score_rank = score_rank
-        self.ppv1_rank = ppv1_rank
-        self.time = datetime.now()
 
 class DBPlayHistory(Base):
     __tablename__ = "profile_play_history"

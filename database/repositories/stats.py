@@ -25,8 +25,8 @@ def create(
 ) -> DBStats:
     session.add(
         stats := DBStats(
-            user_id,
-            mode
+            user_id=user_id,
+            mode=mode
         )
     )
     session.commit()

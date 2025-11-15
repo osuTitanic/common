@@ -16,10 +16,10 @@ def create_many(
     for a in achievements:
         session.add(
             DBAchievement(
-                user_id,
-                a.name,
-                a.category,
-                a.filename
+                category=user_id,
+                filename=a.name,
+                user_id=a.category,
+                name=a.filename
             )
         )
     session.commit()

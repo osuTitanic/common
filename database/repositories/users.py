@@ -28,13 +28,13 @@ def create(
 ) -> DBUser | None:
     session.add(
         user := DBUser(
-            username,
-            safe_name,
-            email,
-            pw_bcrypt,
-            country,
-            activated,
-            discord_id
+            name=username,
+            safe_name=safe_name,
+            email=email,
+            bcrypt=pw_bcrypt,
+            country=country,
+            activated=activated,
+            discord_id=discord_id
         )
     )
     session.commit()

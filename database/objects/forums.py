@@ -34,18 +34,6 @@ class DBForum(Base):
     topics: Mapped[List["DBForumTopic"]] = relationship('DBForumTopic', back_populates='forum')
     posts: Mapped[List["DBForumPost"]] = relationship('DBForumPost', back_populates='forum')
 
-    def __init__(
-        self,
-        name: str,
-        description: str,
-        hidden: bool,
-        parent_id: int | None
-    ) -> None:
-        self.name = name
-        self.description = description
-        self.hidden = hidden
-        self.parent_id = parent_id
-
 class DBForumIcon(Base):
     __tablename__ = "forum_icons"
 
@@ -56,14 +44,6 @@ class DBForumIcon(Base):
 
     topics: Mapped[List["DBForumTopic"]] = relationship('DBForumTopic', back_populates='icon')
     posts: Mapped[List["DBForumPost"]] = relationship('DBForumPost', back_populates='icon')
-
-    def __init__(
-        self,
-        name: str,
-        location: str
-    ) -> None:
-        self.name = name
-        self.location = location
 
 class DBForumTopic(Base):
     __tablename__ = "forum_topics"
@@ -92,30 +72,6 @@ class DBForumTopic(Base):
     bookmarks: Mapped[List["DBForumBookmark"]] = relationship('DBForumBookmark', back_populates='topic')
     subscribers: Mapped[List["DBForumSubscriber"]] = relationship('DBForumSubscriber', back_populates='topic')
 
-    def __init__(
-        self,
-        forum_id: int,
-        creator_id: int,
-        title: str,
-        status_text: str | None,
-        icon_id: int | None,
-        can_star: bool,
-        can_change_icon: bool,
-        announcement: bool,
-        hidden: bool,
-        pinned: bool
-    ) -> None:
-        self.forum_id = forum_id
-        self.creator_id = creator_id
-        self.title = title
-        self.status_text = status_text
-        self.icon_id = icon_id
-        self.can_star = can_star
-        self.can_change_icon = can_change_icon
-        self.announcement = announcement
-        self.hidden = hidden
-        self.pinned = pinned
-
 class DBForumStar(Base):
     __tablename__ = "forum_stars"
 
@@ -125,15 +81,6 @@ class DBForumStar(Base):
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='starred_topics')
     topic: Mapped["DBForumTopic"] = relationship('DBForumTopic', back_populates='stars')
-
-    def __init__(
-        self,
-        topic_id: int,
-        user_id: int
-    ) -> None:
-        self.topic_id = topic_id
-        self.user_id = user_id
-        self.created_at = datetime.now()
 
 class DBForumPost(Base):
     __tablename__ = "forum_posts"
@@ -158,28 +105,6 @@ class DBForumPost(Base):
     topic: Mapped['DBForumTopic'] = relationship('DBForumTopic', back_populates='posts')
     forum: Mapped['DBForum'] = relationship('DBForum', back_populates='posts')
 
-    def __init__(
-        self,
-        topic_id: int,
-        forum_id: int,
-        user_id: int,
-        content: str,
-        draft: bool,
-        edit_locked: bool,
-        icon_id: int | None,
-        hidden: bool
-    ) -> None:
-        self.topic_id = topic_id
-        self.forum_id = forum_id
-        self.user_id = user_id
-        self.content = content
-        self.draft = draft
-        self.edit_locked = edit_locked
-        self.created_at = datetime.now()
-        self.edit_time = datetime.now()
-        self.icon_id = icon_id
-        self.hidden = hidden
-
 class DBForumReport(Base):
     __tablename__ = "forum_reports"
 
@@ -188,17 +113,6 @@ class DBForumReport(Base):
     created_at  = Column('created_at', DateTime, server_default=func.now())
     resolved_at = Column('resolved_at', DateTime, nullable=True)
     reason      = Column('reason', String)
-
-    def __init__(
-        self,
-        post_id: int,
-        user_id: int,
-        reason: str
-    ) -> None:
-        self.post_id = post_id
-        self.user_id = user_id
-        self.reason = reason
-        self.created_at = datetime.now()
 
 class DBForumBookmark(Base):
     __tablename__ = "forum_bookmarks"
@@ -209,14 +123,6 @@ class DBForumBookmark(Base):
     user: Mapped['DBUser'] = relationship('DBUser', back_populates='bookmarked_topics')
     topic: Mapped['DBForumTopic'] = relationship('DBForumTopic', back_populates='bookmarks')
 
-    def __init__(
-        self,
-        user_id: int,
-        topic_id: int
-    ) -> None:
-        self.user_id = user_id
-        self.topic_id = topic_id
-
 class DBForumSubscriber(Base):
     __tablename__ = "forum_subscribers"
 
@@ -225,11 +131,3 @@ class DBForumSubscriber(Base):
 
     user: Mapped['DBUser'] = relationship('DBUser', back_populates='subscribed_topics')
     topic: Mapped['DBForumTopic'] = relationship('DBForumTopic', back_populates='subscribers')
-
-    def __init__(
-        self,
-        user_id: int,
-        topic_id: int
-    ) -> None:
-        self.user_id = user_id
-        self.topic_id = topic_id

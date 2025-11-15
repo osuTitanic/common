@@ -6,6 +6,7 @@ from .wrapper import session_wrapper
 
 from sqlalchemy.orm import Session, selectinload
 from typing import Dict, Iterable, List
+from datetime import datetime
 from sqlalchemy import func
 
 @session_wrapper
@@ -28,7 +29,9 @@ def create(
         draft=draft,
         edit_locked=edit_locked,
         icon_id=icon_id,
-        hidden=hidden
+        hidden=hidden,
+        created_at=datetime.now(),
+        edit_time=datetime.now()
     )
     session.add(post)
     session.commit()

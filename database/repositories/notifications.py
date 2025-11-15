@@ -21,12 +21,13 @@ def create(
 ) -> DBNotification:
     session.add(
         n := DBNotification(
-            user_id,
-            type,
-            header,
-            content,
-            link,
-            read
+            user_id=user_id,
+            type=type,
+            header=header,
+            content=content,
+            link=link,
+            read=read,
+            time=datetime.now()
         )
     )
     session.commit()

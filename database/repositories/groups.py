@@ -16,8 +16,8 @@ def create_entry(
 ) -> DBGroupEntry:
     session.add(
         ge := DBGroupEntry(
-            user_id,
-            group_id
+            user_id=user_id,
+            group_id=group_id
         )
     )
     session.commit()

@@ -4,13 +4,20 @@ from __future__ import annotations
 from app.common.database.objects import DBName, DBUser
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
+from datetime import datetime
 from typing import List
 
 from .wrapper import session_wrapper
 
 @session_wrapper
 def create(user_id: int, old_name: str, session: Session = ...) -> DBName:
-    session.add(name := DBName(user_id, old_name))
+    session.add(
+        name := DBName(
+            user_id=user_id,
+            name=old_name,
+            changed_at=datetime.now()
+        )
+    )
     session.commit()
     return name
 

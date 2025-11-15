@@ -58,10 +58,6 @@ class DBStats(Base):
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='stats')
 
-    def __init__(self, user_id: int, mode: int) -> None:
-        self.user_id = user_id
-        self.mode    = mode
-
 class DBRelationship(Base):
     __tablename__ = "relationships"
 
@@ -71,11 +67,6 @@ class DBRelationship(Base):
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='relationships', foreign_keys=[user_id])
     target: Mapped["DBUser"] = relationship('DBUser', back_populates='target_relationships', foreign_keys=[target_id])
-
-    def __init__(self, user: int, target: int, status: int) -> None:
-        self.user_id = user
-        self.target_id = target
-        self.status = status
 
 class DBBadge(Base):
     __tablename__ = "profile_badges"
@@ -100,11 +91,6 @@ class DBName(Base):
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='names')
 
-    def __init__(self, user_id: int, name: str) -> None:
-        self.user_id = user_id
-        self.name = name
-        self.changed_at = datetime.now()
-
 class DBInfringement(Base):
     __tablename__ = "infringements"
 
@@ -116,21 +102,6 @@ class DBInfringement(Base):
     is_permanent = Column('is_permanent', Boolean, default=False)
     description  = Column('description', String, nullable=True)
 
-    def __init__(
-        self,
-        user_id: int,
-        action: int,
-        length: datetime,
-        description: str | None = None,
-        is_permanent: bool = False,
-    ) -> None:
-        self.user_id = user_id
-        self.action = action
-        self.length = length
-        self.description = description
-        self.is_permanent = is_permanent
-        self.time = datetime.now()
-
 class DBReport(Base):
     __tablename__ = "reports"
 
@@ -140,17 +111,6 @@ class DBReport(Base):
     time      = Column('time', DateTime, server_default=func.now())
     reason    = Column('reason', String, nullable=True)
     resolved  = Column('resolved', Boolean, default=False)
-
-    def __init__(
-        self,
-        target_id: int,
-        sender_id: int,
-        reason: str | None
-    ) -> None:
-        self.target_id = target_id
-        self.sender_id = sender_id
-        self.reason = reason
-        self.time = datetime.now()
 
 class DBVerification(Base):
     __tablename__ = "verifications"
@@ -162,17 +122,6 @@ class DBVerification(Base):
     type    = Column('type', SmallInteger, default=0)
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='verifications')
-
-    def __init__(
-        self,
-        token: str,
-        user_id: int,
-        type: int = 0
-    ) -> None:
-        self.token = token
-        self.user_id = user_id
-        self.type = type
-        self.sent_at = datetime.now()
 
 class DBGroup(Base):
     __tablename__ = "groups"
@@ -196,10 +145,6 @@ class DBGroupEntry(Base):
 
     group: Mapped["DBGroup"] = relationship('DBGroup', back_populates='entries')
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='groups')
-
-    def __init__(self, user_id: int, group_id: int) -> None:
-        self.group_id = group_id
-        self.user_id = user_id
 
 class DBUserPermission(Base):
     __tablename__ = "user_permissions"
@@ -238,23 +183,6 @@ class DBNotification(Base):
     time    = Column('time', DateTime, server_default=func.now())
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='notifications')
-
-    def __init__(
-        self,
-        user_id: int,
-        type: int,
-        header: str,
-        content: str,
-        link: str | None,
-        read: bool
-    ) -> None:
-        self.user_id = user_id
-        self.content = content
-        self.header = header
-        self.type = type
-        self.link = link
-        self.read = read
-        self.time = datetime.now()
 
 class DBUser(Base):
     __tablename__ = "users"
@@ -317,24 +245,6 @@ class DBUser(Base):
     stats: Mapped[List['DBStats']] = relationship('DBStats', back_populates='user')
     names: Mapped[List['DBName']] = relationship('DBName', back_populates='user')
     plays: Mapped[List['DBPlay']] = relationship('DBPlay', back_populates='user')
-
-    def __init__(
-        self,
-        name: str,
-        safe_name: str,
-        email: str,
-        bcrypt: str,
-        country: str,
-        activated: bool,
-        discord_id: int | None
-    ) -> None:
-        self.name = name
-        self.safe_name = safe_name
-        self.email = email
-        self.bcrypt = bcrypt
-        self.country = country
-        self.activated = activated
-        self.discord_id = discord_id
 
     def __repr__(self) -> str:
         return f'<DBUser "{self.name}" ({self.id})>'
