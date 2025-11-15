@@ -1,11 +1,6 @@
 
 from enum import Enum, IntEnum
 
-class CommentTarget(str, Enum):
-    Replay = 'replay'
-    Song   = 'song'
-    Map    = 'map'
-
 class LeaderboardType(IntEnum):
     Local       = 0
     Top         = 1
@@ -22,7 +17,6 @@ class ScoreStatus(IntEnum):
     Mods      = 4
 
 class DirectDisplayMode(IntEnum):
-    """Search category for osu!direct"""
     Ranked       = 0
     RankedStrict = 1
     Pending      = 2

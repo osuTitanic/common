@@ -28,7 +28,6 @@ from .bancho import (
 
 from .web import (
     ScoreStatus,
-    CommentTarget,
     LeaderboardType,
     DirectDisplayMode
 )
