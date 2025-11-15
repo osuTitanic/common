@@ -6,7 +6,7 @@ from app.common.constants import (
     FILTER_PATTERN,
     DirectDisplayMode,
     BeatmapCategory,
-    DatabaseStatus,
+    BeatmapStatus,
     BeatmapSortBy,
     BeatmapOrder
 )
@@ -621,7 +621,7 @@ def apply_status_filter(query: Query, condition: Dict[str, Any]) -> Query:
     op = condition['operator']
     val = condition['value']
 
-    status_value = DatabaseStatus.from_lowercase(val.lower())
+    status_value = BeatmapStatus.from_lowercase(val.lower())
 
     if status_value is None:
         if not val.isdigit():

@@ -1,5 +1,5 @@
 
-from app.common.constants import UserActivity, DatabaseStatus
+from app.common.constants import UserActivity, BeatmapStatus
 from app.common.database.objects import DBActivity
 from app.common.webhooks import *
 
@@ -143,7 +143,7 @@ def format_beatmap_status_update(activity: DBActivity) -> Embed:
     embed.fields = [
         Field(
             version,
-            f'{DatabaseStatus(status).name}',
+            f'{BeatmapStatus(status).name}',
             inline=True
         )
         for version, status in activity.data["beatmaps"].items()

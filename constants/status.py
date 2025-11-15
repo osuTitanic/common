@@ -1,7 +1,7 @@
 
 from enum import IntEnum
 
-class DatabaseStatus(IntEnum):
+class BeatmapStatus(IntEnum):
     Inactive  = -3
     Graveyard = -2
     WIP       = -1

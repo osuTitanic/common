@@ -1,5 +1,5 @@
 
-from .status import SubmissionStatus, LegacyStatus, DatabaseStatus
+from .status import SubmissionStatus, LegacyStatus, BeatmapStatus
 from .notifications import NotificationType
 from .user import Playstyle, UserActivity
 from .modes import GameMode

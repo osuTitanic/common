@@ -1,5 +1,5 @@
 
-from app.common.constants import UserActivity, DatabaseStatus
+from app.common.constants import UserActivity, BeatmapStatus
 from app.common.database.objects import DBActivity
 
 import config
@@ -168,7 +168,7 @@ def format_beatmap_status_update(activity: DBActivity) -> str:
         activity.data['beatmapset_name'],
         f'http://osu.{config.DOMAIN_NAME}/s/{activity.data["beatmapset_id"]}',
     )
-    status_name = DatabaseStatus(activity.data['status']).name
+    status_name = BeatmapStatus(activity.data['status']).name
 
     return f'{beatmapset_link} was set to "{status_name}" by {user_link}'
 
