@@ -3,7 +3,6 @@ from .notifications import NotificationType
 from .user import Playstyle, UserActivity
 from .bancho import ClientStatus
 from .modes import GameMode
-from .flags import BadFlags
 from .grade import Grade
 from .mods import Mods
 
