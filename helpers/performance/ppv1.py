@@ -150,15 +150,18 @@ def calculate_star_rating(beatmap: DBBeatmap) -> float:
 
     # Songs with insane accuracy/circle size/life drain
     if difficulty > 21:
-        return (min(difficulty, 30) / 3 * 4 + min(20 - 0.032 * math.pow(noteDensity - 5, 4), 20)) / 10
+        stars = (min(difficulty, 30) / 3 * 4 + min(20 - 0.032 * math.pow(noteDensity - 5, 4), 20)) / 10
     
     # Songs with insane number of beats per second
     if noteDensity >= 2.5:
-        return (min(difficulty, 18) / 18 * 10 + min(40 - 40 / math.pow(5, 3.5) * math.pow(min(noteDensity, 5) - 5, 4), 40)) / 10
+        stars = (min(difficulty, 18) / 18 * 10 + min(40 - 40 / math.pow(5, 3.5) * math.pow(min(noteDensity, 5) - 5, 4), 40)) / 10
     
     # Songs with glacial number of beats per second
     if noteDensity < 1:
-        return (min(difficulty, 18) / 18 * 10) / 10 + 0.25
+        stars = (min(difficulty, 18) / 18 * 10) / 10 + 0.25
 
     # All other songs of medium difficulty
-    return (min(difficulty, 18) / 18 * 10 + min(25 * (noteDensity - 1), 40)) / 10
+    else:
+        stars = (min(difficulty, 18) / 18 * 10 + min(25 * (noteDensity - 1), 40)) / 10
+        
+    return min(5, stars)
