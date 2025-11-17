@@ -137,6 +137,9 @@ def calculate_star_rating(beatmap: DBBeatmap) -> float:
         beatmap.count_slider*2 +
         beatmap.count_spinner*3
     )
+    
+    if total_objects <= 0:
+        return 0
 
     noteDensity = total_objects / beatmap.drain_length
     difficulty = beatmap.hp + beatmap.od + beatmap.cs
