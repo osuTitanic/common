@@ -584,8 +584,8 @@ def fetch_score_index_by_tscore(
     # Fetch score rank for closest score
     return fetch_score_index_by_id(
         closest_score.id,
-        beatmap_id,
-        mode
+        beatmap_id, mode,
+        session=session
     ) + 1
 
 @session_wrapper
