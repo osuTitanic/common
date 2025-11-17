@@ -111,10 +111,6 @@ def recalculate_weighted_ppv1(
 
 @wrapper.session_wrapper
 def resolve_star_rating(beatmap: DBBeatmap, session: Session = ...) -> float:
-    # NOTE: We're using ppv2-based star ratings for now, until the
-    #       old eyup star rating implementation matches the original
-    return min(5, beatmap.diff * 0.565)
-
     if beatmap.diff_eyup:
         return beatmap.diff_eyup
 
