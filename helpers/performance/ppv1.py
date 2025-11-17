@@ -18,7 +18,7 @@ def calculate_ppv1(
     score: DBScore,
     session: Session = ...
 ) -> float:
-    """Calculate ppv1, by using the score's pp as a difficulty factor"""
+    """Calculate the performance points (v1) for a given score"""
     beatmap = beatmaps.fetch_by_id(
         score.beatmap_id,
         session=session
@@ -87,7 +87,7 @@ def calculate_ppv1(
     return max(0, score.ppv1)
 
 def calculate_weight(pps: List[float]) -> float:
-    """Calculate the sum of weighted pp for each score"""
+    """Calculate the sum of weighted performance points for each score"""
     pps.sort(reverse=True)
     return sum(pp * 0.95**index for index, pp in enumerate(pps))
 
@@ -111,6 +111,7 @@ def recalculate_weighted_ppv1(
 
 @wrapper.session_wrapper
 def resolve_star_rating(beatmap: DBBeatmap, session: Session = ...) -> float:
+    """Resolve and cache the old eyup star rating for a beatmap"""
     if beatmap.diff_eyup:
         return beatmap.diff_eyup
 
