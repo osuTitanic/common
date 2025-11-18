@@ -2,8 +2,8 @@
 from __future__ import annotations
 
 from typing import Generator, Iterator, List, Dict
-from boto3_type_annotations.s3 import Client
 from botocore.exceptions import ClientError
+from botocore.client import BaseClient
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from redis import Redis
@@ -31,7 +31,7 @@ class Storage:
             config.REDIS_PORT
         )
 
-        self.s3: Client = boto3.client(
+        self.s3: BaseClient = boto3.client(
             's3',
             endpoint_url=config.S3_BASEURL,
             aws_access_key_id=config.S3_ACCESS_KEY,
