@@ -29,6 +29,12 @@ class Geolocation:
         return is_local_ip(self.ip)
 
     def set_country_code(self, code: str) -> None:
+        if code not in COUNTRIES:
+            self.country_code = 'XX'
+            self.country_name = 'Unknown'
+            self.country_index = 0
+            return
+
         self.country_code = code
         self.country_name = COUNTRIES.get(code, 'Unknown')
         self.country_index = list(COUNTRIES.keys()).index(code)
