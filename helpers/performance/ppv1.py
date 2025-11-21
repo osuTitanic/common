@@ -128,10 +128,11 @@ def calculate_eyup_star_rating(beatmap: DBBeatmap) -> float:
         notes = (
             beatmap.count_normal + beatmap.count_slider * 1.2
         )
-        return (
+        stars = (
             (beatmap.hp / 14 + beatmap.od / 12) +
             (notes / beatmap.drain_length) / 2.3 * math.pow(1.04, beatmap.cs - 3)
         )
+        return min(5, stars)
 
     total_objects = (
         beatmap.count_normal +
@@ -164,5 +165,5 @@ def calculate_eyup_star_rating(beatmap: DBBeatmap) -> float:
     # All other songs of medium difficulty
     else:
         stars = (min(difficulty, 18) / 18 * 10 + min(25 * (noteDensity - 1), 40)) / 10
-        
+
     return min(5, stars)
