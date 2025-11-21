@@ -1,8 +1,44 @@
 
 from ..database.objects import DBBeatmap, DBScore
-from ..constants.mods import Mods
+from ..constants import Mods, GameMode
 
 import functools
+
+def calculate_accuracy(score: DBScore) -> float:
+    """Calculate the accuracy of a score"""
+    if score.total_objects == 0:
+        return 0.0
+
+    if score.mode == GameMode.Osu:
+        return (
+            ((score.n300 * 300.0) + (score.n100 * 100.0) + (score.n50 * 50.0))
+            / (score.total_objects * 300.0)
+        )
+
+    elif score.mode == GameMode.Taiko:
+        return (
+            ((score.n100 * 0.5) + score.n300)
+            / score.total_objects
+        )
+
+    elif score.mode == GameMode.CatchTheBeat:
+        return (
+            (score.n300 + score.n100 + score.n50)
+            / score.total_objects
+        )
+
+    elif score.mode == GameMode.OsuMania:
+        return (
+            (
+              (score.n50 * 50.0) +
+              (score.n100 * 100.0) +
+              (score.nKatu * 200.0) +
+              ((score.n300 + score.nGeki) * 300.0)
+            )
+            / (score.total_objects * 300.0)
+        )
+
+    return 0.0
 
 def calculate_difficulty_multiplier(beatmap: DBBeatmap, total_hits: int):
     """Get the beatmap difficulty multiplier for score calculations"""
