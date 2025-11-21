@@ -5,6 +5,7 @@ from app.common.database.repositories import scores, beatmaps, wrapper
 from app.common.database.objects import DBScore, DBBeatmap
 from app.common.constants import Mods, GameMode
 
+from sqlalchemy.orm.attributes import instance_dict
 from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
@@ -22,10 +23,11 @@ def calculate_ppv1(
     if score.relaxing:
         return 0
 
-    beatmap = beatmaps.fetch_by_id(
-        score.beatmap_id,
-        session=session
-    )
+    # Check if beatmap relationship is already loaded
+    if 'beatmap' not in instance_dict(score):
+        beatmap = score.beatmap
+    else:
+        beatmap = beatmaps.fetch_by_id(score.beatmap_id, session)
 
     if beatmap.playcount <= 0:
         return 0
