@@ -248,6 +248,7 @@ def fetch_best(
     user_id: int,
     mode: int,
     exclude_approved: bool = False,
+    preload_beatmap: bool = False,
     session: Session = ...
 ) -> List[DBScore]:
     allowed_status = [
@@ -262,6 +263,7 @@ def fetch_best(
         ])
 
     return session.query(DBScore) \
+        .options(selectinload(DBScore.beatmap) if preload_beatmap else ()) \
         .join(DBScore.beatmap) \
         .filter(DBBeatmap.status.in_(allowed_status)) \
         .filter(DBScore.user_id == user_id) \
