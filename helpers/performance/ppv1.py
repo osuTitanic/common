@@ -19,6 +19,9 @@ def calculate_ppv1(
     session: Session = ...
 ) -> float:
     """Calculate the performance points (v1) for a given score"""
+    if score.relaxing:
+        return 0
+
     beatmap = beatmaps.fetch_by_id(
         score.beatmap_id,
         session=session
@@ -37,7 +40,7 @@ def calculate_ppv1(
     mods = Mods(score.mods)
 
     star_rating = resolve_eyup_star_rating(beatmap, session)
-    base_pp = math.pow(star_rating, 4) / math.pow(score_rank, 0.5)
+    base_pp = math.pow(star_rating, 4) / math.pow(score_rank, 0.8)
 
     # Older scores will give less pp
     score_age = (datetime.now() - score.submitted_at.replace(tzinfo=None)).days
@@ -50,11 +53,10 @@ def calculate_ppv1(
     # Adjustments for mods
     hr_bonus = 1.1 if (Mods.HardRock in mods) else 1
     dt_bonus = 1.1 if (Mods.DoubleTime in mods) or (Mods.Nightcore in mods) else 1
-    rx_nerf  = 0.3 if (Mods.Relax in mods) or (Mods.Autopilot in mods) else 1
-    ez_nerf  = 0.2 if (Mods.Easy in mods) or (Mods.HalfTime in mods) else 1
+    ez_nerf = 0.2 if (Mods.Easy in mods) or (Mods.HalfTime in mods) else 1
 
-    # NOTE: Beatmap popularity is nefed a LOT, since it would inflate pp to the roof
-    populariy_factor = math.pow(beatmap.playcount, 0.145)
+    populariy_factor = math.pow(beatmap.playcount, 0.4) * 3.6
+    populariy_factor *= 0.24
     acc_factor = math.pow(score.acc, 15)
 
     # Nerf converts
@@ -72,7 +74,6 @@ def calculate_ppv1(
         fc_bonus,
         hr_bonus,
         dt_bonus,
-        rx_nerf,
         ez_nerf,
         populariy_factor,
         acc_factor
@@ -87,9 +88,10 @@ def calculate_ppv1(
     return max(0, score.ppv1)
 
 def calculate_weight(pps: List[float]) -> float:
-    """Calculate the sum of weighted performance points for each score"""
+    """Calculate the sum of weighted performance points (v1) for each score"""
     pps.sort(reverse=True)
-    return sum(pp * 0.95**index for index, pp in enumerate(pps))
+    base_weight = sum(pp * 0.994**index for index, pp in enumerate(pps))
+    return max(0, math.log(base_weight + 1) * 400) # peppy why
 
 def calculate_weighted_ppv1(scores: List[DBScore]) -> float:
     """Calculate weighted ppv1 with from a list of scores"""
@@ -104,10 +106,18 @@ def recalculate_weighted_ppv1(
     session: Session = ...
 ) -> float:
     """Calculate weighted ppv1 with from a list of scores"""
-    return calculate_weight([
-        calculate_ppv1(score, session=session)
-        for score in scores
-    ])
+    for score in scores:
+        score.ppv1 = calculate_ppv1(
+            score,
+            session
+        )
+
+        session.query(DBScore) \
+            .filter(DBScore.id == score.id) \
+            .update({'ppv1': score.ppv1}, synchronize_session=False)
+
+    session.commit()
+    return calculate_weighted_ppv1(scores)
 
 @wrapper.session_wrapper
 def resolve_eyup_star_rating(beatmap: DBBeatmap, session: Session = ...) -> float:
