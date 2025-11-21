@@ -107,7 +107,7 @@ class StreamIn:
 		self.endian = endian
 		self.data = data
 		self.pos = 0
-		self.stack = []
+		self.stack: list[int] = []
 
 	def push(self): self.stack.append(self.pos)
 	def pop(self): self.pos = self.stack.pop()

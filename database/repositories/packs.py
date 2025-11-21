@@ -102,7 +102,7 @@ def add_entries(
     pack_id: int,
     *beatmapset_ids,
     session: Session = ...
-) -> DBBeatmapPackEntry:
+) -> List[DBBeatmapPackEntry]:
     entries = [
         DBBeatmapPackEntry(
             pack_id=pack_id,

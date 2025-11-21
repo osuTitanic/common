@@ -706,7 +706,7 @@ def fetch_pp_record(
     session: Session = ...
 ) -> DBScore:
     # Ranked & Approved
-    allowed_statuses = (1, 2)
+    allowed_statuses: tuple[int, ...] = (1, 2)
 
     if not exclude_loved:
         # Qualified & Loved

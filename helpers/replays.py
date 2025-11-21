@@ -3,7 +3,7 @@ from ..database.objects import DBScore
 from ..streams import StreamOut
 from ..constants import Mods
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
 
 def get_ticks(dt: datetime) -> int:
@@ -12,8 +12,8 @@ def get_ticks(dt: datetime) -> int:
 
 def decode_ticks(ticks: int) -> datetime:
     return (
-        datetime.datetime(1, 1, 1) +
-        datetime.timedelta(microseconds=ticks // 10)
+        datetime(1, 1, 1) +
+        timedelta(microseconds=ticks // 10)
     )
 
 def compute_offline_score_checksum(score: DBScore) -> str:

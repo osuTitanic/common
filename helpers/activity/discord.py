@@ -6,12 +6,12 @@ from app.common.webhooks import *
 import config
 import app
 
-def format_leaderboard_rank(activity: DBActivity) -> Embed:
+def format_leaderboard_rank(activity: DBActivity) -> Embed | None:
     if activity.data["beatmap_rank"] > 1:
-        return
+        return None
 
     if activity.data.get("pp", 0) <= 500:
-        return
+        return None
 
     embed = Embed(
         description=(
@@ -31,9 +31,9 @@ def format_leaderboard_rank(activity: DBActivity) -> Embed:
     )
     return embed
 
-def format_ranks_gained(activity: DBActivity) -> Embed:
+def format_ranks_gained(activity: DBActivity) -> Embed | None:
     if activity.data["rank"] > 10:
-        return
+        return None
 
     embed = Embed(
         title='Climbing the ranks',
@@ -171,7 +171,7 @@ def format_topic_created(activity: DBActivity) -> Embed:
         url=f'http://osu.{config.DOMAIN_NAME}/forum/t/{activity.data["topic_id"]}',
         color=0xc4492e,
         thumbnail=(
-            Image(f'https://osu.{config.DOMAIN_NAME}/{activity.data["topic_icon"]}')
+            Thumbnail(url=f'https://osu.{config.DOMAIN_NAME}/{activity.data["topic_icon"]}')
             if activity.data["topic_icon"] else None
         )
     )
@@ -189,7 +189,7 @@ def format_post_created(activity: DBActivity) -> Embed:
         url=f'http://osu.{config.DOMAIN_NAME}/forum/p/{activity.data["post_id"]}',
         color=0xc4492e,
         thumbnail=(
-            Image(f'https://osu.{config.DOMAIN_NAME}/{activity.data["topic_icon"]}')
+            Thumbnail(url=f'https://osu.{config.DOMAIN_NAME}/{activity.data["topic_icon"]}')
             if activity.data["topic_icon"] else None
         )
     )

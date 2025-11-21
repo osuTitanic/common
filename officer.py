@@ -21,7 +21,7 @@ def call(
 
     if not config.OFFICER_WEBHOOK_URL:
         app.session.logger.debug('Officer is not on board.')
-        return
+        return False
 
     if exc_info is not None:
         formatted_traceback = traceback.format_exception(exc_info, limit=exc_limit)
@@ -55,7 +55,7 @@ def embed(
 
     if not config.OFFICER_WEBHOOK_URL:
         app.session.logger.debug('Officer is not on board.')
-        return
+        return False
 
     return webhooks.Webhook(
         config.OFFICER_WEBHOOK_URL,
@@ -80,7 +80,7 @@ def event(
 
     if not config.EVENT_WEBHOOK_URL:
         app.session.logger.debug('Event webhook was not configured.')
-        return
+        return False
 
     return webhooks.Webhook(
         config.EVENT_WEBHOOK_URL,

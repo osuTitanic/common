@@ -23,7 +23,7 @@ class UserStats:
     accuracy: float
     playcount: int
     rank: int
-    pp: int
+    pp: float
 
 def update(
     player_id: int,
@@ -116,7 +116,7 @@ def version(player_id: int) -> int | None:
     )
 
     if not version:
-        return
+        return None
 
     return int(version)
 
@@ -127,12 +127,12 @@ def client_hash(player_id: int) -> str | None:
     )
 
     if not hash:
-        return
+        return None
 
     return hash.decode()
 
 def device_id(player_id: int) -> str | None:
     if not (hash := client_hash(player_id)):
-        return
+        return None
 
     return ':'.join(hash.split(':')[2:])

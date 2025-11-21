@@ -50,7 +50,7 @@ def create(
     osz_filesize_novideo: int = 0,
     available: bool = True,
     server: int = 0,
-    creator_id: int = None,
+    creator_id: int | None = None,
     submit_date: datetime | None = None,
     approved_date: datetime | None = None,
     last_update: datetime | None = None,

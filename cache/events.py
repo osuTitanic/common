@@ -39,7 +39,7 @@ class EventQueue:
         )
 
         if message is None:
-            return
+            return None
 
         try:
             name, args, kwargs = eval(message['data'])
@@ -47,6 +47,7 @@ class EventQueue:
             return self.events[name], args, kwargs
         except KeyError:
             self.logger.warning(f'No callback found for "{name}"')
+            return None
         except Exception as e:
             self.logger.warning(f'Failed to evaluate task: {e}')
 

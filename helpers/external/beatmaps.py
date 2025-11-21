@@ -142,6 +142,8 @@ class Beatmaps:
                 continue
 
             return response
+        
+        return None
     
     def osu(self, beatmap_id: int) -> bytes | None:
         self.logger.debug(f'Downloading beatmap... ({beatmap_id})')
@@ -161,6 +163,8 @@ class Beatmaps:
                 continue
 
             return response.content
+        
+        return None
 
     def preview(self, set_id: int) -> bytes | None:
         self.logger.debug(f'Downloading preview... ({set_id})')
@@ -180,6 +184,8 @@ class Beatmaps:
                 continue
 
             return response.content
+        
+        return None
 
     def background(self, set_id: int, large=False) -> bytes | None:
         self.logger.debug(f'Downloading background... ({set_id})')
