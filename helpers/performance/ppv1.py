@@ -115,8 +115,8 @@ def resolve_eyup_star_rating(beatmap: DBBeatmap, session: Session = ...) -> floa
     if beatmap.diff_eyup:
         return beatmap.diff_eyup
 
-    beatmap.diff_eyup = calculate_eyup_star_rating(beatmap)
-    beatmaps.update(beatmap.id, {'diff_eyup': round(beatmap.diff_eyup, 4)}, session)
+    beatmap.diff_eyup = round(calculate_eyup_star_rating(beatmap), 4)
+    beatmaps.update(beatmap.id, {'diff_eyup': float(beatmap.diff_eyup)}, session)
     return beatmap.diff_eyup
 
 def calculate_eyup_star_rating(beatmap: DBBeatmap) -> float:
