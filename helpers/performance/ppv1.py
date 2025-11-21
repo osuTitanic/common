@@ -29,6 +29,9 @@ def calculate_ppv1(
     else:
         beatmap = beatmaps.fetch_by_id(score.beatmap_id, session)
 
+    if not beatmap:
+        return 0
+
     if beatmap.playcount <= 0:
         return 0
 
