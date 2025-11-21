@@ -24,7 +24,7 @@ def calculate_ppv1(
         return 0
 
     # Check if beatmap relationship is already loaded
-    if 'beatmap' not in instance_dict(score):
+    if 'beatmap' in instance_dict(score):
         beatmap = score.beatmap
     else:
         beatmap = beatmaps.fetch_by_id(score.beatmap_id, session)
