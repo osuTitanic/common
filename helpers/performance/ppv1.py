@@ -36,7 +36,7 @@ def calculate_ppv1(
 
     mods = Mods(score.mods)
 
-    star_rating = resolve_star_rating(beatmap, session)
+    star_rating = resolve_eyup_star_rating(beatmap, session)
     base_pp = math.pow(star_rating, 4) / math.pow(score_rank, 0.5)
 
     # Older scores will give less pp
@@ -110,16 +110,16 @@ def recalculate_weighted_ppv1(
     ])
 
 @wrapper.session_wrapper
-def resolve_star_rating(beatmap: DBBeatmap, session: Session = ...) -> float:
+def resolve_eyup_star_rating(beatmap: DBBeatmap, session: Session = ...) -> float:
     """Resolve and cache the old eyup star rating for a beatmap"""
     if beatmap.diff_eyup:
         return beatmap.diff_eyup
 
-    beatmap.diff_eyup = calculate_star_rating(beatmap)
+    beatmap.diff_eyup = calculate_eyup_star_rating(beatmap)
     beatmaps.update(beatmap.id, {'diff_eyup': beatmap.diff_eyup}, session)
     return beatmap.diff_eyup
 
-def calculate_star_rating(beatmap: DBBeatmap) -> float:
+def calculate_eyup_star_rating(beatmap: DBBeatmap) -> float:
     """Calculate the old eyup star rating"""
     if beatmap.drain_length <= 0:
         return 0

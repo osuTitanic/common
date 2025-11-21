@@ -1,3 +1,3 @@
 
-from .ppv1 import calculate_ppv1, calculate_weighted_ppv1, calculate_weight, recalculate_weighted_ppv1
+from .ppv1 import calculate_ppv1, calculate_weighted_ppv1, calculate_weight, recalculate_weighted_ppv1, calculate_eyup_star_rating
 from .ppv2 import calculate_ppv2, calculate_ppv2_if_fc, calculate_difficulty, convert_mode
