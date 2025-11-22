@@ -17,9 +17,9 @@ def create_many(
         session.add(
             DBAchievement(
                 user_id=user_id,
-                filename=a.name,
+                name=a.name,
                 category=a.category,
-                name=a.filename
+                filename=a.filename
             )
         )
     session.commit()
