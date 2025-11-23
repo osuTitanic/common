@@ -36,3 +36,12 @@ class GameMode(IntEnum):
             GameMode.CatchTheBeat: 'fruits',
             GameMode.OsuMania: 'mania'
         }[self]
+        
+    @property
+    def short(self) -> str:
+        return {
+            GameMode.Osu: 'Standard',
+            GameMode.Taiko: 'Taiko',
+            GameMode.CatchTheBeat: 'Catch',
+            GameMode.OsuMania: 'Mania'
+        }[self]
