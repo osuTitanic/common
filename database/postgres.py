@@ -52,7 +52,7 @@ class Postgres:
 
     @contextmanager
     def managed_session(self):
-        return self.yield_session()
+        yield from self.yield_session()
 
     def yield_session(self):
         session = self.sessionmaker(bind=self.engine)
