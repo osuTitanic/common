@@ -62,7 +62,7 @@ class Postgres:
         except Exception as e:
             self.log_transaction_failure(e)
             session.rollback()
-            raise e
+            raise
         finally:
             session.close()
 
