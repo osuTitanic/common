@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import create_engine, text
 from contextlib import contextmanager
+from typing import Generator
 
 from .objects import Base
 from . import extensions
@@ -51,10 +52,10 @@ class Postgres:
         return self.sessionmaker(bind=self.engine)
 
     @contextmanager
-    def managed_session(self):
+    def managed_session(self) -> Generator[Session, None, None]:
         yield from self.yield_session()
 
-    def yield_session(self):
+    def yield_session(self) -> Generator[Session, None, None]:
         session = self.sessionmaker(bind=self.engine)
 
         try:
