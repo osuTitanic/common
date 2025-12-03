@@ -79,3 +79,15 @@ def fetch_many_by_version(
         .limit(limit) \
         .offset(offset) \
         .all()
+
+@session_wrapper
+def fetch_last_osu_version(
+    user_id: int,
+    session: Session = ...
+) -> str | None:
+    login = session.query(DBLogin.version) \
+        .filter(DBLogin.user_id == user_id) \
+        .filter(DBLogin.version.like('b%')) \
+        .order_by(DBLogin.time.desc()) \
+        .first()
+    return login[0] if login else None
