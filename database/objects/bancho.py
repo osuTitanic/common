@@ -124,6 +124,10 @@ class DBUserActivity(Base):
     osu_count = Column('osu_count', Integer, default=0)
     irc_count = Column('irc_count', Integer, default=0)
     mp_count  = Column('mp_count', Integer, default=0)
+    
+    @property
+    def total_users(self) -> int:
+        return self.osu_count + self.irc_count
 
 class DBRelease(Base):
     __tablename__ = "releases"
