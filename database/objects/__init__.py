@@ -20,7 +20,7 @@ __all__ = [
     "DBVerifiedClient",
     "DBMatch",
     "DBMatchEvent",
-    "DBUserCount",
+    "DBUserActivity",
     "DBRelease",
     "DBModdedRelease",
     "DBExtraRelease",

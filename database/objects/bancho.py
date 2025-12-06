@@ -117,11 +117,13 @@ class DBMatchEvent(Base):
 
     match: Mapped["DBMatch"] = relationship('DBMatch', back_populates='events')
 
-class DBUserCount(Base):
-    __tablename__ = "user_count"
+class DBUserActivity(Base):
+    __tablename__ = "user_activity"
 
-    time  = Column('time', DateTime, primary_key=True, server_default=func.now())
-    count = Column('count', Integer, default=0)
+    time      = Column('time', DateTime, primary_key=True, server_default=func.now())
+    osu_count = Column('osu_count', Integer, default=0)
+    irc_count = Column('irc_count', Integer, default=0)
+    mp_count  = Column('mp_count', Integer, default=0)
 
 class DBRelease(Base):
     __tablename__ = "releases"
