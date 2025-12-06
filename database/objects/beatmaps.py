@@ -89,6 +89,10 @@ class DBBeatmapset(Base):
     @property
     def full_name(self):
         return f'{self.artist} - {self.title} ({self.creator})'
+    
+    @property
+    def osz2_hashes(self) -> str:
+        return f"{self.body_hash}{self.meta_hash}".upper()
 
     @property
     def link(self):
