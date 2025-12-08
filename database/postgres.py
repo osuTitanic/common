@@ -1,6 +1,7 @@
 
 from concurrent.futures import ThreadPoolExecutor
 from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.pool import NullPool, QueuePool
 from sqlalchemy import create_engine, text
 from contextlib import contextmanager
 from typing import Generator
@@ -23,11 +24,12 @@ class Postgres:
     ) -> None:
         self.engine = create_engine(
             f'postgresql://{username}:{password}@{host}:{port}/{username}',
+            poolclass=QueuePool if config.POSTGRES_POOL_ENABLED else NullPool,
             max_overflow=config.POSTGRES_POOLSIZE_OVERFLOW,
             pool_size=config.POSTGRES_POOLSIZE,
-            pool_pre_ping=True,
-            pool_recycle=900,
-            pool_timeout=15,
+            pool_pre_ping=config.POSTGRES_POOL_PRE_PING,
+            pool_recycle=config.POSTGRES_POOL_RECYCLE,
+            pool_timeout=config.POSTGRES_POOL_TIMEOUT,
             echo_pool=None,
             echo=None
         )
