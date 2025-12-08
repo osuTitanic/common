@@ -288,6 +288,23 @@ def fetch_best_by_score(
         .all()
 
 @session_wrapper
+def fetch_best_by_beatmap(
+    user_id: int,
+    beatmap_id: int,
+    mode: int,
+    statuses: tuple = (3, 4),
+    session: Session = ...
+) -> List[DBScore]:
+    return session.query(DBScore) \
+        .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.beatmap_id == beatmap_id) \
+        .filter(DBScore.mode == mode) \
+        .filter(DBScore.status_score.in_(statuses)) \
+        .filter(DBScore.hidden == False) \
+        .order_by(DBScore.total_score.desc(), DBScore.id.asc()) \
+        .all()
+
+@session_wrapper
 def fetch_pinned(
     user_id: int,
     mode: int,
