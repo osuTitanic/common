@@ -25,8 +25,8 @@ class Postgres:
         self.engine = create_engine(
             f'postgresql://{username}:{password}@{host}:{port}/{username}',
             poolclass=QueuePool if config.POSTGRES_POOL_ENABLED else NullPool,
-            max_overflow=config.POSTGRES_POOLSIZE_OVERFLOW,
-            pool_size=config.POSTGRES_POOLSIZE,
+            max_overflow=config.POSTGRES_POOL_SIZE_OVERFLOW,
+            pool_size=config.POSTGRES_POOL_SIZE,
             pool_pre_ping=config.POSTGRES_POOL_PRE_PING,
             pool_recycle=config.POSTGRES_POOL_RECYCLE,
             pool_timeout=config.POSTGRES_POOL_TIMEOUT,
