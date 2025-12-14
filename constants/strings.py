@@ -65,7 +65,12 @@ NOT_ACTIVATED = '\n'.join([
     'Please check your email for activation instructions!'
 ])
 
-UNSUPPORTED_HASH = '\n'.join([
+CLIENT_TOO_NEW = '\n'.join([
+    'The version of osu! you are using is too new.',
+    'Please download an older version of osu! from the website!'
+])
+
+UNVERIFIED_CLIENT = '\n'.join([
     'The version of osu! you are using is made for testers only.',
     'Please download a different version of osu! from the website!'
 ])
