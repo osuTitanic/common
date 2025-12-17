@@ -45,7 +45,7 @@ class Config(BaseSettings):
     # This icon will be visible inside the menu (optional)
     MENUICON_IMAGE: str | None = None
     MENUICON_URL: str | None = None
-    
+
     # A comma-separated list of background image urls that will be seen in the menu
     SEASONAL_BACKGROUNDS: list[str] = Field(default_factory=list)
 
@@ -277,5 +277,12 @@ class Config(BaseSettings):
 
         # We have a comma-separated string, remove whitespace and split by comma
         return [int(item.strip()) for item in v.split(",") if item.strip()]
+    
+    @field_validator("SMTP_PORT", mode="before")
+    @classmethod
+    def empty_string_to_none(cls, v):
+        if v == "":
+            return None
+        return v
 
 config_instance = Config()
