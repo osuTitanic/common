@@ -89,16 +89,19 @@ class Config(BaseSettings):
 
     # Disable/Enable score submission for relax & autopilot
     ALLOW_RELAX: bool = False
-    
+
+    # This will allow unauthenticated osu! direct usage for old clients
+    ALLOW_UNAUTHENTICATED_DIRECT: bool = True
+
     # This will award pp and rscore for approved/loved maps
     APPROVED_MAP_REWARDS: bool = False
-    
+
     # Enable or disable beatmap submission
     BEATMAP_SUBMISSION_ENABLED: bool = False
-    
+
     # Used to freeze rank graph updates, useful for pp recalculations
     FROZEN_RANK_UPDATES: bool = False
-    
+
     # Similar to the previous config, this will disable all ppv1 recalculation tasks
     FROZEN_PPV1_UPDATES: bool = False
 
