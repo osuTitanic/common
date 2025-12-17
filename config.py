@@ -205,6 +205,22 @@ class Config(BaseSettings):
     API_BASEURL_OVERRIDE: str | None = Field(default=None, validation_alias="API_BASEURL")
     STATIC_BASEURL_OVERRIDE: str | None = Field(default=None, validation_alias="STATIC_BASEURL")
 
+    @field_validator(
+        "SEASONAL_BACKGROUNDS",
+        "AUTOJOIN_CHANNELS",
+        "SUPER_FRIENDLY_USERS",
+        "BANCHO_TCP_PORTS",
+        mode="before"
+    )
+    @classmethod
+    def parse_list_from_string(cls, v):
+        if not isinstance(v, str):
+            # We assume the value is already a list
+            return v
+
+        # We have a comma-separated string, remove whitespace and split by comma
+        return [item.strip() for item in v.split(",") if item.strip()]
+
     @computed_field
     @property
     def EMAIL_DOMAIN(self) -> str | None:
