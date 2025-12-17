@@ -322,8 +322,10 @@ class Config(BaseSettings):
     @field_validator("SUPER_FRIENDLY_USERS", "BANCHO_TCP_PORTS", mode="before")
     @classmethod
     def parse_int_list(cls, v):
-        if not isinstance(v, str):
-            # We assume the value is already a list
+        if isinstance(v, int):
+            return [v]
+
+        if isinstance(v, list):
             return v
 
         # We have a comma-separated string, remove whitespace and split by comma
