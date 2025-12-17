@@ -116,6 +116,7 @@ class Config(BaseSettings):
     # SSL configuration (optional)
     BANCHO_SSL_KEYFILE: str | None = None
     BANCHO_SSL_CERTFILE: str | None = None
+    BANCHO_SSL_VERIFY_FILE: str | None = None
 
     # This will enable maintenance mode. Only admins can connect in this state.
     # You can also enable this using the !system maintenance command
@@ -135,6 +136,9 @@ class Config(BaseSettings):
     # You will need to edit the "releases" table to make it actually usable
     # Admins will automatically bypass this check by default
     DISABLE_CLIENT_VERIFICATION: bool = True
+
+    # Maximum allowed slots in multiplayer matches
+    MULTIPLAYER_MAX_SLOTS: int = 8
 
     ## Website configuration
     FRONTEND_HOST: str = "localhost"
@@ -217,6 +221,11 @@ class Config(BaseSettings):
     @property
     def EMAILS_ENABLED(self) -> bool:
         return bool(self.EMAIL_PROVIDER and self.EMAIL_SENDER)
+
+    @computed_field
+    @property
+    def BANCHO_SSL_ENABLED(self) -> bool:
+        return bool(self.BANCHO_SSL_KEYFILE and self.BANCHO_SSL_CERTFILE)
 
     @computed_field
     @property
