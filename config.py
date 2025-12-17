@@ -260,7 +260,19 @@ class Config(BaseSettings):
     def DEFAULT_STATIC_BASEURL(self) -> str:
         scheme = "https" if self.ENABLE_SSL else "http"
         return f"{scheme}://s.{self.DOMAIN_NAME}"
-    
+
+    @computed_field
+    @property
+    def DEFAULT_EVENTS_WEBSOCKET(self) -> str:
+        scheme = "wss" if self.ENABLE_SSL else "ws"
+        return f"{scheme}://api.{self.DOMAIN_NAME}/events/ws"
+
+    @computed_field
+    @property
+    def DEFAULT_LOUNGE_BACKEND(self) -> str:
+        scheme = "https" if self.ENABLE_SSL else "http"
+        return f"{scheme}://lounge.{self.DOMAIN_NAME}"
+
     @computed_field
     @property
     def VALID_IMAGE_SERVICES(self) -> tuple[str, ...]:
@@ -291,6 +303,11 @@ class Config(BaseSettings):
     @property
     def STATIC_BASEURL(self) -> str:
         return self.STATIC_BASEURL_OVERRIDE or self.DEFAULT_STATIC_BASEURL
+
+    @computed_field
+    @property
+    def SITEMAP_ENABLED(self) -> bool:
+        return self.DOMAIN_NAME in ("titanic.sh", "localhost")
 
     @field_validator("SEASONAL_BACKGROUNDS", "AUTOJOIN_CHANNELS", mode="before")
     @classmethod
