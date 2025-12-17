@@ -170,7 +170,7 @@ class Config(BaseSettings):
     SUPER_FRIENDLY_USERS: list[int] = Field(default_factory=list)
 
     # Cutoff timestamp for showing "since the beginning" join dates
-    BEGINNING_ENDED_AT: datetime | None = None
+    BEGINNING_ENDED_AT: datetime = datetime(2023, 12, 31, 6, 0, 0)
 
     # Wiki configuration
     WIKI_REPOSITORY_OWNER: str = "osuTitanic"
