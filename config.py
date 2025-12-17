@@ -29,6 +29,7 @@ class Config(BaseSettings):
     ## Redis configuration
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
+    REDIS_POOLSIZE: int = 10
 
     ## S3 Storage configuration (optional)
     S3_BASEURL: str | None = None
