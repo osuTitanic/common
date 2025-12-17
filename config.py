@@ -159,6 +159,9 @@ class Config(BaseSettings):
     # Enable this if you are using an ssl certificate
     ENABLE_SSL: bool = False
 
+    # If you have ssl enabled, but still want to use http set this to true
+    ALLOW_INSECURE_COOKIES: bool | None = None
+
     # reCAPTCHA key configuration
     RECAPTCHA_SECRET_KEY: str | None = None
     RECAPTCHA_SITE_KEY: str | None = None
@@ -349,5 +352,16 @@ class Config(BaseSettings):
         if v == "":
             return None
         return v
+    
+    @field_validator("ALLOW_INSECURE_COOKIES", mode="before")
+    @classmethod
+    def set_allow_insecure_cookies(cls, v, info):
+        if v is not None:
+            return v
+
+        # Default to the inverse of ENABLE_SSL
+        enable_ssl = info.data.get("ENABLE_SSL", False)
+        debug = info.data.get("DEBUG", False)
+        return (not enable_ssl) or debug
 
 config_instance = Config()
