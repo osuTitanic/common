@@ -1,6 +1,7 @@
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, SettingsConfigDict, NoDecode
 from pydantic import Field, computed_field, field_validator
+from typing_extensions import Annotated
 from datetime import datetime
 
 import os
@@ -48,7 +49,7 @@ class Config(BaseSettings):
     MENUICON_URL: str | None = None
 
     # A comma-separated list of background image urls that will be seen in the menu
-    SEASONAL_BACKGROUNDS: list[str] = Field(default_factory=list)
+    SEASONAL_BACKGROUNDS: Annotated[list[str], NoDecode] = []
 
     # Discord webhook url for logging (optional)
     OFFICER_WEBHOOK_URL: str | None = None
@@ -102,7 +103,7 @@ class Config(BaseSettings):
     FROZEN_PPV1_UPDATES: bool = False
 
     ## Bancho configuration
-    BANCHO_TCP_PORTS: list[int] = [13380, 13381, 13382, 13383]
+    BANCHO_TCP_PORTS: Annotated[list[int], NoDecode] = [13380, 13381, 13382, 13383]
     BANCHO_HTTP_PORT: int = 5000
     BANCHO_WS_PORT: int = 5001
     BANCHO_IRC_PORT: int = 6667
@@ -126,7 +127,7 @@ class Config(BaseSettings):
     ALLOW_MULTIACCOUNTING: bool = False
 
     # These channels will be automatically joined when logging in
-    AUTOJOIN_CHANNELS: list[str] = ["#osu", "#announce"]
+    AUTOJOIN_CHANNELS: Annotated[list[str], NoDecode] = ["#osu", "#announce"]
 
     # Used for bancho_connect.php endpoint (optional)
     # Make sure this ip is not proxied in any way
@@ -167,7 +168,7 @@ class Config(BaseSettings):
     RECAPTCHA_SITE_KEY: str | None = None
 
     # IDs of users whom appear to have everyone added as a friend
-    SUPER_FRIENDLY_USERS: list[int] = Field(default_factory=list)
+    SUPER_FRIENDLY_USERS: Annotated[list[int], NoDecode] = Field(default_factory=list)
 
     # Cutoff timestamp for showing "since the beginning" join dates
     BEGINNING_ENDED_AT: datetime = datetime(2023, 12, 31, 6, 0, 0)
