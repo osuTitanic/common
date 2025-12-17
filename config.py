@@ -212,6 +212,8 @@ class Config(BaseSettings):
     OSU_BASEURL_OVERRIDE: str | None = Field(default=None, validation_alias="OSU_BASEURL")
     API_BASEURL_OVERRIDE: str | None = Field(default=None, validation_alias="API_BASEURL")
     STATIC_BASEURL_OVERRIDE: str | None = Field(default=None, validation_alias="STATIC_BASEURL")
+    EVENTS_WEBSOCKET_OVERRIDE: str | None = Field(default=None, validation_alias="EVENTS_WEBSOCKET")
+    LOUNGE_BACKEND_OVERRIDE: str | None = Field(default=None, validation_alias="LOUNGE_BACKEND")
 
     # Custom image services that can bypass the proxy
     VALID_IMAGE_SERVICES_OVERRIDE: list[str] = Field(
@@ -303,6 +305,16 @@ class Config(BaseSettings):
     @property
     def STATIC_BASEURL(self) -> str:
         return self.STATIC_BASEURL_OVERRIDE or self.DEFAULT_STATIC_BASEURL
+    
+    @computed_field
+    @property
+    def EVENTS_WEBSOCKET(self) -> str:
+        return self.EVENTS_WEBSOCKET_OVERRIDE or self.DEFAULT_EVENTS_WEBSOCKET
+    
+    @computed_field
+    @property
+    def LOUNGE_BACKEND(self) -> str:
+        return self.LOUNGE_BACKEND_OVERRIDE or self.DEFAULT_LOUNGE_BACKEND
 
     @computed_field
     @property
