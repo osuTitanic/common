@@ -2,6 +2,29 @@
 
 Here is a quick overview of how to use this module.
 
+## Configuration
+
+Most parts of `common` are configured through `common.config`.
+The config object is a pydantic settings model, which loads from environment variables (and an optional `.env`).
+
+```python
+from common.config import Config
+
+config = Config()
+
+print(config.POSTGRES_HOST)
+print(config.POSTGRES_DSN)
+print(config.OSU_BASEURL)
+```
+
+If you just need a quick, shared config instance, you can also use `config_instance`:
+
+```python
+from common.config import config_instance as config
+
+print(config.DOMAIN_NAME)
+```
+
 ## Constants
 
 The `common.constants` module will provide you with various useful enums & flags, like `Mods`, `GameMode` and much more.
@@ -48,16 +71,12 @@ All database table schemas are stored inside `common.database.objects`, and are 
 Here is a simple example of how you would query a user:
 
 ```python
-from common.database.postgres import Postgres
-from common.database.objects import DBUser
+from common.config import Config
+from common.database import Postgres, DBUser
 
 # Setup the database class
-database = Postgres(
-    "<Username>",
-    "<Password>",
-    "<Host>",
-    "<Port>"
-)
+config = Config()
+database = Postgres(config)
 
 # Open a session
 with database.managed_session() as session:
@@ -93,9 +112,11 @@ For this we have set up a helper class, which can be found under `common.storage
 Here is an example of how to use it:
 
 ```python
+from common.config import Config
 from common.storage import Storage
 
-storage = Storage()
+config = Config()
+storage = Storage(config)
 
 # Fetch data
 avatar = storage.get_avatar(1)
@@ -117,6 +138,14 @@ storage.file_exists(3256, 'replays')
 
 # List a directory/bucket
 storage.list('avatars')
+
+# Beatmap downloads
+osu = storage.get_beatmap(727)
+osz_stream = storage.get_osz(122634)  # requests.Response-like iterable
+
+# Local / s3 helpers
+osz_bytes = storage.get_osz_internal(122634)
+osz_size = storage.get_osz_size(122634)
 ```
 
 ## Function Caching
@@ -239,8 +268,7 @@ events = EventQueue(
 
 @events.register('announcement')
 def announcement(message: str):
-    session.logger.info(f'Announcement: "{message}"')
-    session.players.announce(message)
+    print(f'Announcement: "{message}"')
 
 # This will run in the background, to listen for messages.
 def event_listener():
@@ -264,6 +292,20 @@ events.submit(
     'announcement',
     message="Hello, World!"
 )
+```
+
+### Activity Counters
+
+If you need a tiny redis-backed counter for "how many users are connected", you can use `common.cache.activity`.
+
+```python
+from common.cache import activity
+
+activity.set_osu(123)
+activity.set_irc(45)
+activity.set_mp(6)
+
+print(activity.get_all())  # {'osu': 123, 'irc': 45, 'mp': 6}
 ```
 
 ## Discord Logging (Officer)
@@ -290,6 +332,25 @@ from common import officer, webhooks
 
 officer.event("BlueChin sucks.")
 officer.event(embeds=[webhooks.Embed("Hi.")])
+```
+
+## Discord Webhooks (Raw)
+
+If you want to post webhooks directly (without going through officer), use `common.webhooks`.
+
+```python
+from common.webhooks import Webhook, Embed
+
+embed = Embed(
+    title="was",
+    description="holy shit"
+)
+
+Webhook(
+    url="<Your Discord webhook URL>",
+    content="whitecat just got unbanned",
+    embeds=[embed]
+).post()
 ```
 
 ## Emails
@@ -365,10 +426,10 @@ pp = performance.calculate_ppv1(score)
 ## Binary Streams
 
 This module provides two classes for dealing with binary streams: `StreamIn` & `StreamOut`.
-Both of them are inside the `common.streams` module, and are primarily used for bancho packets.
+Both of them are inside the `common.helpers.streams` module, and have primarily been used for bancho packets in the past.
 
 ```python
-from common.streams import StreamIn, StreamOut
+from common.helpers.streams import StreamIn, StreamOut
 
 out = StreamOut(endian="<")
 out.u32(123)
@@ -379,3 +440,67 @@ stream = StreamIn(serialized, endian="<")
 num = stream.u32() # 123
 string = stream.string() # "Hello, World!"
 ```
+
+## BBCode Rendering
+
+Forum posts and other user content is formatted with BBCode.
+The `common.bbcode` module can render that into HTML.
+
+```python
+from common.bbcode import render_html
+
+html = render_html("[b]wysi[/b] [url=https://titanic.sh]Titanic![/url]")
+print(html)
+```
+
+## Misc Helpers
+
+This is a grab-bag of small utilities under `common.helpers`.
+
+### IP Helpers
+
+Resolve a real client IP when running behind proxies/CDNs:
+
+```python
+from common.helpers import ip
+
+real_ip = ip.resolve_ip_address_fastapi(request)
+is_local = ip.is_local_ip(real_ip)
+```
+
+### Permissions Helper
+
+Check if a user has a certain permission:
+
+```python
+from common.helpers import permissions
+
+if permissions.has_permission('admin.*', user_id=1):
+    print('User is an admin')
+```
+
+### Chat Filters
+
+Apply server-side chat filters (replacement + optional block timeout):
+
+```python
+from common.helpers.filter import ChatFilter
+
+filters = ChatFilter()
+filters.populate()
+
+message, timeout = filters.apply("some message")
+print(message, timeout)
+```
+
+## Profiling
+
+If you have `pytracy` installed, you can enable profiling with tracy:
+
+```python
+from common import profiling
+
+profiling.setup()
+```
+
+Please note that this requires the `0.11.1` release of [tracy](https://github.com/wolfpld/tracy/releases/tag/v0.11.1).
