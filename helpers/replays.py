@@ -1,6 +1,6 @@
 
-from ..database.objects import DBScore
-from ..streams import StreamOut
+from .streams import StreamOut
+from ..database import DBScore
 from ..constants import Mods
 
 from datetime import datetime, timedelta
