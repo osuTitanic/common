@@ -213,6 +213,19 @@ class Config(BaseSettings):
     API_BASEURL_OVERRIDE: str | None = Field(default=None, validation_alias="API_BASEURL")
     STATIC_BASEURL_OVERRIDE: str | None = Field(default=None, validation_alias="STATIC_BASEURL")
 
+    # Custom image services that can bypass the proxy
+    VALID_IMAGE_SERVICES_OVERRIDE: list[str] = Field(
+        validation_alias="VALID_IMAGE_SERVICES",
+        default=[
+            "ibb.co",
+            "i.ibb.co",
+            "i.imgur.com",
+            "media.tenor.com",
+            "cdn.discordapp.com",
+            "media.discordapp.net"
+        ]
+    )
+
     @computed_field
     @property
     def EMAIL_DOMAIN(self) -> str | None:
@@ -247,6 +260,14 @@ class Config(BaseSettings):
     def DEFAULT_STATIC_BASEURL(self) -> str:
         scheme = "https" if self.ENABLE_SSL else "http"
         return f"{scheme}://s.{self.DOMAIN_NAME}"
+    
+    @computed_field
+    @property
+    def VALID_IMAGE_SERVICES(self) -> tuple[str, ...]:
+        custom_services = set(self.VALID_IMAGE_SERVICES_OVERRIDE)
+        custom_services.add(f'i.{self.DOMAIN_NAME}')
+        custom_services.add(f'osu.{self.DOMAIN_NAME}')
+        return tuple(custom_services)
 
     @computed_field
     @property
