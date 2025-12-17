@@ -25,16 +25,17 @@ class Storage:
 
     def __init__(self, config: Config) -> None:
         self.logger = logging.getLogger('storage')
+        self.config = config
 
         self.cache = Redis(
-            config.REDIS_HOST,
-            config.REDIS_PORT
+            self.config.REDIS_HOST,
+            self.config.REDIS_PORT
         )
         self.s3: BaseClient = boto3.client(
             's3',
-            endpoint_url=config.S3_BASEURL,
-            aws_access_key_id=config.S3_ACCESS_KEY,
-            aws_secret_access_key=config.S3_SECRET_KEY
+            endpoint_url=self.config.S3_BASEURL,
+            aws_access_key_id=self.config.S3_ACCESS_KEY,
+            aws_secret_access_key=self.config.S3_SECRET_KEY
         )
 
         self.api = Beatmaps(self.cache)
@@ -349,34 +350,34 @@ class Storage:
 
     def save(self, key: str, content: bytes, bucket: str) -> bool:
         """Save a file to the specified bucket/directory."""
-        if config.S3_ENABLED:
+        if self.config.S3_ENABLED:
             return self.save_to_s3(content, str(key), bucket)
         else:
             return self.save_to_file(f'{bucket}/{key}', content)
 
     def get(self, key: str, bucket: str) -> bytes | None:
         """Get a file from the specified bucket/directory."""
-        if config.S3_ENABLED:
+        if self.config.S3_ENABLED:
             return self.get_from_s3(str(key), bucket)
         else:
             return self.get_file_content(f'{bucket}/{key}')
 
     def get_iterator(self, key: str, bucket: str, chunk_size: int = 1024 * 64) -> Generator:
         """Get a file iterator from the specified bucket/directory."""
-        if config.S3_ENABLED:
+        if self.config.S3_ENABLED:
             return self.get_s3_iterator(str(key), bucket, chunk_size)
         else:
             return self.get_file_iterator(f'{bucket}/{key}', chunk_size)
         
     def get_size(self, key: str, bucket: str) -> int | None:
-        if config.S3_ENABLED:
+        if self.config.S3_ENABLED:
             return self.get_s3_size(str(key), bucket)
         else:
             return self.get_file_size(f'{bucket}/{key}')
 
     def remove(self, key: str, bucket: str) -> bool:
         """Remove a file from the specified bucket/directory."""
-        if config.S3_ENABLED:
+        if self.config.S3_ENABLED:
             return self.remove_from_s3(str(key), bucket)
         else:
             return self.remove_file(f'{bucket}/{key}')
@@ -393,7 +394,7 @@ class Storage:
 
     def save_to_file(self, filepath: str, content: bytes) -> bool:
         try:
-            with open(f'{config.DATA_PATH}/{filepath}', 'wb') as f:
+            with open(f'{self.config.DATA_PATH}/{filepath}', 'wb') as f:
                 f.write(content)
         except Exception as e:
             self.logger.error(f'Failed to save file "{filepath}": {e}')
@@ -416,7 +417,7 @@ class Storage:
 
     def get_file_content(self, filepath: str) -> bytes | None:
         try:
-            with open(f'{config.DATA_PATH}/{filepath}', 'rb') as f:
+            with open(f'{self.config.DATA_PATH}/{filepath}', 'rb') as f:
                 return f.read()
         except FileNotFoundError:
             return None
@@ -426,7 +427,7 @@ class Storage:
 
     def get_file_iterator(self, filepath: str, chunk_size: int = 1024 * 64) -> Generator:
         try:
-            with open(f'{config.DATA_PATH}/{filepath}', 'rb') as f:
+            with open(f'{self.config.DATA_PATH}/{filepath}', 'rb') as f:
                 while chunk := f.read(chunk_size):
                     yield chunk
         except FileNotFoundError:
@@ -437,7 +438,7 @@ class Storage:
 
     def get_file_size(self, filepath: str) -> int | None:
         try:
-            return os.path.getsize(f'{config.DATA_PATH}/{filepath}')
+            return os.path.getsize(f'{self.config.DATA_PATH}/{filepath}')
         except FileNotFoundError:
             return None
         except Exception as e:
@@ -507,7 +508,7 @@ class Storage:
 
     def remove_file(self, filepath: str) -> bool:
         try:
-            os.remove(f'{config.DATA_PATH}/{filepath}')
+            os.remove(f'{self.config.DATA_PATH}/{filepath}')
         except Exception as e:
             self.logger.error(f'Failed to file "{filepath}": "{e}"')
             return False
@@ -516,8 +517,8 @@ class Storage:
 
     def file_exists(self, key: str, bucket: str) -> bool:
         """Check if a file exists in the specified bucket/directory."""
-        if not config.S3_ENABLED:
-            return os.path.isfile(f'{config.DATA_PATH}/{bucket}/{key}')
+        if not self.config.S3_ENABLED:
+            return os.path.isfile(f'{self.config.DATA_PATH}/{bucket}/{key}')
 
         try:
             self.s3.head_object(Bucket=bucket, Key=key)
@@ -527,26 +528,26 @@ class Storage:
 
     def list(self, key: str) -> List[str]:
         """Get a list of filenames from the specified bucket/directory."""
-        if not config.S3_ENABLED:
+        if not self.config.S3_ENABLED:
             return self.list_directory(key)
         else:
             return self.list_bucket(key)
 
     def list_directory(self, dir: str) -> List[str]:
-        return os.listdir(f'{config.DATA_PATH}/{dir}')
+        return os.listdir(f'{self.config.DATA_PATH}/{dir}')
 
     def list_bucket(self, bucket: str) -> List[str]:
         return [object['Key'] for object in self.s3.list_objects(Bucket=bucket)['Contents']]
 
     def get_file_hashes(self, key: str) -> Dict[str, str]:
         """Get a dictionary of file hashes from the specified bucket/directory."""
-        if config.S3_ENABLED:
+        if self.config.S3_ENABLED:
             return self.get_file_hashes_s3(key)
         else:
             return self.get_file_hashes_local(key)
 
     def get_file_hashes_s3(self, bucket: str) -> Dict[str, str]:
-        if not config.S3_ENABLED:
+        if not self.config.S3_ENABLED:
             return {}
 
         try:
@@ -559,15 +560,15 @@ class Storage:
             return {}
 
     def get_file_hashes_local(self, directory: str) -> Dict[str, str]:
-        if config.S3_ENABLED:
+        if self.config.S3_ENABLED:
             return {}
 
         try:
             file_hashes = {}
 
-            for filename in os.listdir(f'{config.DATA_PATH}/{directory}'):
+            for filename in os.listdir(f'{self.config.DATA_PATH}/{directory}'):
                 try:
-                    with open(f'{config.DATA_PATH}/{directory}/{filename}', 'rb') as file:
+                    with open(f'{self.config.DATA_PATH}/{directory}/{filename}', 'rb') as file:
                         file_content = file.read()
                         file_hash = hashlib.md5(file_content).hexdigest()
                         file_hashes[filename] = file_hash
@@ -586,7 +587,7 @@ class Storage:
 
     def get_presigned_url(self, bucket: str, key: str, expiration: int = 900) -> str | None:
         """Generate a presigned url for the specified bucket & key."""
-        if not config.S3_ENABLED:
+        if not self.self.config.S3_ENABLED:
             return None
 
         try:
