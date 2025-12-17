@@ -12,10 +12,10 @@ from .database.repositories import scores, wrapper
 from .helpers.external import Beatmaps
 from .database.objects import DBScore
 from .helpers import replays
+from .config import Config
 
 import hashlib
 import logging
-import config
 import boto3
 import os
 import io
@@ -23,14 +23,13 @@ import io
 class Storage:
     """This class aims to provide a higher level api for using/managing storage."""
 
-    def __init__(self) -> None:
+    def __init__(self, config: Config) -> None:
         self.logger = logging.getLogger('storage')
 
         self.cache = Redis(
             config.REDIS_HOST,
             config.REDIS_PORT
         )
-
         self.s3: BaseClient = boto3.client(
             's3',
             endpoint_url=config.S3_BASEURL,

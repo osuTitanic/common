@@ -1,10 +1,8 @@
 
+from app.common.config import config_instance as config
 from app.common.constants import UserActivity, BeatmapStatus
 from app.common.database.objects import DBActivity
 from app.common.webhooks import *
-
-import config
-import app
 
 def format_leaderboard_rank(activity: DBActivity) -> Embed | None:
     if activity.data["beatmap_rank"] > 1:

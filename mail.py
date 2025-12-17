@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from .database.objects import DBVerification, DBUser
+from .config import config_instance as config
 from .constants import email
 from . import officer
 
@@ -10,7 +11,6 @@ from sendgrid.helpers.mail import Mail
 from email.mime.text import MIMEText
 from smtplib import SMTP
 
-import config
 import app
 
 client = SendGridAPIClient(config.SENDGRID_API_KEY)

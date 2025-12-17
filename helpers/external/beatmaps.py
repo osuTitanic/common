@@ -2,8 +2,9 @@
 from __future__ import annotations
 from typing import List, Any
 
-from ...database.repositories import resources, beatmapsets
-from ...database.objects import DBResourceMirror
+from app.common.database.repositories import resources, beatmapsets
+from app.common.database.objects import DBResourceMirror
+from app.common.config import config_instance as config
 
 from requests.adapters import HTTPAdapter
 from requests import Session, Response
@@ -12,7 +13,6 @@ from urllib.parse import urlparse
 from redis import Redis
 
 import logging
-import config
 
 class Beatmaps:
     """Wrapper for different beatmap resources, using different API's"""

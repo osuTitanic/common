@@ -1,9 +1,7 @@
 
+from app.common.config import config_instance as config
 from app.common.constants import UserActivity, BeatmapStatus
 from app.common.database.objects import DBActivity
-
-import config
-import app
 
 REPLACE_ESCAPE = (
     ("&", "&amp;"),

@@ -15,8 +15,6 @@ from typing import List
 from .wrapper import session_wrapper
 from . import scores
 
-import config
-
 @session_wrapper
 def create(
     user_id: int,

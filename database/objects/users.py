@@ -1,6 +1,6 @@
 
 from typing import List, TYPE_CHECKING
-from datetime import datetime
+from app.common.config import config_instance as config
 
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.sql import func
@@ -26,7 +26,6 @@ if TYPE_CHECKING:
     from .misc import *
 
 import app.common
-import config
 
 class DBStats(Base):
     __tablename__ = "stats"

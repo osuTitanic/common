@@ -1,9 +1,13 @@
 
+from typing import TYPE_CHECKING
+from datetime import datetime, timedelta
+
 from .streams import StreamOut
-from ..database import DBScore
 from ..constants import Mods
 
-from datetime import datetime, timedelta
+if TYPE_CHECKING:
+    from ..database import DBScore
+
 import hashlib
 
 def get_ticks(dt: datetime) -> int:
@@ -16,7 +20,7 @@ def decode_ticks(ticks: int) -> datetime:
         timedelta(microseconds=ticks // 10)
     )
 
-def compute_offline_score_checksum(score: DBScore) -> str:
+def compute_offline_score_checksum(score: "DBScore") -> str:
     return hashlib.md5(
         '{0}p{1}o{2}o{3}t{4}a{5}r{6}e{7}y{8}o{9}u{10}{11}{12}'.format(
             (score.n100 + score.n300),
@@ -35,7 +39,7 @@ def compute_offline_score_checksum(score: DBScore) -> str:
         ).encode()
     ).hexdigest()
 
-def serialize_replay(score: DBScore, replay: bytes) -> bytes:
+def serialize_replay(score: "DBScore", replay: bytes) -> bytes:
     mods = Mods(score.mods)
 
     if Mods.Nightcore in mods and Mods.DoubleTime not in mods:

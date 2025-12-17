@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from ...constants import COUNTRIES
 from ..ip import is_local_ip
 
@@ -10,7 +8,6 @@ from geoip2.database import Reader
 from dataclasses import dataclass
 from functools import cache
 
-import config
 import app
 
 @dataclass(slots=True)

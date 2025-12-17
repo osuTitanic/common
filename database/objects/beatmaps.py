@@ -1,6 +1,6 @@
 
 from typing import List, TYPE_CHECKING
-from datetime import datetime
+from app.common.config import config_instance as config
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import Mapped, relationship, deferred
@@ -24,8 +24,6 @@ if TYPE_CHECKING:
     from .forums import DBForumPost
     from .rankings import DBScore
     from .users import DBUser
-
-import config
 
 class DBBeatmapset(Base):
     __tablename__ = "beatmapsets"

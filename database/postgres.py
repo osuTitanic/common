@@ -6,24 +6,19 @@ from sqlalchemy import create_engine, text
 from contextlib import contextmanager
 from typing import Generator
 
-from .objects import Base
-from . import extensions
+from ..config import Config
 from .. import officer
 
+from .objects import Base
+from . import extensions
+
 import logging
-import config
 import time
 
 class Postgres:
-    def __init__(
-        self,
-        username: str,
-        password: str,
-        host: str,
-        port: int
-    ) -> None:
+    def __init__(self, config: Config) -> None:
         self.engine = create_engine(
-            f'postgresql://{username}:{password}@{host}:{port}/{username}',
+            config.POSTGRES_DSN,
             poolclass=QueuePool if config.POSTGRES_POOL_ENABLED else NullPool,
             max_overflow=config.POSTGRES_POOL_SIZE_OVERFLOW,
             pool_size=config.POSTGRES_POOL_SIZE,

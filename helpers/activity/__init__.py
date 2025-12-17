@@ -8,7 +8,6 @@ from app.common.constants import UserActivity
 from sqlalchemy.orm import Session
 from app.common import officer
 
-import config
 import app
 
 __all__ = [

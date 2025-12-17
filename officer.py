@@ -1,12 +1,12 @@
 
 from __future__ import annotations
 
+from app.common.config import config_instance as config
 from app.common import webhooks
 from datetime import datetime
 from typing import Any, List
 
 import traceback
-import config
 import app
 
 def call(

@@ -1,11 +1,12 @@
 
 from urllib.parse import unquote, urlparse
 from app.common.constants import regexes
+
+from ..config import config_instance as config
 from .parser import Parser
 
 import binascii
 import hashlib
-import config
 import hmac
 
 parser = Parser()
