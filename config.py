@@ -137,6 +137,9 @@ class Config(BaseSettings):
     # Admins will automatically bypass this check by default
     DISABLE_CLIENT_VERIFICATION: bool = True
 
+    # Will reject any login attempt with a client above the specified version (optional)
+    BANCHO_CLIENT_CUTOFF: int | None = None
+
     # Maximum allowed slots in multiplayer matches
     MULTIPLAYER_MAX_SLOTS: int = 8
 
@@ -288,7 +291,7 @@ class Config(BaseSettings):
         # We have a comma-separated string, remove whitespace and split by comma
         return [int(item.strip()) for item in v.split(",") if item.strip()]
     
-    @field_validator("SMTP_PORT", mode="before")
+    @field_validator("SMTP_PORT", "BANCHO_CLIENT_CUTOFF", mode="before")
     @classmethod
     def empty_string_to_none(cls, v):
         if v == "":
