@@ -183,6 +183,9 @@ class Config(BaseSettings):
     WIKI_REPOSITORY_PATH: str = "wiki"
     WIKI_DEFAULT_LANGUAGE: str = "en"
 
+    # If set to True, this will wipe all scores once a map gets ranked
+    REMOVE_SCORES_ON_RANKED: bool = True
+
     ## API configuration
     API_HOST: str = "localhost"
     API_PORT: int = 8000
