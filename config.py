@@ -216,6 +216,7 @@ class Config(BaseSettings):
     # Used for redirecting chat messages from discord to #osu (optional)
     CHAT_WEBHOOK_URL: str | None = None
     CHAT_CHANNEL_ID: str | None = None
+    CHAT_WEBHOOK_CHANNELS: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["osu"])
 
     # Debugging options
     DEBUG: bool = False
@@ -351,7 +352,7 @@ class Config(BaseSettings):
             (now.month == 1 and now.day <= 5),
         ))
 
-    @field_validator("SEASONAL_BACKGROUNDS", "AUTOJOIN_CHANNELS", mode="before")
+    @field_validator("SEASONAL_BACKGROUNDS", "AUTOJOIN_CHANNELS", "CHAT_WEBHOOK_CHANNELS", mode="before")
     @classmethod
     def parse_string_list(cls, v):
         if not isinstance(v, str):
