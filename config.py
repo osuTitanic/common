@@ -215,7 +215,7 @@ class Config(BaseSettings):
 
     # Used for redirecting chat messages from discord to #osu (optional)
     CHAT_WEBHOOK_URL: str | None = None
-    CHAT_CHANNEL_ID: str | None = None
+    CHAT_CHANNEL_ID: int | None = None
     CHAT_WEBHOOK_CHANNELS: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["#osu"])
 
     # Debugging options
@@ -377,7 +377,7 @@ class Config(BaseSettings):
             for item in v.split(",") if item.strip()
         ]
     
-    @field_validator("SMTP_PORT", "BANCHO_CLIENT_CUTOFF", mode="before")
+    @field_validator("SMTP_PORT", "BANCHO_CLIENT_CUTOFF", "CHAT_CHANNEL_ID", mode="before")
     @classmethod
     def empty_string_to_none(cls, v):
         if v == "":
