@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBRelease, DBExtraRelease, DBModdedRelease
+from app.common.database.objects import DBRelease, DBExtraRelease, DBModdedRelease, DBReleaseFiles
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -62,3 +62,9 @@ def fetch_modded(identifier: str, session: Session = ...) -> DBModdedRelease | N
 @session_wrapper
 def fetch_extras(session: Session = ...) -> List[DBExtraRelease]:
     return session.query(DBExtraRelease).all()
+
+@session_wrapper
+def official_file_exists(checksum: str, session: Session = ...) -> bool:
+    return session.query(DBReleaseFiles.id) \
+        .filter(DBReleaseFiles.file_hash == checksum) \
+        .count() > 0
