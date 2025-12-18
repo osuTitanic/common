@@ -34,11 +34,12 @@ def call(
     traceback_text = '```python\n' + ''.join(formatted_traceback)[:4000] + '```'
 
     exception_embed = webhooks.Embed(
-        title=content[:256],
+        title="Exception Occurred",
         description=(
             f"**Component**\n{app.session.logger.name}\n\n"
             f"**Time**\n{datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n"
             f"**Exception Type**\n`{exc_info.__class__.__name__}`\n\n"
+            f"**Exception Message**\n`{str(exc_info)}`\n\n"
             f"**Traceback**\n{traceback_text}"
         ),
         color=0xFF0000
