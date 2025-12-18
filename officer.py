@@ -23,16 +23,29 @@ def call(
         app.session.logger.debug('Officer is not on board.')
         return False
 
-    if exc_info is not None:
-        formatted_traceback = traceback.format_exception(exc_info, limit=exc_limit)
-        formatted_traceback = formatted_traceback[exc_offset:]
-        content += '```'
-        content += '\n\n' + ''.join(formatted_traceback)[:1900]
-        content += '```'
+    if exc_info is None:
+        return webhooks.Webhook(
+            config.OFFICER_WEBHOOK_URL,
+            content=content
+        ).post()
 
+    formatted_traceback = traceback.format_exception(exc_info, limit=exc_limit)
+    formatted_traceback = formatted_traceback[exc_offset:]
+    traceback_text = '```python\n' + ''.join(formatted_traceback)[:4000] + '```'
+
+    exception_embed = webhooks.Embed(
+        title=content[:256],
+        description=(
+            f"**Component**\n{app.session.logger.name}\n\n"
+            f"**Time**\n{datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n"
+            f"**Exception Type**\n`{exc_info.__class__.__name__}`\n\n"
+            f"**Traceback**\n{traceback_text}"
+        ),
+        color=0xFF0000
+    )
     return webhooks.Webhook(
         config.OFFICER_WEBHOOK_URL,
-        content=content
+        embeds=[exception_embed]
     ).post()
 
 def embed(
