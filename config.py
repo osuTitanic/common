@@ -371,7 +371,10 @@ class Config(BaseSettings):
             return v
 
         # We have a comma-separated string, remove whitespace and split by comma
-        return [int(item.strip()) for item in v.split(",") if item.strip()]
+        return [
+            int(item.strip().removeprefix("[").removesuffix("]"))
+            for item in v.split(",") if item.strip()
+        ]
     
     @field_validator("SMTP_PORT", "BANCHO_CLIENT_CUTOFF", mode="before")
     @classmethod
