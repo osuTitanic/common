@@ -31,7 +31,7 @@ def call(
 
     formatted_traceback = traceback.format_exception(exc_info, limit=exc_limit)
     formatted_traceback = formatted_traceback[exc_offset:]
-    traceback_text = '```python\n' + ''.join(formatted_traceback)[:4000] + '```'
+    traceback_text = '```python\n' + ''.join(formatted_traceback)[:3512] + '```'
 
     exception_embed = webhooks.Embed(
         title="Exception Occurred",
