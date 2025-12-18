@@ -342,6 +342,15 @@ class Config(BaseSettings):
     def BITVIEW_ENABLED(self) -> bool:
         return bool(self.BITVIEW_API_ENDPOINT and self.BITVIEW_USERNAME)
 
+    @computed_field
+    @property
+    def CHRISTMAS_MODE(self) -> bool:
+        now = datetime.now()
+        return any((
+            (now.month == 12 and now.day >= 15),
+            (now.month == 1 and now.day <= 5),
+        ))
+
     @field_validator("SEASONAL_BACKGROUNDS", "AUTOJOIN_CHANNELS", mode="before")
     @classmethod
     def parse_string_list(cls, v):
