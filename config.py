@@ -216,7 +216,7 @@ class Config(BaseSettings):
     # Used for redirecting chat messages from discord to #osu (optional)
     CHAT_WEBHOOK_URL: str | None = None
     CHAT_CHANNEL_ID: str | None = None
-    CHAT_WEBHOOK_CHANNELS: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["osu"])
+    CHAT_WEBHOOK_CHANNELS: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["#osu"])
 
     # Debugging options
     DEBUG: bool = False
