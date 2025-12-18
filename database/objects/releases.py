@@ -1,0 +1,104 @@
+
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.sql import func
+from sqlalchemy import (
+    ForeignKey,
+    DateTime,
+    Boolean,
+    Integer,
+    Column,
+    String,
+    ARRAY,
+    Date,
+    Text
+)
+
+from .forums import DBForumTopic
+from .users import DBUser
+from .base import Base
+
+class DBRelease(Base):
+    __tablename__ = "releases"
+
+    name        = Column('name', String, primary_key=True)
+    version     = Column('version', Integer)
+    description = Column('description', String, default='')
+    category    = Column('category', String, default='Uncategorized')
+    known_bugs  = Column('known_bugs', String, nullable=True)
+    supported   = Column('supported', Boolean, default=True)
+    preview     = Column('preview', Boolean, default=False)
+    downloads   = Column('downloads', ARRAY(String), default=[])
+    screenshots = Column('screenshots', ARRAY(String), default=[])
+    hashes      = Column('hashes', JSONB, default=[])
+    created_at  = Column('created_at', DateTime, server_default=func.now())
+
+class DBModdedRelease(Base):
+    __tablename__ = "releases_modding"
+
+    name             = Column('name', String, primary_key=True)
+    description      = Column('description', String)
+    creator_id       = Column('creator_id', Integer, ForeignKey('users.id'))
+    topic_id         = Column('topic_id', Integer, ForeignKey('forum_topics.id'))
+    client_version   = Column('client_version', Integer)
+    client_extension = Column('client_extension', String)
+    downloads        = Column('downloads', ARRAY(String), default=[])
+    screenshots      = Column('screenshots', ARRAY(String), default=[])
+    hashes           = Column('hashes', JSONB, default=[])
+    created_at       = Column('created_at', DateTime, server_default=func.now())
+
+    creator: Mapped['DBUser'] = relationship('DBUser')
+    topic: Mapped['DBForumTopic'] = relationship('DBForumTopic')
+
+class DBExtraRelease(Base):
+    __tablename__ = "releases_extra"
+
+    name        = Column('name', String, primary_key=True)
+    description = Column('description', String)
+    download    = Column('download', String)
+    filename    = Column('filename', String)
+
+class DBReleasesOfficial(Base):
+    __tablename__ = "releases_official"
+
+    id         = Column('id', Integer, primary_key=True, autoincrement=True)
+    version    = Column('version', Integer, nullable=False)
+    stream     = Column('stream', Text, nullable=False)
+    subversion = Column('subversion', Integer, nullable=False)
+    created_at = Column('created_at', DateTime, server_default=func.now())
+
+    files: Mapped[list['DBReleaseFiles']] = relationship(
+        'DBReleaseFiles',
+        secondary='releases_official_entries',
+        backref='official_releases'
+    )
+
+class DBReleasesOfficialEntries(Base):
+    __tablename__ = "releases_official_entries"
+
+    release_id = Column('release_id', Integer, ForeignKey('releases_official.id', ondelete='CASCADE'), primary_key=True)
+    file_id    = Column('file_id', Integer, ForeignKey('releases_files.id', ondelete='CASCADE'), primary_key=True)
+
+class DBReleaseFiles(Base):
+    __tablename__ = "releases_files"
+
+    id           = Column('id', Integer, primary_key=True, autoincrement=True)
+    filename     = Column('filename', Text, nullable=False)
+    file_version = Column('file_version', Integer, nullable=False)
+    file_hash    = Column('file_hash', String(32), nullable=False)
+    filesize     = Column('filesize', Integer, nullable=False)
+    patch_id     = Column('patch_id', Text, nullable=True)
+    url_full     = Column('url_full', Text, nullable=False)
+    url_patch    = Column('url_patch', Text, nullable=True)
+    timestamp    = Column('timestamp', DateTime, server_default=func.now())
+
+class DBReleaseChangelog(Base):
+    __tablename__ = "releases_changelog"
+
+    id         = Column('id', Integer, primary_key=True, autoincrement=True)
+    text       = Column('text', Text, nullable=False)
+    type       = Column('type', Text, nullable=False)
+    branch     = Column('branch', Text, nullable=False)
+    author     = Column('author', Text, nullable=False)
+    area       = Column('area', Text, nullable=True)
+    created_at = Column('created_at', Date, nullable=False, server_default=func.current_date())

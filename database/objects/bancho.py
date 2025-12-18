@@ -12,11 +12,9 @@ from sqlalchemy import (
     Boolean,
     Integer,
     Column,
-    String,
-    ARRAY
+    String
 )
 
-from .forums import DBForumTopic
 from .users import DBUser
 from .base import Base
 
@@ -128,43 +126,3 @@ class DBUserActivity(Base):
     @property
     def total_users(self) -> int:
         return self.osu_count + self.irc_count
-
-class DBRelease(Base):
-    __tablename__ = "releases"
-
-    name        = Column('name', String, primary_key=True)
-    version     = Column('version', Integer)
-    description = Column('description', String, default='')
-    category    = Column('category', String, default='Uncategorized')
-    known_bugs  = Column('known_bugs', String, nullable=True)
-    supported   = Column('supported', Boolean, default=True)
-    preview     = Column('preview', Boolean, default=False)
-    downloads   = Column('downloads', ARRAY(String), default=[])
-    screenshots = Column('screenshots', ARRAY(String), default=[])
-    hashes      = Column('hashes', JSONB, default=[])
-    created_at  = Column('created_at', DateTime, server_default=func.now())
-
-class DBModdedRelease(Base):
-    __tablename__ = "releases_modding"
-
-    name            = Column('name', String, primary_key=True)
-    description     = Column('description', String)
-    creator_id      = Column('creator_id', Integer, ForeignKey('users.id'))
-    topic_id        = Column('topic_id', Integer, ForeignKey('forum_topics.id'))
-    client_version  = Column('client_version', Integer)
-    client_extension = Column('client_extension', String)
-    downloads       = Column('downloads', ARRAY(String), default=[])
-    screenshots     = Column('screenshots', ARRAY(String), default=[])
-    hashes          = Column('hashes', JSONB, default=[])
-    created_at      = Column('created_at', DateTime, server_default=func.now())
-
-    creator: Mapped['DBUser'] = relationship('DBUser')
-    topic: Mapped['DBForumTopic'] = relationship('DBForumTopic')
-
-class DBExtraRelease(Base):
-    __tablename__ = "releases_extra"
-
-    name        = Column('name', String, primary_key=True)
-    description = Column('description', String)
-    download    = Column('download', String)
-    filename    = Column('filename', String)

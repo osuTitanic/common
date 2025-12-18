@@ -6,6 +6,7 @@ from .misc import *
 from .rankings import *
 from .users import *
 from .wiki import *
+from .releases import *
 
 __all__ = [
     "DBForumTopic",
@@ -24,6 +25,10 @@ __all__ = [
     "DBRelease",
     "DBModdedRelease",
     "DBExtraRelease",
+    "DBReleaseFiles",
+    "DBReleaseChangelog",
+    "DBReleasesOfficial",
+    "DBReleasesOfficialEntries",
     "DBBeatmapset",
     "DBBeatmap",
     "DBBeatmapCollaboration",
