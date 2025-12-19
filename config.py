@@ -1,7 +1,6 @@
 
-from pydantic_settings import BaseSettings, SettingsConfigDict, NoDecode
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field, computed_field, field_validator
-from typing_extensions import Annotated
 from datetime import datetime
 
 import json
@@ -50,7 +49,7 @@ class Config(BaseSettings):
     MENUICON_URL: str | None = None
 
     # A comma-separated list of background image urls that will be seen in the menu
-    SEASONAL_BACKGROUNDS: Annotated[list[str], NoDecode] = []
+    SEASONAL_BACKGROUNDS: list[str] = []
 
     # Discord webhook url for logging (optional)
     OFFICER_WEBHOOK_URL: str | None = None
@@ -107,7 +106,7 @@ class Config(BaseSettings):
     FROZEN_PPV1_UPDATES: bool = False
 
     ## Bancho configuration
-    BANCHO_TCP_PORTS: Annotated[list[int], NoDecode] = [13380, 13381, 13382, 13383]
+    BANCHO_TCP_PORTS: list[int] = [13380, 13381, 13382, 13383]
     BANCHO_HTTP_PORT: int = 5000
     BANCHO_WS_PORT: int = 5001
     BANCHO_IRC_PORT: int = 6667
@@ -131,7 +130,7 @@ class Config(BaseSettings):
     ALLOW_MULTIACCOUNTING: bool = False
 
     # These channels will be automatically joined when logging in
-    AUTOJOIN_CHANNELS: Annotated[list[str], NoDecode] = ["#osu", "#announce"]
+    AUTOJOIN_CHANNELS: list[str] = ["#osu", "#announce"]
 
     # Used for bancho_connect.php endpoint (optional)
     # Make sure this ip is not proxied in any way
@@ -172,7 +171,7 @@ class Config(BaseSettings):
     RECAPTCHA_SITE_KEY: str | None = None
 
     # IDs of users whom appear to have everyone added as a friend
-    SUPER_FRIENDLY_USERS: Annotated[list[int], NoDecode] = Field(default_factory=list)
+    SUPER_FRIENDLY_USERS: list[int] = []
 
     # Cutoff timestamp for showing "since the beginning" join dates
     BEGINNING_ENDED_AT: datetime = datetime(2023, 12, 31, 6, 0, 0)
@@ -220,7 +219,7 @@ class Config(BaseSettings):
     # Used for redirecting chat messages from discord to #osu (optional)
     CHAT_WEBHOOK_URL: str | None = None
     CHAT_CHANNEL_ID: int | None = None
-    CHAT_WEBHOOK_CHANNELS: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["#osu"])
+    CHAT_WEBHOOK_CHANNELS: list[str] = ["#osu"]
 
     # Debugging options
     DEBUG: bool = False
@@ -356,44 +355,13 @@ class Config(BaseSettings):
             (now.month == 1 and now.day <= 5),
         ))
 
-    @field_validator("SEASONAL_BACKGROUNDS", "AUTOJOIN_CHANNELS", "CHAT_WEBHOOK_CHANNELS", mode="before")
-    @classmethod
-    def parse_string_list(cls, v):
-        if not isinstance(v, str):
-            # We assume the value is already a list
-            return v
-
-        if parsed := cls.try_parse_json(v):
-            return parsed
-
-        # We have a comma-separated string, remove whitespace and split by comma
-        return [item.strip() for item in v.split(",") if item.strip()]
-
-    @field_validator("SUPER_FRIENDLY_USERS", "BANCHO_TCP_PORTS", mode="before")
-    @classmethod
-    def parse_int_list(cls, v):
-        if isinstance(v, str) and v.isdigit():
-            return [int(v)]
-
-        if isinstance(v, int):
-            return [v]
-
-        if isinstance(v, list):
-            return v
-
-        if parsed := cls.try_parse_json(v):
-            return parsed
-
-        # We have a comma-separated string, remove whitespace and split by comma
-        return [int(item.strip()) for item in v.split(",") if item.strip()]
-
     @field_validator("SMTP_PORT", "BANCHO_CLIENT_CUTOFF", "CHAT_CHANNEL_ID", mode="before")
     @classmethod
     def empty_string_to_none(cls, v):
         if v == "":
             return None
         return v
-    
+
     @field_validator("ALLOW_INSECURE_COOKIES", mode="before")
     @classmethod
     def set_allow_insecure_cookies(cls, v, info):
@@ -404,13 +372,5 @@ class Config(BaseSettings):
         enable_ssl = info.data.get("ENABLE_SSL", False)
         debug = info.data.get("DEBUG", False)
         return (not enable_ssl) or debug
-
-    @staticmethod
-    def try_parse_json(v: str) -> list | dict | None:
-        # TODO: Refactor into config_helpers.py
-        try:
-            return json.loads(v)
-        except json.JSONDecodeError:
-            return []
 
 config_instance = Config()
