@@ -372,6 +372,9 @@ class Config(BaseSettings):
     @field_validator("SUPER_FRIENDLY_USERS", "BANCHO_TCP_PORTS", mode="before")
     @classmethod
     def parse_int_list(cls, v):
+        if isinstance(v, str) and v.isdigit():
+            return [int(v)]
+
         if isinstance(v, int):
             return [v]
 
