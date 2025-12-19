@@ -4,6 +4,7 @@ from pydantic import Field, computed_field, field_validator
 from typing_extensions import Annotated
 from datetime import datetime
 
+import json
 import os
 
 class Config(BaseSettings):
@@ -362,6 +363,9 @@ class Config(BaseSettings):
             # We assume the value is already a list
             return v
 
+        if parsed := cls.try_parse_json(v):
+            return parsed
+
         # We have a comma-separated string, remove whitespace and split by comma
         return [item.strip() for item in v.split(",") if item.strip()]
 
@@ -374,12 +378,12 @@ class Config(BaseSettings):
         if isinstance(v, list):
             return v
 
+        if parsed := cls.try_parse_json(v):
+            return parsed
+
         # We have a comma-separated string, remove whitespace and split by comma
-        return [
-            int(item.strip().removeprefix("[").removesuffix("]"))
-            for item in v.split(",") if item.strip()
-        ]
-    
+        return [int(item.strip()) for item in v.split(",") if item.strip()]
+
     @field_validator("SMTP_PORT", "BANCHO_CLIENT_CUTOFF", "CHAT_CHANNEL_ID", mode="before")
     @classmethod
     def empty_string_to_none(cls, v):
@@ -397,5 +401,13 @@ class Config(BaseSettings):
         enable_ssl = info.data.get("ENABLE_SSL", False)
         debug = info.data.get("DEBUG", False)
         return (not enable_ssl) or debug
+
+    @staticmethod
+    def try_parse_json(v: str) -> list | dict | None:
+        # TODO: Refactor into config_helpers.py
+        try:
+            return json.loads(v)
+        except json.JSONDecodeError:
+            return []
 
 config_instance = Config()
