@@ -171,7 +171,7 @@ class Config(BaseSettings):
     RECAPTCHA_SITE_KEY: str | None = None
 
     # IDs of users whom appear to have everyone added as a friend
-    SUPER_FRIENDLY_USERS: list[int] = []
+    SUPER_FRIENDLY_USERS: list[int] = [1]
 
     # Cutoff timestamp for showing "since the beginning" join dates
     BEGINNING_ENDED_AT: datetime = datetime(2023, 12, 31, 6, 0, 0)
