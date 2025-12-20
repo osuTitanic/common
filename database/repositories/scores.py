@@ -422,8 +422,8 @@ def fetch_grades(
 def fetch_range_scores(
     beatmap_id: int,
     mode: int,
-    offset: int = 0,
     limit: int = 5,
+    offset: int = 0,
     session: Session = ...
 ) -> List[DBScore]:
     return session.query(DBScore) \
@@ -443,6 +443,7 @@ def fetch_range_scores_country(
     mode: int,
     country: str,
     limit: int = 5,
+    offset: int = 0,
     session: Session = ...
 ) -> List[DBScore]:
     return session.query(DBScore) \
@@ -455,6 +456,7 @@ def fetch_range_scores_country(
         .order_by(DBScore.total_score.desc(), DBScore.id.asc()) \
         .join(DBScore.user) \
         .limit(limit) \
+        .offset(offset) \
         .all()
 
 @session_wrapper
@@ -463,6 +465,7 @@ def fetch_range_scores_friends(
     mode: int,
     friends: List[int],
     limit: int = 5,
+    offset: int = 0,
     session: Session = ...
 ) -> List[DBScore]:
     return session.query(DBScore) \
@@ -474,6 +477,7 @@ def fetch_range_scores_friends(
         .filter(DBScore.user_id.in_(friends)) \
         .order_by(DBScore.total_score.desc(), DBScore.id.asc()) \
         .limit(limit) \
+        .offset(offset) \
         .all()
 
 @session_wrapper
@@ -482,6 +486,7 @@ def fetch_range_scores_mods(
     mode: int,
     mods: int,
     limit: int = 5,
+    offset: int = 0,
     session: Session = ...
 ) -> List[DBScore]:
     return session.query(DBScore) \
@@ -493,6 +498,7 @@ def fetch_range_scores_mods(
         .filter(DBScore.mods == mods) \
         .order_by(DBScore.total_score.desc(), DBScore.id.asc()) \
         .limit(limit) \
+        .offset(offset) \
         .all()
 
 @session_wrapper
