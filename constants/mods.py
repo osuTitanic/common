@@ -56,6 +56,7 @@ class Mods(IntFlag):
 
     @classmethod
     def from_string(cls, mod_string: str):
+        mod_string = mod_string.replace(",", "").replace(" ", "")
         mods = Mods.NoMod
 
         # Parse mods into their short forms
