@@ -66,13 +66,13 @@ class Postgres:
 
     def wait_for_connection(self, retries: int = 10, delay: int = 1) -> None:
         for attempt in range(retries):
-            try:
-                with self.managed_session() as session:
+            with self.managed_session() as session:
+                try:
                     session.execute(text('SELECT 1'))
                     return None
-            except Exception as e:
-                self.logger.warning(f'Failed to connect: "{e}" (attempt {attempt+1}/{retries})')
-                time.sleep(delay)
+                except Exception as e:
+                    self.logger.warning(f'Failed to connect: "{e}" (attempt {attempt+1}/{retries})')
+                    time.sleep(delay)
 
         raise ConnectionError('Failed to establish a connection to the database')
     
