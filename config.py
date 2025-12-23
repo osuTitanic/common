@@ -209,8 +209,8 @@ class Config(BaseSettings):
     ENABLE_DISCORD_BOT: bool = False
     DISCORD_BOT_PREFIX: str = "!"
     DISCORD_BOT_TOKEN: str | None = None
-    DISCORD_STAFF_ROLE_ID: str | None = None
-    DISCORD_BAT_ROLE_ID: str | None = None
+    DISCORD_STAFF_ROLE_ID: int | None = None
+    DISCORD_BAT_ROLE_ID: int | None = None
 
     # Used for importing data from the official servers (optional)
     OSU_CLIENT_ID: str | None = None
@@ -355,7 +355,11 @@ class Config(BaseSettings):
             (now.month == 1 and now.day <= 5),
         ))
 
-    @field_validator("SMTP_PORT", "BANCHO_CLIENT_CUTOFF", "CHAT_CHANNEL_ID", mode="before")
+    @field_validator(
+        "SMTP_PORT", "BANCHO_CLIENT_CUTOFF", "CHAT_CHANNEL_ID",
+        "DISCORD_STAFF_ROLE_ID", "DISCORD_BAT_ROLE_ID",
+        mode="before"
+    )
     @classmethod
     def empty_string_to_none(cls, v):
         if v == "":
