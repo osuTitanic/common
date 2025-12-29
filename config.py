@@ -30,7 +30,7 @@ class Config(BaseSettings):
     ## Redis configuration
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
-    REDIS_POOLSIZE: int = 10
+    REDIS_PASS: str | None = None
 
     ## S3 Storage configuration (optional)
     S3_BASEURL: str | None = None
@@ -357,14 +357,13 @@ class Config(BaseSettings):
 
     @field_validator(
         "SMTP_PORT", "BANCHO_CLIENT_CUTOFF", "CHAT_CHANNEL_ID",
-        "DISCORD_STAFF_ROLE_ID", "DISCORD_BAT_ROLE_ID",
+        "DISCORD_STAFF_ROLE_ID", "DISCORD_BAT_ROLE_ID", "REDIS_PASS",
         mode="before"
     )
     @classmethod
     def empty_string_to_none(cls, v):
-        if v == "":
-            return None
-        return v
+        if v == "": return None
+        else: return v
 
     @field_validator("ALLOW_INSECURE_COOKIES", mode="before")
     @classmethod
