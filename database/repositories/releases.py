@@ -83,6 +83,24 @@ def fetch_official_by_version(version: int, session: Session = ...) -> DBRelease
         .first()
 
 @session_wrapper
+def fetch_official_file_by_checksum(checksum: str, session: Session = ...) -> DBReleaseFiles | None:
+    return session.query(DBReleaseFiles) \
+        .filter(DBReleaseFiles.file_hash == checksum) \
+        .first()
+
+@session_wrapper
+def fetch_official_file_by_patch(patch_filename: str, session: Session = ...) -> DBReleaseFiles | None:
+    return session.query(DBReleaseFiles) \
+        .filter(DBReleaseFiles.url_patch.like(f'%{patch_filename}')) \
+        .first()
+
+@session_wrapper
+def fetch_official_file_by_full(full_filename: str, session: Session = ...) -> DBReleaseFiles | None:
+    return session.query(DBReleaseFiles) \
+        .filter(DBReleaseFiles.url_full.like(f'%{full_filename}')) \
+        .first()
+
+@session_wrapper
 def fetch_file_entries(release_id: int, session: Session = ...) -> List[DBReleaseFiles]:
     return session.query(DBReleaseFiles) \
         .join(DBReleasesOfficialEntries, DBReleasesOfficialEntries.file_id == DBReleaseFiles.id) \
