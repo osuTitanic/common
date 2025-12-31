@@ -58,6 +58,10 @@ class DBExtraRelease(Base):
     download    = Column('download', String)
     filename    = Column('filename', String)
     md5         = Column('md5', String(32))
+    
+    @property
+    def encoded_description(self) -> str:
+        return self.description.replace(' ', '-')
 
 class DBReleasesOfficial(Base):
     __tablename__ = "releases_official"
