@@ -13,6 +13,7 @@ from . import (
     activities,
     favourites,
     benchmarks,
+    changelog,
     usercount,
     histories,
     resources,
