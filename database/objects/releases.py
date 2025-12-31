@@ -102,6 +102,12 @@ class DBReleaseChangelog(Base):
     author     = Column('author', Text, nullable=False)
     area       = Column('area', Text, nullable=True)
     created_at = Column('created_at', Date, nullable=False, server_default=func.current_date())
+
+    @property
+    def prefixed_text(self) -> str:
+        if not self.area:
+            return self.text
+        return f"{self.area.strip()}: {self.text}"
     
     @property
     def type_symbol(self) -> str:
