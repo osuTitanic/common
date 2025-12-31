@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBRelease, DBExtraRelease, DBModdedRelease, DBReleaseFiles
+from app.common.database.objects.releases import *
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -68,6 +68,26 @@ def fetch_modded_all(session: Session = ...) -> List[DBModdedRelease]:
 @session_wrapper
 def fetch_extras(session: Session = ...) -> List[DBExtraRelease]:
     return session.query(DBExtraRelease).all()
+
+@session_wrapper
+def fetch_official_by_id(release_id: int, session: Session = ...) -> DBReleasesOfficial | None:
+    return session.query(DBReleasesOfficial) \
+        .filter(DBReleasesOfficial.id == release_id) \
+        .first()
+
+@session_wrapper
+def fetch_official_by_version(version: int, session: Session = ...) -> DBReleasesOfficial | None:
+    return session.query(DBReleasesOfficial) \
+        .filter(DBReleasesOfficial.version == version) \
+        .order_by(DBReleasesOfficial.subversion.desc()) \
+        .first()
+
+@session_wrapper
+def fetch_file_entries(release_id: int, session: Session = ...) -> List[DBReleaseFiles]:
+    return session.query(DBReleaseFiles) \
+        .join(DBReleasesOfficialEntries, DBReleasesOfficialEntries.file_id == DBReleaseFiles.id) \
+        .filter(DBReleasesOfficialEntries.release_id == release_id) \
+        .all()
 
 @session_wrapper
 def official_file_exists(checksum: str, session: Session = ...) -> bool:
