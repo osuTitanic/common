@@ -22,8 +22,8 @@ def fetch_range_asc(
     session: Session = ...
 ) -> List[DBReleaseChangelog]:
     return session.query(DBReleaseChangelog) \
-        .filter(DBReleaseChangelog.date >= start_date) \
-        .order_by(DBReleaseChangelog.date.asc()) \
+        .filter(DBReleaseChangelog.created_at >= start_date) \
+        .order_by(DBReleaseChangelog.created_at.asc()) \
         .offset(offset) \
         .limit(limit) \
         .all()
@@ -36,8 +36,8 @@ def fetch_range_desc(
     session: Session = ...
 ) -> List[DBReleaseChangelog]:
     return session.query(DBReleaseChangelog) \
-        .filter(DBReleaseChangelog.date <= start_date) \
-        .order_by(DBReleaseChangelog.date.desc()) \
+        .filter(DBReleaseChangelog.created_at <= start_date) \
+        .order_by(DBReleaseChangelog.created_at.desc()) \
         .offset(offset) \
         .limit(limit) \
         .all()
