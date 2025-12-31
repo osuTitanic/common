@@ -57,6 +57,7 @@ class DBExtraRelease(Base):
     description = Column('description', String)
     download    = Column('download', String)
     filename    = Column('filename', String)
+    md5         = Column('md5', String(32))
 
 class DBReleasesOfficial(Base):
     __tablename__ = "releases_official"
