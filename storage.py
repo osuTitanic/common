@@ -247,6 +247,12 @@ class Storage:
 
     def get_release_file(self, filename: str) -> bytes | None:
         return self.get(filename, 'release')
+    
+    def get_release_file_iterator(self, filename: str, chunk_size: int = 1024 * 64) -> Generator:
+        return self.get_iterator(filename, 'release', chunk_size)
+    
+    def get_release_file_size(self, filename: str) -> int | None:
+        return self.get_size(filename, 'release')
 
     def upload_osz(self, set_id: int, content: bytes):
         self.save(f'{set_id}', content, 'osz')
