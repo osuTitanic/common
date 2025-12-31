@@ -67,7 +67,9 @@ def fetch_modded_all(session: Session = ...) -> List[DBModdedRelease]:
 
 @session_wrapper
 def fetch_extras(session: Session = ...) -> List[DBExtraRelease]:
-    return session.query(DBExtraRelease).all()
+    return session.query(DBExtraRelease) \
+        .order_by(DBExtraRelease.name.asc()) \
+        .all()
 
 @session_wrapper
 def fetch_official_by_id(release_id: int, session: Session = ...) -> DBReleasesOfficial | None:
