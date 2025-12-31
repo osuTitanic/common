@@ -60,6 +60,12 @@ def fetch_modded(identifier: str, session: Session = ...) -> DBModdedRelease | N
         .first()
 
 @session_wrapper
+def fetch_modded_all(session: Session = ...) -> List[DBModdedRelease]:
+    return session.query(DBModdedRelease) \
+        .order_by(DBModdedRelease.created_at.desc()) \
+        .all()
+
+@session_wrapper
 def fetch_extras(session: Session = ...) -> List[DBExtraRelease]:
     return session.query(DBExtraRelease).all()
 
