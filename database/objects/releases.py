@@ -102,3 +102,17 @@ class DBReleaseChangelog(Base):
     author     = Column('author', Text, nullable=False)
     area       = Column('area', Text, nullable=True)
     created_at = Column('created_at', Date, nullable=False, server_default=func.current_date())
+    
+    @property
+    def type_symbol(self) -> str:
+        match self.type.lower():
+            case 'add':
+                return '+'
+            case 'remove':
+                return '-'
+            case 'fix':
+                return '*'
+            case 'important':
+                return '+'
+            case _:
+                return ''
