@@ -50,6 +50,32 @@ class DBModdedRelease(Base):
     creator: Mapped['DBUser'] = relationship('DBUser')
     topic: Mapped['DBForumTopic'] = relationship('DBForumTopic')
 
+class DBModdedReleaseEntries(Base):
+    __tablename__ = "releases_modding_entries"
+
+    id         = Column('id', Integer, primary_key=True, autoincrement=True)
+    mod_name   = Column('mod_name', String, ForeignKey('releases_modding.name'), nullable=False)
+    version    = Column('version', String, nullable=False)
+    stream     = Column('stream', String, nullable=False)
+    checksum   = Column('checksum', String(32), nullable=False)
+    download_url = Column('download_url', String, nullable=True)
+    update_url   = Column('update_url', String, nullable=True)
+    post_id      = Column('post_id', Integer, ForeignKey('forum_posts.id'), nullable=True)
+    created_at   = Column('created_at', DateTime, server_default=func.now())
+
+class DBModdedReleaseChangelog(Base):
+    __tablename__ = "releases_modding_changelog"
+
+    id         = Column('id', Integer, primary_key=True, autoincrement=True)
+    entry_id   = Column('entry_id', Integer, ForeignKey('releases_modding_entries.id', ondelete='CASCADE'))
+    text       = Column('text', Text, nullable=False)
+    type       = Column('type', Text, nullable=False)
+    branch     = Column('branch', Text, nullable=False)
+    author     = Column('author', Text, nullable=False)
+    author_id  = Column('author_id', Integer, ForeignKey('users.id'), nullable=True)
+    area       = Column('area', Text, nullable=True)
+    created_at = Column('created_at', DateTime, server_default=func.now())
+
 class DBExtraRelease(Base):
     __tablename__ = "releases_extra"
 
