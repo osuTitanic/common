@@ -5,6 +5,19 @@ from sqlalchemy.orm import Session
 from typing import List
 
 @releases.session_wrapper
+def fetch_hashes(version: int, session: Session = ...) -> List[str]:
+    release_hashes = release_hashes.fetch_hashes(version, session)
+
+    if not release_hashes:
+        return []
+
+    return [
+        hash
+        for file in release_hashes[0]
+        for hash in file['md5']
+    ]
+
+@releases.session_wrapper
 def is_valid_client_hash(version: int, hash: str, session: Session = ...) -> bool:
     hashes = fetch_hashes(version, session)
     return hash in hashes
@@ -13,7 +26,7 @@ def is_valid_client_hash(version: int, hash: str, session: Session = ...) -> boo
 def is_valid_mod(identifier: str, hash: str, session: Session = ...) -> bool:
     if not (release := releases.fetch_modded(identifier, session)):
         return False
-    
+
     if releases.fetch_modded_entry_by_checksum(release.name, hash, session):
         return True
 
@@ -23,23 +36,3 @@ def is_valid_mod(identifier: str, hash: str, session: Session = ...) -> bool:
             return True
 
     return False
-
-@releases.session_wrapper
-def fetch_hashes(version: int, session: Session = ...) -> List[str]:
-    return [
-        hash
-        for release in releases.fetch_hashes(version, session) or []
-        for entry in release[0]
-        for hash in entry['md5']
-        if entry['file'].startswith('osu') and entry['file'].endswith('.exe')
-    ]
-
-@releases.session_wrapper
-def fetch_hashes_by_filename(filename: str, session: Session = ...) -> List[str]:
-    return [
-        hash
-        for release in releases.fetch_all(session)
-        for file in release.hashes
-        if file['file'] == filename
-        for hash in file['md5']
-    ]
