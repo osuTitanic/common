@@ -26,7 +26,6 @@ def create(
             hashes=hashes
         )
     )
-    session.refresh(release)
     session.commit()
     return release
 
@@ -34,7 +33,6 @@ def create(
 def create_official(
     version: int,
     subversion: int,
-    changelog: str,
     created_at: datetime,
     stream: str = "stable",
     session: Session = ...
@@ -43,12 +41,10 @@ def create_official(
         release := DBReleasesOfficial(
             version=version,
             subversion=subversion,
-            changelog=changelog,
             stream=stream,
             created_at=created_at
         )
     )
-    session.refresh(release)
     session.commit()
     return release
 
@@ -64,7 +60,6 @@ def create_official_file_entry(
             file_id=file_id
         )
     )
-    session.refresh(entry)
     session.commit()
     return entry
 
