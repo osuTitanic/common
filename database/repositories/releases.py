@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from app.common.database.objects.releases import *
 from sqlalchemy.orm import Session
+from datetime import datetime
 from typing import List
 
 from .wrapper import session_wrapper
@@ -28,6 +29,44 @@ def create(
     session.refresh(release)
     session.commit()
     return release
+
+@session_wrapper
+def create_official(
+    version: int,
+    subversion: int,
+    changelog: str,
+    created_at: datetime,
+    stream: str = "stable",
+    session: Session = ...
+) -> DBReleasesOfficial:
+    session.add(
+        release := DBReleasesOfficial(
+            version=version,
+            subversion=subversion,
+            changelog=changelog,
+            stream=stream,
+            created_at=created_at
+        )
+    )
+    session.refresh(release)
+    session.commit()
+    return release
+
+@session_wrapper
+def create_official_file_entry(
+    release_id: int,
+    file_id: int,
+    session: Session = ...
+) -> DBReleaseFiles:
+    session.add(
+        entry := DBReleasesOfficialEntries(
+            release_id=release_id,
+            file_id=file_id
+        )
+    )
+    session.refresh(entry)
+    session.commit()
+    return entry
 
 @session_wrapper
 def fetch_by_version(version: int, session: Session = ...) -> DBRelease | None:
@@ -115,6 +154,12 @@ def fetch_file_entries(release_id: int, session: Session = ...) -> List[DBReleas
         .join(DBReleasesOfficialEntries, DBReleasesOfficialEntries.file_id == DBReleaseFiles.id) \
         .filter(DBReleasesOfficialEntries.release_id == release_id) \
         .all()
+
+@session_wrapper
+def fetch_file_id_from_version(version: int, session: Session = ...) -> int | None:
+    return session.query(DBReleaseFiles.id) \
+        .filter(DBReleaseFiles.file_version == version) \
+        .scalar() or None
 
 @session_wrapper
 def official_file_exists(checksum: str, session: Session = ...) -> bool:
