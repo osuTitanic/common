@@ -13,7 +13,8 @@ def fetch_hashes(version: int, session: Session = ...) -> List[str]:
 
     return [
         hash
-        for file in release_hashes[0]
+        for release in release_hashes
+        for file in release[0]
         for hash in file['md5']
     ]
 
