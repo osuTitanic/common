@@ -350,10 +350,7 @@ class Config(BaseSettings):
     @property
     def CHRISTMAS_MODE(self) -> bool:
         now = datetime.now()
-        return any((
-            (now.month == 12 and now.day >= 15),
-            (now.month == 1 and now.day <= 5),
-        ))
+        return now.month == 12 and now.day >= 15
 
     @field_validator(
         "SMTP_PORT", "BANCHO_CLIENT_CUTOFF", "CHAT_CHANNEL_ID",
