@@ -64,6 +64,31 @@ def create_official_file_entry(
     return entry
 
 @session_wrapper
+def create_modded_entry(
+    mod_name: str,
+    version: str,
+    stream: str,
+    checksum: str,
+    download_url: str | None = None,
+    update_url: str | None = None,
+    post_id: int | None = None,
+    session: Session = ...
+) -> DBModdedRelease:
+    session.add(
+        entry := DBModdedReleaseEntries(
+            mod_name=mod_name,
+            version=version,
+            stream=stream,
+            checksum=checksum,
+            download_url=download_url,
+            update_url=update_url,
+            post_id=post_id
+        )
+    )
+    session.commit()
+    return entry
+
+@session_wrapper
 def fetch_by_version(version: int, session: Session = ...) -> DBRelease | None:
     return session.query(DBRelease) \
         .filter(DBRelease.version == version) \
