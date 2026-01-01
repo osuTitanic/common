@@ -108,7 +108,7 @@ class DBReleasesOfficialEntries(Base):
     __tablename__ = "releases_official_entries"
 
     release_id = Column('release_id', Integer, ForeignKey('releases_official.id', ondelete='CASCADE'), primary_key=True)
-    file_id    = Column('file_id', Integer, ForeignKey('releases_files.id', ondelete='CASCADE'), primary_key=True)
+    file_id    = Column('file_id', Integer, ForeignKey('releases_official_files.id', ondelete='CASCADE'), primary_key=True)
 
 class DBReleaseFiles(Base):
     __tablename__ = "releases_official_files"
