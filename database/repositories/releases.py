@@ -30,12 +30,6 @@ def create(
     return release
 
 @session_wrapper
-def fetch_by_name(name: str, session: Session = ...) -> DBRelease | None:
-    return session.query(DBRelease) \
-        .filter(DBRelease.name == name) \
-        .first()
-
-@session_wrapper
 def fetch_by_version(version: int, session: Session = ...) -> DBRelease | None:
     return session.query(DBRelease) \
         .filter(DBRelease.version == version) \
@@ -83,6 +77,18 @@ def fetch_official_by_version(version: int, session: Session = ...) -> DBRelease
         .filter(DBReleasesOfficial.version == version) \
         .order_by(DBReleasesOfficial.subversion.desc()) \
         .first()
+
+@session_wrapper
+def fetch_official_range(
+    limit: int = 50,
+    offset: int = 0,
+    session: Session = ...
+) -> List[DBReleasesOfficial]:
+    return session.query(DBReleasesOfficial) \
+        .order_by(DBReleasesOfficial.version.desc(), DBReleasesOfficial.subversion.desc()) \
+        .limit(limit) \
+        .offset(offset) \
+        .all()
 
 @session_wrapper
 def fetch_official_file_by_name(filename: str, session: Session = ...) -> DBReleaseFiles | None:
