@@ -161,3 +161,11 @@ def official_file_exists(checksum: str, session: Session = ...) -> bool:
     return session.query(DBReleaseFiles.id) \
         .filter(DBReleaseFiles.file_hash == checksum) \
         .count() > 0
+
+@session_wrapper
+def delete_official(release_id: int, session: Session = ...) -> int:
+    rows = session.query(DBReleasesOfficial) \
+        .filter(DBReleasesOfficial.id == release_id) \
+        .delete(synchronize_session=False)
+    session.commit()
+    return rows
