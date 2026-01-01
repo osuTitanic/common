@@ -6,7 +6,7 @@ from typing import List
 
 @releases.session_wrapper
 def fetch_hashes(version: int, session: Session = ...) -> List[str]:
-    release_hashes = release_hashes.fetch_hashes(version, session)
+    release_hashes = releases.fetch_hashes(version, session)
 
     if not release_hashes:
         return []
