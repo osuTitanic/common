@@ -119,6 +119,21 @@ def fetch_modded_all(session: Session = ...) -> List[DBModdedRelease]:
         .all()
 
 @session_wrapper
+def fetch_modded_entry_by_checksum(mod_name: str, checksum: str, session: Session = ...) -> DBModdedReleaseEntries | None:
+    return session.query(DBModdedReleaseEntries) \
+        .filter(DBModdedReleaseEntries.mod_name == mod_name) \
+        .filter(DBModdedReleaseEntries.checksum == checksum) \
+        .first()
+
+@session_wrapper
+def delete_modded_entry(entry_id: int, session: Session = ...) -> int:
+    rows = session.query(DBModdedReleaseEntries) \
+        .filter(DBModdedReleaseEntries.id == entry_id) \
+        .delete(synchronize_session=False)
+    session.commit()
+    return rows
+
+@session_wrapper
 def fetch_extras(session: Session = ...) -> List[DBExtraRelease]:
     return session.query(DBExtraRelease) \
         .order_by(DBExtraRelease.name.asc()) \
