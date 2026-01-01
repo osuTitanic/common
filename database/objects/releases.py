@@ -19,7 +19,7 @@ from .users import DBUser
 from .base import Base
 
 class DBRelease(Base):
-    __tablename__ = "releases"
+    __tablename__ = "releases_titanic"
 
     name        = Column('name', String, primary_key=True)
     version     = Column('version', Integer)
@@ -85,7 +85,7 @@ class DBReleasesOfficialEntries(Base):
     file_id    = Column('file_id', Integer, ForeignKey('releases_files.id', ondelete='CASCADE'), primary_key=True)
 
 class DBReleaseFiles(Base):
-    __tablename__ = "releases_files"
+    __tablename__ = "releases_official_files"
 
     id           = Column('id', Integer, primary_key=True, autoincrement=True)
     filename     = Column('filename', Text, nullable=False)
@@ -98,7 +98,7 @@ class DBReleaseFiles(Base):
     timestamp    = Column('timestamp', DateTime, server_default=func.now())
 
 class DBReleaseChangelog(Base):
-    __tablename__ = "releases_changelog"
+    __tablename__ = "releases_official_changelog"
 
     id         = Column('id', Integer, primary_key=True, autoincrement=True)
     text       = Column('text', Text, nullable=False)
