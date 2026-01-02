@@ -325,10 +325,8 @@ def search_direct(
 
     return query.limit(100) \
         .offset(offset) \
-        .options(
-            selectinload(DBBeatmapset.beatmaps),
-            selectinload(DBBeatmapset.ratings)
-        ).all()
+        .options(selectinload(DBBeatmapset.beatmaps)) \
+        .all()
 
 @session_wrapper
 def search_extended(
