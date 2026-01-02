@@ -468,7 +468,7 @@ def search_extended(
                 .limit(limit) \
                 .all()
 
-@caching.ttl_cache(ttl=60*60*12)
+@caching.ttl_cache(ttl=60*60*24)
 def global_average_rating() -> int:
     with app.session.database.managed_session() as session:
         result = session.query(func.avg(DBRating.rating)).scalar()
@@ -478,8 +478,8 @@ def bayesian_rating() -> ColumnElement:
     # Use bayesian average to calculate rating
     # https://en.wikipedia.org/wiki/Bayesian_average
     confidence_factor = 10
-    rating_sum = func.avg(DBRating.rating) * func.count(DBRating.rating)
-    total_count = func.count(DBRating.rating) + confidence_factor
+    rating_sum = DBBeatmapset.rating_average * DBBeatmapset.rating_count
+    total_count = DBBeatmapset.rating_count + confidence_factor
     adjusted_avg_rating = global_average_rating() * confidence_factor
     return (rating_sum + adjusted_avg_rating) / total_count
 
