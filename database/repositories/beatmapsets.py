@@ -290,9 +290,7 @@ def search_direct(
 
     elif query_string == 'Top Rated':
         # Use bayesian rating to sort top rated beatmapsets
-        query = query.join(DBRating) \
-            .order_by(bayesian_rating().desc()) \
-            .group_by(DBBeatmapset.id)
+        query = query.order_by(bayesian_rating().desc())
 
     elif query_string.isdigit():
         # Allow for searching beatmap(set)s by IDs
@@ -354,7 +352,6 @@ def search_extended(
             .filter(DBBeatmapset.beatmaps.any())
 
     text_condition, text_sort = None, DBBeatmapset.approved_at
-    join_ratings = sort == BeatmapSortBy.Rating
     join_beatmaps = any([
         query_string,
         unplayed is not None,
@@ -371,10 +368,6 @@ def search_extended(
         if any(filter in filters for filter in filters_with_beatmaps):
             # Filter requires `DBBeatmap` to be joined
             join_beatmaps = True
-
-    if join_ratings:
-        query = query.join(DBRating, DBBeatmapset.ratings) \
-                     .group_by(DBBeatmapset.id)
 
     if join_beatmaps:
         query = query.join(DBBeatmap, DBBeatmapset.beatmaps) \
