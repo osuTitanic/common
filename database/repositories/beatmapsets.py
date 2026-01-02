@@ -91,13 +91,13 @@ def create(
 @session_wrapper
 def fetch_one(id: int, session: Session = ...) -> DBBeatmapset | None:
     return session.query(DBBeatmapset) \
-            .filter(DBBeatmapset.id == id) \
-            .first()
+        .filter(DBBeatmapset.id == id) \
+        .first()
 
 @session_wrapper
 def fetch_count(session: Session = ...) -> int:
     return session.query(func.count(DBBeatmapset.id)) \
-                  .scalar()
+        .scalar()
 
 @session_wrapper
 def fetch_by_creator(
@@ -352,7 +352,6 @@ def search_extended(
     query = session.query(DBBeatmapset) \
             .options(
                 selectinload(DBBeatmapset.beatmaps),
-                selectinload(DBBeatmapset.ratings),
                 selectinload(DBBeatmapset.favourites)
             ) \
             .filter(DBBeatmapset.beatmaps.any())
