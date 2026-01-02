@@ -248,8 +248,9 @@ def search_direct(
     query_string: str,
     user_id: int,
     display_mode = DirectDisplayMode.All,
-    offset: int = 0,
     mode: int = -1,
+    limit: int = 100,
+    offset: int = 0,
     session: Session = ...
 ) -> List[DBBeatmapset]:
     """Query beatmapsets for osu!direct"""
@@ -321,7 +322,8 @@ def search_direct(
         DirectDisplayMode.Loved: query.filter(DBBeatmapset.status == 4)
     }.get(display_mode, query)
 
-    return query.limit(100) \
+    return query \
+        .limit(limit) \
         .offset(offset) \
         .options(selectinload(DBBeatmapset.beatmaps)) \
         .all()
