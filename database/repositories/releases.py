@@ -126,6 +126,13 @@ def fetch_modded_entry_by_checksum(mod_name: str, checksum: str, session: Sessio
         .first()
 
 @session_wrapper
+def modded_entry_exists(mod_name: str, checksum: str, session: Session = ...) -> bool:
+    return session.query(DBModdedReleaseEntries.id) \
+        .filter(DBModdedReleaseEntries.mod_name == mod_name) \
+        .filter(DBModdedReleaseEntries.checksum == checksum) \
+        .count() > 0
+
+@session_wrapper
 def delete_modded_entry(entry_id: int, session: Session = ...) -> int:
     rows = session.query(DBModdedReleaseEntries) \
         .filter(DBModdedReleaseEntries.id == entry_id) \
