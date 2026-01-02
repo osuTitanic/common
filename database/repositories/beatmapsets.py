@@ -350,10 +350,7 @@ def search_extended(
     session: Session = ...
 ) -> List[DBBeatmapset]:
     query = session.query(DBBeatmapset) \
-            .options(
-                selectinload(DBBeatmapset.beatmaps),
-                selectinload(DBBeatmapset.favourites)
-            ) \
+            .options(selectinload(DBBeatmapset.beatmaps)) \
             .filter(DBBeatmapset.beatmaps.any())
 
     text_condition, text_sort = None, DBBeatmapset.approved_at
