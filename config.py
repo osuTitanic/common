@@ -87,6 +87,9 @@ class Config(BaseSettings):
     # Amount of scores that will be sent for rankings
     SCORE_RESPONSE_LIMIT: int = 50
 
+    # Maximum amount of beatmap favourites a user can have
+    BEATMAP_FAVOURITES_LIMIT: int = 100
+
     # Disable/Enable score submission for relax & autopilot
     ALLOW_RELAX: bool = False
 
