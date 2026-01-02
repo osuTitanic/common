@@ -42,7 +42,6 @@ class DBModdedRelease(Base):
     topic_id         = Column('topic_id', Integer, ForeignKey('forum_topics.id'))
     client_version   = Column('client_version', Integer)
     client_extension = Column('client_extension', String)
-    hashes           = Column('hashes', JSONB, default=[])
     created_at       = Column('created_at', DateTime, server_default=func.now())
 
     creator: Mapped['DBUser'] = relationship('DBUser')
