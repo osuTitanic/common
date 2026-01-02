@@ -57,6 +57,7 @@ class DBBeatmapset(Base):
     max_diff             = Column('max_diff', Float, default=0.0)
     rating_average       = Column('rating_average', Float, default=0.0)
     rating_count         = Column('rating_count', Integer, default=0)
+    favourite_count      = Column('favourite_count', Integer, default=0)
     osz_filesize         = Column('osz_filesize', Integer, default=0)
     osz_filesize_novideo = Column('osz_filesize_novideo', Integer, default=0)
     language_id          = Column('language_id', SmallInteger, default=1)
