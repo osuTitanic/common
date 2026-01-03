@@ -29,7 +29,7 @@ def create(
             sent_at=datetime.now()
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(v)
     return v
 
@@ -67,5 +67,5 @@ def delete(token: str, session: Session = ...) -> int:
     rows = session.query(DBVerification) \
             .filter(DBVerification.token == token) \
             .delete()
-    session.commit()
+    session.flush()
     return rows

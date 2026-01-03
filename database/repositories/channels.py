@@ -23,7 +23,7 @@ def create(
             write_permissions=write_permissions
         )
     )
-    session.commit()
+    session.flush()
     return chan
 
 @session_wrapper

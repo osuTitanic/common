@@ -24,7 +24,7 @@ def create(
             created_at=datetime.now()
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(m)
     return m
 
@@ -51,7 +51,7 @@ def update(id: int, updates: dict, session: Session = ...) -> None:
     session.query(DBMatch) \
         .filter(DBMatch.id == id) \
         .update(updates)
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def delete(id: int, session: Session = ...) -> None:
@@ -61,4 +61,4 @@ def delete(id: int, session: Session = ...) -> None:
     session.query(DBMatch) \
         .filter(DBMatch.id == id) \
         .delete()
-    session.commit()
+    session.flush()

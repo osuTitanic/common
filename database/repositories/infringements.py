@@ -27,7 +27,7 @@ def create(
             time=datetime.now()
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(i)
     return i
 
@@ -95,7 +95,7 @@ def update(
     columns = session.query(DBInfringement) \
         .filter(DBInfringement.id == id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return columns
 
 @session_wrapper

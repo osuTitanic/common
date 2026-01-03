@@ -18,7 +18,7 @@ from .wrapper import session_wrapper
 @session_wrapper
 def create(score: DBScore, session: Session = ...) -> DBScore:
     session.add(score)
-    session.commit()
+    session.flush()
     session.refresh(score)
     return score
 
@@ -31,7 +31,7 @@ def update(
     rows = session.query(DBScore) \
         .filter(DBScore.id == score_id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -43,7 +43,7 @@ def update_by_beatmap_id(
     rows = session.query(DBScore) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -51,7 +51,7 @@ def hide_all(user_id: int, session: Session = ...) -> int:
     rows = session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
         .update({'hidden': True})
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -766,18 +766,18 @@ def delete(score_id: int, session: Session = ...):
     session.query(DBScore) \
         .filter(DBScore.id == score_id) \
         .delete()
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def delete_by_beatmap_id(beatmap_id: int, session: Session = ...):
     session.query(DBScore) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .delete()
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def restore_hidden_scores(user_id: int, session: Session = ...):
     session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
         .update({'hidden': False})
-    session.commit()
+    session.flush()

@@ -24,7 +24,7 @@ def create(
             rating=rating
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(rating)
     return rating
 
@@ -122,18 +122,18 @@ def delete(beatmap_hash: str, user_id: int, session: Session = ...) -> None:
         .filter(DBRating.map_checksum == beatmap_hash) \
         .filter(DBRating.user_id == user_id) \
         .delete()
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def delete_by_beatmap_hash(beatmap_hash: str, session: Session = ...) -> None:
     session.query(DBRating) \
         .filter(DBRating.map_checksum == beatmap_hash) \
         .delete()
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def delete_by_set_id(set_id: int, session: Session = ...) -> None:
     session.query(DBRating) \
         .filter(DBRating.set_id == set_id) \
         .delete()
-    session.commit()
+    session.flush()

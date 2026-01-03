@@ -30,7 +30,7 @@ def create(
             time=datetime.now()
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(n)
     return n
 
@@ -86,7 +86,7 @@ def update(
     rows = session.query(DBNotification) \
         .filter(DBNotification.id == id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -98,7 +98,7 @@ def update_by_user_id(
     rows = session.query(DBNotification) \
         .filter(DBNotification.user_id == user_id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -109,7 +109,7 @@ def delete(
     rows = session.query(DBNotification) \
         .filter(DBNotification.id == id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -123,5 +123,5 @@ def delete_by_type(
         .filter(DBNotification.type == type) \
         .filter(DBNotification.read == False) \
         .delete()
-    session.commit()
+    session.flush()
     return rows

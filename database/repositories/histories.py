@@ -42,7 +42,7 @@ def update_plays(
             )
         )
 
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def fetch_plays_history(
@@ -96,7 +96,7 @@ def update_replay_views(
             )
         )
 
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def fetch_replay_history(
@@ -157,7 +157,7 @@ def update_rank(
             time=datetime.now()
         )
     )
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def fetch_rank_history(

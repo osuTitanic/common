@@ -23,7 +23,7 @@ def create(
         mp_count=mp_count,
         time=datetime.now()
     ))
-    session.commit()
+    session.flush()
     return uc
 
 @session_wrapper
@@ -55,5 +55,5 @@ def delete_old(
     rows = session.query(DBUserActivity) \
             .filter(DBUserActivity.time <= (datetime.now() - delta)) \
             .delete()
-    session.commit()
+    session.flush()
     return rows

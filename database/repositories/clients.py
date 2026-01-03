@@ -30,7 +30,7 @@ def create(
             banned=banned
         )
     )
-    session.commit()
+    session.flush()
     return client
 
 @session_wrapper
@@ -42,7 +42,7 @@ def update_all(
     rows = session.query(DBClient) \
         .filter(DBClient.user_id == user_id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper

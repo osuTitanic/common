@@ -23,7 +23,7 @@ def create(
             time=datetime.now()
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(r)
     return r
 
@@ -87,5 +87,5 @@ def update(
     rows = session.query(DBReport) \
         .filter(DBReport.id == id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows

@@ -26,7 +26,7 @@ def create(
             hashes=hashes
         )
     )
-    session.commit()
+    session.flush()
     return release
 
 @session_wrapper
@@ -45,7 +45,7 @@ def create_official(
             created_at=created_at
         )
     )
-    session.commit()
+    session.flush()
     return release
 
 @session_wrapper
@@ -60,7 +60,7 @@ def create_official_file_entry(
             file_id=file_id
         )
     )
-    session.commit()
+    session.flush()
     return entry
 
 @session_wrapper
@@ -85,7 +85,7 @@ def create_modded_entry(
             post_id=post_id
         )
     )
-    session.commit()
+    session.flush()
     return entry
 
 @session_wrapper
@@ -137,7 +137,7 @@ def delete_modded_entry(entry_id: int, session: Session = ...) -> int:
     rows = session.query(DBModdedReleaseEntries) \
         .filter(DBModdedReleaseEntries.id == entry_id) \
         .delete(synchronize_session=False)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -214,5 +214,5 @@ def delete_official(release_id: int, session: Session = ...) -> int:
     rows = session.query(DBReleasesOfficial) \
         .filter(DBReleasesOfficial.id == release_id) \
         .delete(synchronize_session=False)
-    session.commit()
+    session.flush()
     return rows

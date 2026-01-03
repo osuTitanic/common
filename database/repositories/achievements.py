@@ -22,7 +22,7 @@ def create_many(
                 filename=a.filename
             )
         )
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def fetch_many(user_id: int, session: Session = ...) -> List[DBAchievement]:

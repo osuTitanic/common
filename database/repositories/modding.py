@@ -26,7 +26,7 @@ def create(
             amount=amount
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(mod)
     return mod
 
@@ -149,7 +149,7 @@ def update(
     rows = session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.id == id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -160,7 +160,7 @@ def delete(
     session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.id == id) \
         .delete()
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def delete_by_post(
@@ -170,7 +170,7 @@ def delete_by_post(
     session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.post_id == post_id) \
         .delete()
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def delete_by_topic_id(
@@ -181,7 +181,7 @@ def delete_by_topic_id(
         .join(DBForumPost, DBForumPost.id == DBBeatmapModding.post_id) \
         .filter(DBForumPost.topic_id == topic_id) \
         .delete()
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def delete_by_set_id(
@@ -191,4 +191,4 @@ def delete_by_set_id(
     session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.set_id == set_id) \
         .delete()
-    session.commit()
+    session.flush()

@@ -27,7 +27,7 @@ def create(
             description=description
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(p)
 
     add_entries(
@@ -46,7 +46,7 @@ def update(
     updated = session.query(DBBeatmapPack) \
         .filter(DBBeatmapPack.id == id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return updated
 
 @session_wrapper
@@ -60,7 +60,7 @@ def delete(
     deleted += session.query(DBBeatmapPack) \
         .filter(DBBeatmapPack.id == id) \
         .delete()
-    session.commit()
+    session.flush()
     return deleted
 
 @session_wrapper
@@ -111,7 +111,7 @@ def add_entries(
         for beatmapset_id in beatmapset_ids
     ]
     session.add_all(entries)
-    session.commit()
+    session.flush()
     return entries
 
 @session_wrapper
@@ -124,7 +124,7 @@ def remove_entries(
         .filter(DBBeatmapPackEntry.pack_id == pack_id) \
         .filter(DBBeatmapPackEntry.beatmapset_id.in_(beatmapset_ids)) \
         .delete(synchronize_session=False)
-    session.commit()
+    session.flush()
     return deleted
 
 @session_wrapper

@@ -121,7 +121,7 @@ def recalculate_weighted_ppv1(
             .filter(DBScore.id == score.id) \
             .update({'ppv1': score.ppv1}, synchronize_session=False)
 
-    session.commit()
+    session.flush()
     return calculate_weighted_ppv1(scores)
 
 @wrapper.session_wrapper

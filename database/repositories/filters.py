@@ -26,7 +26,7 @@ def create(
             block_timeout_duration=block_timeout_duration
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(f)
     return f
 

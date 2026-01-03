@@ -23,7 +23,7 @@ def create(
             time=datetime.now()
         )
     )
-    session.commit()
+    session.flush()
     return login
 
 @session_wrapper

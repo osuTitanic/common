@@ -28,7 +28,7 @@ def create(
             hidden=hidden,
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(ac)
     return ac
 

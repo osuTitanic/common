@@ -21,7 +21,7 @@ def create(
             status=status
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(rel)
     return rel
 
@@ -39,7 +39,7 @@ def delete(
 
     if rel.first():
         rel.delete()
-        session.commit()
+        session.flush()
         return True
 
     return False

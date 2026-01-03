@@ -53,7 +53,7 @@ def create(
             diff=diff
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(m)
     return m
 
@@ -182,7 +182,7 @@ def update(
     rows = session.query(DBBeatmap) \
         .filter(DBBeatmap.id == beatmap_id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -206,7 +206,7 @@ def update_by_set_id(
     rows = session.query(DBBeatmap) \
         .filter(DBBeatmap.set_id == set_id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -214,7 +214,7 @@ def delete_by_id(id: int, session: Session = ...) -> int:
     rows = session.query(DBBeatmap) \
         .filter(DBBeatmap.id == id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -222,5 +222,5 @@ def delete_by_set_id(set_id: int, session: Session = ...) -> int:
     rows = session.query(DBBeatmap) \
         .filter(DBBeatmap.set_id == set_id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows

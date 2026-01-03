@@ -23,7 +23,7 @@ def create(
             data=data
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(m)
     return m
 
@@ -65,4 +65,4 @@ def delete_all(match_id: int, session: Session = ...) -> None:
     session.query(DBMatchEvent) \
         .filter(DBMatchEvent.match_id == match_id) \
         .delete()
-    session.commit()
+    session.flush()

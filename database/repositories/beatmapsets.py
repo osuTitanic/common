@@ -84,7 +84,7 @@ def create(
             creator_id=creator_id
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(s)
     return s
 
@@ -204,7 +204,7 @@ def update(
     rows = session.query(DBBeatmapset) \
         .filter(DBBeatmapset.id == beatmapset_id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -215,7 +215,7 @@ def delete_by_id(
     rows = session.query(DBBeatmapset) \
         .filter(DBBeatmapset.id == id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -224,7 +224,7 @@ def delete_inactive(user_id: int, session: Session = ...) -> int:
         .filter(DBBeatmapset.creator_id == user_id) \
         .filter(DBBeatmapset.status == -3) \
         .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper

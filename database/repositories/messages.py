@@ -24,7 +24,7 @@ def create(
             time=datetime.now()
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(msg)
     return msg
 
@@ -45,7 +45,7 @@ def create_private(
             read=read
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(msg)
     return msg
 
@@ -156,7 +156,7 @@ def update(
     result = session.query(DBDirectMessage) \
         .filter(DBDirectMessage.id == message_id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return result
 
 @session_wrapper
@@ -168,7 +168,7 @@ def update_private(
     result = session.query(DBDirectMessage) \
         .filter(DBDirectMessage.id == message_id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return result
 
 @session_wrapper
@@ -182,5 +182,5 @@ def update_private_all(
         .filter(DBDirectMessage.sender_id == sender_id) \
         .filter(DBDirectMessage.target_id == target_id) \
         .update(updates, synchronize_session=False)
-    session.commit()
+    session.flush()
     return result

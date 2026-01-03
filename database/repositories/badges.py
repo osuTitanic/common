@@ -25,7 +25,7 @@ def create(
             badge_description=description
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(badge)
     return badge
 
@@ -57,7 +57,7 @@ def update(
     rows = session.query(DBBadge) \
         .filter(DBBadge.id == id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -68,5 +68,5 @@ def delete(
     rows = session.query(DBBadge) \
         .filter(DBBadge.id == id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows

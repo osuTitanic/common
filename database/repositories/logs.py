@@ -22,7 +22,7 @@ def create(
             time=datetime.now()
         )
     )
-    session.commit()
+    session.flush()
     return log
 
 # TODO: Create fetch queries

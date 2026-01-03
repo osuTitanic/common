@@ -27,7 +27,7 @@ def create(
             mode=mode
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(stats)
     return stats
 
@@ -42,7 +42,7 @@ def update(
            .filter(DBStats.user_id == user_id) \
            .filter(DBStats.mode == mode) \
            .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -54,7 +54,7 @@ def update_all(
     rows = session.query(DBStats) \
            .filter(DBStats.user_id == user_id) \
            .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -62,7 +62,7 @@ def delete_all(user_id: int, session: Session = ...) -> int:
     rows = session.query(DBStats) \
             .filter(DBStats.user_id == user_id) \
             .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper

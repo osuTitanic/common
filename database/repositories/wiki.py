@@ -20,7 +20,7 @@ def create_page(
     session: Session = ...
 ) -> Tuple[DBWikiPage, DBWikiContent]:
     session.add(page := DBWikiPage(name=name, path=path))
-    session.commit()
+    session.flush()
     session.refresh(page)
     content = create_content_entry(
         page_id=page.id,
@@ -47,7 +47,7 @@ def create_content_entry(
             language=language
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(content)
     return content
 
@@ -63,7 +63,7 @@ def create_outlink(
             target_id=target_id
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(outlink)
     return outlink
 
@@ -178,7 +178,7 @@ def update_content(
             'last_updated': datetime.now(),
             'title': title or DBWikiContent.title
         })
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -194,7 +194,7 @@ def delete_page(
     rows = session.query(DBWikiPage) \
         .filter(DBWikiPage.id == page_id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -205,7 +205,7 @@ def delete_content(
     rows = session.query(DBWikiContent) \
         .filter(DBWikiContent.page_id == page_id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -216,7 +216,7 @@ def delete_outlinks(
     rows = session.query(DBWikiOutlink) \
         .filter(DBWikiOutlink.page_id == page_id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper

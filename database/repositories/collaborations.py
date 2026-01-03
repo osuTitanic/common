@@ -30,7 +30,7 @@ def create(
         allow_resource_updates=allow_resource_updates
     )
     session.add(entry)
-    session.commit()
+    session.flush()
     return entry
 
 @session_wrapper
@@ -47,7 +47,7 @@ def create_request(
         created_at=datetime.now()
     )
     session.add(entry)
-    session.commit()
+    session.flush()
     session.refresh(entry)
     return entry
 
@@ -63,7 +63,7 @@ def create_blacklist(
         created_at=datetime.now()
     )
     session.add(entry)
-    session.commit()
+    session.flush()
     return entry
 
 @session_wrapper
@@ -166,7 +166,7 @@ def update(
         .filter(DBBeatmapCollaboration.beatmap_id == beatmap_id) \
         .filter(DBBeatmapCollaboration.user_id == user_id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows_updated
 
 @session_wrapper
@@ -190,7 +190,7 @@ def delete(
         .filter(DBBeatmapCollaboration.beatmap_id == beatmap_id) \
         .filter(DBBeatmapCollaboration.user_id == user_id) \
         .delete(synchronize_session=False)
-    session.commit()
+    session.flush()
     return deleted_rows > 0
 
 @session_wrapper
@@ -201,14 +201,14 @@ def delete_by_beatmap(
     session.query(DBBeatmapCollaboration) \
         .filter(DBBeatmapCollaboration.beatmap_id == beatmap_id) \
         .delete(synchronize_session=False)
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def delete_request(id: int, session: Session = ...) -> bool:
     deleted_rows = session.query(DBBeatmapCollaborationRequest) \
         .filter(DBBeatmapCollaborationRequest.id == id) \
         .delete(synchronize_session=False)
-    session.commit()
+    session.flush()
     return deleted_rows > 0
 
 @session_wrapper
@@ -219,7 +219,7 @@ def delete_requests_by_beatmap(
     session.query(DBBeatmapCollaborationRequest) \
         .filter(DBBeatmapCollaborationRequest.beatmap_id == beatmap_id) \
         .delete(synchronize_session=False)
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def delete_blacklist(
@@ -231,5 +231,5 @@ def delete_blacklist(
         .filter(DBBeatmapCollaborationBlacklist.user_id == user_id) \
         .filter(DBBeatmapCollaborationBlacklist.target_id == target_id) \
         .delete(synchronize_session=False)
-    session.commit()
+    session.flush()
     return deleted_rows > 0

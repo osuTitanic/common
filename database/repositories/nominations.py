@@ -18,7 +18,7 @@ def create(
             set_id=beatmapset_id
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(nomination)
     return nomination
 
@@ -32,7 +32,7 @@ def delete(
         .filter(DBBeatmapNomination.user_id == user_id) \
         .filter(DBBeatmapNomination.set_id == beatmapset_id) \
         .delete()
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def delete_all(
@@ -42,7 +42,7 @@ def delete_all(
     session.query(DBBeatmapNomination) \
         .filter(DBBeatmapNomination.set_id == beatmapset_id) \
         .delete()
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def count(

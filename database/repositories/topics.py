@@ -41,7 +41,7 @@ def create(
         pinned=pinned
     )
     session.add(topic)
-    session.commit()
+    session.flush()
     return topic
 
 @session_wrapper
@@ -195,7 +195,7 @@ def add_subscriber(
         user_id=user_id
     )
     session.add(subscriber)
-    session.commit()
+    session.flush()
     return subscriber
 
 @session_wrapper
@@ -208,7 +208,7 @@ def delete_subscriber(
         .filter(DBForumSubscriber.topic_id == topic_id) \
         .filter(DBForumSubscriber.user_id == user_id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -257,7 +257,7 @@ def add_bookmark(
         user_id=user_id
     )
     session.add(bookmark)
-    session.commit()
+    session.flush()
     return bookmark
 
 @session_wrapper
@@ -270,7 +270,7 @@ def delete_bookmark(
         .filter(DBForumBookmark.topic_id == topic_id) \
         .filter(DBForumBookmark.user_id == user_id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -336,5 +336,5 @@ def update(
     rows = session.query(DBForumTopic) \
         .filter(DBForumTopic.id == id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows

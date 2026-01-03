@@ -21,7 +21,7 @@ def create_user_permission(
             rejected=rejected
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(user_permission)
     return user_permission
 
@@ -39,7 +39,7 @@ def create_group_permission(
             rejected=rejected
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(group_permission)
     return group_permission
 
@@ -59,7 +59,7 @@ def create_many_for_user(
         for permission in permissions
     ]
     session.add_all(user_permissions)
-    session.commit()
+    session.flush()
     session.flush()
     return user_permissions
 
@@ -79,7 +79,7 @@ def create_many_for_group(
         for permission in permissions
     ]
     session.add_all(group_permissions)
-    session.commit()
+    session.flush()
     session.flush()
     return group_permissions
 
@@ -133,7 +133,7 @@ def delete_user_permission(
         .filter(DBUserPermission.user_id == user_id) \
         .filter(DBUserPermission.permission == permission) \
         .delete()
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def delete_group_permission(
@@ -145,7 +145,7 @@ def delete_group_permission(
         .filter(DBGroupPermission.group_id == group_id) \
         .filter(DBGroupPermission.permission == permission) \
         .delete()
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def delete_many_for_user(
@@ -157,7 +157,7 @@ def delete_many_for_user(
         .filter(DBUserPermission.user_id == user_id) \
         .filter(DBUserPermission.permission.in_(permissions)) \
         .delete()
-    session.commit()
+    session.flush()
 
 @session_wrapper
 def delete_many_for_group(
@@ -169,4 +169,4 @@ def delete_many_for_group(
         .filter(DBGroupPermission.group_id == group_id) \
         .filter(DBGroupPermission.permission.in_(permissions)) \
         .delete()
-    session.commit()
+    session.flush()

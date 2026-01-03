@@ -29,7 +29,7 @@ def create(
             hardware=hardware
         )
     )
-    session.commit()
+    session.flush()
     return bench
 
 @session_wrapper
@@ -60,7 +60,7 @@ def delete(benchmark_id: int, session: Session = ...) -> int:
     rows = session.query(DBBenchmark) \
         .filter(DBBenchmark.id == benchmark_id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -72,7 +72,7 @@ def update(
     rows = session.query(DBBenchmark) \
         .filter(DBBenchmark.id == benchmark_id) \
         .update(update)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper

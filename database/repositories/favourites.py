@@ -26,7 +26,7 @@ def create(
             set_id=set_id
         )
     )
-    session.commit()
+    session.flush()
 
     return fav
 
@@ -76,7 +76,7 @@ def delete(
         .filter(DBFavourite.user_id == user_id) \
         .filter(DBFavourite.set_id == set_id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -84,5 +84,5 @@ def delete_all(set_id: int, session: Session = ...) -> int:
     rows = session.query(DBFavourite) \
         .filter(DBFavourite.set_id == set_id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows

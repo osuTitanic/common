@@ -34,7 +34,7 @@ def create(
         edit_time=datetime.now()
     )
     session.add(post)
-    session.commit()
+    session.flush()
     return post
 
 @session_wrapper
@@ -312,7 +312,7 @@ def update_by_topic(
     rows = session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -324,7 +324,7 @@ def update(
     rows = session.query(DBForumPost) \
         .filter(DBForumPost.id == post_id) \
         .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -332,5 +332,5 @@ def delete(post_id: int, session: Session = ...) -> int:
     rows = session.query(DBForumPost) \
         .filter(DBForumPost.id == post_id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows

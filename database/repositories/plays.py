@@ -28,7 +28,7 @@ def create(
             count=count
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(p)
     return p
 
@@ -45,7 +45,7 @@ def update(
         .filter(DBPlay.beatmap_id == beatmap_id) \
         .filter(DBPlay.user_id == user_id) \
         .update({'count': DBPlay.count + count})
-    session.commit()
+    session.flush()
 
     if updated:
         return
@@ -88,7 +88,7 @@ def delete_by_id(id: int, session: Session = ...) -> int:
     rows = session.query(DBPlay) \
         .filter(DBPlay.id == id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -96,7 +96,7 @@ def delete_by_set_id(set_id: int, session: Session = ...) -> int:
     rows = session.query(DBPlay) \
         .filter(DBPlay.set_id == set_id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -104,5 +104,5 @@ def delete_by_beatmap_id(beatmap_id: int, session: Session = ...) -> int:
     rows = session.query(DBPlay) \
         .filter(DBPlay.beatmap_id == beatmap_id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows

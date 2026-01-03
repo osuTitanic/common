@@ -18,7 +18,7 @@ def create(user_id: int, old_name: str, session: Session = ...) -> DBName:
             changed_at=datetime.now()
         )
     )
-    session.commit()
+    session.flush()
     return name
 
 @session_wrapper
@@ -80,7 +80,7 @@ def update(
     rows = session.query(DBName) \
         .filter(DBName.id == id) \
         .update(data)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper
@@ -91,5 +91,5 @@ def delete(
     rows = session.query(DBName) \
         .filter(DBName.id == id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows

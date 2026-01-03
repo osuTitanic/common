@@ -37,7 +37,7 @@ def create(
             discord_id=discord_id
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(user)
     return user
 
@@ -50,7 +50,7 @@ def update(
     rows = session.query(DBUser) \
            .filter(DBUser.id == user_id) \
            .update(updates)
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper

@@ -20,7 +20,7 @@ def create_entry(
             group_id=group_id
         )
     )
-    session.commit()
+    session.flush()
     return ge
 
 @session_wrapper
@@ -33,7 +33,7 @@ def delete_entry(
         .filter(DBGroupEntry.group_id == group_id) \
         .filter(DBGroupEntry.user_id == user_id) \
         .delete()
-    session.commit()
+    session.flush()
     return rows
 
 @session_wrapper

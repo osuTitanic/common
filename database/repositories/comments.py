@@ -31,7 +31,7 @@ def create(
             color=color
         )
     )
-    session.commit()
+    session.flush()
     session.refresh(c)
     return c
 
