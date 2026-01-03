@@ -49,14 +49,17 @@ class Postgres:
         return self.sessionmaker(bind=self.engine)
 
     @contextmanager
-    def managed_session(self) -> Generator[Session, None, None]:
-        yield from self.yield_session()
+    def managed_session(self, autocommit: bool = True) -> Generator[Session, None, None]:
+        yield from self.yield_session(autocommit=autocommit)
 
-    def yield_session(self) -> Generator[Session, None, None]:
+    def yield_session(self, autocommit: bool = True) -> Generator[Session, None, None]:
         session = self.sessionmaker(bind=self.engine)
 
         try:
             yield session
+
+            if autocommit:
+                session.commit()
         except Exception as e:
             self.log_transaction_failure(e)
             session.rollback()
@@ -66,7 +69,7 @@ class Postgres:
 
     def wait_for_connection(self, retries: int = 10, delay: int = 1) -> None:
         for attempt in range(retries):
-            with self.managed_session() as session:
+            with self.managed_session(autocommit=False) as session:
                 try:
                     session.execute(text('SELECT 1'))
                     return None
