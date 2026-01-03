@@ -459,7 +459,7 @@ def search_extended(
 
 @caching.ttl_cache(ttl=60*60*24)
 def global_average_rating() -> int:
-    with app.session.database.managed_session() as session:
+    with app.session.database.managed_session(autocommit=False) as session:
         result = session.query(func.avg(DBRating.rating)).scalar()
         return result or 0
 
