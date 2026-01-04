@@ -75,7 +75,9 @@ def fetch_all(
     if until is not None:
         query = query.filter(DBNotification.time > until)
 
-    return query.all()
+    return query \
+        .order_by(DBNotification.time.desc()) \
+        .all()
 
 @session_wrapper
 def update(
