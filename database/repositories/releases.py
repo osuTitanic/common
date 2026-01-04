@@ -126,6 +126,20 @@ def fetch_modded_entry_by_checksum(mod_name: str, checksum: str, session: Sessio
         .first()
 
 @session_wrapper
+def fetch_modded_entries(
+    mod_name: str,
+    limit: int = 50,
+    offset: int = 0,
+    session: Session = ...
+) -> List[DBModdedReleaseEntries]:
+    return session.query(DBModdedReleaseEntries) \
+        .filter(DBModdedReleaseEntries.mod_name == mod_name) \
+        .order_by(DBModdedReleaseEntries.created_at.desc()) \
+        .limit(limit) \
+        .offset(offset) \
+        .all()
+
+@session_wrapper
 def modded_entry_exists(mod_name: str, checksum: str, session: Session = ...) -> bool:
     return session.query(DBModdedReleaseEntries.id) \
         .filter(DBModdedReleaseEntries.mod_name == mod_name) \
