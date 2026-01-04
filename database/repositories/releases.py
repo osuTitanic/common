@@ -119,8 +119,9 @@ def fetch_modded_all(session: Session = ...) -> List[DBModdedRelease]:
         .all()
 
 @session_wrapper
-def fetch_modded_entry_by_id(entry_id: int, session: Session = ...) -> DBModdedReleaseEntries | None:
+def fetch_modded_entry_by_id(mod_name: str, entry_id: int, session: Session = ...) -> DBModdedReleaseEntries | None:
     return session.query(DBModdedReleaseEntries) \
+        .filter(DBModdedReleaseEntries.mod_name == mod_name) \
         .filter(DBModdedReleaseEntries.id == entry_id) \
         .first()
 
