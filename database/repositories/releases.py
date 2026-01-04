@@ -119,6 +119,12 @@ def fetch_modded_all(session: Session = ...) -> List[DBModdedRelease]:
         .all()
 
 @session_wrapper
+def fetch_modded_entry_by_id(entry_id: int, session: Session = ...) -> DBModdedReleaseEntries | None:
+    return session.query(DBModdedReleaseEntries) \
+        .filter(DBModdedReleaseEntries.id == entry_id) \
+        .first()
+
+@session_wrapper
 def fetch_modded_entry_by_checksum(mod_name: str, checksum: str, session: Session = ...) -> DBModdedReleaseEntries | None:
     return session.query(DBModdedReleaseEntries) \
         .filter(DBModdedReleaseEntries.mod_name == mod_name) \
@@ -145,6 +151,18 @@ def modded_entry_exists(mod_name: str, checksum: str, session: Session = ...) ->
         .filter(DBModdedReleaseEntries.mod_name == mod_name) \
         .filter(DBModdedReleaseEntries.checksum == checksum) \
         .count() > 0
+
+@session_wrapper
+def update_modded_entry(
+    entry_id: int,
+    updates: dict,
+    session: Session = ...
+) -> int:
+    rows = session.query(DBModdedReleaseEntries) \
+        .filter(DBModdedReleaseEntries.id == entry_id) \
+        .update(updates)
+    session.flush()
+    return rows
 
 @session_wrapper
 def delete_modded_entry(entry_id: int, session: Session = ...) -> int:
