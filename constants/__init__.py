@@ -2,6 +2,7 @@
 from .bancho import ClientStatus, ButtonState
 from .notifications import NotificationType
 from .user import Playstyle, UserActivity
+from .accounts import TokenSource
 from .modes import GameMode
 from .grade import Grade
 from .mods import Mods
