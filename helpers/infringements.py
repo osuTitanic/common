@@ -79,6 +79,9 @@ def unsilence_user(
     expired: bool = False,
     session: Session | None = None
 ) -> None:
+    if not user.silence_end:
+        return
+
     users.update(
         user.id,
         {'silence_end': None},
@@ -163,6 +166,9 @@ def unrestrict_user(
     restore_scores: bool = False,
     session: Session | None = None
 ) -> None:
+    if not user.restricted:
+        return
+
     users.update(user.id, {'restricted': False}, session=session)
 
     # Add to user & supporter group
