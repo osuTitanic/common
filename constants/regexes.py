@@ -17,7 +17,7 @@ USERNAME = re.compile(
 )
 
 DISCORD_USERNAME = re.compile(
-    r'^@?[a-z0-9_-]{3,32}$'
+    r'^@?(?!.*?\.{2,})[a-z0-9_\.]{2,32}$'
 )
 
 DISCORD_EMOTE = re.compile(
