@@ -6,6 +6,7 @@ from app.common.database.repositories import resources, beatmapsets
 from app.common.database.objects import DBResourceMirror
 from app.common.config import config_instance as config
 
+from requests.exceptions import ConnectionError
 from requests.adapters import HTTPAdapter
 from requests import Session, Response
 from urllib3.util.retry import Retry
@@ -21,18 +22,21 @@ class Beatmaps:
         self.logger = logging.getLogger('beatmap-api')
         self.id_offset = 1000000000
 
-        self.session = Session()
-        self.session.headers = {'User-Agent': f'osuTitanic ({config.DOMAIN_NAME})'}
+        self.session = self.create_session()
         self.cache = cache
+
+    def create_session(self) -> Session:
+        session = Session()
+        session.headers = {'User-Agent': f'osuTitanic ({config.DOMAIN_NAME})'}
 
         retries = Retry(
             total=4,
             backoff_factor=0.3,
             status_forcelist=[500, 502, 503, 504]
         )
-
-        self.session.mount('http://', HTTPAdapter(max_retries=retries))
-        self.session.mount('https://', HTTPAdapter(max_retries=retries))
+        session.mount('http://', HTTPAdapter(max_retries=retries))
+        session.mount('https://', HTTPAdapter(max_retries=retries))
+        return session
 
     def perform_mirror_request(self, url: str, mirror: DBResourceMirror) -> Response:
         if self.check_ratelimit(mirror.url):
@@ -77,6 +81,22 @@ class Beatmaps:
         self.logger.error(f'Error while sending request to "{url}" ({status_code})')
 
     def do_safe_request(self, url: str, **kwargs) -> Response:
+        try:
+            response = self.session.get(url, **kwargs)
+        except ConnectionError as e:
+            self.logger.warning(f'Connection error while sending request to "{url}": {e}')
+            self.logger.warning(f'Recreating session and retrying...')
+            self.session.close()
+            self.session = self.create_session()
+            response = self.retry_request(url, **kwargs)
+        except Exception as e:
+            response = Response()
+            response.status_code = 500
+            self.logger.error(f'Failed to send request to "{url}": {e}')
+        finally:
+            return response
+
+    def retry_request(self, url: str, **kwargs) -> Response:
         try:
             response = self.session.get(url, **kwargs)
         except Exception as e:
