@@ -116,6 +116,9 @@ class Config(BaseSettings):
     BANCHO_IRC_PORT_SSL: int = 6697
     BANCHO_WORKERS: int = 16
 
+    # Time in seconds to let clients know when they can reconnect after a restart
+    BANCHO_RESTART_TIME: int = 10
+
     # Enable/disable irc-based connections
     IRC_ENABLED: bool = True
     OSU_IRC_ENABLED: bool = True
