@@ -420,6 +420,7 @@ def search_extended(
         if uncleared is not None:
             subquery = select(DBScore.beatmap_id) \
                 .filter(DBScore.user_id == user_id) \
+                .filter(DBScore.status_pp >= 2) \
                 .subquery()
 
             query = query.filter(DBBeatmap.id.notin_(subquery))
