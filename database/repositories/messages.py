@@ -64,6 +64,30 @@ def fetch_recent(
         .all()
 
 @session_wrapper
+def fetch_by_sender(
+    sender: str,
+    limit: int = 10,
+    offset: int = 0,
+    session: Session = ...
+) -> List[DBMessage]:
+    return session.query(DBMessage) \
+        .filter(DBMessage.sender == sender) \
+        .order_by(DBMessage.id.desc()) \
+        .offset(offset) \
+        .limit(limit) \
+        .all()
+        
+@session_wrapper
+def fetch_all_by_sender(
+    sender: str,
+    session: Session = ...
+) -> List[DBMessage]:
+    return session.query(DBMessage) \
+        .filter(DBMessage.sender == sender) \
+        .order_by(DBMessage.id.desc()) \
+        .all()
+
+@session_wrapper
 def fetch_dm(message_id: int, session: Session = ...) -> DBDirectMessage | None:
     return session.query(DBDirectMessage) \
         .filter(DBDirectMessage.id == message_id) \
