@@ -1,5 +1,6 @@
 
 from __future__ import annotations
+from operator import and_
 
 from app.common.helpers import caching
 from app.common.constants import (
@@ -364,7 +365,7 @@ def search_extended(
 
     if query_string:
         # Apply filters, such as year>=2015
-        query_string, filters = resolve_search_filters(query_string)
+        query_string, filters = resolve_search_filters(query_string, mode)
         query = apply_search_filters(query, filters)
 
         if any(filter in filters for filter in filters_with_beatmaps):
@@ -420,7 +421,6 @@ def search_extended(
         if uncleared is not None:
             subquery = select(DBScore.beatmap_id) \
                 .filter(DBScore.user_id == user_id) \
-                .filter(DBScore.status_pp >= 2) \
                 .subquery()
 
             query = query.filter(DBBeatmap.id.notin_(subquery))
@@ -517,7 +517,7 @@ def text_search_condition(query_string: str):
 
     return query, rank
 
-def resolve_search_filters(query_string: str) -> Tuple[str, Dict[str, Any]]:
+def resolve_search_filters(query_string: str, mode: int | None = None) -> Tuple[str, Dict[str, Any]]:
     if not query_string:
         return '', {}
 
@@ -536,7 +536,8 @@ def resolve_search_filters(query_string: str) -> Tuple[str, Dict[str, Any]]:
         # Store the filter
         filters[field].append({
             'operator': operator,
-            'value': value
+            'value': value,
+            'mode': mode
         })
 
         # Remove this filter from the query string
@@ -692,44 +693,76 @@ def apply_bpm_filter(query: Query, condition: Dict[str, Any]) -> Query:
     return query.filter(bpm_filter)
 
 def apply_ar_filter(query: Query, condition: Dict[str, Any]) -> Query:
-    if not condition['value'].isdigit():
+    if not is_float(condition['value']):
         return query
     
     op = condition['operator']
-    val = int(condition['value'])
+    val = float(condition['value'])
 
-    ar_filter = apply_operator(val, op, DBBeatmap.ar)
-    return query.filter(ar_filter)
+    ar_filter = apply_operator(
+        val, op,
+        DBBeatmap.ar
+    )
+
+    if condition['mode'] is None:
+        return query.filter(ar_filter)
+
+    # Ensure that the correct mode is applied for AR filtering
+    return query.filter(and_(ar_filter, DBBeatmap.mode == condition['mode']))
 
 def apply_cs_filter(query: Query, condition: Dict[str, Any]) -> Query:
-    if not condition['value'].isdigit():
+    if not is_float(condition['value']):
         return query
-    
-    op = condition['operator']
-    val = int(condition['value'])
 
-    cs_filter = apply_operator(val, op, DBBeatmap.cs)
-    return query.filter(cs_filter)
+    op = condition['operator']
+    val = float(condition['value'])
+
+    cs_filter = apply_operator(
+        val, op,
+        DBBeatmap.cs
+    )
+
+    if condition['mode'] is None:
+        return query.filter(cs_filter)
+
+    # Ensure that the correct mode is applied for CS filtering
+    return query.filter(and_(cs_filter, DBBeatmap.mode == condition['mode']))
 
 def apply_od_filter(query: Query, condition: Dict[str, Any]) -> Query:
-    if not condition['value'].isdigit():
+    if not is_float(condition['value']):
         return query
-    
-    op = condition['operator']
-    val = int(condition['value'])
 
-    od_filter = apply_operator(val, op, DBBeatmap.od)
-    return query.filter(od_filter)
+    op = condition['operator']
+    val = float(condition['value'])
+
+    od_filter = apply_operator(
+        val, op,
+        DBBeatmap.od
+    )
+    
+    if condition['mode'] is None:
+        return query.filter(od_filter)
+
+    # Ensure that the correct mode is applied for OD filtering
+    return query.filter(and_(od_filter, DBBeatmap.mode == condition['mode']))
 
 def apply_hp_filter(query: Query, condition: Dict[str, Any]) -> Query:
-    if not condition['value'].isdigit():
+    if not is_float(condition['value']):
         return query
-    
-    op = condition['operator']
-    val = int(condition['value'])
 
-    hp_filter = apply_operator(val, op, DBBeatmap.hp)
-    return query.filter(hp_filter)
+    op = condition['operator']
+    val = float(condition['value'])
+
+    hp_filter = apply_operator(
+        val, op,
+        DBBeatmap.hp
+    )
+
+    if condition['mode'] is None:
+        return query.filter(hp_filter)
+
+    # Ensure that the correct mode is applied for HP filtering
+    return query.filter(and_(hp_filter, DBBeatmap.mode == condition['mode']))
 
 def apply_operator(value: Any, operator: str, column: ColumnElement) -> ColumnElement:
     assert operator in operator_mapping, f"Unsupported operator: {operator}"
