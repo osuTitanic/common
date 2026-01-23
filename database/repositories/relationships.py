@@ -89,6 +89,18 @@ def is_friend(
         .first() is not None
 
 @session_wrapper
+def is_blocked(
+    user_id: int,
+    target_id: int,
+    session: Session = ...
+) -> bool:
+    return session.query(DBRelationship.target_id) \
+        .filter(DBRelationship.user_id == user_id) \
+        .filter(DBRelationship.target_id == target_id) \
+        .filter(DBRelationship.status == 1) \
+        .first() is not None
+
+@session_wrapper
 def fetch_users(
     user_id: int,
     status: int = 0,
