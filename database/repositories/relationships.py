@@ -52,9 +52,29 @@ def fetch_many_by_id(user_id: int, session: Session = ...) -> List[DBRelationshi
 
 @session_wrapper
 def fetch_many_by_target(target_id: int, session: Session = ...) -> List[DBRelationship]:
-        return session.query(DBRelationship) \
-            .filter(DBRelationship.target_id == target_id) \
-            .all()
+    return session.query(DBRelationship) \
+        .filter(DBRelationship.target_id == target_id) \
+        .all()
+
+@session_wrapper
+def fetch_many_friends_by_target(
+    target_id: int,
+    session: Session = ...
+) -> List[DBRelationship]:
+    return session.query(DBRelationship) \
+        .filter(DBRelationship.target_id == target_id) \
+        .filter(DBRelationship.status == 0) \
+        .all()
+
+@session_wrapper
+def fetch_many_blocked_by_target(
+    target_id: int,
+    session: Session = ...
+) -> List[DBRelationship]:
+    return session.query(DBRelationship) \
+        .filter(DBRelationship.target_id == target_id) \
+        .filter(DBRelationship.status == 1) \
+        .all()        
 
 @session_wrapper
 def fetch_count_by_id(user_id: int, session: Session = ...) -> int:
