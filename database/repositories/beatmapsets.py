@@ -490,7 +490,7 @@ def text_search_condition(query_string: str, similarity_threshold: float = 0.5) 
     # Trigram distance (the lower the distance, the more similar)
     trgm_distance = DBBeatmapset.search_text.op('<->')(query_string)
 
-    # Combined rank, i.e. fts rank + weighted trigram similarity
+    # Combined rank, i.e. fts rank + weighted trigram distance
     rank = ts_rank + (trgm_distance * 0.5)
 
     conditions = [
