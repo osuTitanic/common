@@ -20,7 +20,7 @@ from app.common.database.objects import (
     DBPlay
 )
 
-from sqlalchemy import func, select, or_, extract, ColumnElement
+from sqlalchemy import REAL, func, select, or_, extract, cast, ColumnElement
 from sqlalchemy.orm import selectinload, Session, Query
 from .wrapper import session_wrapper
 
@@ -491,7 +491,7 @@ def text_search_condition(query_string: str, similarity_threshold: float = 0.5) 
     trgm_distance = DBBeatmapset.search_text.op('<->')(query_string)
 
     # Combined rank, i.e. fts rank + weighted trigram distance
-    rank = ts_rank + (trgm_distance * 0.5)
+    rank = cast(ts_rank, REAL) + cast(trgm_distance, REAL) * 0.5
 
     conditions = [
         DBBeatmapset.search.op('@@')(main_tsquery),
