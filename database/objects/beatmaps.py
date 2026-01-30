@@ -68,6 +68,7 @@ class DBBeatmapset(Base):
     info_hash            = Column('info_hash', String, nullable=True)
     body_hash            = Column('body_hash', String, nullable=True)
 
+    # Full-text search
     search = deferred(Column('search', TSVECTOR, Computed(
         "setweight(to_tsvector('simple', coalesce(title, '')), 'B') || "
         "setweight(to_tsvector('simple', coalesce(title_unicode, '')), 'A') || "
@@ -76,6 +77,18 @@ class DBBeatmapset(Base):
         "setweight(to_tsvector('simple', coalesce(creator, '')), 'B') || "
         "setweight(to_tsvector('simple', coalesce(source, '')), 'B') || "
         "setweight(to_tsvector('simple', coalesce(tags, '')), 'B')",
+        persisted=True
+    )))
+
+    # Trigram / fuzzy search
+    search_text = deferred(Column('search_text', String, Computed(
+        "coalesce(title, '') || ' ' || "
+        "coalesce(title_unicode, '') || ' ' || "
+        "coalesce(artist, '') || ' ' || "
+        "coalesce(artist_unicode, '') || ' ' || "
+        "coalesce(creator, '') || ' ' || "
+        "coalesce(source, '') || ' ' || "
+        "coalesce(tags, '')",
         persisted=True
     )))
 

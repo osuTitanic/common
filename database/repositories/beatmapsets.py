@@ -257,7 +257,9 @@ def search_direct(
     """Query beatmapsets for osu!direct"""
 
     query = session.query(DBBeatmapset).filter(DBBeatmapset.beatmaps.any())
-    text_condition, text_sort = text_search_condition(query_string)
+
+    # A lower similarity threshold is acceptable here since we are ordering by relevance
+    text_condition, text_sort = text_search_condition(query_string, similarity_threshold=0.35)
 
     sort_by_last_update = display_mode in (
         DirectDisplayMode.Graveyard,
@@ -377,7 +379,8 @@ def search_extended(
                      .group_by(DBBeatmapset.id)
 
     if query_string:
-        text_condition, text_sort = text_search_condition(query_string)
+        # We want to use a higher similarity threshold because we are not ordering by relevance
+        text_condition, text_sort = text_search_condition(query_string, similarity_threshold=0.65)
         query = query.filter(text_condition)
 
     if genre is not None:
@@ -473,49 +476,40 @@ def bayesian_rating() -> ColumnElement:
     adjusted_avg_rating = global_average_rating() * confidence_factor
     return (rating_sum + adjusted_avg_rating) / total_count
 
-def text_search_condition(query_string: str):
+def text_search_condition(query_string: str, similarity_threshold: float = 0.65) -> Tuple[ColumnElement, ColumnElement]:
     search_columns = [
         DBBeatmapset.search,
         DBBeatmap.search
     ]
-
-    sanitized_query = re.sub(
-        r'[^\w\s]', '',
-        query_string
-    )
-
-    words = [
-        word.strip()
-        for word in sanitized_query.split()
+    search_text_columns = [
+        DBBeatmapset.search_text
     ]
 
+    # Build primary tsquery & rank
     main_tsquery = func.plainto_tsquery(
         'simple',
         query_string
     )
-
-    fuzzy_tsquery = func.to_tsquery(
-        'simple',
-        ' & '.join(f'{word}:*' for word in words)
-    )
-
-    rank = func.ts_rank(
+    ts_rank = func.ts_rank(
         DBBeatmapset.search,
         main_tsquery
     )
 
-    query = or_(
-        *[
-            column.op('@@')(main_tsquery)
-            for column in search_columns
-        ],
-        *[
-            column.op('@@')(fuzzy_tsquery)
-            for column in search_columns
-        ]
+    # Trigram similarity score
+    trgm_similarity = func.greatest(
+        func.similarity(DBBeatmapset.search_text, query_string),
+        func.word_similarity(query_string, DBBeatmapset.search_text)
     )
 
-    return query, rank
+    # Combined rank, i.e. fts rank + weighted trigram similarity
+    rank = ts_rank + (trgm_similarity * 0.5)
+
+    conditions = [
+        *[column.op('@@')(main_tsquery) for column in search_columns],
+        *[column.op('%')(query_string) for column in search_text_columns],
+        *[func.word_similarity(query_string, column) > similarity_threshold for column in search_text_columns],
+    ]
+    return or_(*conditions), rank
 
 def resolve_search_filters(query_string: str, mode: int | None = None) -> Tuple[str, Dict[str, Any]]:
     if not query_string:
