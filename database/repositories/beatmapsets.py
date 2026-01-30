@@ -259,7 +259,7 @@ def search_direct(
     query = session.query(DBBeatmapset).filter(DBBeatmapset.beatmaps.any())
 
     # A lower similarity threshold is acceptable here since we are ordering by relevance
-    text_condition, text_sort = text_search_condition(query_string, similarity_threshold=0.1)
+    text_condition, text_sort = text_search_condition(query_string)
 
     sort_by_last_update = display_mode in (
         DirectDisplayMode.Graveyard,
@@ -380,7 +380,7 @@ def search_extended(
 
     if query_string:
         # We want to use a higher similarity threshold because we are not ordering by relevance
-        text_condition, text_sort = text_search_condition(query_string, similarity_threshold=0.2)
+        text_condition, text_sort = text_search_condition(query_string)
         query = query.filter(text_condition)
 
     if genre is not None:
