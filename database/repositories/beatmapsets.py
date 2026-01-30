@@ -380,7 +380,7 @@ def search_extended(
 
     if query_string:
         # We want to use a higher similarity threshold because we are not ordering by relevance
-        text_condition, text_sort = text_search_condition(query_string, similarity_threshold=0.65)
+        text_condition, text_sort = text_search_condition(query_string, similarity_threshold=0.7)
         query = query.filter(text_condition)
 
     if genre is not None:
