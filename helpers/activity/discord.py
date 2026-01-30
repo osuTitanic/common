@@ -5,10 +5,10 @@ from app.common.database.objects import DBActivity
 from app.common.webhooks import *
 
 def format_leaderboard_rank(activity: DBActivity) -> Embed | None:
-    if activity.data["beatmap_rank"] > 1:
+    if activity.data["beatmap_rank"] > 2:
         return None
 
-    if activity.data.get("pp", 0) <= 500:
+    if activity.data.get("pp", 0) <= 200:
         return None
 
     embed = Embed(
@@ -30,7 +30,7 @@ def format_leaderboard_rank(activity: DBActivity) -> Embed | None:
     return embed
 
 def format_ranks_gained(activity: DBActivity) -> Embed | None:
-    if activity.data["rank"] > 10:
+    if activity.data["rank"] > 50:
         return None
 
     embed = Embed(
