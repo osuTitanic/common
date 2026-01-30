@@ -476,7 +476,7 @@ def bayesian_rating() -> ColumnElement:
     adjusted_avg_rating = global_average_rating() * confidence_factor
     return (rating_sum + adjusted_avg_rating) / total_count
 
-def text_search_condition(query_string: str, similarity_threshold: float = 0.65) -> Tuple[ColumnElement, ColumnElement]:
+def text_search_condition(query_string: str, similarity_threshold: float = 0.5) -> Tuple[ColumnElement, ColumnElement]:
     search_columns = [
         DBBeatmapset.search,
         DBBeatmap.search
