@@ -54,8 +54,10 @@ class Config(BaseSettings):
     # Discord webhook url for logging (optional)
     OFFICER_WEBHOOK_URL: str | None = None
 
-    # Event webhook url for updates to beatmaps, forums, etc. (optional)
-    EVENT_WEBHOOK_URL: str | None = None
+    # Event webhook urls for updates to beatmaps, forums, etc. (optional)
+    ANNOUNCE_EVENTS_WEBHOOK_URL: str | None = None
+    FORUM_EVENTS_WEBHOOK_URL: str | None = None
+    BEATMAP_EVENTS_WEBHOOK_URL: str | None = None
 
     # Image proxy baseurl for bbcode, using go-camo (optional)
     # https://github.com/cactus/go-camo

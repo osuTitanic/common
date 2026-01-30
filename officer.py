@@ -87,17 +87,18 @@ def event(
     avatar_url: str | None = None,
     is_tts: bool | None = None,
     file: Any | None = None,
-    embeds: List[webhooks.Embed] = []
+    embeds: List[webhooks.Embed] = [],
+    url: str = config.ANNOUNCE_EVENTS_WEBHOOK_URL
 ) -> bool:
     """Send an event to the event webhook"""
     app.session.logger.debug('Sending event to discord...')
 
-    if not config.EVENT_WEBHOOK_URL:
+    if not url:
         app.session.logger.debug('Event webhook was not configured.')
         return False
 
     return webhooks.Webhook(
-        config.EVENT_WEBHOOK_URL,
+        url,
         content, username,
         avatar_url, is_tts,
         file, embeds
