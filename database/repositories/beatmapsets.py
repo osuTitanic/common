@@ -259,7 +259,7 @@ def search_direct(
     query = session.query(DBBeatmapset).filter(DBBeatmapset.beatmaps.any())
 
     # A lower similarity threshold is acceptable here since we are ordering by relevance
-    text_condition, text_sort = text_search_condition(query_string, similarity_threshold=0.3)
+    text_condition, text_sort = text_search_condition(query_string, similarity_threshold=0.1)
 
     sort_by_last_update = display_mode in (
         DirectDisplayMode.Graveyard,
@@ -380,7 +380,7 @@ def search_extended(
 
     if query_string:
         # We want to use a higher similarity threshold because we are not ordering by relevance
-        text_condition, text_sort = text_search_condition(query_string, similarity_threshold=0.7)
+        text_condition, text_sort = text_search_condition(query_string, similarity_threshold=0.2)
         query = query.filter(text_condition)
 
     if genre is not None:
@@ -476,9 +476,9 @@ def bayesian_rating() -> ColumnElement:
     adjusted_avg_rating = global_average_rating() * confidence_factor
     return (rating_sum + adjusted_avg_rating) / total_count
 
-def text_search_condition(query_string: str, similarity_threshold: float = 0.5) -> Tuple[ColumnElement, ColumnElement]:
+def text_search_condition(query_string: str, similarity_threshold: float = 0.4) -> Tuple[ColumnElement, ColumnElement]:
     # Build primary tsquery & rank
-    main_tsquery = func.plainto_tsquery(
+    main_tsquery = func.websearch_to_tsquery(
         'simple',
         query_string
     )
@@ -487,16 +487,19 @@ def text_search_condition(query_string: str, similarity_threshold: float = 0.5) 
         main_tsquery
     )
 
-    # Trigram distance (the lower the distance, the more similar)
-    trgm_distance = DBBeatmapset.search_text.op('<->')(query_string)
+    # Trigram similarity
+    trgm_similarity = func.similarity(
+        DBBeatmapset.search_text,
+        query_string,
+    )
 
     # Combined rank, i.e. fts rank + weighted trigram distance
-    rank = cast(ts_rank, REAL) + cast(trgm_distance, REAL) * 0.5
+    rank = cast(ts_rank, REAL) + cast(trgm_similarity, REAL) * 0.5
 
     conditions = [
         DBBeatmapset.search.op('@@')(main_tsquery),
         DBBeatmap.search.op('@@')(main_tsquery),
-        func.word_similarity(query_string, DBBeatmapset.search_text) > similarity_threshold
+        trgm_similarity > similarity_threshold
     ]
     return or_(*conditions), rank
 
