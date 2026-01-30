@@ -259,7 +259,7 @@ def search_direct(
     query = session.query(DBBeatmapset).filter(DBBeatmapset.beatmaps.any())
 
     # A lower similarity threshold is acceptable here since we are ordering by relevance
-    text_condition, text_sort = text_search_condition(query_string, similarity_threshold=0.35)
+    text_condition, text_sort = text_search_condition(query_string, similarity_threshold=0.3)
 
     sort_by_last_update = display_mode in (
         DirectDisplayMode.Graveyard,
@@ -477,14 +477,6 @@ def bayesian_rating() -> ColumnElement:
     return (rating_sum + adjusted_avg_rating) / total_count
 
 def text_search_condition(query_string: str, similarity_threshold: float = 0.5) -> Tuple[ColumnElement, ColumnElement]:
-    search_columns = [
-        DBBeatmapset.search,
-        DBBeatmap.search
-    ]
-    search_text_columns = [
-        DBBeatmapset.search_text
-    ]
-
     # Build primary tsquery & rank
     main_tsquery = func.plainto_tsquery(
         'simple',
@@ -495,19 +487,16 @@ def text_search_condition(query_string: str, similarity_threshold: float = 0.5) 
         main_tsquery
     )
 
-    # Trigram similarity score
-    trgm_similarity = func.greatest(
-        func.similarity(DBBeatmapset.search_text, query_string),
-        func.word_similarity(query_string, DBBeatmapset.search_text)
-    )
+    # Trigram distance (the lower the distance, the more similar)
+    trgm_distance = DBBeatmapset.search_text.op('<->')(query_string)
 
     # Combined rank, i.e. fts rank + weighted trigram similarity
-    rank = ts_rank + (trgm_similarity * 0.5)
+    rank = ts_rank + (trgm_distance * 0.5)
 
     conditions = [
-        *[column.op('@@')(main_tsquery) for column in search_columns],
-        *[column.op('%')(query_string) for column in search_text_columns],
-        *[func.word_similarity(query_string, column) > similarity_threshold for column in search_text_columns],
+        DBBeatmapset.search.op('@@')(main_tsquery),
+        DBBeatmap.search.op('@@')(main_tsquery),
+        func.word_similarity(query_string, DBBeatmapset.search_text) > similarity_threshold
     ]
     return or_(*conditions), rank
 
