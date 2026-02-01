@@ -150,6 +150,10 @@ ScopeDefinitions: dict[str, tuple[str, ScopeSensitivity]] = {
         'Create new forum topics',
         ScopeSensitivity.High,
     ),
+    'forum.topics.edit': (
+        'Edit forum topics',
+        ScopeSensitivity.High,
+    ),
     'forum.posts.create': (
         'Create new forum posts',
         ScopeSensitivity.High,

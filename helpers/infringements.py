@@ -26,6 +26,7 @@ REJECTED_PERMISSIONS_FOR_SILENCED = (
     'bancho.matches.create',
     'bancho.matches.join',
     'forum.topics.create',
+    'forum.topics.edit',
     'forum.posts.create',
     'forum.posts.edit',
     'benchmarks.submit'
