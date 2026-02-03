@@ -48,6 +48,7 @@ class DBBeatmapset(Base):
     creator_id           = Column('creator_id', Integer, ForeignKey('users.id'), nullable=True)
     available            = Column('available', Boolean, default=True)
     enhanced             = Column('enhanced', Boolean, default=False)
+    explicit             = Column('explicit', Boolean, default=False)
     created_at           = Column('submission_date', DateTime, server_default=func.now())
     approved_at          = Column('approved_date', DateTime, nullable=True)
     approved_by          = Column('approved_by', Integer, ForeignKey('users.id'), nullable=True)
