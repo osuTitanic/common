@@ -459,7 +459,7 @@ def performance(
 ) -> float:
     """Get player's pp""" # this sounds wrong
     pp = app.session.redis.zscore(
-        f'bancho:performace:{mode}',
+        f'bancho:performance:{mode}',
         user_id
     )
     return pp if pp is not None else 0
