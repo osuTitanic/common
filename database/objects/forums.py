@@ -26,6 +26,8 @@ class DBForum(Base):
     created_at  = Column('created_at', DateTime, server_default=func.now())
     name        = Column('name', String)
     description = Column('description', String, default='')
+    topic_count = Column('topic_count', Integer, default=0)
+    post_count  = Column('post_count', Integer, default=0)
     allow_icons = Column('allow_icons', Boolean, default=True)
     hidden      = Column('hidden', Boolean, default=False)
 
@@ -57,6 +59,7 @@ class DBForumTopic(Base):
     last_post_at    = Column('last_post_at', DateTime, server_default=func.now())
     locked_at       = Column('locked_at', DateTime, nullable=True)
     views           = Column('views', Integer, default=0)
+    post_count      = Column('post_count', Integer, default=0)
     icon_id         = Column('icon', Integer, ForeignKey('forum_icons.id'), nullable=True)
     can_change_icon = Column('can_change_icon', Boolean, default=True)
     can_star        = Column('can_star', Boolean, default=False)
