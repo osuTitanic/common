@@ -115,6 +115,9 @@ class Storage:
     def get_osz_internal(self, set_id: int) -> bytes | None:
         return self.get(f'{set_id}', 'osz')
 
+    def get_osz_internal_path(self, set_id: int) -> str:
+        return f'{self.config.DATA_PATH}/osz/{set_id}'
+
     def get_osz_iterable(self, set_id: int, chunk_size: int = 1024 * 64) -> Generator:
         return self.get_iterator(f'{set_id}', 'osz', chunk_size)
 
