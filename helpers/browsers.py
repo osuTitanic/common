@@ -1,4 +1,5 @@
 
+import functools
 import re
 
 CHROME = re.compile(r'Chrome/([7-9][0-9]|[1-9][0-9]{2,})')
@@ -8,6 +9,7 @@ EDGE = re.compile(r'Edg/([7-9][9-9]|[1-9][0-9]{2,})')
 OPERA = re.compile(r'OPR/([6-9][0-9]|[1-9][0-9]{2,})')
 EXCLUDE_EDGE_OPERA = re.compile(r'Edg/|OPR/')
 
+@functools.lru_cache(maxsize=128)
 def is_modern_browser(user_agent: str) -> bool:
     """Check if the given user agent string belongs to a modern browser."""
     if CHROME.search(user_agent) and not EXCLUDE_EDGE_OPERA.search(user_agent):
@@ -32,6 +34,7 @@ def is_modern_browser(user_agent: str) -> bool:
 
     return False
 
+@functools.lru_cache(maxsize=128)
 def is_internet_explorer(user_agent: str) -> bool:
     """Check if the given user agent string belongs to Internet Explorer."""
     return (
