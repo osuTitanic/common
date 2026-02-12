@@ -1,4 +1,5 @@
 
+from app.common.config import config_instance as config
 from typing import Dict, Any
 
 import hashlib
@@ -22,3 +23,16 @@ def build_auth(user_payload: Dict[str, Any], secret_key: str) -> str:
 
     sig = hmacsha1(message_b64 + ' ' + timestamp, secret_key)
     return " ".join([message_b64, sig, timestamp])
+
+def create_user_payload(
+    user_id: int,
+    username: str,
+    email: str
+) -> Dict[str, Any]:
+    return {
+        "id": user_id,
+        "username": username,
+        "email": email,
+        "avatar": f"{config.OSU_BASEURL}/a/{user_id}",
+        "url": f"{config.OSU_BASEURL}/u/{user_id}"
+    }
