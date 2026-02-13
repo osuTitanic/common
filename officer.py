@@ -1,52 +1,51 @@
 
-from __future__ import annotations
-
 from app.common.config import config_instance as config
+from typing import Any, List, Tuple
 from app.common import webhooks
 from datetime import datetime
-from typing import Any, List
 
 import traceback
 import app
 
 def call(
-    content: str,
+    content: str | None = None,
     exc_info: Exception | None = None,
     exc_limit: int = 2,
-    exc_offset: int = 0
+    exc_offset: int = 0,
+    file: Tuple[str, bytes] | None = None
 ) -> bool:
     """Send logs to the officer webhook"""
     app.session.logger.warning(content, exc_info=exc_info)
     app.session.logger.debug('Calling officer...')
+    embeds: List[webhooks.Embed] = []
 
     if not config.OFFICER_WEBHOOK_URL:
         app.session.logger.debug('Officer is not on board.')
         return False
 
-    if exc_info is None:
-        return webhooks.Webhook(
-            config.OFFICER_WEBHOOK_URL,
-            content=content
-        ).post()
+    if exc_info is not None:
+        formatted_traceback = traceback.format_exception(exc_info, limit=exc_limit)
+        formatted_traceback = formatted_traceback[exc_offset:]
+        traceback_text = '```python\n' + ''.join(formatted_traceback)[:3512] + '```'
 
-    formatted_traceback = traceback.format_exception(exc_info, limit=exc_limit)
-    formatted_traceback = formatted_traceback[exc_offset:]
-    traceback_text = '```python\n' + ''.join(formatted_traceback)[:3512] + '```'
+        exception_embed = webhooks.Embed(
+            title="Exception Occurred",
+            description=(
+                f"**Component**\n{app.session.logger.name}\n\n"
+                f"**Time**\n{datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n"
+                f"**Exception Type**\n`{exc_info.__class__.__name__}`\n\n"
+                f"**Exception Message**\n`{str(exc_info)}`\n\n"
+                f"**Traceback**\n{traceback_text}"
+            ),
+            color=0xFF0000
+        )
+        embeds.append(exception_embed)
 
-    exception_embed = webhooks.Embed(
-        title="Exception Occurred",
-        description=(
-            f"**Component**\n{app.session.logger.name}\n\n"
-            f"**Time**\n{datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n"
-            f"**Exception Type**\n`{exc_info.__class__.__name__}`\n\n"
-            f"**Exception Message**\n`{str(exc_info)}`\n\n"
-            f"**Traceback**\n{traceback_text}"
-        ),
-        color=0xFF0000
-    )
     return webhooks.Webhook(
         config.OFFICER_WEBHOOK_URL,
-        embeds=[exception_embed]
+        content=content,
+        embeds=embeds,
+        file=file
     ).post()
 
 def embed(
