@@ -199,15 +199,15 @@ def fetch_official_range(
     stream: str | None = None,
     session: Session = ...
 ) -> List[DBReleasesOfficial]:
-    query = session.query(DBReleasesOfficial) \
-        .order_by(DBReleasesOfficial.version.desc(), DBReleasesOfficial.subversion.desc()) \
-        .limit(limit) \
-        .offset(offset)
+    query = session.query(DBReleasesOfficial)
     
     if stream is not None:
         query = query.filter(DBReleasesOfficial.stream == stream)
 
-    return query.all()
+    return query.order_by(DBReleasesOfficial.version.desc(), DBReleasesOfficial.subversion.desc()) \
+                .limit(limit) \
+                .offset(offset) \
+                .all()
 
 @session_wrapper
 def fetch_official_file_by_name(filename: str, session: Session = ...) -> DBReleaseFiles | None:
