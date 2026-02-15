@@ -196,13 +196,18 @@ def fetch_official_by_version(version: int, session: Session = ...) -> DBRelease
 def fetch_official_range(
     limit: int = 50,
     offset: int = 0,
+    stream: str | None = None,
     session: Session = ...
 ) -> List[DBReleasesOfficial]:
-    return session.query(DBReleasesOfficial) \
+    query = session.query(DBReleasesOfficial) \
         .order_by(DBReleasesOfficial.version.desc(), DBReleasesOfficial.subversion.desc()) \
         .limit(limit) \
-        .offset(offset) \
-        .all()
+        .offset(offset)
+    
+    if stream is not None:
+        query = query.filter(DBReleasesOfficial.stream == stream)
+
+    return query.all()
 
 @session_wrapper
 def fetch_official_file_by_name(filename: str, session: Session = ...) -> DBReleaseFiles | None:
