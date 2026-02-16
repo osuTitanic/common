@@ -597,7 +597,7 @@ class Storage:
 
     def get_presigned_url(self, bucket: str, key: str, expiration: int = 900) -> str | None:
         """Generate a presigned url for the specified bucket & key."""
-        if not self.self.config.S3_ENABLED:
+        if not self.config.S3_ENABLED:
             return None
 
         try:
