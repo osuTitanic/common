@@ -543,7 +543,30 @@ class Storage:
         return os.listdir(f'{self.config.DATA_PATH}/{dir}')
 
     def list_bucket(self, folder: str) -> List[str]:
-        return [object['Key'] for object in self.s3.list_objects(Bucket=self.config.S3_BUCKET, Prefix=folder)['Contents']]
+        keys = []
+        continuation_token = None
+        
+        while True:
+            kwargs = {
+                'Bucket': self.config.S3_BUCKET,
+                'Prefix': folder
+            }
+            if continuation_token:
+                kwargs['ContinuationToken'] = continuation_token
+            
+            response = self.s3.list_objects_v2(**kwargs)
+            
+            if 'Contents' not in response:
+                break
+                
+            keys.extend(obj['Key'] for obj in response['Contents'])
+            
+            if not response.get('IsTruncated'):
+                break
+                
+            continuation_token = response['NextContinuationToken']
+        
+        return keys
 
     def get_file_hashes(self, key: str) -> Dict[str, str]:
         """Get a dictionary of file hashes from the specified bucket/directory."""
