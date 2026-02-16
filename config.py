@@ -81,6 +81,10 @@ class Config(BaseSettings):
     MAILGUN_API_KEY: str | None = None
     MAILGUN_URL: str = "api.eu.mailgun.net"
 
+    # Whether to scrape update metadata from ppy.sh & create entries in the database
+    RELEASE_UPDATES_ENABLED: bool = False
+    RELEASE_UPDATE_INTERVAL: int = 3600
+
     ## Score server configuration
     WEB_HOST: str = "localhost"
     WEB_PORT: int = 80
