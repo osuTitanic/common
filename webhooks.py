@@ -83,7 +83,7 @@ class Webhook:
         avatar_url: str | None = None,
         is_tts: bool | None = None,
         file: Tuple[str, bytes] | None = None,
-        embeds: List[Embed] = [],
+        embeds: List[Embed] | None = None,
     ) -> None:
         self.url = url
         self.content = content
@@ -91,7 +91,7 @@ class Webhook:
         self.avatar_url = avatar_url
         self.tts = is_tts
         self.file = file
-        self.embeds = embeds
+        self.embeds = embeds or []
         self.ensure_avatar_caching_disabled()
 
     @property
