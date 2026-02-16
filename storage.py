@@ -474,25 +474,21 @@ class Storage:
         return buffer.getvalue()
 
     def get_s3_iterator(self, key: str, folder: str, chunk_size: int = 1024 * 64) -> Generator:
-        buffer = io.BytesIO()
-
         try:
-            self.s3.download_fileobj(
-                self.config.S3_BUCKET,
-                f"{folder}/{key}",
-                buffer
+            response = self.s3.get_object(
+                Bucket=self.config.S3_BUCKET,
+                Key=f"{folder}/{key}"
             )
+            body = response['Body']
+
+            while chunk := body.read(chunk_size):
+                yield chunk
         except ClientError:
             # Most likely not found
             return
         except Exception as e:
             self.logger.error(f'Failed to download "{key}" from s3: "{e}"')
             return
-
-        buffer.seek(0)
-
-        while chunk := buffer.read(chunk_size):
-            yield chunk
 
     def get_s3_size(self, key: str, folder: str) -> int | None:
         try:
