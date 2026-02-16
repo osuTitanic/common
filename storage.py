@@ -537,12 +537,12 @@ class Storage:
         if not self.config.S3_ENABLED:
             return self.list_directory(key)
         else:
-            return self.list_bucket(key)
+            return self.list_directory_s3(key)
 
     def list_directory(self, dir: str) -> List[str]:
         return os.listdir(f'{self.config.DATA_PATH}/{dir}')
 
-    def list_bucket(self, folder: str) -> List[str]:
+    def list_directory_s3(self, folder: str) -> List[str]:
         keys = []
         continuation_token = None
         
