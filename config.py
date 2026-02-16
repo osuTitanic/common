@@ -36,6 +36,8 @@ class Config(BaseSettings):
     S3_BASEURL: str | None = None
     S3_SECRET_KEY: str | None = None
     S3_ACCESS_KEY: str | None = None
+    S3_REGION: str = "eu-central-1"
+    S3_BUCKET: str = "osutitanic"
 
     # If disabled, the data gets stored locally
     # Buckets will be created automatically when enabled
