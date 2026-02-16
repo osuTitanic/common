@@ -568,52 +568,6 @@ class Storage:
         
         return keys
 
-    def get_file_hashes(self, key: str) -> Dict[str, str]:
-        """Get a dictionary of file hashes from the specified bucket/directory."""
-        if self.config.S3_ENABLED:
-            return self.get_file_hashes_s3(key)
-        else:
-            return self.get_file_hashes_local(key)
-
-    def get_file_hashes_s3(self, folder: str) -> Dict[str, str]:
-        if not self.config.S3_ENABLED:
-            return {}
-
-        try:
-            return {
-                object['Key']: object['ETag'].replace('"', '')
-                for object in self.s3.list_objects(Bucket=self.config.S3_BUCKET, Prefix=folder)['Contents']
-            }
-        except Exception as e:
-            self.logger.error(f'Failed to get etags: {e}')
-            return {}
-
-    def get_file_hashes_local(self, directory: str) -> Dict[str, str]:
-        if self.config.S3_ENABLED:
-            return {}
-
-        try:
-            file_hashes = {}
-
-            for filename in os.listdir(f'{self.config.DATA_PATH}/{directory}'):
-                try:
-                    with open(f'{self.config.DATA_PATH}/{directory}/{filename}', 'rb') as file:
-                        file_content = file.read()
-                        file_hash = hashlib.md5(file_content).hexdigest()
-                        file_hashes[filename] = file_hash
-                except Exception as e:
-                    self.logger.error(
-                        f'Failed to read file "{filename}": {e}',
-                        exc_info=e
-                    )
-        except Exception as e:
-            self.logger.error(
-                f'Failed to list files in directory "{directory}": {e}',
-                exc_info=e
-            )
-
-        return file_hashes
-
     def get_presigned_url(self, folder: str, key: str, expiration: int = 900) -> str | None:
         """Generate a presigned url for the specified bucket & key."""
         if not self.config.S3_ENABLED:
