@@ -49,11 +49,38 @@ def create_official(
     return release
 
 @session_wrapper
+def create_official_file(
+    filename: str,
+    file_version: int,
+    file_hash: str,
+    filesize: int,
+    url_full: str,
+    url_patch: str | None = None,
+    patch_id: str | None = None,
+    timestamp: datetime | None = None,
+    session: Session = ...
+) -> DBReleaseFiles:
+    session.add(
+        file := DBReleaseFiles(
+            filename=filename,
+            file_version=file_version,
+            file_hash=file_hash,
+            filesize=filesize,
+            patch_id=patch_id,
+            url_full=url_full,
+            url_patch=url_patch,
+            timestamp=timestamp
+        )
+    )
+    session.flush()
+    return file
+
+@session_wrapper
 def create_official_file_entry(
     release_id: int,
     file_id: int,
     session: Session = ...
-) -> DBReleaseFiles:
+) -> DBReleasesOfficialEntries:
     session.add(
         entry := DBReleasesOfficialEntries(
             release_id=release_id,
@@ -208,6 +235,18 @@ def fetch_official_range(
                 .limit(limit) \
                 .offset(offset) \
                 .all()
+
+@session_wrapper
+def fetch_official_file_by_id(file_id: int, session: Session = ...) -> DBReleaseFiles | None:
+    return session.query(DBReleaseFiles) \
+        .filter(DBReleaseFiles.id == file_id) \
+        .first()
+
+@session_wrapper
+def fetch_official_file_by_version(file_version: int, session: Session = ...) -> DBReleaseFiles | None:
+    return session.query(DBReleaseFiles) \
+        .filter(DBReleaseFiles.file_version == file_version) \
+        .first()
 
 @session_wrapper
 def fetch_official_file_by_name(filename: str, session: Session = ...) -> DBReleaseFiles | None:
