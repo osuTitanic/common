@@ -86,6 +86,7 @@ class Config(BaseSettings):
     # Whether to scrape update metadata from ppy.sh & create entries in the database
     RELEASE_UPDATES_ENABLED: bool = False
     RELEASE_UPDATE_INTERVAL: int = 3600
+    RELEASE_UPDATE_S3_TARGET: str | None = None
 
     ## Score server configuration
     WEB_HOST: str = "localhost"
