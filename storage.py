@@ -412,12 +412,12 @@ class Storage:
 
         return True
 
-    def save_to_s3(self, content: bytes, key: str, bucket: str) -> bool:
+    def save_to_s3(self, content: bytes, key: str, folder: str) -> bool:
         try:
             self.s3.upload_fileobj(
                 io.BytesIO(content),
-                bucket,
-                key
+                self.config.S3_BUCKET,
+                f"{folder}/{key}"
             )
         except Exception as e:
             self.logger.error(f'Failed to upload "{key}" to s3: "{e}"')
@@ -455,13 +455,13 @@ class Storage:
             self.logger.error(f'Failed to get size of file "{filepath}": {e}')
             return None
 
-    def get_from_s3(self, key: str, bucket: str) -> bytes | None:
+    def get_from_s3(self, key: str, folder: str) -> bytes | None:
         buffer = io.BytesIO()
 
         try:
             self.s3.download_fileobj(
-                bucket,
-                key,
+                self.config.S3_BUCKET,
+                f"{folder}/{key}",
                 buffer
             )
         except ClientError:
@@ -473,13 +473,13 @@ class Storage:
 
         return buffer.getvalue()
 
-    def get_s3_iterator(self, key: str, bucket: str, chunk_size: int = 1024 * 64) -> Generator:
+    def get_s3_iterator(self, key: str, folder: str, chunk_size: int = 1024 * 64) -> Generator:
         buffer = io.BytesIO()
 
         try:
             self.s3.download_fileobj(
-                bucket,
-                key,
+                self.config.S3_BUCKET,
+                f"{folder}/{key}",
                 buffer
             )
         except ClientError:
@@ -494,9 +494,9 @@ class Storage:
         while chunk := buffer.read(chunk_size):
             yield chunk
 
-    def get_s3_size(self, key: str, bucket: str) -> int | None:
+    def get_s3_size(self, key: str, folder: str) -> int | None:
         try:
-            response = self.s3.head_object(Bucket=bucket, Key=key)
+            response = self.s3.head_object(Bucket=self.config.S3_BUCKET, Key=f"{folder}/{key}")
             return response['ContentLength']
         except ClientError:
             return None
@@ -504,14 +504,14 @@ class Storage:
             self.logger.error(f'Failed to get size of "{key}" from s3: "{e}"')
             return None
 
-    def remove_from_s3(self, key: str, bucket: str) -> bool:
+    def remove_from_s3(self, key: str, folder: str) -> bool:
         try:
             self.s3.delete_object(
-                Bucket=bucket,
-                Key=key
+                Bucket=self.config.S3_BUCKET,
+                Key=f"{folder}/{key}"
             )
         except Exception as e:
-            self.logger.error(f'Failed to remove "{key}" from {bucket}: "{e}"')
+            self.logger.error(f'Failed to remove "{key}" from {folder}: "{e}"')
             return False
 
         return True
@@ -520,18 +520,18 @@ class Storage:
         try:
             os.remove(f'{self.config.DATA_PATH}/{filepath}')
         except Exception as e:
-            self.logger.error(f'Failed to file "{filepath}": "{e}"')
+            self.logger.error(f'Failed to remove file "{filepath}": "{e}"')
             return False
 
         return True
 
-    def file_exists(self, key: str, bucket: str) -> bool:
+    def file_exists(self, key: str, folder: str) -> bool:
         """Check if a file exists in the specified bucket/directory."""
         if not self.config.S3_ENABLED:
-            return os.path.isfile(f'{self.config.DATA_PATH}/{bucket}/{key}')
+            return os.path.isfile(f'{self.config.DATA_PATH}/{folder}/{key}')
 
         try:
-            self.s3.head_object(Bucket=bucket, Key=key)
+            self.s3.head_object(Bucket=self.config.S3_BUCKET, Key=f"{folder}/{key}")
             return True
         except ClientError:
             return False
@@ -546,8 +546,8 @@ class Storage:
     def list_directory(self, dir: str) -> List[str]:
         return os.listdir(f'{self.config.DATA_PATH}/{dir}')
 
-    def list_bucket(self, bucket: str) -> List[str]:
-        return [object['Key'] for object in self.s3.list_objects(Bucket=bucket)['Contents']]
+    def list_bucket(self, folder: str) -> List[str]:
+        return [object['Key'] for object in self.s3.list_objects(Bucket=self.config.S3_BUCKET, Prefix=folder)['Contents']]
 
     def get_file_hashes(self, key: str) -> Dict[str, str]:
         """Get a dictionary of file hashes from the specified bucket/directory."""
@@ -556,14 +556,14 @@ class Storage:
         else:
             return self.get_file_hashes_local(key)
 
-    def get_file_hashes_s3(self, bucket: str) -> Dict[str, str]:
+    def get_file_hashes_s3(self, folder: str) -> Dict[str, str]:
         if not self.config.S3_ENABLED:
             return {}
 
         try:
             return {
                 object['Key']: object['ETag'].replace('"', '')
-                for object in self.s3.list_objects(Bucket=bucket)['Contents']
+                for object in self.s3.list_objects(Bucket=self.config.S3_BUCKET, Prefix=folder)['Contents']
             }
         except Exception as e:
             self.logger.error(f'Failed to get etags: {e}')
@@ -595,7 +595,7 @@ class Storage:
 
         return file_hashes
 
-    def get_presigned_url(self, bucket: str, key: str, expiration: int = 900) -> str | None:
+    def get_presigned_url(self, folder: str, key: str, expiration: int = 900) -> str | None:
         """Generate a presigned url for the specified bucket & key."""
         if not self.config.S3_ENABLED:
             return None
@@ -604,8 +604,8 @@ class Storage:
             return self.s3.generate_presigned_url(
                 ClientMethod='get_object',
                 Params={
-                    'Bucket': bucket,
-                    'Key': str(key)
+                    'Bucket': self.config.S3_BUCKET,
+                    'Key': f"{folder}/{key}"
                 },
                 ExpiresIn=expiration
             )
