@@ -98,7 +98,7 @@ class DBReleasesOfficial(Base):
     files: Mapped[list['DBReleaseFiles']] = relationship(
         'DBReleaseFiles',
         secondary='releases_official_entries',
-        backref='official_releases'
+        back_populates='official_releases'
     )
 
 class DBReleasesOfficialEntries(Base):
@@ -119,6 +119,12 @@ class DBReleaseFiles(Base):
     url_full     = Column('url_full', Text, nullable=False)
     url_patch    = Column('url_patch', Text, nullable=True)
     timestamp    = Column('timestamp', DateTime, server_default=func.now())
+    
+    official_releases: Mapped[list['DBReleasesOfficial']] = relationship(
+        'DBReleasesOfficial',
+        secondary='releases_official_entries',
+        back_populates='files'
+    )
 
 class DBReleaseChangelog(Base):
     __tablename__ = "releases_official_changelog"

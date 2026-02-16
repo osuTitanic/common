@@ -6,8 +6,30 @@ from typing import List
 
 @releases.session_wrapper
 def is_valid_client_hash(version: int, hash: str, session: Session = ...) -> bool:
-    hashes = fetch_hashes(version, session)
-    return hash in hashes
+    if is_official_release(version, hash, session):
+        return True
+
+    if hash in fetch_hashes(version, session):
+        return True
+    
+    return False
+
+@releases.session_wrapper
+def is_official_release(version: int, hash: str, session: Session = ...) -> bool:
+    if not (file := releases.fetch_official_file_by_checksum(hash, session)):
+        return False
+
+    if file.filename != "osu!.exe":
+        return False
+
+    if not file.official_releases:
+        return False
+
+    for release in file.official_releases:
+        if release.version == version:
+            return True
+
+    return False
 
 @releases.session_wrapper
 def is_valid_mod(identifier: str, hash: str, session: Session = ...) -> bool:
