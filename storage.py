@@ -1,9 +1,10 @@
 
 from __future__ import annotations
 
-from typing import Generator, Iterator, List, Dict
+from typing import BinaryIO, Generator, Iterator, List
 from botocore.exceptions import ClientError
 from botocore.client import BaseClient
+from functools import cached_property
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from redis import Redis
@@ -40,6 +41,14 @@ class Storage:
         )
 
         self.api = Beatmaps(self.cache)
+
+    @cached_property
+    def valid_s3_configuration(self) -> bool:
+        try:
+            self.s3.head_bucket(Bucket=self.config.S3_BUCKET)
+            return True
+        except Exception:
+            return False
 
     def get_avatar(self, id: str) -> bytes | None:
         if (image := self.get_from_cache(f'avatar:{id}')):
@@ -412,10 +421,16 @@ class Storage:
 
         return True
 
-    def save_to_s3(self, content: bytes, key: str, folder: str) -> bool:
+    def save_to_s3(self, content: bytes | BinaryIO, key: str, folder: str) -> bool:
+        if folder.endswith('/'):
+            folder = folder[:-1]
+
         try:
+            if isinstance(content, bytes):
+                content = io.BytesIO(content)
+
             self.s3.upload_fileobj(
-                io.BytesIO(content),
+                content,
                 self.config.S3_BUCKET,
                 f"{folder}/{key}"
             )
