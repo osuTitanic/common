@@ -34,6 +34,7 @@ class Storage:
         self.s3: BaseClient = boto3.client(
             's3',
             endpoint_url=self.config.S3_BASEURL,
+            region_name=self.config.S3_REGION,
             aws_access_key_id=self.config.S3_ACCESS_KEY,
             aws_secret_access_key=self.config.S3_SECRET_KEY
         )
