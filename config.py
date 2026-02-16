@@ -87,6 +87,7 @@ class Config(BaseSettings):
     RELEASE_UPDATES_ENABLED: bool = False
     RELEASE_UPDATE_INTERVAL: int = 3600
     RELEASE_UPDATE_S3_TARGET: str | None = None
+    RELEASE_UPDATE_NOTIFY_WEBHOOK: str | None = None
 
     ## Score server configuration
     WEB_HOST: str = "localhost"
