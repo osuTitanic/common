@@ -4,9 +4,10 @@
 from __future__ import annotations
 
 from app.common.database.objects.releases import *
+from sqlalchemy import select, func, extract
+from typing import List, Dict, Tuple
 from sqlalchemy.orm import Session
 from datetime import datetime
-from typing import List
 
 from .wrapper import session_wrapper
 
@@ -273,6 +274,46 @@ def fetch_file_entries(release_id: int, session: Session = ...) -> List[DBReleas
         .join(DBReleasesOfficialEntries, DBReleasesOfficialEntries.file_id == DBReleaseFiles.id) \
         .filter(DBReleasesOfficialEntries.release_id == release_id) \
         .all()
+
+@session_wrapper
+def fetch_heatmap(
+    from_year: int | None = None,
+    to_year: int | None = None,
+    session: Session = ...
+) -> Dict[Tuple[int, int, int], int]:
+    year_part = extract('year', DBReleasesOfficial.created_at)
+    month_part = extract('month', DBReleasesOfficial.created_at)
+    day_part = extract('day', DBReleasesOfficial.created_at)
+
+    query = (
+        select(
+            year_part.label('year'),
+            month_part.label('month'),
+            day_part.label('day'),
+            func.count().label('count')
+        )
+        .where(year_part >= from_year if from_year is not None else True)
+        .where(year_part <= to_year if to_year is not None else True)
+        .group_by(
+            year_part,
+            month_part,
+            day_part
+        )
+        .order_by(
+            year_part,
+            month_part,
+            day_part
+        )
+    )
+
+    heatmap = {}
+    result = session.execute(query)
+
+    for row in result:
+        time = (int(row.year), int(row.month), int(row.day))
+        heatmap[time] = row.count
+
+    return heatmap
 
 @session_wrapper
 def fetch_file_id_from_version(version: int, session: Session = ...) -> int | None:
