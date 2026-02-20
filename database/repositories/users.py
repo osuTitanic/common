@@ -11,7 +11,7 @@ from app.common.database.objects import (
     DBUser
 )
 
-from sqlalchemy.orm import selectinload, joinedload, Session
+from sqlalchemy.orm import selectinload, joinedload, load_only, Session
 from sqlalchemy import func, or_, case
 from .wrapper import session_wrapper
 
@@ -176,11 +176,27 @@ def fetch_avatar_checksum(user_id: int, session: Session = ...) -> str | None:
             .scalar()
 
 @session_wrapper
-def fetch_many(user_ids: list, *options, session: Session = ...) -> List[DBUser]:
+def fetch_many(user_ids: Iterable[int], *options, session: Session = ...) -> List[DBUser]:
+    if not user_ids:
+        return []
+
     return session.query(DBUser) \
               .options(*[joinedload(item) for item in options]) \
               .filter(DBUser.id.in_(user_ids)) \
               .all()
+
+@session_wrapper
+def fetch_many_for_rankings(user_ids: Iterable[int], session: Session = ...) -> List[DBUser]:
+    if not user_ids:
+        return []
+
+    return session.query(DBUser) \
+        .options(
+            load_only(DBUser.id, DBUser.name, DBUser.country),
+            selectinload(DBUser.stats)
+        ) \
+        .filter(DBUser.id.in_(user_ids)) \
+        .all()
 
 @session_wrapper
 def fetch_top(limit: int = 50, session: Session = ...) -> List[DBUser]:
