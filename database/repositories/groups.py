@@ -4,7 +4,7 @@ from __future__ import annotations
 from app.common.database.objects import DBGroup, DBGroupEntry, DBUser
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from typing import List
+from typing import Dict, Iterable, List
 
 from .wrapper import session_wrapper
 
@@ -92,6 +92,38 @@ def fetch_user_groups(
         .filter(DBGroup.hidden == False) \
         .order_by(DBGroup.id.asc()) \
         .all()
+
+@session_wrapper
+def fetch_by_users(
+    user_ids: Iterable[int],
+    include_hidden: bool = False,
+    session: Session = ...
+) -> Dict[int, List[DBGroup]]:
+    user_ids = tuple(user_ids)
+
+    if not user_ids:
+        return {}
+
+    query = session.query(
+        DBGroupEntry.user_id,
+        DBGroup
+    ) \
+        .join(DBGroup, DBGroup.id == DBGroupEntry.group_id) \
+        .filter(DBGroupEntry.user_id.in_(user_ids))
+
+    if not include_hidden:
+        query = query.filter(DBGroup.hidden == False)
+
+    rows = query \
+        .order_by(DBGroupEntry.user_id.asc(), DBGroup.id.asc()) \
+        .all()
+
+    groups_by_user = {user_id: [] for user_id in user_ids}
+
+    for user_id, group in rows:
+        groups_by_user[user_id].append(group)
+
+    return groups_by_user
 
 @session_wrapper
 def fetch_bancho_permissions(
