@@ -6,7 +6,9 @@ from datetime import datetime, timedelta
 from app.common.database.objects import (
     DBForumSubscriber,
     DBForumBookmark,
+    DBGroupEntry,
     DBForumPost,
+    DBGroup,
     DBStats,
     DBUser
 )
@@ -97,6 +99,21 @@ def fetch_by_id(id: int, *options, session: Session = ...) -> DBUser | None:
 @session_wrapper
 def fetch_by_id_no_options(id: int, session: Session = ...) -> DBUser | None:
     return session.query(DBUser) \
+        .filter(DBUser.id == id) \
+        .first()
+
+@session_wrapper
+def fetch_for_profile(id: int, session: Session = ...) -> DBUser | None:
+    return session.query(DBUser) \
+        .options(
+            selectinload(DBUser.relationships),
+            selectinload(DBUser.achievements),
+            selectinload(DBUser.names),
+            selectinload(DBUser.badges),
+            selectinload(DBUser.groups)
+                .selectinload(DBGroupEntry.group)
+                .load_only(DBGroup.id, DBGroup.short_name, DBGroup.color)
+        ) \
         .filter(DBUser.id == id) \
         .first()
 

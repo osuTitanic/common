@@ -1,9 +1,9 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBBeatmapModding, DBForumPost
 from typing import Dict, Iterable, List
-from sqlalchemy.orm import Session
+from app.common.database.objects import DBBeatmapModding, DBForumPost, DBForumTopic, DBUser
+from sqlalchemy.orm import joinedload, selectinload, Session
 from sqlalchemy import func, or_
 
 from .wrapper import session_wrapper
@@ -180,6 +180,16 @@ def fetch_range_by_user(
     session: Session = ...
 ) -> List[DBBeatmapModding]:
     return session.query(DBBeatmapModding) \
+        .options(
+            selectinload(DBBeatmapModding.sender)
+                .load_only(DBUser.id, DBUser.name),
+            selectinload(DBBeatmapModding.target)
+                .load_only(DBUser.id, DBUser.name),
+            joinedload(DBBeatmapModding.post)
+                .load_only(DBForumPost.id, DBForumPost.topic_id)
+                .joinedload(DBForumPost.topic)
+                .load_only(DBForumTopic.id, DBForumTopic.title)
+        ) \
         .filter(or_(
             DBBeatmapModding.target_id == user_id,
             DBBeatmapModding.sender_id == user_id
