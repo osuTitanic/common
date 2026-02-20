@@ -7,10 +7,12 @@ from ..objects import (
     DBForumBookmark,
     DBForumTopic,
     DBGroupEntry,
+    DBForumIcon,
+    DBForum,
     DBUser
 )
 
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, joinedload, selectinload
 from sqlalchemy import func
 from typing import List
 
@@ -47,6 +49,19 @@ def create(
 @session_wrapper
 def fetch_one(id: int, session: Session = ...) -> DBForumTopic | None:
     return session.query(DBForumTopic) \
+        .options(
+            joinedload(DBForumTopic.forum).load_only(
+                DBForum.id,
+                DBForum.parent_id,
+                DBForum.name,
+                DBForum.description
+            ),
+            joinedload(DBForumTopic.icon).load_only(
+                DBForumIcon.id,
+                DBForumIcon.name,
+                DBForumIcon.location
+            )
+        ) \
         .filter(DBForumTopic.id == id) \
         .first()
 
