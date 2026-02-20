@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 from app.common.database.objects import DBBeatmapModding, DBForumPost
+from typing import Dict, Iterable, List
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
-from typing import List
 
 from .wrapper import session_wrapper
 
@@ -104,6 +104,49 @@ def total_amount(
     return session.query(func.sum(DBBeatmapModding.amount)) \
         .filter(DBBeatmapModding.post_id == post_id) \
         .scalar() or 0
+
+@session_wrapper
+def fetch_total_kudosu_by_posts(
+    post_ids: Iterable[int],
+    session: Session = ...
+) -> Dict[int, int]:
+    rows = session.query(
+        DBBeatmapModding.post_id,
+        func.sum(DBBeatmapModding.amount)
+    ) \
+        .filter(DBBeatmapModding.post_id.in_(post_ids)) \
+        .group_by(DBBeatmapModding.post_id) \
+        .all()
+
+    totals = {post_id: 0 for post_id in post_ids}
+
+    for post_id, amount in rows:
+        totals[post_id] = amount or 0
+
+    return totals
+
+@session_wrapper
+def fetch_latest_by_posts(
+    post_ids: Iterable[int],
+    session: Session = ...
+) -> Dict[int, DBBeatmapModding]:
+    subquery = session.query(
+        DBBeatmapModding.post_id.label('post_id'),
+        func.max(DBBeatmapModding.id).label('max_id')
+    ) \
+        .filter(DBBeatmapModding.post_id.in_(post_ids)) \
+        .group_by(DBBeatmapModding.post_id) \
+        .subquery()
+
+    rows = session.query(DBBeatmapModding) \
+        .join(
+            subquery,
+            (DBBeatmapModding.post_id == subquery.c.post_id) &
+            (DBBeatmapModding.id == subquery.c.max_id)
+        ) \
+        .all()
+
+    return {row.post_id: row for row in rows}
 
 @session_wrapper
 def total_entries(
