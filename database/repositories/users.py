@@ -1,6 +1,6 @@
 
 from __future__ import annotations
-from typing import Dict, List
+from typing import Dict, Iterable, List
 
 from datetime import datetime, timedelta
 from app.common.database.objects import (
@@ -205,6 +205,26 @@ def fetch_post_count(user_id: int, session: Session = ...) -> int:
     return session.query(DBForumPost) \
         .filter(DBForumPost.user_id == user_id) \
         .count()
+
+@session_wrapper
+def fetch_post_counts(
+    user_ids: Iterable[int],
+    session: Session = ...
+) -> Dict[int, int]:
+    rows = session.query(
+        DBForumPost.user_id,
+        func.count(DBForumPost.id)
+    ) \
+        .filter(DBForumPost.user_id.in_(user_ids)) \
+        .group_by(DBForumPost.user_id) \
+        .all()
+
+    counts = {user_id: 0 for user_id in user_ids}
+
+    for user_id, count in rows:
+        counts[user_id] = count
+
+    return counts
 
 @session_wrapper
 def fetch_subscriptions(user_id: int, session: Session = ...) -> List[DBForumSubscriber]:
