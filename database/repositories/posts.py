@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBForumPost, DBForumTopic, DBUser, DBGroupEntry, DBGroup
+from app.common.database.objects import DBForumPost, DBForumIcon, DBForumTopic, DBUser, DBGroupEntry, DBGroup
 from .wrapper import session_wrapper
 
 from sqlalchemy.orm import Session, joinedload, selectinload, load_only
@@ -63,6 +63,11 @@ def fetch_range_by_topic(
 ) -> List[DBForumPost]:
     return session.query(DBForumPost) \
         .options(
+            selectinload(DBForumPost.icon).load_only(
+                DBForumIcon.id,
+                DBForumIcon.name,
+                DBForumIcon.location
+            ),
             selectinload(DBForumPost.user)
             .selectinload(DBUser.groups)
             .selectinload(DBGroupEntry.group)
@@ -77,6 +82,12 @@ def fetch_range_by_topic(
 @session_wrapper
 def fetch_initial_post(topic_id: int, session: Session = ...) -> DBForumPost | None:
     return session.query(DBForumPost) \
+        .options(
+            joinedload(DBForumPost.user).load_only(
+                DBUser.id,
+                DBUser.avatar_hash
+            )
+        ) \
         .filter(DBForumPost.topic_id == topic_id) \
         .filter(DBForumPost.hidden == False) \
         .order_by(DBForumPost.id.asc()) \
