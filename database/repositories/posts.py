@@ -1,10 +1,10 @@
 
 from __future__ import annotations
 
-from app.common.database.objects import DBForumPost, DBUser, DBGroupEntry
+from app.common.database.objects import DBForumPost, DBForumTopic, DBUser, DBGroupEntry, DBGroup
 from .wrapper import session_wrapper
 
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, joinedload, selectinload, load_only
 from typing import Dict, Iterable, List
 from datetime import datetime
 from sqlalchemy import func
@@ -290,9 +290,21 @@ def fetch_last_for_forums(
 
     rows = session.query(DBForumPost) \
         .options(
-            selectinload(DBForumPost.user)
-            .selectinload(DBUser.groups)
-            .selectinload(DBGroupEntry.group)
+            load_only(
+                DBForumPost.id,
+                DBForumPost.forum_id,
+                DBForumPost.topic_id,
+                DBForumPost.user_id,
+                DBForumPost.created_at
+            ),
+            joinedload(DBForumPost.topic)
+                .load_only(DBForumTopic.id, DBForumTopic.title),
+            joinedload(DBForumPost.user)
+                .load_only(DBUser.id, DBUser.name)
+                .selectinload(DBUser.groups)
+                .load_only(DBGroupEntry.group_id)
+                .joinedload(DBGroupEntry.group)
+                .load_only(DBGroup.id, DBGroup.color)
         ) \
         .join(
             subquery,
