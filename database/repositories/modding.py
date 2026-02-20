@@ -110,6 +110,9 @@ def fetch_total_kudosu_by_posts(
     post_ids: Iterable[int],
     session: Session = ...
 ) -> Dict[int, int]:
+    if not post_ids:
+        return {}
+
     rows = session.query(
         DBBeatmapModding.post_id,
         func.sum(DBBeatmapModding.amount)
@@ -130,6 +133,9 @@ def fetch_latest_by_posts(
     post_ids: Iterable[int],
     session: Session = ...
 ) -> Dict[int, DBBeatmapModding]:
+    if not post_ids:
+        return {}
+
     subquery = session.query(
         DBBeatmapModding.post_id.label('post_id'),
         func.max(DBBeatmapModding.id).label('max_id')

@@ -211,6 +211,9 @@ def fetch_post_counts(
     user_ids: Iterable[int],
     session: Session = ...
 ) -> Dict[int, int]:
+    if not user_ids:
+        return {}
+
     rows = session.query(
         DBForumPost.user_id,
         func.count(DBForumPost.id)

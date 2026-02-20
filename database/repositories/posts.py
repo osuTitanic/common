@@ -98,8 +98,6 @@ def fetch_initial_posts(
     topic_ids: Iterable[int],
     session: Session = ...
 ) -> Dict[int, DBForumPost]:
-    topic_ids = tuple(topic_ids)
-
     if not topic_ids:
         return {}
 
@@ -219,6 +217,9 @@ def fetch_statistics_by_topic_ids(
     topic_ids: Iterable[int],
     session: Session = ...
 ) -> Dict[int, int]:
+    if not topic_ids:
+        return {}
+
     rows = session.query(
         DBForumPost.topic_id,
         func.count(DBForumPost.id)
@@ -261,6 +262,9 @@ def fetch_last_for_topics(
     topic_ids: Iterable[int],
     session: Session = ...
 ) -> Dict[int, DBForumPost]:
+    if not topic_ids:
+        return {}
+
     subquery = session.query(
         DBForumPost.topic_id.label('topic_id'),
         func.max(DBForumPost.id).label('max_id')
@@ -290,6 +294,9 @@ def fetch_last_for_forums(
     forum_ids: Iterable[int],
     session: Session = ...
 ) -> Dict[int, DBForumPost]:
+    if not forum_ids:
+        return {}
+
     subquery = session.query(
         DBForumPost.forum_id.label('forum_id'),
         func.max(DBForumPost.id).label('max_id')

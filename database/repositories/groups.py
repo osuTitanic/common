@@ -99,8 +99,6 @@ def fetch_by_users(
     include_hidden: bool = False,
     session: Session = ...
 ) -> Dict[int, List[DBGroup]]:
-    user_ids = tuple(user_ids)
-
     if not user_ids:
         return {}
 
