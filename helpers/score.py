@@ -40,6 +40,15 @@ def calculate_accuracy(score: DBScore) -> float:
 
     return 0.0
 
+def calculate_total_hits(score: DBScore) -> int:
+    if score.mode == GameMode.Catch:
+        return score.n50 + score.n100 + score.n300 + score.nMiss + score.nKatu
+
+    elif score.mode == GameMode.Mania:
+        return score.n300 + score.n100 + score.n50 + score.nGeki + score.nKatu + score.nMiss
+
+    return score.n50 + score.n100 + score.n300 + score.nMiss
+
 def calculate_difficulty_multiplier(beatmap: DBBeatmap, total_hits: int):
     """Get the beatmap difficulty multiplier for score calculations"""
     return round(
