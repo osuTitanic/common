@@ -43,8 +43,17 @@ class PerformanceCalculator(ABC):
         ...
 
     @abstractmethod
-    def calculate_difficulty(self, beatmap_id: int, mode: GameMode, mods: int) -> DifficultyAttributes | None:
+    def calculate_difficulty(self, beatmap_data: bytes, mode: GameMode, mods: Mods) -> DifficultyAttributes | None:
         ...
+
+    def calculate_difficulty_from_id(self, beatmap_id: int, mode: GameMode, mods: Mods) -> DifficultyAttributes | None:
+        beatmap_file = self.storage.get_beatmap(beatmap_id)
+
+        if not beatmap_file:
+            self.logger.error(f"Difficulty calculation failed: Beatmap file was not found! ({beatmap_id})")
+            return
+
+        return self.calculate_difficulty(beatmap_file, mode, mods)
 
     def calculate_ppv2_if_fc(self, score: DBScore) -> float | None:
         fc_score = copy(score)

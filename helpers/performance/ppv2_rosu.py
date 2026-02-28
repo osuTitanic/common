@@ -81,18 +81,10 @@ class RosuPerformanceCalculator(PerformanceCalculator):
 
     def calculate_difficulty(
         self,
-        beatmap_id: int,
+        beatmap_file: bytes,
         mode: GameMode,
         mods: int
     ) -> DifficultyAttributes | None:
-        beatmap_file = self.storage.get_beatmap(beatmap_id)
-
-        if not beatmap_file:
-            self.logger.error(
-                f'Difficulty calculation failed: Beatmap file was not found! ({beatmap_id})'
-            )
-            return
-
         adjusted_mods = self.adjust_mods(mods, mode)
         result = self.calculate_rosu_difficulty(beatmap_file, mode, adjusted_mods)
 
