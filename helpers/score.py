@@ -41,10 +41,10 @@ def calculate_accuracy(score: DBScore) -> float:
     return 0.0
 
 def calculate_total_hits(score: DBScore) -> int:
-    if score.mode == GameMode.Catch:
+    if score.mode == GameMode.CatchTheBeat:
         return score.n50 + score.n100 + score.n300 + score.nMiss + score.nKatu
 
-    elif score.mode == GameMode.Mania:
+    elif score.mode == GameMode.OsuMania:
         return score.n300 + score.n100 + score.n50 + score.nGeki + score.nKatu + score.nMiss
 
     return score.n50 + score.n100 + score.n300 + score.nMiss
@@ -127,5 +127,4 @@ def calculate_rx_score(score: DBScore, beatmap: DBBeatmap) -> int:
     ]
 
     final_score = original_score + sum(combo_multipliers)
-
     return round(final_score)
