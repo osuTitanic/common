@@ -129,7 +129,6 @@ class RosuPerformanceCalculator(PerformanceCalculator):
     @staticmethod
     def map_difficulty_attributes(result: RosuDifficultyAttributes, mods: Mods) -> DifficultyAttributes:
         difficulty_attributes = {
-            'is_convert': result.is_convert,
             'aim': result.aim,
             'aim_difficult_slider_count': result.aim_difficult_slider_count,
             'speed': result.speed,
@@ -143,26 +142,15 @@ class RosuPerformanceCalculator(PerformanceCalculator):
             'rhythm': result.rhythm,
             'color': result.color
         }
-        beatmap_attributes = {
-            'hp': result.hp,
-            'ar': result.ar,
-            'n_circles': result.n_circles,
-            'n_sliders': result.n_sliders,
-            'n_large_ticks': result.n_large_ticks,
-            'n_spinners': result.n_spinners,
-            'n_fruits': result.n_fruits,
-            'n_droplets': result.n_droplets,
-            'n_tiny_droplets': result.n_tiny_droplets,
-            'n_objects': result.n_objects,
-            'n_hold_notes': result.n_hold_notes,
-            'max_combo': result.max_combo
-        }
         return DifficultyAttributes(
             mode=RosuPerformanceCalculator.convert_to_game_mode(result.mode),
             mods=mods,
             star_rating=result.stars,
-            difficulty_attributes={k: v for k, v in difficulty_attributes.items() if v is not None},
-            beatmap_attributes={k: v for k, v in beatmap_attributes.items() if v is not None}
+            max_combo=result.max_combo,
+            difficulty_attributes={
+                key: value for key, value in difficulty_attributes.items()
+                if value is not None
+            }
         )
 
     @staticmethod

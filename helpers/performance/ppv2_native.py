@@ -122,11 +122,11 @@ class NativePerformanceCalculator(PerformanceCalculator):
                 return
 
             self.logger.debug(f"Calculated difficulty: {result}")
+
             return self.map_difficulty_attributes(
                 result=result,
                 mode=self.convert_to_game_mode(ruleset.ruleset_id),
-                mods=adjusted_mods,
-                beatmap=native_beatmap,
+                mods=adjusted_mods
             )
         except Exception as exc:
             self.logger.error(f"Difficulty calculation failed: {exc}")
@@ -137,8 +137,7 @@ class NativePerformanceCalculator(PerformanceCalculator):
     def map_difficulty_attributes(
         result: NativeDifficultyAttributes,
         mode: GameMode,
-        mods: Mods,
-        beatmap: NativeBeatmap,
+        mods: Mods
     ) -> DifficultyAttributes:
         difficulty_attributes: dict[str, Any] = {
             "aim": getattr(result, "aim_difficulty", None),
@@ -154,28 +153,15 @@ class NativePerformanceCalculator(PerformanceCalculator):
             "rhythm": getattr(result, "rhythm_difficulty", None),
             "color": getattr(result, "colour_difficulty", None),
         }
-        beatmap_attributes: dict[str, Any] = {
-            "hp": getattr(beatmap, "drain_rate", None),
-            "ar": getattr(beatmap, "approach_rate", None),
-            "n_circles": getattr(result, "hit_circle_count", None),
-            "n_sliders": getattr(result, "slider_count", None),
-            "n_spinners": getattr(result, "spinner_count", None),
-            "n_objects": sum(
-                value for value in (
-                    getattr(result, "hit_circle_count", 0),
-                    getattr(result, "slider_count", 0),
-                    getattr(result, "spinner_count", 0)
-                )
-            ),
-            "max_combo": getattr(result, "max_combo", None),
-        }
-
         return DifficultyAttributes(
             mode=mode,
             mods=mods,
+            max_combo=result.max_combo,
             star_rating=float(result.star_rating),
-            difficulty_attributes=difficulty_attributes,
-            beatmap_attributes=beatmap_attributes
+            difficulty_attributes={
+                key: value for key, value in difficulty_attributes.items()
+                if value is not None
+            }
         )
 
     @staticmethod
