@@ -19,19 +19,19 @@ class DifficultyAttributes:
 
     @property
     def n_circles(self) -> int:
-        return self.difficulty_attributes.get('n_circles', 0)
+        return self.beatmap_attributes.get('n_circles', 0)
 
     @property
     def n_sliders(self) -> int:
-        return self.difficulty_attributes.get('n_sliders', 0)
+        return self.beatmap_attributes.get('n_sliders', 0)
 
     @property
     def n_spinners(self) -> int:
-        return self.difficulty_attributes.get('n_spinners', 0)
+        return self.beatmap_attributes.get('n_spinners', 0)
 
     @property
     def max_combo(self) -> int:
-        return self.difficulty_attributes.get('max_combo', 0)
+        return self.beatmap_attributes.get('max_combo', 0)
 
 class PerformanceCalculator(ABC):
     def __init__(self, storage: Storage) -> None:
