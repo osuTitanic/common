@@ -1,60 +1,18 @@
 
 from app.common.database.objects import DBScore
-from app.common.constants import GameMode, Mods
-from app.common.storage import Storage
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Any
-from copy import copy
 
-import logging
+from .ppv2_base import PerformanceCalculator, DifficultyAttributes
+from .ppv2_rosu import RosuPerformanceCalculator
 
-@dataclass
-class DifficultyAttributes:
-    mode: GameMode
-    mods: Mods
-    star_rating: float
-    difficulty_attributes: dict[str, Any]
-    beatmap_attributes: dict[str, Any]
+# Global ppv2 calculator instance, initialized by the application session
+calculator: PerformanceCalculator
 
-class PerformanceCalculator(ABC):
-    def __init__(self, storage: Storage) -> None:
-        self.storage = storage
-        self.logger = logging.getLogger('performance')
+def initialize_calculator(instance: PerformanceCalculator) -> None:
+    global calculator
+    calculator = instance
 
-    @abstractmethod
-    def calculate_ppv2(self, score: DBScore) -> float | None:
-        ...
+def calculate_ppv2(score: DBScore) -> float | None:
+    return calculator.calculate_ppv2(score)
 
-    @abstractmethod
-    def calculate_difficulty(self, beatmap_id: int, mode: GameMode, mods: int) -> DifficultyAttributes | None:
-        ...
-
-    def calculate_ppv2_if_fc(self, score: DBScore) -> float | None:
-        fc_score = copy(score)
-        fc_score.max_combo = score.beatmap.max_combo
-        fc_score.nMiss = 0
-        return self.calculate_ppv2(fc_score)
-
-    @staticmethod
-    def adjust_mods(mods: int, mode: int | GameMode, client_version: int = 0) -> Mods:
-        mods = Mods(mods)
-
-        if Mods.Nightcore in mods and not Mods.DoubleTime in mods:
-            # NC somehow only appears with DT enabled at the same time
-            # https://github.com/ppy/osu-api/wiki#mods
-            mods |= Mods.DoubleTime
-        
-        if Mods.Perfect in mods and not Mods.SuddenDeath in mods:
-            # The same seems to be the case for PF & SD
-            mods |= Mods.SuddenDeath
-
-        if Mods.Hidden in mods and not Mods.FadeIn in mods and mode == GameMode.OsuMania:
-            # And also for HD & FI
-            mods |= Mods.FadeIn
-
-        if Mods.NoVideo in mods and client_version < 20140000:
-            # NoVideo was changed to TouchDevice, which affects pp a lot
-            mods &= ~Mods.NoVideo
-
-        return mods
+def calculate_difficulty(beatmap_id: int, mode: int, mods: int) -> DifficultyAttributes | None:
+    return calculator.calculate_difficulty(beatmap_id, mode, mods)
