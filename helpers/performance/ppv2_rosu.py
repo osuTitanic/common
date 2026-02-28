@@ -139,7 +139,6 @@ class RosuPerformanceCalculator(PerformanceCalculator):
             'aim_difficult_strain_count': result.aim_difficult_strain_count,
             'speed_difficult_strain_count': result.speed_difficult_strain_count,
             'stamina': result.stamina,
-            'single_color_stamina': result.single_color_stamina,
             'reading': result.reading,
             'rhythm': result.rhythm,
             'color': result.color
