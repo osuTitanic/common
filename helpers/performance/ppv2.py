@@ -14,6 +14,10 @@ def calculate_ppv2(score: DBScore) -> float | None:
     assert calculator is not None, "ppv2 calculator has not been initialized"
     return calculator.calculate_ppv2(score)
 
+def calculate_ppv2_if_fc(score: DBScore) -> float | None:
+    assert calculator is not None, "ppv2 calculator has not been initialized"
+    return calculator.calculate_ppv2_if_fc(score)
+
 def calculate_difficulty(beatmap_file: bytes, mode: GameMode, mods: Mods = Mods.NoMod) -> DifficultyAttributes | None:
     assert calculator is not None, "ppv2 calculator has not been initialized"
     return calculator.calculate_difficulty(beatmap_file, mode, mods)
