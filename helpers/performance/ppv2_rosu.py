@@ -146,9 +146,6 @@ class RosuPerformanceCalculator(PerformanceCalculator):
         beatmap_attributes = {
             'hp': result.hp,
             'ar': result.ar,
-            'great_hit_window': result.great_hit_window,
-            'ok_hit_window': result.ok_hit_window,
-            'meh_hit_window': result.meh_hit_window,
             'n_circles': result.n_circles,
             'n_sliders': result.n_sliders,
             'n_large_ticks': result.n_large_ticks,
