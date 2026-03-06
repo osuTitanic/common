@@ -163,6 +163,13 @@ class Config(BaseSettings):
     # Maximum allowed slots in multiplayer matches
     MULTIPLAYER_MAX_SLOTS: int = 8
 
+    # Oooh, I wonder what this is going to be used for :eyes:
+    MISTRAL_API_KEY: str | None = None
+    MISTRAL_AGENT_ID: str | None = None
+    MISTRAL_MAX_TOKENS: int = 250
+    MISTRAL_TIMEOUT_MS: int = 10000
+    MISTRAL_SERVER_URL: str = "https://api.mistral.ai"
+
     ## Website configuration
     FRONTEND_HOST: str = "localhost"
     FRONTEND_PORT: int = 8080
@@ -215,7 +222,7 @@ class Config(BaseSettings):
 
     # Ko-Fi token for donation callbacks
     KOFI_VERIFICATION_TOKEN: str | None = None
-    
+
     # Bitview configuration (optional)
     BITVIEW_API_ENDPOINT: str | None = None
     BITVIEW_USERNAME: str | None = None
@@ -341,12 +348,12 @@ class Config(BaseSettings):
     @property
     def STATIC_BASEURL(self) -> str:
         return self.STATIC_BASEURL_OVERRIDE or self.DEFAULT_STATIC_BASEURL
-    
+
     @computed_field
     @property
     def EVENTS_WEBSOCKET(self) -> str:
         return self.EVENTS_WEBSOCKET_OVERRIDE or self.DEFAULT_EVENTS_WEBSOCKET
-    
+
     @computed_field
     @property
     def LOUNGE_BACKEND(self) -> str:
@@ -356,7 +363,7 @@ class Config(BaseSettings):
     @property
     def SITEMAP_ENABLED(self) -> bool:
         return self.DOMAIN_NAME in ("titanic.sh", "localhost")
-    
+
     @computed_field
     @property
     def BITVIEW_ENABLED(self) -> bool:
