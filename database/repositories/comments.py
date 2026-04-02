@@ -3,7 +3,7 @@ from app.common.database.objects import DBComment
 from sqlalchemy.orm import Session
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
@@ -15,7 +15,7 @@ def create(
     comment_format: str,
     playmode: int,
     color: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBComment:
     session.add(
         c := DBComment(
@@ -37,7 +37,7 @@ def create(
 def fetch_many(
     target_id: int,
     type: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBComment]:
     return session.query(DBComment) \
         .filter(DBComment.target_id == target_id) \

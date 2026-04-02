@@ -4,14 +4,14 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
     user_id: int,
     ip: str,
     version: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBLogin:
     session.add(
         login := DBLogin(
@@ -29,7 +29,7 @@ def fetch_many(
     user_id: int,
     limit: int = 50,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBLogin]:
     return session.query(DBLogin) \
         .filter(DBLogin.user_id == user_id) \
@@ -42,7 +42,7 @@ def fetch_many(
 def fetch_many_until(
     user_id: int,
     until: datetime,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBLogin]:
     return session.query(DBLogin) \
         .filter(DBLogin.user_id == user_id) \
@@ -55,7 +55,7 @@ def fetch_many_by_ip(
     ip: str,
     limit: int = 50,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBLogin]:
     return session.query(DBLogin) \
         .filter(DBLogin.ip == ip) \
@@ -69,7 +69,7 @@ def fetch_many_by_version(
     version: str,
     limit: int = 50,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBLogin]:
     return session.query(DBLogin) \
         .filter(DBLogin.version == version) \
@@ -81,7 +81,7 @@ def fetch_many_by_version(
 @session_wrapper
 def fetch_last_osu_version(
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> str | None:
     login = session.query(DBLogin.version) \
         .filter(DBLogin.user_id == user_id) \

@@ -4,13 +4,13 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Dict, Iterable, List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create_entry(
     user_id: int,
     group_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBGroupEntry:
     session.add(
         ge := DBGroupEntry(
@@ -25,7 +25,7 @@ def create_entry(
 def delete_entry(
     user_id: int,
     group_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBGroupEntry) \
         .filter(DBGroupEntry.group_id == group_id) \
@@ -38,7 +38,7 @@ def delete_entry(
 def entry_exists(
     user_id: int,
     group_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> bool:
     return session.query(DBGroupEntry) \
         .filter(DBGroupEntry.group_id == group_id) \
@@ -46,13 +46,13 @@ def entry_exists(
         .count() > 0
 
 @session_wrapper
-def fetch_one(id: int, session: Session = ...) -> DBGroup | None:
+def fetch_one(id: int, session: Session = SessionProvider) -> DBGroup | None:
     return session.query(DBGroup) \
         .filter(DBGroup.id == id) \
         .first()
 
 @session_wrapper
-def fetch_all(include_hidden: bool = False, session: Session = ...) -> List[DBGroup]:
+def fetch_all(include_hidden: bool = False, session: Session = SessionProvider) -> List[DBGroup]:
     if include_hidden:
         return session.query(DBGroup) \
             .order_by(DBGroup.id.asc()) \
@@ -64,7 +64,7 @@ def fetch_all(include_hidden: bool = False, session: Session = ...) -> List[DBGr
         .all()
 
 @session_wrapper
-def fetch_group_users(group_id: int, session: Session = ...) -> List[DBUser]:
+def fetch_group_users(group_id: int, session: Session = SessionProvider) -> List[DBUser]:
     return session.query(DBUser) \
         .join(DBGroupEntry) \
         .filter(DBGroupEntry.group_id == group_id) \
@@ -75,7 +75,7 @@ def fetch_group_users(group_id: int, session: Session = ...) -> List[DBUser]:
 def fetch_user_groups(
     user_id: int,
     include_hidden: bool = False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBGroup]:
     if include_hidden:
         return session.query(DBGroup) \
@@ -95,7 +95,7 @@ def fetch_user_groups(
 def fetch_by_users(
     user_ids: Iterable[int],
     include_hidden: bool = False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Dict[int, List[DBGroup]]:
     if not user_ids:
         return {}
@@ -124,7 +124,7 @@ def fetch_by_users(
 @session_wrapper
 def fetch_bancho_permissions(
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     return session.query(func.bit_or(DBGroup.bancho_permissions)) \
         .join(DBGroupEntry) \

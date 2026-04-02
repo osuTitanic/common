@@ -5,14 +5,14 @@ from app.common.database.objects import DBMatch
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
     name: str,
     bancho_id: int,
     creator_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBMatch:
     session.add(
         m := DBMatch(
@@ -27,32 +27,32 @@ def create(
     return m
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session = ...) -> DBMatch | None:
+def fetch_by_id(id: int, session: Session = SessionProvider) -> DBMatch | None:
     return session.query(DBMatch) \
         .filter(DBMatch.id == id) \
         .first()
 
 @session_wrapper
-def fetch_by_bancho_id(id: int, session: Session = ...) -> DBMatch | None:
+def fetch_by_bancho_id(id: int, session: Session = SessionProvider) -> DBMatch | None:
     return session.query(DBMatch) \
         .filter(DBMatch.bancho_id == id) \
         .first()
 
 @session_wrapper
-def exists(id: int, session: Session = ...) -> bool:
+def exists(id: int, session: Session = SessionProvider) -> bool:
     return session.query(DBMatch) \
         .filter(DBMatch.id == id) \
         .count() > 0
 
 @session_wrapper
-def update(id: int, updates: dict, session: Session = ...) -> None:
+def update(id: int, updates: dict, session: Session = SessionProvider) -> None:
     session.query(DBMatch) \
         .filter(DBMatch.id == id) \
         .update(updates)
     session.flush()
 
 @session_wrapper
-def delete(id: int, session: Session = ...) -> None:
+def delete(id: int, session: Session = SessionProvider) -> None:
     # Delete events first
     events.delete_all(id)
 

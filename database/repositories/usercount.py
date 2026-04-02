@@ -5,14 +5,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc, and_
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
     osu_count: int,
     irc_count: int,
     mp_count: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBUserActivity:
     session.add(uc := DBUserActivity(
         osu_count=osu_count,
@@ -27,7 +27,7 @@ def create(
 def fetch_range(
     _until: datetime,
     _from: datetime,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBUserActivity]:
     return session.query(DBUserActivity) \
         .filter(and_(
@@ -38,7 +38,7 @@ def fetch_range(
         .all()
 
 @session_wrapper
-def fetch_last(session: Session = ...) -> DBUserActivity | None:
+def fetch_last(session: Session = SessionProvider) -> DBUserActivity | None:
     return session.query(DBUserActivity) \
         .order_by(desc(DBUserActivity.time)) \
         .first()
@@ -46,7 +46,7 @@ def fetch_last(session: Session = ...) -> DBUserActivity | None:
 @session_wrapper
 def delete_old(
     delta: timedelta = timedelta(weeks=5),
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     """Delete usercount entries that are older than the given delta (default ~1 month)"""
     rows = session.query(DBUserActivity) \

@@ -10,14 +10,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 from . import scores
 
 @session_wrapper
 def create(
     user_id: int,
     mode: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBStats:
     session.add(
         stats := DBStats(
@@ -34,7 +34,7 @@ def update(
     user_id: int,
     mode: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBStats) \
            .filter(DBStats.user_id == user_id) \
@@ -47,7 +47,7 @@ def update(
 def update_all(
     user_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBStats) \
            .filter(DBStats.user_id == user_id) \
@@ -56,7 +56,7 @@ def update_all(
     return rows
 
 @session_wrapper
-def delete_all(user_id: int, session: Session = ...) -> int:
+def delete_all(user_id: int, session: Session = SessionProvider) -> int:
     rows = session.query(DBStats) \
             .filter(DBStats.user_id == user_id) \
             .delete()
@@ -67,7 +67,7 @@ def delete_all(user_id: int, session: Session = ...) -> int:
 def fetch_by_mode(
     user_id: int,
     mode: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBStats | None:
     return session.query(DBStats) \
         .filter(DBStats.user_id == user_id) \
@@ -75,7 +75,7 @@ def fetch_by_mode(
         .first()
 
 @session_wrapper
-def fetch_all(user_id: int, session: Session = ...) -> List[DBStats]:
+def fetch_all(user_id: int, session: Session = SessionProvider) -> List[DBStats]:
     return session.query(DBStats) \
         .filter(DBStats.user_id == user_id) \
         .all()

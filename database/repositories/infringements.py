@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
@@ -13,7 +13,7 @@ def create(
     length: datetime,
     description: str | None = None,
     is_permanent: bool = False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBInfringement:
     session.add(
         i := DBInfringement(
@@ -30,20 +30,20 @@ def create(
     return i
 
 @session_wrapper
-def fetch_one(id: int, session: Session = ...) -> DBInfringement | None:
+def fetch_one(id: int, session: Session = SessionProvider) -> DBInfringement | None:
     return session.query(DBInfringement) \
         .filter(DBInfringement.id == id) \
         .first()
 
 @session_wrapper
-def fetch_recent(user_id: int, session: Session = ...) -> DBInfringement | None:
+def fetch_recent(user_id: int, session: Session = SessionProvider) -> DBInfringement | None:
     return session.query(DBInfringement) \
         .filter(DBInfringement.user_id == user_id) \
         .order_by(DBInfringement.id.desc()) \
         .first()
 
 @session_wrapper
-def fetch_recent_by_action(user_id: int, action: int, session: Session = ...) -> DBInfringement | None:
+def fetch_recent_by_action(user_id: int, action: int, session: Session = SessionProvider) -> DBInfringement | None:
     return session.query(DBInfringement) \
         .filter(DBInfringement.user_id == user_id) \
         .filter(DBInfringement.action == action) \
@@ -54,7 +54,7 @@ def fetch_recent_by_action(user_id: int, action: int, session: Session = ...) ->
 def fetch_recent_until(
     user_id: int,
     until: timedelta = timedelta(days=30),
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBInfringement]:
     return session.query(DBInfringement) \
         .filter(DBInfringement.user_id == user_id) \
@@ -63,21 +63,21 @@ def fetch_recent_until(
         .all()
 
 @session_wrapper
-def fetch_last(user_id: int, session: Session = ...) -> DBInfringement | None:
+def fetch_last(user_id: int, session: Session = SessionProvider) -> DBInfringement | None:
     return session.query(DBInfringement) \
         .filter(DBInfringement.user_id == user_id) \
         .order_by(DBInfringement.time.desc()) \
         .first()
 
 @session_wrapper
-def fetch_all(user_id: int, session: Session = ...) -> List[DBInfringement]:
+def fetch_all(user_id: int, session: Session = SessionProvider) -> List[DBInfringement]:
     return session.query(DBInfringement) \
         .filter(DBInfringement.user_id == user_id) \
         .order_by(DBInfringement.id.desc()) \
         .all()
 
 @session_wrapper
-def fetch_all_by_action(user_id: int, action: int, session: Session = ...) -> List[DBInfringement]:
+def fetch_all_by_action(user_id: int, action: int, session: Session = SessionProvider) -> List[DBInfringement]:
     return session.query(DBInfringement) \
         .filter(DBInfringement.user_id == user_id) \
         .filter(DBInfringement.action == action) \
@@ -88,7 +88,7 @@ def fetch_all_by_action(user_id: int, action: int, session: Session = ...) -> Li
 def update(
     id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     columns = session.query(DBInfringement) \
         .filter(DBInfringement.id == id) \
@@ -97,7 +97,7 @@ def update(
     return columns
 
 @session_wrapper
-def delete_by_id(id: int, session: Session = ...) -> None:
+def delete_by_id(id: int, session: Session = SessionProvider) -> None:
     session.query(DBInfringement) \
         .filter(DBInfringement.id == id) \
         .delete()
@@ -107,7 +107,7 @@ def delete_old(
     user_id: int,
     delete_after=timedelta(weeks=5),
     remove_permanent=False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     if not remove_permanent:
         return session.query(DBInfringement) \

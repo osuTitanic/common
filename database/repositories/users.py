@@ -13,7 +13,7 @@ from app.common.database.objects import (
 
 from sqlalchemy.orm import selectinload, joinedload, load_only, Session
 from sqlalchemy import func, or_, case
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
@@ -24,7 +24,7 @@ def create(
     country: str,
     activated: bool = False,
     discord_id: int | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBUser | None:
     session.add(
         user := DBUser(
@@ -45,7 +45,7 @@ def create(
 def update(
     user_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBUser) \
            .filter(DBUser.id == user_id) \
@@ -54,19 +54,19 @@ def update(
     return rows
 
 @session_wrapper
-def fetch_by_name(username: str, session: Session = ...) -> DBUser | None:
+def fetch_by_name(username: str, session: Session = SessionProvider) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.name == username) \
         .first()
 
 @session_wrapper
-def fetch_by_name_case_insensitive(username: str, session: Session = ...) -> DBUser | None:
+def fetch_by_name_case_insensitive(username: str, session: Session = SessionProvider) -> DBUser | None:
     return session.query(DBUser) \
         .filter(func.lower(DBUser.name) == username.lower()) \
         .first()
 
 @session_wrapper
-def fetch_by_name_extended(query: str, session: Session = ...) -> DBUser | None:
+def fetch_by_name_extended(query: str, session: Session = SessionProvider) -> DBUser | None:
     """Used for searching users"""
     exact_match = case(
         (func.lower(DBUser.name) == query.lower(), 0),
@@ -82,26 +82,26 @@ def fetch_by_name_extended(query: str, session: Session = ...) -> DBUser | None:
         .first()
 
 @session_wrapper
-def fetch_by_safe_name(username: str, session: Session = ...) -> DBUser | None:
+def fetch_by_safe_name(username: str, session: Session = SessionProvider) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.safe_name == username) \
         .first()
 
 @session_wrapper
-def fetch_by_id(id: int, *options, session: Session = ...) -> DBUser | None:
+def fetch_by_id(id: int, *options, session: Session = SessionProvider) -> DBUser | None:
     return session.query(DBUser) \
         .options(*[selectinload(item) for item in options]) \
         .filter(DBUser.id == id) \
         .first()
 
 @session_wrapper
-def fetch_by_id_no_options(id: int, session: Session = ...) -> DBUser | None:
+def fetch_by_id_no_options(id: int, session: Session = SessionProvider) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.id == id) \
         .first()
 
 @session_wrapper
-def fetch_for_profile(id: int, session: Session = ...) -> DBUser | None:
+def fetch_for_profile(id: int, session: Session = SessionProvider) -> DBUser | None:
     return session.query(DBUser) \
         .options(
             selectinload(DBUser.relationships),
@@ -116,19 +116,19 @@ def fetch_for_profile(id: int, session: Session = ...) -> DBUser | None:
         .first()
 
 @session_wrapper
-def fetch_by_email(email: str, session: Session = ...) -> DBUser | None:
+def fetch_by_email(email: str, session: Session = SessionProvider) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.email.ilike(email)) \
         .first()
 
 @session_wrapper
-def fetch_all(restricted: bool = False, session: Session = ...) -> List[DBUser]:
+def fetch_all(restricted: bool = False, session: Session = SessionProvider) -> List[DBUser]:
     return session.query(DBUser) \
         .filter(DBUser.restricted == restricted) \
         .all()
 
 @session_wrapper
-def fetch_active(delta: timedelta = timedelta(days=30), session: Session = ...) -> List[DBUser]:
+def fetch_active(delta: timedelta = timedelta(days=30), session: Session = SessionProvider) -> List[DBUser]:
     return session.query(DBUser) \
         .join(DBStats) \
         .filter(DBUser.restricted == False) \
@@ -143,13 +143,13 @@ def fetch_active(delta: timedelta = timedelta(days=30), session: Session = ...) 
         .all()
 
 @session_wrapper
-def fetch_by_discord_id(id: int, session: Session = ...) -> DBUser | None:
+def fetch_by_discord_id(id: int, session: Session = SessionProvider) -> DBUser | None:
     return session.query(DBUser) \
         .filter(DBUser.discord_id == id) \
         .first()
 
 @session_wrapper
-def fetch_count(exclude_restricted=True, session: Session = ...) -> int:
+def fetch_count(exclude_restricted=True, session: Session = SessionProvider) -> int:
     query = session.query(
         func.count(DBUser.id)
     )
@@ -160,38 +160,38 @@ def fetch_count(exclude_restricted=True, session: Session = ...) -> int:
     return query.scalar()
 
 @session_wrapper
-def fetch_username(user_id: int, session: Session = ...) -> str | None:
+def fetch_username(user_id: int, session: Session = SessionProvider) -> str | None:
     return session.query(DBUser.name) \
             .filter(DBUser.id == user_id) \
             .scalar()
 
 @session_wrapper
-def fetch_usernames(user_ids: list, session: Session = ...) -> Dict[int, str]:
+def fetch_usernames(user_ids: list, session: Session = SessionProvider) -> Dict[int, str]:
     rows = session.query(DBUser.id, DBUser.name) \
             .filter(DBUser.id.in_(user_ids)) \
             .all()
     return {user_id: name for user_id, name in rows}
 
 @session_wrapper
-def fetch_irc_token(safe_name: str, session: Session = ...) -> str | None:
+def fetch_irc_token(safe_name: str, session: Session = SessionProvider) -> str | None:
     return session.query(DBUser.irc_token) \
             .filter(DBUser.safe_name == safe_name) \
             .scalar()
 
 @session_wrapper
-def fetch_user_id(username: str, session: Session = ...) -> int | None:
+def fetch_user_id(username: str, session: Session = SessionProvider) -> int | None:
     return session.query(DBUser.id) \
             .filter(DBUser.name == username) \
             .scalar()
 
 @session_wrapper
-def fetch_avatar_checksum(user_id: int, session: Session = ...) -> str | None:
+def fetch_avatar_checksum(user_id: int, session: Session = SessionProvider) -> str | None:
     return session.query(DBUser.avatar_hash) \
             .filter(DBUser.id == user_id) \
             .scalar()
 
 @session_wrapper
-def fetch_many(user_ids: Iterable[int], *options, session: Session = ...) -> List[DBUser]:
+def fetch_many(user_ids: Iterable[int], *options, session: Session = SessionProvider) -> List[DBUser]:
     if not user_ids:
         return []
 
@@ -201,7 +201,7 @@ def fetch_many(user_ids: Iterable[int], *options, session: Session = ...) -> Lis
               .all()
 
 @session_wrapper
-def fetch_many_for_rankings(user_ids: Iterable[int], session: Session = ...) -> List[DBUser]:
+def fetch_many_for_rankings(user_ids: Iterable[int], session: Session = SessionProvider) -> List[DBUser]:
     if not user_ids:
         return []
 
@@ -214,7 +214,7 @@ def fetch_many_for_rankings(user_ids: Iterable[int], session: Session = ...) -> 
         .all()
 
 @session_wrapper
-def fetch_top(limit: int = 50, session: Session = ...) -> List[DBUser]:
+def fetch_top(limit: int = 50, session: Session = SessionProvider) -> List[DBUser]:
     return session.query(DBUser) \
         .join(DBStats) \
         .filter(DBUser.restricted == False) \
@@ -223,7 +223,7 @@ def fetch_top(limit: int = 50, session: Session = ...) -> List[DBUser]:
         .all()
 
 @session_wrapper
-def fetch_recent(limit: int = 50, session: Session = ...) -> List[DBUser]:
+def fetch_recent(limit: int = 50, session: Session = SessionProvider) -> List[DBUser]:
     return session.query(DBUser) \
         .filter(DBUser.restricted == False) \
         .filter(DBUser.activated == True) \
@@ -232,7 +232,7 @@ def fetch_recent(limit: int = 50, session: Session = ...) -> List[DBUser]:
         .all()
 
 @session_wrapper
-def fetch_post_count(user_id: int, session: Session = ...) -> int:
+def fetch_post_count(user_id: int, session: Session = SessionProvider) -> int:
     return session.query(DBForumPost) \
         .filter(DBForumPost.user_id == user_id) \
         .count()
@@ -240,7 +240,7 @@ def fetch_post_count(user_id: int, session: Session = ...) -> int:
 @session_wrapper
 def fetch_post_counts(
     user_ids: Iterable[int],
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Dict[int, int]:
     if not user_ids:
         return {}
@@ -261,13 +261,13 @@ def fetch_post_counts(
     return counts
 
 @session_wrapper
-def fetch_subscriptions(user_id: int, session: Session = ...) -> List[DBForumSubscriber]:
+def fetch_subscriptions(user_id: int, session: Session = SessionProvider) -> List[DBForumSubscriber]:
     return session.query(DBForumSubscriber) \
         .filter(DBForumSubscriber.user_id == user_id) \
         .all()
 
 @session_wrapper
-def fetch_bookmarks(user_id: int, session: Session = ...) -> List[DBForumBookmark]:
+def fetch_bookmarks(user_id: int, session: Session = SessionProvider) -> List[DBForumBookmark]:
     return session.query(DBForumBookmark) \
         .filter(DBForumBookmark.user_id == user_id) \
         .all()

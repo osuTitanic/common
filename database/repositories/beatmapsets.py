@@ -19,7 +19,7 @@ from app.common.database.objects import (
 
 from sqlalchemy import REAL, func, select, or_, extract, cast, ColumnElement
 from sqlalchemy.orm import selectinload, Session, Query
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 from typing import List, Tuple, Dict, Any
 from collections import defaultdict
@@ -54,7 +54,7 @@ def create(
     approved_date: datetime | None = None,
     last_update: datetime | None = None,
     display_title: str | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapset:
     session.add(
         s := DBBeatmapset(
@@ -88,20 +88,20 @@ def create(
     return s
 
 @session_wrapper
-def fetch_one(id: int, session: Session = ...) -> DBBeatmapset | None:
+def fetch_one(id: int, session: Session = SessionProvider) -> DBBeatmapset | None:
     return session.query(DBBeatmapset) \
         .filter(DBBeatmapset.id == id) \
         .first()
 
 @session_wrapper
-def fetch_count(session: Session = ...) -> int:
+def fetch_count(session: Session = SessionProvider) -> int:
     return session.query(func.count(DBBeatmapset.id)) \
         .scalar()
 
 @session_wrapper
 def fetch_by_creator(
     creator_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBeatmapset]:
     return session.query(DBBeatmapset) \
         .filter(DBBeatmapset.creator_id == creator_id) \
@@ -111,7 +111,7 @@ def fetch_by_creator(
 @session_wrapper
 def fetch_by_topic(
     topic_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapset | None:
     return session.query(DBBeatmapset) \
         .filter(DBBeatmapset.topic_id == topic_id) \
@@ -120,7 +120,7 @@ def fetch_by_topic(
 @session_wrapper
 def fetch_by_status(
     status: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapset | None:
     return session.query(DBBeatmapset) \
         .filter(DBBeatmapset.status == status) \
@@ -129,7 +129,7 @@ def fetch_by_status(
 @session_wrapper
 def fetch_unranked_count(
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     return session.query(DBBeatmapset) \
         .filter(DBBeatmapset.creator_id == user_id) \
@@ -139,7 +139,7 @@ def fetch_unranked_count(
 @session_wrapper
 def fetch_ranked_count(
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     return session.query(DBBeatmapset) \
         .filter(DBBeatmapset.creator_id == user_id) \
@@ -149,7 +149,7 @@ def fetch_ranked_count(
 @session_wrapper
 def fetch_inactive(
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBeatmapset]:
     return session.query(DBBeatmapset) \
         .filter(DBBeatmapset.creator_id == user_id) \
@@ -160,7 +160,7 @@ def fetch_inactive(
 def fetch_most_played(
     limit: int = 5,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[dict]:
     results = session.query(DBBeatmapset) \
         .order_by(DBBeatmapset.total_playcount.desc()) \
@@ -179,7 +179,7 @@ def fetch_most_played(
 @session_wrapper
 def fetch_server_id(
     beatmapset_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     return session.query(DBBeatmapset.server) \
         .filter(DBBeatmapset.id == beatmapset_id) \
@@ -188,7 +188,7 @@ def fetch_server_id(
 @session_wrapper
 def fetch_download_server_id(
     beatmapset_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     return session.query(DBBeatmapset.download_server) \
         .filter(DBBeatmapset.id == beatmapset_id) \
@@ -198,7 +198,7 @@ def fetch_download_server_id(
 def update(
     beatmapset_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBBeatmapset) \
         .filter(DBBeatmapset.id == beatmapset_id) \
@@ -209,7 +209,7 @@ def update(
 @session_wrapper
 def delete_by_id(
     id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBBeatmapset) \
         .filter(DBBeatmapset.id == id) \
@@ -218,7 +218,7 @@ def delete_by_id(
     return rows
 
 @session_wrapper
-def delete_inactive(user_id: int, session: Session = ...) -> int:
+def delete_inactive(user_id: int, session: Session = SessionProvider) -> int:
     rows = session.query(DBBeatmapset) \
         .filter(DBBeatmapset.creator_id == user_id) \
         .filter(DBBeatmapset.status == -3) \
@@ -230,7 +230,7 @@ def delete_inactive(user_id: int, session: Session = ...) -> int:
 def search_one(
     query_string: str,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapset | None:
     condition, sort = text_search_condition(query_string)
 
@@ -250,7 +250,7 @@ def search_direct(
     mode: int = -1,
     limit: int = 100,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBeatmapset]:
     """Query beatmapsets for osu!direct"""
 
@@ -348,7 +348,7 @@ def search_extended(
     titanic_only: bool = False,
     offset: int = 0,
     limit: int = 50,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBeatmapset]:
     query = session.query(DBBeatmapset) \
             .options(selectinload(DBBeatmapset.beatmaps)) \

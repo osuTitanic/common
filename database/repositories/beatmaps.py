@@ -3,7 +3,7 @@ from app.common.database.objects import DBBeatmap, DBScore
 from sqlalchemy.orm import selectinload
 from sqlalchemy import func
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 from datetime import datetime, timedelta
 from typing import List, Dict, Tuple
@@ -28,7 +28,7 @@ def create(
     diff: float = 0.0,
     submit_date: datetime | None = None,
     last_update: datetime | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmap:
     session.add(
         m := DBBeatmap(
@@ -56,45 +56,45 @@ def create(
     return m
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session = ...) -> DBBeatmap | None:
+def fetch_by_id(id: int, session: Session = SessionProvider) -> DBBeatmap | None:
     return session.query(DBBeatmap) \
         .options(selectinload(DBBeatmap.beatmapset)) \
         .filter(DBBeatmap.id == id) \
         .first()
 
 @session_wrapper
-def fetch_by_file(filename: str, session: Session = ...) -> DBBeatmap | None:
+def fetch_by_file(filename: str, session: Session = SessionProvider) -> DBBeatmap | None:
     return session.query(DBBeatmap) \
         .options(selectinload(DBBeatmap.beatmapset)) \
         .filter(DBBeatmap.filename == filename) \
         .first()
 
 @session_wrapper
-def fetch_by_checksum(checksum: str, session: Session = ...) -> DBBeatmap | None:
+def fetch_by_checksum(checksum: str, session: Session = SessionProvider) -> DBBeatmap | None:
     return session.query(DBBeatmap) \
         .options(selectinload(DBBeatmap.beatmapset)) \
         .filter(DBBeatmap.md5 == checksum) \
         .first()
 
 @session_wrapper
-def fetch_by_set(set_id: int, session: Session = ...) -> List[DBBeatmap]:
+def fetch_by_set(set_id: int, session: Session = SessionProvider) -> List[DBBeatmap]:
     return session.query(DBBeatmap) \
         .filter(DBBeatmap.set_id == set_id) \
         .all()
 
 @session_wrapper
-def fetch_count(session: Session = ...) -> int:
+def fetch_count(session: Session = SessionProvider) -> int:
     return session.query(func.count(DBBeatmap.id)) \
                   .scalar()
 
 @session_wrapper
-def fetch_count_by_mode(mode: int, session: Session = ...) -> int:
+def fetch_count_by_mode(mode: int, session: Session = SessionProvider) -> int:
     return session.query(func.count(DBBeatmap.id)) \
                   .filter(DBBeatmap.mode == mode) \
                   .scalar()
 
 @session_wrapper
-def fetch_count_grouped_status(mode: int, session: Session = ...) -> Dict[int, int]:
+def fetch_count_grouped_status(mode: int, session: Session = SessionProvider) -> Dict[int, int]:
     result = session.query(DBBeatmap.status, func.count(DBBeatmap.id)) \
         .filter(DBBeatmap.mode == mode) \
         .group_by(DBBeatmap.status) \
@@ -103,7 +103,7 @@ def fetch_count_grouped_status(mode: int, session: Session = ...) -> Dict[int, i
     return {status: count for status, count in result}
 
 @session_wrapper
-def fetch_count_with_leaderboards(mode: int, session: Session = ...) -> int:
+def fetch_count_with_leaderboards(mode: int, session: Session = SessionProvider) -> int:
     modes = [mode]
 
     if mode > 0:
@@ -116,26 +116,26 @@ def fetch_count_with_leaderboards(mode: int, session: Session = ...) -> int:
                   .scalar()
 
 @session_wrapper
-def fetch_id_by_filename(filename: str, session: Session = ...) -> int | None:
+def fetch_id_by_filename(filename: str, session: Session = SessionProvider) -> int | None:
     return session.query(DBBeatmap.id) \
         .filter(DBBeatmap.filename == filename) \
         .scalar()
 
 @session_wrapper
-def fetch_filename_by_id(beatmap_id: int, session: Session = ...) -> str | None:
+def fetch_filename_by_id(beatmap_id: int, session: Session = SessionProvider) -> str | None:
     return session.query(DBBeatmap.filename) \
         .filter(DBBeatmap.id == beatmap_id) \
         .scalar()
 
 @session_wrapper
-def fetch_most_played(limit: int = 5, session: Session = ...) -> List[DBBeatmap]:
+def fetch_most_played(limit: int = 5, session: Session = SessionProvider) -> List[DBBeatmap]:
     return session.query(DBBeatmap) \
         .order_by(DBBeatmap.playcount.desc()) \
         .limit(limit) \
         .all()
 
 @session_wrapper
-def fetch_most_played_approved(limit: int = 5, session: Session = ...) -> List[DBBeatmap]:
+def fetch_most_played_approved(limit: int = 5, session: Session = SessionProvider) -> List[DBBeatmap]:
     return session.query(DBBeatmap) \
         .filter(DBBeatmap.status > 0) \
         .order_by(DBBeatmap.playcount.desc()) \
@@ -146,7 +146,7 @@ def fetch_most_played_approved(limit: int = 5, session: Session = ...) -> List[D
 def fetch_most_played_delta(
     limit: int = 5,
     delta: timedelta = timedelta(hours=24),
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[Tuple[int, DBBeatmap]]:
     time_threshold = datetime.now() - delta
 
@@ -175,7 +175,7 @@ def fetch_most_played_delta(
 def update(
     beatmap_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBBeatmap) \
         .filter(DBBeatmap.id == beatmap_id) \
@@ -184,13 +184,13 @@ def update(
     return rows
 
 @session_wrapper
-def exists(beatmap_id: int, session: Session = ...) -> bool:
+def exists(beatmap_id: int, session: Session = SessionProvider) -> bool:
     return session.query(DBBeatmap.id) \
         .filter(DBBeatmap.id == beatmap_id) \
         .scalar() is not None
 
 @session_wrapper
-def filename_exists(filename: str, session: Session = ...) -> bool:
+def filename_exists(filename: str, session: Session = SessionProvider) -> bool:
     return session.query(DBBeatmap.id) \
         .filter(DBBeatmap.filename == filename) \
         .scalar() is not None
@@ -199,7 +199,7 @@ def filename_exists(filename: str, session: Session = ...) -> bool:
 def update_by_set_id(
     set_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBBeatmap) \
         .filter(DBBeatmap.set_id == set_id) \
@@ -208,7 +208,7 @@ def update_by_set_id(
     return rows
 
 @session_wrapper
-def delete_by_id(id: int, session: Session = ...) -> int:
+def delete_by_id(id: int, session: Session = SessionProvider) -> int:
     rows = session.query(DBBeatmap) \
         .filter(DBBeatmap.id == id) \
         .delete()
@@ -216,7 +216,7 @@ def delete_by_id(id: int, session: Session = ...) -> int:
     return rows
 
 @session_wrapper
-def delete_by_set_id(set_id: int, session: Session = ...) -> int:
+def delete_by_set_id(set_id: int, session: Session = SessionProvider) -> int:
     rows = session.query(DBBeatmap) \
         .filter(DBBeatmap.set_id == set_id) \
         .delete()

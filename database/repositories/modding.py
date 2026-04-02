@@ -4,7 +4,7 @@ from app.common.database.objects import DBBeatmapModding, DBForumPost, DBForumTo
 from sqlalchemy.orm import joinedload, selectinload, Session
 from sqlalchemy import func, or_
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
@@ -13,7 +13,7 @@ def create(
     set_id: int,
     post_id: int,
     amount: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapModding:
     session.add(
         mod := DBBeatmapModding(
@@ -31,7 +31,7 @@ def create(
 @session_wrapper
 def fetch_one(
     id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapModding | None:
     return session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.id == id) \
@@ -40,7 +40,7 @@ def fetch_one(
 @session_wrapper
 def fetch_one_by_post(
     post_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapModding | None:
     return session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.post_id == post_id) \
@@ -51,7 +51,7 @@ def fetch_one_by_post(
 def fetch_by_post_and_sender(
     post_id: int,
     sender_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapModding | None:
     return session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.post_id == post_id) \
@@ -61,7 +61,7 @@ def fetch_by_post_and_sender(
 @session_wrapper
 def fetch_all_by_post(
     post_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBeatmapModding]:
     return session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.post_id == post_id) \
@@ -70,7 +70,7 @@ def fetch_all_by_post(
 @session_wrapper
 def fetch_all_by_target(
     target_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBeatmapModding]:
     return session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.target_id == target_id) \
@@ -79,7 +79,7 @@ def fetch_all_by_target(
 @session_wrapper
 def fetch_all_by_sender(
     sender_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBeatmapModding]:
     return session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.sender_id == sender_id) \
@@ -88,7 +88,7 @@ def fetch_all_by_sender(
 @session_wrapper
 def fetch_all_by_set(
     set_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBeatmapModding]:
     return session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.set_id == set_id) \
@@ -97,7 +97,7 @@ def fetch_all_by_set(
 @session_wrapper
 def total_amount(
     post_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     return session.query(func.sum(DBBeatmapModding.amount)) \
         .filter(DBBeatmapModding.post_id == post_id) \
@@ -106,7 +106,7 @@ def total_amount(
 @session_wrapper
 def fetch_total_kudosu_by_posts(
     post_ids: Iterable[int],
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Dict[int, int]:
     if not post_ids:
         return {}
@@ -129,7 +129,7 @@ def fetch_total_kudosu_by_posts(
 @session_wrapper
 def fetch_latest_by_posts(
     post_ids: Iterable[int],
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Dict[int, DBBeatmapModding]:
     if not post_ids:
         return {}
@@ -155,7 +155,7 @@ def fetch_latest_by_posts(
 @session_wrapper
 def total_entries(
     post_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     return session.query(func.count(DBBeatmapModding.id)) \
         .filter(DBBeatmapModding.post_id == post_id) \
@@ -164,7 +164,7 @@ def total_entries(
 @session_wrapper
 def total_amount_by_user(
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     return session.query(func.sum(DBBeatmapModding.amount)) \
         .filter(DBBeatmapModding.target_id == user_id) \
@@ -175,7 +175,7 @@ def fetch_range_by_user(
     user_id: int,
     limit: int = 15,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBeatmapModding]:
     return session.query(DBBeatmapModding) \
         .options(
@@ -201,7 +201,7 @@ def fetch_range_by_user(
 def update(
     id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.id == id) \
@@ -212,7 +212,7 @@ def update(
 @session_wrapper
 def delete(
     id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.id == id) \
@@ -222,7 +222,7 @@ def delete(
 @session_wrapper
 def delete_by_post(
     post_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.post_id == post_id) \
@@ -232,7 +232,7 @@ def delete_by_post(
 @session_wrapper
 def delete_by_topic_id(
     topic_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     session.query(DBBeatmapModding) \
         .join(DBForumPost, DBForumPost.id == DBBeatmapModding.post_id) \
@@ -243,7 +243,7 @@ def delete_by_topic_id(
 @session_wrapper
 def delete_by_set_id(
     set_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     session.query(DBBeatmapModding) \
         .filter(DBBeatmapModding.set_id == set_id) \

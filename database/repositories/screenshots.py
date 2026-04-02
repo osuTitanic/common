@@ -2,13 +2,13 @@
 from app.common.database.objects import DBScreenshot
 from sqlalchemy.orm import Session
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
     user_id: int,
     hidden: bool,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBScreenshot:
     session.add(
         ss := DBScreenshot(
@@ -23,7 +23,7 @@ def create(
 @session_wrapper
 def fetch_by_id(
     id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBScreenshot | None:
     return session.query(DBScreenshot) \
         .filter(DBScreenshot.id == id) \

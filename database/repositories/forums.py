@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Dict, List, Tuple
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 from app.common.database.objects import (
     DBForumTopic,
     DBForumIcon,
@@ -12,53 +12,53 @@ from app.common.database.objects import (
 )
 
 @session_wrapper
-def fetch_by_id(forum_id: int, session: Session = ...) -> DBForum | None:
+def fetch_by_id(forum_id: int, session: Session = SessionProvider) -> DBForum | None:
     return session.query(DBForum) \
         .filter(DBForum.id == forum_id) \
         .first()
 
 @session_wrapper
-def fetch_by_name(name: str, session: Session = ...) -> DBForum | None:
+def fetch_by_name(name: str, session: Session = SessionProvider) -> DBForum | None:
     return session.query(DBForum) \
         .filter(DBForum.name == name) \
         .first()
 
 @session_wrapper
-def fetch_all(session: Session = ...) -> List[DBForum]:
+def fetch_all(session: Session = SessionProvider) -> List[DBForum]:
     return session.query(DBForum) \
         .filter(DBForum.hidden == False) \
         .all()
 
 @session_wrapper
-def fetch_main_forums(session: Session = ...) -> List[DBForum]:
+def fetch_main_forums(session: Session = SessionProvider) -> List[DBForum]:
     return session.query(DBForum) \
         .filter(DBForum.parent_id == None) \
         .filter(DBForum.hidden == False) \
         .all()
 
 @session_wrapper
-def fetch_sub_forums(parent_id: int, session: Session = ...) -> List[DBForum]:
+def fetch_sub_forums(parent_id: int, session: Session = SessionProvider) -> List[DBForum]:
     return session.query(DBForum) \
         .filter(DBForum.parent_id == parent_id) \
         .filter(DBForum.hidden == False) \
         .all()
 
 @session_wrapper
-def fetch_post_count(forum_id: int, session: Session = ...) -> int:
+def fetch_post_count(forum_id: int, session: Session = SessionProvider) -> int:
     return session.query(DBForumPost) \
         .filter(DBForumPost.forum_id == forum_id) \
         .filter(DBForumPost.hidden == False) \
         .count()
 
 @session_wrapper
-def fetch_topic_count(forum_id: int, session: Session = ...) -> int:
+def fetch_topic_count(forum_id: int, session: Session = SessionProvider) -> int:
     return session.query(DBForumTopic) \
         .filter(DBForumTopic.forum_id == forum_id) \
         .filter(DBForumTopic.hidden == False) \
         .count()
 
 @session_wrapper
-def fetch_icons(session: Session = ...) -> List[DBForumIcon]:
+def fetch_icons(session: Session = SessionProvider) -> List[DBForumIcon]:
     return session.query(DBForumIcon) \
         .order_by(DBForumIcon.order.asc(), DBForumIcon.id.asc()) \
         .all()
@@ -66,7 +66,7 @@ def fetch_icons(session: Session = ...) -> List[DBForumIcon]:
 @session_wrapper
 def fetch_statistics_by_forum_ids(
     forum_ids: List[int],
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Dict[int, Tuple[int, int]]:
     if not forum_ids:
         return {}

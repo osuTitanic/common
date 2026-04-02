@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
@@ -14,7 +14,7 @@ def create(
     download_link: str,
     description: str = "",
     beatmapset_ids: List[int] = [],
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapPack:
     session.add(
         p := DBBeatmapPack(
@@ -38,7 +38,7 @@ def create(
 def update(
     id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     updates.update({'updated_at': datetime.now()})
     updated = session.query(DBBeatmapPack) \
@@ -50,7 +50,7 @@ def update(
 @session_wrapper
 def delete(
     id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     deleted = session.query(DBBeatmapPackEntry) \
         .filter(DBBeatmapPackEntry.pack_id == id) \
@@ -64,7 +64,7 @@ def delete(
 @session_wrapper
 def fetch_one(
     id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapPack:
     return session.query(DBBeatmapPack) \
         .filter(DBBeatmapPack.id == id) \
@@ -72,7 +72,7 @@ def fetch_one(
 
 @session_wrapper
 def fetch_all(
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBeatmapPack]:
     return session.query(DBBeatmapPack) \
         .order_by(DBBeatmapPack.id.asc()) \
@@ -81,7 +81,7 @@ def fetch_all(
 @session_wrapper
 def fetch_by_category(
     category: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBeatmapPack]:
     return session.query(DBBeatmapPack) \
         .filter(DBBeatmapPack.category.ilike(category)) \
@@ -89,7 +89,7 @@ def fetch_by_category(
         .all()
 
 @session_wrapper
-def fetch_categories(session: Session = ...) -> List[str]:
+def fetch_categories(session: Session = SessionProvider) -> List[str]:
     categories = session.query(DBBeatmapPack.category) \
         .distinct() \
         .all()
@@ -99,7 +99,7 @@ def fetch_categories(session: Session = ...) -> List[str]:
 def add_entries(
     pack_id: int,
     *beatmapset_ids,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBeatmapPackEntry]:
     entries = [
         DBBeatmapPackEntry(
@@ -116,7 +116,7 @@ def add_entries(
 def remove_entries(
     pack_id: int,
     *beatmapset_ids,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     deleted = session.query(DBBeatmapPackEntry) \
         .filter(DBBeatmapPackEntry.pack_id == pack_id) \
@@ -128,7 +128,7 @@ def remove_entries(
 @session_wrapper
 def fetch_entries(
     pack_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBeatmapPackEntry]:
     return session.query(DBBeatmapPackEntry) \
         .filter(DBBeatmapPackEntry.pack_id == pack_id) \

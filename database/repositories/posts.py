@@ -1,6 +1,6 @@
 
 from app.common.database.objects import DBForumPost, DBForumIcon, DBForumTopic, DBUser, DBGroupEntry, DBGroup
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 from sqlalchemy.orm import Session, joinedload, selectinload, load_only
 from typing import Dict, Iterable, List
@@ -17,7 +17,7 @@ def create(
     edit_locked: bool = False,
     icon_id: int | None = None,
     hidden: bool = False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBForumPost:
     post = DBForumPost(
         topic_id=topic_id,
@@ -36,7 +36,7 @@ def create(
     return post
 
 @session_wrapper
-def fetch_one(id: int, session: Session = ...) -> DBForumPost | None:
+def fetch_one(id: int, session: Session = SessionProvider) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .filter(DBForumPost.id == id) \
         .first()
@@ -44,7 +44,7 @@ def fetch_one(id: int, session: Session = ...) -> DBForumPost | None:
 @session_wrapper
 def fetch_all_by_topic(
     topic_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBForumPost]:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
@@ -57,7 +57,7 @@ def fetch_range_by_topic(
     topic_id: int,
     range: int,
     offset: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBForumPost]:
     return session.query(DBForumPost) \
         .options(
@@ -78,7 +78,7 @@ def fetch_range_by_topic(
         .all()
 
 @session_wrapper
-def fetch_initial_post(topic_id: int, session: Session = ...) -> DBForumPost | None:
+def fetch_initial_post(topic_id: int, session: Session = SessionProvider) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .options(
             joinedload(DBForumPost.user).load_only(
@@ -94,7 +94,7 @@ def fetch_initial_post(topic_id: int, session: Session = ...) -> DBForumPost | N
 @session_wrapper
 def fetch_initial_posts(
     topic_ids: Iterable[int],
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Dict[int, DBForumPost]:
     if not topic_ids:
         return {}
@@ -119,7 +119,7 @@ def fetch_initial_posts(
     return {row.topic_id: row for row in rows}
 
 @session_wrapper
-def fetch_initial_post_id(topic_id: int, session: Session = ...) -> DBForumPost | None:
+def fetch_initial_post_id(topic_id: int, session: Session = SessionProvider) -> DBForumPost | None:
     result = session.query(DBForumPost.id) \
         .filter(DBForumPost.topic_id == topic_id) \
         .filter(DBForumPost.hidden == False) \
@@ -129,7 +129,7 @@ def fetch_initial_post_id(topic_id: int, session: Session = ...) -> DBForumPost 
     return result.id if result else None
 
 @session_wrapper
-def fetch_topic_id(post_id: int, session: Session = ...) -> int | None:
+def fetch_topic_id(post_id: int, session: Session = SessionProvider) -> int | None:
     result = session.query(DBForumPost.topic_id) \
         .filter(DBForumPost.hidden == False) \
         .filter(DBForumPost.id == post_id) \
@@ -138,7 +138,7 @@ def fetch_topic_id(post_id: int, session: Session = ...) -> int | None:
     return result.topic_id if result else None
 
 @session_wrapper
-def fetch_last(topic_id: int, session: Session = ...) -> DBForumPost | None:
+def fetch_last(topic_id: int, session: Session = SessionProvider) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .options(
             selectinload(DBForumPost.user)
@@ -154,7 +154,7 @@ def fetch_last(topic_id: int, session: Session = ...) -> DBForumPost | None:
 def fetch_last_by_user(
     topic_id: int,
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
@@ -166,7 +166,7 @@ def fetch_last_by_user(
 @session_wrapper
 def fetch_last_by_forum(
     forum_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .options(
@@ -180,7 +180,7 @@ def fetch_last_by_forum(
         .first()
 
 @session_wrapper
-def fetch_last_bat_post(topic_id: int, session: Session = ...) -> DBForumPost | None:
+def fetch_last_bat_post(topic_id: int, session: Session = SessionProvider) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .join(DBUser, DBForumPost.user_id == DBUser.id) \
         .join(DBGroupEntry, DBUser.id == DBGroupEntry.user_id) \
@@ -194,7 +194,7 @@ def fetch_last_bat_post(topic_id: int, session: Session = ...) -> DBForumPost | 
 def fetch_previous(
     post_id: int,
     topic_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBForumPost | None:
     return session.query(DBForumPost) \
         .filter(DBForumPost.id < post_id) \
@@ -204,7 +204,7 @@ def fetch_previous(
         .first()
 
 @session_wrapper
-def fetch_count(topic_id: int, session: Session = ...) -> int:
+def fetch_count(topic_id: int, session: Session = SessionProvider) -> int:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
         .filter(DBForumPost.hidden == False) \
@@ -213,7 +213,7 @@ def fetch_count(topic_id: int, session: Session = ...) -> int:
 @session_wrapper
 def fetch_statistics_by_topic_ids(
     topic_ids: Iterable[int],
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Dict[int, int]:
     if not topic_ids:
         return {}
@@ -238,7 +238,7 @@ def fetch_statistics_by_topic_ids(
 def fetch_count_before_post(
     post_id: int,
     topic_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     return session.query(DBForumPost) \
         .filter(DBForumPost.id < post_id) \
@@ -247,7 +247,7 @@ def fetch_count_before_post(
         .count()
 
 @session_wrapper
-def fetch_drafts(user_id: int, topic_id: int, session: Session = ...) -> List[DBForumPost]:
+def fetch_drafts(user_id: int, topic_id: int, session: Session = SessionProvider) -> List[DBForumPost]:
     return session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
         .filter(DBForumPost.user_id == user_id) \
@@ -258,7 +258,7 @@ def fetch_drafts(user_id: int, topic_id: int, session: Session = ...) -> List[DB
 @session_wrapper
 def fetch_last_for_topics(
     topic_ids: Iterable[int],
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Dict[int, DBForumPost]:
     if not topic_ids:
         return {}
@@ -290,7 +290,7 @@ def fetch_last_for_topics(
 @session_wrapper
 def fetch_last_for_forums(
     forum_ids: Iterable[int],
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Dict[int, DBForumPost]:
     if not forum_ids:
         return {}
@@ -335,7 +335,7 @@ def fetch_last_for_forums(
 def update_by_topic(
     topic_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBForumPost) \
         .filter(DBForumPost.topic_id == topic_id) \
@@ -347,7 +347,7 @@ def update_by_topic(
 def update(
     post_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBForumPost) \
         .filter(DBForumPost.id == post_id) \
@@ -356,7 +356,7 @@ def update(
     return rows
 
 @session_wrapper
-def delete(post_id: int, session: Session = ...) -> int:
+def delete(post_id: int, session: Session = SessionProvider) -> int:
     rows = session.query(DBForumPost) \
         .filter(DBForumPost.id == post_id) \
         .delete()

@@ -5,10 +5,10 @@ from sqlalchemy import func, or_
 from datetime import datetime
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
-def create(user_id: int, old_name: str, session: Session = ...) -> DBName:
+def create(user_id: int, old_name: str, session: Session = SessionProvider) -> DBName:
     session.add(
         name := DBName(
             user_id=user_id,
@@ -20,32 +20,32 @@ def create(user_id: int, old_name: str, session: Session = ...) -> DBName:
     return name
 
 @session_wrapper
-def fetch_one(id: int, session: Session = ...) -> DBName:
+def fetch_one(id: int, session: Session = SessionProvider) -> DBName:
     return session.query(DBName) \
         .filter(DBName.id == id) \
         .first()
 
 @session_wrapper
-def fetch_all(user_id: int, session: Session = ...) -> List[DBName]:
+def fetch_all(user_id: int, session: Session = SessionProvider) -> List[DBName]:
     return session.query(DBName) \
         .filter(DBName.user_id == user_id) \
         .all()
 
 @session_wrapper
-def fetch_all_reserved(user_id: int, session: Session = ...) -> List[DBName]:
+def fetch_all_reserved(user_id: int, session: Session = SessionProvider) -> List[DBName]:
     return session.query(DBName) \
         .filter(DBName.user_id == user_id) \
         .filter(DBName.reserved == True) \
         .all()
 
 @session_wrapper
-def fetch_by_name(name: str, session: Session = ...) -> DBName | None:
+def fetch_by_name(name: str, session: Session = SessionProvider) -> DBName | None:
     return session.query(DBName) \
         .filter(DBName.name == name) \
         .first()
 
 @session_wrapper
-def fetch_by_name_extended(name: str, session: Session = ...) -> DBName | None:
+def fetch_by_name_extended(name: str, session: Session = SessionProvider) -> DBName | None:
     return session.query(DBName) \
         .filter(or_(
             DBName.name.ilike(name),
@@ -55,14 +55,14 @@ def fetch_by_name_extended(name: str, session: Session = ...) -> DBName | None:
         .first()
 
 @session_wrapper
-def fetch_user_by_past_name(name: str, session: Session = ...) -> DBUser | None:
+def fetch_user_by_past_name(name: str, session: Session = SessionProvider) -> DBUser | None:
     return session.query(DBUser) \
         .join(DBName, DBUser.id == DBName.user_id) \
         .filter(DBName.name.ilike(name)) \
         .first()
 
 @session_wrapper
-def fetch_by_name_reserved(name: str, session: Session = ...) -> DBName | None:
+def fetch_by_name_reserved(name: str, session: Session = SessionProvider) -> DBName | None:
     return session.query(DBName) \
         .filter(DBName.name.ilike(name)) \
         .filter(DBName.reserved == True) \
@@ -73,7 +73,7 @@ def fetch_by_name_reserved(name: str, session: Session = ...) -> DBName | None:
 def update(
     id: int,
     data: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBName) \
         .filter(DBName.id == id) \
@@ -84,7 +84,7 @@ def update(
 @session_wrapper
 def delete(
     id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBName) \
         .filter(DBName.id == id) \

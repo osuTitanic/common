@@ -4,10 +4,10 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
-def fetch_one(id: int, session: Session = ...) -> DBReleaseChangelog | None:
+def fetch_one(id: int, session: Session = SessionProvider) -> DBReleaseChangelog | None:
     return session.query(DBReleaseChangelog) \
         .filter(DBReleaseChangelog.id == id) \
         .first()
@@ -17,7 +17,7 @@ def fetch_range_asc(
     start_date: datetime,
     limit: int = 100,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBReleaseChangelog]:
     return session.query(DBReleaseChangelog) \
         .filter(DBReleaseChangelog.created_at >= start_date) \
@@ -31,7 +31,7 @@ def fetch_range_desc(
     start_date: datetime,
     limit: int = 100,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBReleaseChangelog]:
     return session.query(DBReleaseChangelog) \
         .filter(DBReleaseChangelog.created_at <= start_date) \

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, func
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
@@ -15,7 +15,7 @@ def create(
     grade: str,
     client: str,
     hardware: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBenchmark:
     session.add(
         bench := DBBenchmark(
@@ -32,13 +32,13 @@ def create(
     return bench
 
 @session_wrapper
-def fetch_one(id: int, session: Session = ...) -> DBBenchmark | None:
+def fetch_one(id: int, session: Session = SessionProvider) -> DBBenchmark | None:
     return session.query(DBBenchmark) \
         .filter(DBBenchmark.id == id) \
         .first()
 
 @session_wrapper
-def fetch_all(session: Session = ...) -> List[DBBenchmark]:
+def fetch_all(session: Session = SessionProvider) -> List[DBBenchmark]:
     return session.query(DBBenchmark) \
         .all()
 
@@ -46,7 +46,7 @@ def fetch_all(session: Session = ...) -> List[DBBenchmark]:
 def fetch_range(
     offset: int,
     limit: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBenchmark]:
     return session.query(DBBenchmark) \
         .order_by(DBBenchmark.score.desc()) \
@@ -55,7 +55,7 @@ def fetch_range(
         .all()
 
 @session_wrapper
-def delete(benchmark_id: int, session: Session = ...) -> int:
+def delete(benchmark_id: int, session: Session = SessionProvider) -> int:
     rows = session.query(DBBenchmark) \
         .filter(DBBenchmark.id == benchmark_id) \
         .delete()
@@ -66,7 +66,7 @@ def delete(benchmark_id: int, session: Session = ...) -> int:
 def update(
     benchmark_id: int,
     update: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBBenchmark) \
         .filter(DBBenchmark.id == benchmark_id) \
@@ -78,7 +78,7 @@ def update(
 def fetch_leaderboard(
     limit: int = 50,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBenchmark]:
     # Create subquery to get max score per user
     subquery = session.query(

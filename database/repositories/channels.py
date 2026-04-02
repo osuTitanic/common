@@ -3,7 +3,7 @@ from app.common.database.objects import DBChannel, DBMessage
 from sqlalchemy.orm import Session
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
@@ -11,7 +11,7 @@ def create(
     topic: str,
     read_permissions: int,
     write_permissions: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBChannel:
     session.add(
         chan := DBChannel(
@@ -25,14 +25,14 @@ def create(
     return chan
 
 @session_wrapper
-def fetch_all(session: Session = ...) -> List[DBChannel]:
+def fetch_all(session: Session = SessionProvider) -> List[DBChannel]:
     return session.query(DBChannel) \
         .all()
 
 @session_wrapper
 def fetch_one(
     name: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBChannel:
     return session.query(DBChannel) \
         .filter(DBChannel.name == name) \
@@ -41,7 +41,7 @@ def fetch_one(
 @session_wrapper
 def fetch_by_permissions(
     read_permissions: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBChannel]:
     return session.query(DBChannel) \
         .filter(DBChannel.read_permissions < read_permissions) \
@@ -50,7 +50,7 @@ def fetch_by_permissions(
 @session_wrapper
 def fetch_channel_entries(
     username: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBChannel]:
     channel_names = session.query(DBMessage.target) \
         .filter(DBMessage.sender == username) \

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 import random
 import string
@@ -14,7 +14,7 @@ def create(
     user_id: int,
     type: int,
     token_size: int = 32,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBVerification:
     session.add(
         v := DBVerification(
@@ -32,19 +32,19 @@ def create(
     return v
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session = ...) -> DBVerification | None:
+def fetch_by_id(id: int, session: Session = SessionProvider) -> DBVerification | None:
     return session.query(DBVerification) \
         .filter(DBVerification.id == id) \
         .first()
 
 @session_wrapper
-def fetch_by_token(token: str, session: Session = ...) -> DBVerification | None:
+def fetch_by_token(token: str, session: Session = SessionProvider) -> DBVerification | None:
     return session.query(DBVerification) \
         .filter(DBVerification.token == token) \
         .first()
 
 @session_wrapper
-def fetch_all(user_id: int, session: Session = ...) -> List[DBVerification]:
+def fetch_all(user_id: int, session: Session = SessionProvider) -> List[DBVerification]:
     return session.query(DBVerification) \
         .filter(DBVerification.user_id == user_id) \
         .all()
@@ -53,7 +53,7 @@ def fetch_all(user_id: int, session: Session = ...) -> List[DBVerification]:
 def fetch_all_by_type(
     user_id: int,
     verification_type: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBVerification]:
     return session.query(DBVerification) \
         .filter(DBVerification.user_id == user_id) \
@@ -61,7 +61,7 @@ def fetch_all_by_type(
         .all()
 
 @session_wrapper
-def delete(token: str, session: Session = ...) -> int:
+def delete(token: str, session: Session = SessionProvider) -> int:
     rows = session.query(DBVerification) \
             .filter(DBVerification.token == token) \
             .delete()

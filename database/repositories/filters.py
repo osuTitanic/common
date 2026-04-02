@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
@@ -13,7 +13,7 @@ def create(
     replacement: str | None = None,
     block: bool = False,
     block_timeout_duration: int | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBChatFilter:
     session.add(
         f := DBChatFilter(
@@ -29,19 +29,19 @@ def create(
     return f
 
 @session_wrapper
-def fetch_by_name(name: str, session: Session = ...) -> DBChatFilter | None:
+def fetch_by_name(name: str, session: Session = SessionProvider) -> DBChatFilter | None:
     return session.query(DBChatFilter) \
         .filter(DBChatFilter.name == name) \
         .first()
 
 @session_wrapper
-def fetch_all(session: Session = ...) -> List[DBChatFilter]:
+def fetch_all(session: Session = SessionProvider) -> List[DBChatFilter]:
     return session.query(DBChatFilter) \
         .order_by(DBChatFilter.created_at.asc()) \
         .all()
 
 @session_wrapper
-def fetch_all_blocked(session: Session = ...) -> List[DBChatFilter]:
+def fetch_all_blocked(session: Session = SessionProvider) -> List[DBChatFilter]:
     return session.query(DBChatFilter) \
         .filter(DBChatFilter.block == True) \
         .all()

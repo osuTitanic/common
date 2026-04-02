@@ -15,7 +15,7 @@ import math
 @wrapper.session_wrapper
 def calculate_ppv1(
     score: DBScore,
-    session: Session = ...
+    session: Session = wrapper.SessionProvider
 ) -> float:
     """Calculate the performance points (v1) for a given score"""
     if score.relaxing:
@@ -106,7 +106,7 @@ def calculate_weighted_ppv1(scores: List[DBScore]) -> float:
 @wrapper.session_wrapper
 def recalculate_weighted_ppv1(
     scores: List[DBScore],
-    session: Session = ...
+    session: Session = wrapper.SessionProvider
 ) -> float:
     """Calculate weighted ppv1 with from a list of scores"""
     for score in scores:
@@ -123,7 +123,7 @@ def recalculate_weighted_ppv1(
     return calculate_weighted_ppv1(scores)
 
 @wrapper.session_wrapper
-def resolve_eyup_star_rating(beatmap: DBBeatmap, session: Session = ...) -> float:
+def resolve_eyup_star_rating(beatmap: DBBeatmap, session: Session = wrapper.SessionProvider) -> float:
     """Resolve and cache the old eyup star rating for a beatmap"""
     if beatmap.diff_eyup:
         return beatmap.diff_eyup

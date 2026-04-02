@@ -100,7 +100,7 @@ class Storage:
         return replay
 
     @wrapper.session_wrapper
-    def get_full_replay(self, id: int, session: Session = ...) -> bytes | None:
+    def get_full_replay(self, id: int, session: Session = wrapper.SessionProvider) -> bytes | None:
         score = scores.fetch_by_id(id, session=session)
 
         if not score:

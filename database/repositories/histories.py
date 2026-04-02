@@ -12,13 +12,13 @@ from sqlalchemy import or_, func
 from datetime import datetime
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def update_plays(
     user_id: int,
     mode: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     time = datetime.now()
 
@@ -60,7 +60,7 @@ def fetch_plays_history(
 def fetch_plays_history_all(
     user_id: int,
     mode: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBPlayHistory]:
     return session.query(DBPlayHistory) \
         .filter(DBPlayHistory.user_id == user_id) \
@@ -72,7 +72,7 @@ def fetch_plays_history_all(
 def update_replay_views(
     user_id: int,
     mode: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     time = datetime.now()
 
@@ -114,7 +114,7 @@ def fetch_replay_history(
 def fetch_replay_history_all(
     user_id: int,
     mode: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBReplayHistory]:
     return session.query(DBReplayHistory) \
         .filter(DBReplayHistory.user_id == user_id) \
@@ -126,7 +126,7 @@ def fetch_replay_history_all(
 def update_rank(
     stats: DBStats,
     country: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     country_rank = leaderboards.country_rank(stats.user_id, stats.mode, country)
     global_rank = leaderboards.global_rank(stats.user_id, stats.mode)
@@ -162,7 +162,7 @@ def fetch_rank_history(
     user_id: int,
     mode: int,
     until: datetime,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBRankHistory]:
     return session.query(DBRankHistory) \
         .filter(DBRankHistory.user_id == user_id) \
@@ -175,7 +175,7 @@ def fetch_rank_history(
 def fetch_peak_global_rank(
     user_id: int,
     mode: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     return session.query(func.min(DBRankHistory.global_rank)) \
         .filter(DBRankHistory.user_id == user_id) \

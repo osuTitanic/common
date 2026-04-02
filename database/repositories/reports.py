@@ -4,14 +4,14 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
     target_id: int,
     sender_id: int,
     reason: str | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBReport:
     session.add(
         r := DBReport(
@@ -26,13 +26,13 @@ def create(
     return r
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session = ...) -> DBReport | None:
+def fetch_by_id(id: int, session: Session = SessionProvider) -> DBReport | None:
     return session.query(DBReport) \
         .filter(DBReport.id == id) \
         .first()
 
 @session_wrapper
-def fetch_last_by_sender(sender_id: int, session: Session = ...) -> DBReport | None:
+def fetch_last_by_sender(sender_id: int, session: Session = SessionProvider) -> DBReport | None:
     return session.query(DBReport) \
         .filter(DBReport.sender_id == sender_id) \
         .filter(DBReport.resolved == False) \
@@ -40,7 +40,7 @@ def fetch_last_by_sender(sender_id: int, session: Session = ...) -> DBReport | N
         .first()
 
 @session_wrapper
-def fetch_last(target_id: int, session: Session = ...) -> DBReport | None:
+def fetch_last(target_id: int, session: Session = SessionProvider) -> DBReport | None:
     return session.query(DBReport) \
         .filter(DBReport.target_id == target_id) \
         .filter(DBReport.resolved == False) \
@@ -48,7 +48,7 @@ def fetch_last(target_id: int, session: Session = ...) -> DBReport | None:
         .first()
 
 @session_wrapper
-def fetch_all_by_sender(sender_id: int, session: Session = ...) -> List[DBReport]:
+def fetch_all_by_sender(sender_id: int, session: Session = SessionProvider) -> List[DBReport]:
     return session.query(DBReport) \
         .filter(DBReport.sender_id == sender_id) \
         .filter(DBReport.resolved == False) \
@@ -56,7 +56,7 @@ def fetch_all_by_sender(sender_id: int, session: Session = ...) -> List[DBReport
         .all()
 
 @session_wrapper
-def fetch_all(target_id: int, session: Session = ...) -> List[DBReport]:
+def fetch_all(target_id: int, session: Session = SessionProvider) -> List[DBReport]:
     return session.query(DBReport) \
         .filter(DBReport.target_id == target_id) \
         .filter(DBReport.resolved == False) \
@@ -67,7 +67,7 @@ def fetch_all(target_id: int, session: Session = ...) -> List[DBReport]:
 def fetch_by_sender_to_target(
     sender_id: int,
     target_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBReport | None:
     return session.query(DBReport) \
         .filter(DBReport.target_id == target_id) \
@@ -80,7 +80,7 @@ def fetch_by_sender_to_target(
 def update(
     id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBReport) \
         .filter(DBReport.id == id) \

@@ -2,13 +2,13 @@
 from app.common.database.objects import DBBeatmapNomination, DBBeatmapset
 from sqlalchemy.orm import Session, selectinload
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
     beatmapset_id: int,
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapNomination:
     session.add(
         nomination := DBBeatmapNomination(
@@ -24,7 +24,7 @@ def create(
 def delete(
     beatmapset_id: int,
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     session.query(DBBeatmapNomination) \
         .filter(DBBeatmapNomination.user_id == user_id) \
@@ -35,7 +35,7 @@ def delete(
 @session_wrapper
 def delete_all(
     beatmapset_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     session.query(DBBeatmapNomination) \
         .filter(DBBeatmapNomination.set_id == beatmapset_id) \
@@ -45,7 +45,7 @@ def delete_all(
 @session_wrapper
 def count(
     beatmapset_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     return session.query(DBBeatmapNomination) \
         .filter(DBBeatmapNomination.set_id == beatmapset_id) \
@@ -55,7 +55,7 @@ def count(
 def fetch_one(
     beatmapset_id: int,
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapNomination | None:
     return session.query(DBBeatmapNomination) \
         .filter(DBBeatmapNomination.user_id == user_id) \
@@ -65,7 +65,7 @@ def fetch_one(
 @session_wrapper
 def fetch_by_beatmapset(
     beatmapset_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> list[DBBeatmapNomination]:
     return session.query(DBBeatmapNomination) \
         .filter(DBBeatmapNomination.set_id == beatmapset_id) \
@@ -74,7 +74,7 @@ def fetch_by_beatmapset(
 @session_wrapper
 def fetch_by_user(
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> list[DBBeatmapNomination]:
     return session.query(DBBeatmapNomination) \
         .options(selectinload(DBBeatmapNomination.beatmapset)) \
@@ -86,7 +86,7 @@ def fetch_by_user(
 def fetch_by_user_and_server(
     user_id: int,
     server: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> list[DBBeatmapNomination]:
     return session.query(DBBeatmapNomination) \
         .join(DBBeatmapNomination.beatmapset) \

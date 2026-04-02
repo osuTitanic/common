@@ -6,7 +6,7 @@ from typing import List, Iterable
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
@@ -15,7 +15,7 @@ def create(
     type: UserActivity,
     data: dict,
     hidden: bool = False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBActivity:
     session.add(
         ac := DBActivity(
@@ -36,7 +36,7 @@ def fetch_recent(
     mode: int,
     until: timedelta = timedelta(days=30),
     excluded_types: Iterable[UserActivity] = (),
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBActivity]:
     query = session.query(DBActivity) \
         .filter(or_(DBActivity.mode == mode, DBActivity.mode == None)) \
@@ -52,7 +52,7 @@ def fetch_recent(
     return query.all()
 
 @session_wrapper
-def fetch_last(user_id: int, session: Session = ...) -> DBActivity | None:
+def fetch_last(user_id: int, session: Session = SessionProvider) -> DBActivity | None:
     return session.query(DBActivity) \
         .filter(DBActivity.user_id == user_id) \
         .order_by(DBActivity.id.desc()) \

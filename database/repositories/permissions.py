@@ -3,14 +3,14 @@ from app.common.database.objects import DBUserPermission, DBGroupPermission
 from sqlalchemy.orm import Session
 from typing import List, Tuple
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create_user_permission(
     user_id: int,
     permission: str,
     rejected: bool = False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBUserPermission:
     session.add(
         user_permission := DBUserPermission(
@@ -28,7 +28,7 @@ def create_group_permission(
     group_id: int,
     permission: str,
     rejected: bool = False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBGroupPermission:
     session.add(
         group_permission := DBGroupPermission(
@@ -46,7 +46,7 @@ def create_many_for_user(
     user_id: int,
     permissions: List[str],
     rejected: bool = False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBUserPermission]:
     user_permissions = [
         DBUserPermission(
@@ -66,7 +66,7 @@ def create_many_for_group(
     group_id: int,
     permissions: List[str],
     rejected: bool = False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBGroupPermission]:
     group_permissions = [
         DBGroupPermission(
@@ -84,7 +84,7 @@ def create_many_for_group(
 @session_wrapper
 def fetch_user_permissions(
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Tuple[List[str], List[str]]:
     granted = session.query(DBUserPermission.permission) \
         .filter(DBUserPermission.user_id == user_id) \
@@ -104,7 +104,7 @@ def fetch_user_permissions(
 @session_wrapper
 def fetch_group_permissions(
     group_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Tuple[List[str], List[str]]:
     granted = session.query(DBGroupPermission.permission) \
         .filter(DBGroupPermission.group_id == group_id) \
@@ -125,7 +125,7 @@ def fetch_group_permissions(
 def delete_user_permission(
     user_id: int,
     permission: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     session.query(DBUserPermission) \
         .filter(DBUserPermission.user_id == user_id) \
@@ -137,7 +137,7 @@ def delete_user_permission(
 def delete_group_permission(
     group_id: int,
     permission: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     session.query(DBGroupPermission) \
         .filter(DBGroupPermission.group_id == group_id) \
@@ -149,7 +149,7 @@ def delete_group_permission(
 def delete_many_for_user(
     user_id: int,
     permissions: List[str],
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     session.query(DBUserPermission) \
         .filter(DBUserPermission.user_id == user_id) \
@@ -161,7 +161,7 @@ def delete_many_for_user(
 def delete_many_for_group(
     group_id: int,
     permissions: List[str],
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     session.query(DBGroupPermission) \
         .filter(DBGroupPermission.group_id == group_id) \

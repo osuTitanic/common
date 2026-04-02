@@ -3,14 +3,14 @@ from app.common.database.objects import DBLog
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
     message: str,
     level: str,
     type: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBLog:
     session.add(
         log := DBLog(

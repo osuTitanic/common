@@ -5,7 +5,7 @@ from typing import List, Dict, Tuple
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
@@ -14,7 +14,7 @@ def create(
     downloads: list,
     hashes: dict,
     screenshots: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBRelease:
     session.add(
         release := DBRelease(
@@ -32,7 +32,7 @@ def create_official(
     subversion: int,
     created_at: datetime,
     stream: str = "stable",
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBReleasesOfficial:
     session.add(
         release := DBReleasesOfficial(
@@ -55,7 +55,7 @@ def create_official_file(
     url_patch: str | None = None,
     patch_id: str | None = None,
     timestamp: datetime | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBReleaseFiles:
     session.add(
         file := DBReleaseFiles(
@@ -76,7 +76,7 @@ def create_official_file(
 def create_official_file_entry(
     release_id: int,
     file_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBReleasesOfficialEntries:
     session.add(
         entry := DBReleasesOfficialEntries(
@@ -96,7 +96,7 @@ def create_modded_entry(
     download_url: str | None = None,
     update_url: str | None = None,
     post_id: int | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBModdedRelease:
     session.add(
         entry := DBModdedReleaseEntries(
@@ -113,44 +113,44 @@ def create_modded_entry(
     return entry
 
 @session_wrapper
-def fetch_by_version(version: int, session: Session = ...) -> DBRelease | None:
+def fetch_by_version(version: int, session: Session = SessionProvider) -> DBRelease | None:
     return session.query(DBRelease) \
         .filter(DBRelease.version == version) \
         .first()
 
 @session_wrapper
-def fetch_all(session: Session = ...) -> List[DBRelease]:
+def fetch_all(session: Session = SessionProvider) -> List[DBRelease]:
     return session.query(DBRelease) \
         .order_by(DBRelease.version.desc()) \
         .all()
 
 @session_wrapper
-def fetch_hashes(version: int, session: Session = ...) -> List[dict]:
+def fetch_hashes(version: int, session: Session = SessionProvider) -> List[dict]:
     return session.query(DBRelease.hashes) \
         .filter(DBRelease.version == version) \
         .all()
 
 @session_wrapper
-def fetch_modded(identifier: str, session: Session = ...) -> DBModdedRelease | None:
+def fetch_modded(identifier: str, session: Session = SessionProvider) -> DBModdedRelease | None:
     return session.query(DBModdedRelease) \
         .filter(DBModdedRelease.client_extension == identifier) \
         .first()
 
 @session_wrapper
-def fetch_modded_all(session: Session = ...) -> List[DBModdedRelease]:
+def fetch_modded_all(session: Session = SessionProvider) -> List[DBModdedRelease]:
     return session.query(DBModdedRelease) \
         .order_by(DBModdedRelease.created_at.desc()) \
         .all()
 
 @session_wrapper
-def fetch_modded_entry_by_id(mod_name: str, entry_id: int, session: Session = ...) -> DBModdedReleaseEntries | None:
+def fetch_modded_entry_by_id(mod_name: str, entry_id: int, session: Session = SessionProvider) -> DBModdedReleaseEntries | None:
     return session.query(DBModdedReleaseEntries) \
         .filter(DBModdedReleaseEntries.mod_name == mod_name) \
         .filter(DBModdedReleaseEntries.id == entry_id) \
         .first()
 
 @session_wrapper
-def fetch_modded_entry_by_checksum(mod_name: str, checksum: str, session: Session = ...) -> DBModdedReleaseEntries | None:
+def fetch_modded_entry_by_checksum(mod_name: str, checksum: str, session: Session = SessionProvider) -> DBModdedReleaseEntries | None:
     return session.query(DBModdedReleaseEntries) \
         .filter(DBModdedReleaseEntries.mod_name == mod_name) \
         .filter(DBModdedReleaseEntries.checksum == checksum) \
@@ -161,7 +161,7 @@ def fetch_modded_entries(
     mod_name: str,
     limit: int = 50,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBModdedReleaseEntries]:
     return session.query(DBModdedReleaseEntries) \
         .filter(DBModdedReleaseEntries.mod_name == mod_name) \
@@ -171,7 +171,7 @@ def fetch_modded_entries(
         .all()
 
 @session_wrapper
-def modded_entry_exists(mod_name: str, checksum: str, session: Session = ...) -> bool:
+def modded_entry_exists(mod_name: str, checksum: str, session: Session = SessionProvider) -> bool:
     return session.query(DBModdedReleaseEntries.id) \
         .filter(DBModdedReleaseEntries.mod_name == mod_name) \
         .filter(DBModdedReleaseEntries.checksum == checksum) \
@@ -181,7 +181,7 @@ def modded_entry_exists(mod_name: str, checksum: str, session: Session = ...) ->
 def update_modded_entry(
     entry_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBModdedReleaseEntries) \
         .filter(DBModdedReleaseEntries.id == entry_id) \
@@ -190,7 +190,7 @@ def update_modded_entry(
     return rows
 
 @session_wrapper
-def delete_modded_entry(entry_id: int, session: Session = ...) -> int:
+def delete_modded_entry(entry_id: int, session: Session = SessionProvider) -> int:
     rows = session.query(DBModdedReleaseEntries) \
         .filter(DBModdedReleaseEntries.id == entry_id) \
         .delete(synchronize_session=False)
@@ -198,19 +198,19 @@ def delete_modded_entry(entry_id: int, session: Session = ...) -> int:
     return rows
 
 @session_wrapper
-def fetch_extras(session: Session = ...) -> List[DBExtraRelease]:
+def fetch_extras(session: Session = SessionProvider) -> List[DBExtraRelease]:
     return session.query(DBExtraRelease) \
         .order_by(DBExtraRelease.name.asc()) \
         .all()
 
 @session_wrapper
-def fetch_official_by_id(release_id: int, session: Session = ...) -> DBReleasesOfficial | None:
+def fetch_official_by_id(release_id: int, session: Session = SessionProvider) -> DBReleasesOfficial | None:
     return session.query(DBReleasesOfficial) \
         .filter(DBReleasesOfficial.id == release_id) \
         .first()
 
 @session_wrapper
-def fetch_official_by_version(version: int, session: Session = ...) -> DBReleasesOfficial | None:
+def fetch_official_by_version(version: int, session: Session = SessionProvider) -> DBReleasesOfficial | None:
     return session.query(DBReleasesOfficial) \
         .filter(DBReleasesOfficial.version == version) \
         .order_by(DBReleasesOfficial.subversion.desc()) \
@@ -221,7 +221,7 @@ def fetch_official_range(
     limit: int = 50,
     offset: int = 0,
     stream: str | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBReleasesOfficial]:
     query = session.query(DBReleasesOfficial)
 
@@ -234,38 +234,38 @@ def fetch_official_range(
                 .all()
 
 @session_wrapper
-def fetch_official_file_by_id(file_id: int, session: Session = ...) -> DBReleaseFiles | None:
+def fetch_official_file_by_id(file_id: int, session: Session = SessionProvider) -> DBReleaseFiles | None:
     return session.query(DBReleaseFiles) \
         .filter(DBReleaseFiles.id == file_id) \
         .first()
 
 @session_wrapper
-def fetch_official_file_by_version(file_version: int, session: Session = ...) -> DBReleaseFiles | None:
+def fetch_official_file_by_version(file_version: int, session: Session = SessionProvider) -> DBReleaseFiles | None:
     return session.query(DBReleaseFiles) \
         .filter(DBReleaseFiles.file_version == file_version) \
         .first()
 
 @session_wrapper
-def fetch_official_file_by_name(filename: str, session: Session = ...) -> DBReleaseFiles | None:
+def fetch_official_file_by_name(filename: str, session: Session = SessionProvider) -> DBReleaseFiles | None:
     return session.query(DBReleaseFiles) \
         .filter(DBReleaseFiles.filename == filename.strip()) \
         .order_by(DBReleaseFiles.id.desc()) \
         .first()
 
 @session_wrapper
-def fetch_official_file_by_checksum(checksum: str, session: Session = ...) -> DBReleaseFiles | None:
+def fetch_official_file_by_checksum(checksum: str, session: Session = SessionProvider) -> DBReleaseFiles | None:
     return session.query(DBReleaseFiles) \
         .filter(DBReleaseFiles.file_hash == checksum) \
         .first()
 
 @session_wrapper
-def fetch_official_file_by_patch(patch_filename: str, session: Session = ...) -> DBReleaseFiles | None:
+def fetch_official_file_by_patch(patch_filename: str, session: Session = SessionProvider) -> DBReleaseFiles | None:
     return session.query(DBReleaseFiles) \
         .filter(DBReleaseFiles.url_patch.like(f'%{patch_filename}')) \
         .first()
 
 @session_wrapper
-def fetch_file_entries(release_id: int, session: Session = ...) -> List[DBReleaseFiles]:
+def fetch_file_entries(release_id: int, session: Session = SessionProvider) -> List[DBReleaseFiles]:
     return session.query(DBReleaseFiles) \
         .join(DBReleasesOfficialEntries, DBReleasesOfficialEntries.file_id == DBReleaseFiles.id) \
         .filter(DBReleasesOfficialEntries.release_id == release_id) \
@@ -275,7 +275,7 @@ def fetch_file_entries(release_id: int, session: Session = ...) -> List[DBReleas
 def fetch_heatmap(
     from_year: int | None = None,
     to_year: int | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Dict[Tuple[int, int, int], int]:
     year_part = extract('year', DBReleasesOfficial.created_at)
     month_part = extract('month', DBReleasesOfficial.created_at)
@@ -312,19 +312,19 @@ def fetch_heatmap(
     return heatmap
 
 @session_wrapper
-def fetch_file_id_from_version(version: int, session: Session = ...) -> int | None:
+def fetch_file_id_from_version(version: int, session: Session = SessionProvider) -> int | None:
     return session.query(DBReleaseFiles.id) \
         .filter(DBReleaseFiles.file_version == version) \
         .scalar() or None
 
 @session_wrapper
-def official_file_exists(checksum: str, session: Session = ...) -> bool:
+def official_file_exists(checksum: str, session: Session = SessionProvider) -> bool:
     return session.query(DBReleaseFiles.id) \
         .filter(DBReleaseFiles.file_hash == checksum) \
         .count() > 0
 
 @session_wrapper
-def delete_official(release_id: int, session: Session = ...) -> int:
+def delete_official(release_id: int, session: Session = SessionProvider) -> int:
     rows = session.query(DBReleasesOfficial) \
         .filter(DBReleasesOfficial.id == release_id) \
         .delete(synchronize_session=False)

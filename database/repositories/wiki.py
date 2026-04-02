@@ -1,5 +1,5 @@
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 from app.common.database.objects import DBWikiPage, DBWikiContent, DBWikiOutlink, DBWikiCategory
 from sqlalchemy.orm import Session
@@ -16,7 +16,7 @@ def create_page(
     path: str,
     content: str,
     language: str = 'en',
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Tuple[DBWikiPage, DBWikiContent]:
     session.add(page := DBWikiPage(name=name, path=path))
     session.flush()
@@ -36,7 +36,7 @@ def create_content_entry(
     title: str,
     content: str,
     language: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBWikiContent:
     session.add(
         content := DBWikiContent(
@@ -54,7 +54,7 @@ def create_content_entry(
 def create_outlink(
     page_id: int,
     target_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBWikiOutlink:
     session.add(
         outlink := DBWikiOutlink(
@@ -69,7 +69,7 @@ def create_outlink(
 @session_wrapper
 def fetch_page_by_id(
     page_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBWikiPage:
     return session.query(DBWikiPage) \
         .filter(DBWikiPage.id == page_id) \
@@ -78,7 +78,7 @@ def fetch_page_by_id(
 @session_wrapper
 def fetch_page_by_name(
     name: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBWikiPage:
     return session.query(DBWikiPage) \
         .filter(DBWikiPage.name.ilike(name)) \
@@ -87,7 +87,7 @@ def fetch_page_by_name(
 @session_wrapper
 def fetch_page_by_path(
     path: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBWikiPage:
     return session.query(DBWikiPage) \
         .filter(DBWikiPage.path.ilike(path)) \
@@ -97,7 +97,7 @@ def fetch_page_by_path(
 def fetch_content(
     page_id: int,
     language: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBWikiContent:
     return session.query(DBWikiContent) \
         .filter(DBWikiContent.page_id == page_id) \
@@ -108,7 +108,7 @@ def fetch_content(
 def fetch_translated_page_title(
     page_id: int,
     language: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> str | None:
     return session.query(DBWikiContent.title) \
         .filter(DBWikiContent.page_id == page_id) \
@@ -116,13 +116,13 @@ def fetch_translated_page_title(
         .scalar()
 
 @session_wrapper
-def fetch_languages(session: Session = ...) -> List[str]:
+def fetch_languages(session: Session = SessionProvider) -> List[str]:
     return session.query(DBWikiContent.language) \
         .distinct() \
         .all()
 
 @session_wrapper
-def fetch_page_count(session: Session = ...) -> int:
+def fetch_page_count(session: Session = SessionProvider) -> int:
     return session.query(DBWikiPage).count()
 
 @session_wrapper
@@ -130,7 +130,7 @@ def search(
     query: str,
     limit: int = 50,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBWikiContent]:
     sanitized_query = re.sub(
         r'[^\w\s]', '',
@@ -167,7 +167,7 @@ def update_content(
     language: str,
     content: str,
     title: str | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBWikiContent) \
         .filter(DBWikiContent.page_id == page_id) \
@@ -183,7 +183,7 @@ def update_content(
 @session_wrapper
 def delete_page(
     page_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     # Try to delete all related content and outlinks first
     with suppress(Exception):
@@ -199,7 +199,7 @@ def delete_page(
 @session_wrapper
 def delete_content(
     page_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBWikiContent) \
         .filter(DBWikiContent.page_id == page_id) \
@@ -210,7 +210,7 @@ def delete_content(
 @session_wrapper
 def delete_outlinks(
     page_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBWikiOutlink) \
         .filter(DBWikiOutlink.page_id == page_id) \
@@ -219,7 +219,7 @@ def delete_outlinks(
     return rows
 
 @session_wrapper
-def fetch_main_categories(session: Session = ...) -> List[DBWikiCategory]:
+def fetch_main_categories(session: Session = SessionProvider) -> List[DBWikiCategory]:
     return session.query(DBWikiCategory) \
         .filter(DBWikiCategory.parent_id == None) \
         .order_by(DBWikiCategory.id.asc()) \
@@ -228,7 +228,7 @@ def fetch_main_categories(session: Session = ...) -> List[DBWikiCategory]:
 @session_wrapper
 def fetch_subcategories(
     parent_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBWikiCategory]:
     return session.query(DBWikiCategory) \
         .filter(DBWikiCategory.parent_id == parent_id) \

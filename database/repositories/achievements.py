@@ -1,6 +1,6 @@
 
 from app.common.database.objects import DBAchievement
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 from sqlalchemy.orm import Session
 from typing import List
@@ -9,7 +9,7 @@ from typing import List
 def create_many(
     achievements: list,
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     for a in achievements:
         session.add(
@@ -23,7 +23,7 @@ def create_many(
     session.flush()
 
 @session_wrapper
-def fetch_many(user_id: int, session: Session = ...) -> List[DBAchievement]:
+def fetch_many(user_id: int, session: Session = SessionProvider) -> List[DBAchievement]:
     return session.query(DBAchievement) \
         .filter(DBAchievement.user_id == user_id) \
         .all()

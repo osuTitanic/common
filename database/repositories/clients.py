@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
@@ -16,7 +16,7 @@ def create(
     unique_id: str,
     disk_signature: str,
     banned: bool = False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBClient:
     session.add(
         client := DBClient(
@@ -35,7 +35,7 @@ def create(
 def update_all(
     user_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBClient) \
         .filter(DBClient.user_id == user_id) \
@@ -50,7 +50,7 @@ def fetch_one(
     adapters: str,
     unique_id: str,
     disk_signature: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBClient | None:
     """Fetch one client where all hardware attributes need to match"""
     return session.query(DBClient) \
@@ -67,7 +67,7 @@ def fetch_without_executable(
     adapters: str,
     unique_id: str,
     disk_signature: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBClient | None:
     """Fetch one client with matching hardware and user id"""
     return session.query(DBClient) \
@@ -82,7 +82,7 @@ def fetch_hardware_only(
     adapters: str,
     unique_id: str,
     disk_signature: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBClient]:
     """Fetch clients only by hardware attributes. Used for multi-account detection."""
     return session.query(DBClient) \
@@ -115,7 +115,7 @@ def fetch_many(
     user_id: int,
     limit: int = 50,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBClient]:
     """Fetch every client from user id"""
     return session.query(DBClient) \
@@ -125,7 +125,7 @@ def fetch_many(
         .all()
 
 @session_wrapper
-def fetch_all(user_id: int, session: Session = ...) -> List[DBClient]:
+def fetch_all(user_id: int, session: Session = SessionProvider) -> List[DBClient]:
     """Fetch every client from user id"""
     return session.query(DBClient) \
         .filter(DBClient.user_id == user_id) \
@@ -133,7 +133,7 @@ def fetch_all(user_id: int, session: Session = ...) -> List[DBClient]:
 
 @session_wrapper
 @ttl_cache(ttl=600)
-def fetch_verified(type: int, session: Session = ...) -> List[str]:
+def fetch_verified(type: int, session: Session = SessionProvider) -> List[str]:
     """Fetch all hardware ids, that can bypass multiaccounting checks"""
     return [
         hash_tuple[0] for hash_tuple in
@@ -146,6 +146,6 @@ def fetch_verified(type: int, session: Session = ...) -> List[str]:
 def is_verified(
     checksum: str,
     type: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> bool:
     return checksum in fetch_verified(type, session)

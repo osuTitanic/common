@@ -1,5 +1,5 @@
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 from app.common.database.objects import (
     DBBeatmapCollaborationBlacklist,
     DBBeatmapCollaborationRequest,
@@ -18,7 +18,7 @@ def create(
     user_id: int,
     is_beatmap_author: bool = False,
     allow_resource_updates: bool = False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapCollaboration:
     entry = DBBeatmapCollaboration(
         user_id=user_id,
@@ -36,7 +36,7 @@ def create_request(
     user_id: int,
     target_id: int,
     beatmap_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapCollaborationRequest:
     entry = DBBeatmapCollaborationRequest(
         user_id=user_id,
@@ -53,7 +53,7 @@ def create_request(
 def create_blacklist(
     user_id: int,
     target_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapCollaborationBlacklist:
     entry = DBBeatmapCollaborationBlacklist(
         user_id=user_id,
@@ -68,7 +68,7 @@ def create_blacklist(
 def fetch_one(
     beatmap_id: int,
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBeatmapCollaboration | None:
     return session.query(DBBeatmapCollaboration) \
         .filter(DBBeatmapCollaboration.beatmap_id == beatmap_id) \
@@ -76,20 +76,20 @@ def fetch_one(
         .first()
 
 @session_wrapper
-def fetch_by_beatmap(beatmap_id: int, session: Session = ...) -> List[DBBeatmapCollaboration]:
+def fetch_by_beatmap(beatmap_id: int, session: Session = SessionProvider) -> List[DBBeatmapCollaboration]:
     return session.query(DBBeatmapCollaboration) \
         .filter(DBBeatmapCollaboration.beatmap_id == beatmap_id) \
         .all()
 
 @session_wrapper
-def fetch_by_user(user_id: int, session: Session = ...) -> List[DBBeatmapCollaboration]:
+def fetch_by_user(user_id: int, session: Session = SessionProvider) -> List[DBBeatmapCollaboration]:
     return session.query(DBBeatmapCollaboration) \
         .filter(DBBeatmapCollaboration.user_id == user_id) \
         .order_by(DBBeatmapCollaboration.created_at.desc()) \
         .all()
 
 @session_wrapper
-def fetch_beatmaps_by_user(user_id: int, session: Session = ...) -> List[DBBeatmap]:
+def fetch_beatmaps_by_user(user_id: int, session: Session = SessionProvider) -> List[DBBeatmap]:
     return session.query(DBBeatmap) \
         .join(DBBeatmapCollaboration, DBBeatmap.id == DBBeatmapCollaboration.beatmap_id) \
         .filter(DBBeatmapCollaboration.user_id == user_id) \
@@ -97,46 +97,46 @@ def fetch_beatmaps_by_user(user_id: int, session: Session = ...) -> List[DBBeatm
         .all()
 
 @session_wrapper
-def fetch_by_beatmaps(beatmap_ids: List[int], session: Session = ...) -> List[DBBeatmapCollaboration]:
+def fetch_by_beatmaps(beatmap_ids: List[int], session: Session = SessionProvider) -> List[DBBeatmapCollaboration]:
     return session.query(DBBeatmapCollaboration) \
         .filter(DBBeatmapCollaboration.beatmap_id.in_(beatmap_ids)) \
         .all()
 
 @session_wrapper
-def fetch_usernames(beatmap_id: int, session: Session = ...) -> List[str]:
+def fetch_usernames(beatmap_id: int, session: Session = SessionProvider) -> List[str]:
     return session.query(DBUser.name) \
         .join(DBBeatmapCollaboration, DBUser.id == DBBeatmapCollaboration.user_id) \
         .filter(DBBeatmapCollaboration.beatmap_id == beatmap_id) \
         .all()
 
 @session_wrapper
-def fetch_request(id: int, session: Session = ...) -> DBBeatmapCollaborationRequest | None:
+def fetch_request(id: int, session: Session = SessionProvider) -> DBBeatmapCollaborationRequest | None:
     return session.query(DBBeatmapCollaborationRequest) \
         .filter(DBBeatmapCollaborationRequest.id == id) \
         .first()
 
 @session_wrapper
-def fetch_requests_outgoing(beatmap_id: int, session: Session = ...) -> List[DBBeatmapCollaborationRequest]:
+def fetch_requests_outgoing(beatmap_id: int, session: Session = SessionProvider) -> List[DBBeatmapCollaborationRequest]:
     return session.query(DBBeatmapCollaborationRequest) \
         .filter(DBBeatmapCollaborationRequest.beatmap_id == beatmap_id) \
         .order_by(DBBeatmapCollaborationRequest.created_at.desc()) \
         .all()
 
 @session_wrapper
-def fetch_requests_incoming(user_id: int, session: Session = ...) -> List[DBBeatmapCollaborationRequest]:
+def fetch_requests_incoming(user_id: int, session: Session = SessionProvider) -> List[DBBeatmapCollaborationRequest]:
     return session.query(DBBeatmapCollaborationRequest) \
         .filter(DBBeatmapCollaborationRequest.target_id == user_id) \
         .order_by(DBBeatmapCollaborationRequest.created_at.desc()) \
         .all()
 
 @session_wrapper
-def fetch_request_count(beatmap_id: int, session: Session = ...) -> int:
+def fetch_request_count(beatmap_id: int, session: Session = SessionProvider) -> int:
     return session.query(DBBeatmapCollaborationRequest) \
         .filter(DBBeatmapCollaborationRequest.beatmap_id == beatmap_id) \
         .count()
 
 @session_wrapper
-def fetch_blacklist(user_id: int, session: Session = ...) -> List[DBBeatmapCollaborationBlacklist]:
+def fetch_blacklist(user_id: int, session: Session = SessionProvider) -> List[DBBeatmapCollaborationBlacklist]:
     return session.query(DBBeatmapCollaborationBlacklist) \
         .filter(DBBeatmapCollaborationBlacklist.user_id == user_id) \
         .order_by(DBBeatmapCollaborationBlacklist.created_at.desc()) \
@@ -146,7 +146,7 @@ def fetch_blacklist(user_id: int, session: Session = ...) -> List[DBBeatmapColla
 def exists(
     beatmap_id: int,
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> bool:
     return session.query(DBBeatmapCollaboration) \
         .filter(DBBeatmapCollaboration.beatmap_id == beatmap_id) \
@@ -158,7 +158,7 @@ def update(
     beatmap_id: int,
     user_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows_updated = session.query(DBBeatmapCollaboration) \
         .filter(DBBeatmapCollaboration.beatmap_id == beatmap_id) \
@@ -171,7 +171,7 @@ def update(
 def is_blacklisted(
     user_id: int,
     target_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> bool:
     return session.query(DBBeatmapCollaborationBlacklist) \
         .filter(DBBeatmapCollaborationBlacklist.user_id == user_id) \
@@ -182,7 +182,7 @@ def is_blacklisted(
 def delete(
     beatmap_id: int,
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> bool:
     deleted_rows = session.query(DBBeatmapCollaboration) \
         .filter(DBBeatmapCollaboration.beatmap_id == beatmap_id) \
@@ -194,7 +194,7 @@ def delete(
 @session_wrapper
 def delete_by_beatmap(
     beatmap_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     session.query(DBBeatmapCollaboration) \
         .filter(DBBeatmapCollaboration.beatmap_id == beatmap_id) \
@@ -202,7 +202,7 @@ def delete_by_beatmap(
     session.flush()
 
 @session_wrapper
-def delete_request(id: int, session: Session = ...) -> bool:
+def delete_request(id: int, session: Session = SessionProvider) -> bool:
     deleted_rows = session.query(DBBeatmapCollaborationRequest) \
         .filter(DBBeatmapCollaborationRequest.id == id) \
         .delete(synchronize_session=False)
@@ -212,7 +212,7 @@ def delete_request(id: int, session: Session = ...) -> bool:
 @session_wrapper
 def delete_requests_by_beatmap(
     beatmap_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     session.query(DBBeatmapCollaborationRequest) \
         .filter(DBBeatmapCollaborationRequest.beatmap_id == beatmap_id) \
@@ -223,7 +223,7 @@ def delete_requests_by_beatmap(
 def delete_blacklist(
     user_id: int,
     target_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> bool:
     deleted_rows = session.query(DBBeatmapCollaborationBlacklist) \
         .filter(DBBeatmapCollaborationBlacklist.user_id == user_id) \

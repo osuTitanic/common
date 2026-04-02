@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
@@ -12,7 +12,7 @@ def create(
     description: str,
     icon_url: str,
     badge_url: str | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBadge:
     session.add(
         badge := DBBadge(
@@ -30,7 +30,7 @@ def create(
 @session_wrapper
 def fetch_one(
     id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBBadge | None:
     return session.query(DBBadge) \
         .filter(DBBadge.id == id) \
@@ -39,7 +39,7 @@ def fetch_one(
 @session_wrapper
 def fetch_all(
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBBadge]:
     return session.query(DBBadge) \
         .filter(DBBadge.user_id == user_id) \
@@ -50,7 +50,7 @@ def fetch_all(
 def update(
     id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBBadge) \
         .filter(DBBadge.id == id) \
@@ -61,7 +61,7 @@ def update(
 @session_wrapper
 def delete(
     id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBBadge) \
         .filter(DBBadge.id == id) \

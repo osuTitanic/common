@@ -5,14 +5,14 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List, Dict
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
     sender: str,
     target: str,
     message: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBMessage:
     session.add(
         msg := DBMessage(
@@ -32,7 +32,7 @@ def create_private(
     target_id: int,
     message: str,
     read: bool = True,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBDirectMessage:
     session.add(
         msg := DBDirectMessage(
@@ -52,7 +52,7 @@ def fetch_recent(
     target: str = '#osu',
     limit: int = 10,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBMessage]:
     return session.query(DBMessage) \
         .filter(DBMessage.target == target) \
@@ -66,7 +66,7 @@ def fetch_by_sender(
     sender: str,
     limit: int = 10,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBMessage]:
     return session.query(DBMessage) \
         .filter(DBMessage.sender == sender) \
@@ -78,7 +78,7 @@ def fetch_by_sender(
 @session_wrapper
 def fetch_all_by_sender(
     sender: str,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBMessage]:
     return session.query(DBMessage) \
         .filter(DBMessage.sender == sender) \
@@ -86,7 +86,7 @@ def fetch_all_by_sender(
         .all()
 
 @session_wrapper
-def fetch_dm(message_id: int, session: Session = ...) -> DBDirectMessage | None:
+def fetch_dm(message_id: int, session: Session = SessionProvider) -> DBDirectMessage | None:
     return session.query(DBDirectMessage) \
         .filter(DBDirectMessage.id == message_id) \
         .first()
@@ -97,7 +97,7 @@ def fetch_dms(
     target_id: int,
     limit: int = 10,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBDirectMessage]:
     return session.query(DBDirectMessage) \
         .filter(or_(
@@ -113,7 +113,7 @@ def fetch_dms(
 def fetch_dms_unread_count(
     user_id: int,
     target_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     count = session.query(DBDirectMessage) \
         .filter(DBDirectMessage.target_id == target_id) \
@@ -125,7 +125,7 @@ def fetch_dms_unread_count(
 @session_wrapper
 def fetch_dms_unread_count_all(
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Dict[int, int]:
     results = session.query(
         DBDirectMessage.sender_id,
@@ -141,7 +141,7 @@ def fetch_dms_unread_count_all(
 @session_wrapper
 def fetch_dm_entries(
     user_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBUser]:
     return session.query(DBUser) \
         .join(DBDirectMessage, case(
@@ -159,7 +159,7 @@ def fetch_dm_entries(
 def fetch_last_dm(
     sender_id: int,
     target_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBDirectMessage | None:
     return session.query(DBDirectMessage) \
         .filter(or_(
@@ -173,7 +173,7 @@ def fetch_last_dm(
 def update(
     message_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     result = session.query(DBDirectMessage) \
         .filter(DBDirectMessage.id == message_id) \
@@ -185,7 +185,7 @@ def update(
 def update_private(
     message_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     result = session.query(DBDirectMessage) \
         .filter(DBDirectMessage.id == message_id) \
@@ -198,7 +198,7 @@ def update_private_all(
     sender_id: int,
     target_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     result = session.query(DBDirectMessage) \
         .filter(DBDirectMessage.sender_id == sender_id) \

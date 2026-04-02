@@ -7,7 +7,7 @@ from sqlalchemy.exc import DatabaseError
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
@@ -16,7 +16,7 @@ def create(
     user_id: int,
     set_id: int,
     count: int = 1,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBPlay:
     session.add(
         p := DBPlay(
@@ -38,7 +38,7 @@ def update(
     user_id: int,
     set_id: int,
     count: int = 1,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> None:
     updated = session.query(DBPlay) \
         .filter(DBPlay.beatmap_id == beatmap_id) \
@@ -59,7 +59,7 @@ def update(
         )
 
 @session_wrapper
-def fetch_count_for_beatmap(beatmap_id: int, session: Session = ...) -> int:
+def fetch_count_for_beatmap(beatmap_id: int, session: Session = SessionProvider) -> int:
     count = session.query(
         func.sum(DBPlay.count).label('playcount')) \
             .group_by(DBPlay.beatmap_id) \
@@ -73,7 +73,7 @@ def fetch_most_played_by_user(
     user_id: int,
     limit: int = 15,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBPlay]:
     return session.query(DBPlay) \
         .filter(DBPlay.user_id == user_id) \
@@ -83,7 +83,7 @@ def fetch_most_played_by_user(
         .all()
 
 @session_wrapper
-def delete_by_id(id: int, session: Session = ...) -> int:
+def delete_by_id(id: int, session: Session = SessionProvider) -> int:
     rows = session.query(DBPlay) \
         .filter(DBPlay.id == id) \
         .delete()
@@ -91,7 +91,7 @@ def delete_by_id(id: int, session: Session = ...) -> int:
     return rows
 
 @session_wrapper
-def delete_by_set_id(set_id: int, session: Session = ...) -> int:
+def delete_by_set_id(set_id: int, session: Session = SessionProvider) -> int:
     rows = session.query(DBPlay) \
         .filter(DBPlay.set_id == set_id) \
         .delete()
@@ -99,7 +99,7 @@ def delete_by_set_id(set_id: int, session: Session = ...) -> int:
     return rows
 
 @session_wrapper
-def delete_by_beatmap_id(beatmap_id: int, session: Session = ...) -> int:
+def delete_by_beatmap_id(beatmap_id: int, session: Session = SessionProvider) -> int:
     rows = session.query(DBPlay) \
         .filter(DBPlay.beatmap_id == beatmap_id) \
         .delete()

@@ -5,7 +5,7 @@ from app.common.database.objects import DBRating
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
@@ -13,7 +13,7 @@ def create(
     user_id: int,
     set_id: int,
     rating: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBRating:
     session.add(
         rating := DBRating(
@@ -28,7 +28,7 @@ def create(
     return rating
 
 @session_wrapper
-def fetch_one(beatmap_hash: str, user_id: int, session: Session = ...) -> int | None:
+def fetch_one(beatmap_hash: str, user_id: int, session: Session = SessionProvider) -> int | None:
     result = session.query(DBRating.rating) \
         .filter(DBRating.map_checksum == beatmap_hash) \
         .filter(DBRating.user_id == user_id) \
@@ -37,7 +37,7 @@ def fetch_one(beatmap_hash: str, user_id: int, session: Session = ...) -> int | 
     return result[0] if result else None
 
 @session_wrapper
-def fetch_many(beatmap_hash: str, session: Session = ...) -> List[int]:
+def fetch_many(beatmap_hash: str, session: Session = SessionProvider) -> List[int]:
     return [
         rating[0]
         for rating in session.query(DBRating.rating) \
@@ -46,7 +46,7 @@ def fetch_many(beatmap_hash: str, session: Session = ...) -> List[int]:
     ]
 
 @session_wrapper
-def fetch_average(beatmap_hash: str, session: Session = ...) -> float:
+def fetch_average(beatmap_hash: str, session: Session = SessionProvider) -> float:
     result = session.query(
         func.avg(DBRating.rating).label('average')) \
         .filter(DBRating.map_checksum == beatmap_hash) \
@@ -55,7 +55,7 @@ def fetch_average(beatmap_hash: str, session: Session = ...) -> float:
     return float(result) if result else 0.0
 
 @session_wrapper
-def fetch_average_by_set(set_id: int, session: Session = ...) -> float:
+def fetch_average_by_set(set_id: int, session: Session = SessionProvider) -> float:
     result = session.query(
         func.avg(DBRating.rating).label('average')) \
         .filter(DBRating.set_id == set_id) \
@@ -64,7 +64,7 @@ def fetch_average_by_set(set_id: int, session: Session = ...) -> float:
     return float(result) if result else 0.0
 
 @session_wrapper
-def fetch_range(beatmap_hash: str, session: Session = ...) -> Dict[int, int]:
+def fetch_range(beatmap_hash: str, session: Session = SessionProvider) -> Dict[int, int]:
     result = session.query(DBRating.rating, func.count()) \
         .filter(DBRating.map_checksum == beatmap_hash) \
         .group_by(DBRating.rating) \
@@ -76,7 +76,7 @@ def fetch_range(beatmap_hash: str, session: Session = ...) -> Dict[int, int]:
     }
 
 @session_wrapper
-def fetch_range_by_set(set_id: int, session: Session = ...) -> Dict[int, int]:
+def fetch_range_by_set(set_id: int, session: Session = SessionProvider) -> Dict[int, int]:
     result = session.query(DBRating.rating, func.count()) \
         .filter(DBRating.set_id == set_id) \
         .group_by(DBRating.rating) \
@@ -88,7 +88,7 @@ def fetch_range_by_set(set_id: int, session: Session = ...) -> Dict[int, int]:
     }
 
 @session_wrapper
-def fetch_ratio(beatmap_hash: str, session: Session = ...) -> Tuple[int, int]:
+def fetch_ratio(beatmap_hash: str, session: Session = SessionProvider) -> Tuple[int, int]:
     result = session.query(
         func.count(DBRating.rating).filter(DBRating.rating >= 5).label('count_good'),
         func.count(DBRating.rating).filter(DBRating.rating < 5).label('count_bad')
@@ -102,7 +102,7 @@ def fetch_ratio(beatmap_hash: str, session: Session = ...) -> Tuple[int, int]:
     return result[0] or 0, result[1] or 0
 
 @session_wrapper
-def fetch_ratio_by_set(set_id: int, session: Session = ...) -> Tuple[int, int]:
+def fetch_ratio_by_set(set_id: int, session: Session = SessionProvider) -> Tuple[int, int]:
     result = session.query(
         func.count(DBRating.rating).filter(DBRating.rating >= 5).label('count_good'),
         func.count(DBRating.rating).filter(DBRating.rating < 5).label('count_bad')
@@ -116,7 +116,7 @@ def fetch_ratio_by_set(set_id: int, session: Session = ...) -> Tuple[int, int]:
     return result[0] or 0, result[1] or 0
 
 @session_wrapper
-def delete(beatmap_hash: str, user_id: int, session: Session = ...) -> None:
+def delete(beatmap_hash: str, user_id: int, session: Session = SessionProvider) -> None:
     session.query(DBRating) \
         .filter(DBRating.map_checksum == beatmap_hash) \
         .filter(DBRating.user_id == user_id) \
@@ -124,14 +124,14 @@ def delete(beatmap_hash: str, user_id: int, session: Session = ...) -> None:
     session.flush()
 
 @session_wrapper
-def delete_by_beatmap_hash(beatmap_hash: str, session: Session = ...) -> None:
+def delete_by_beatmap_hash(beatmap_hash: str, session: Session = SessionProvider) -> None:
     session.query(DBRating) \
         .filter(DBRating.map_checksum == beatmap_hash) \
         .delete()
     session.flush()
 
 @session_wrapper
-def delete_by_set_id(set_id: int, session: Session = ...) -> None:
+def delete_by_set_id(set_id: int, session: Session = SessionProvider) -> None:
     session.query(DBRating) \
         .filter(DBRating.set_id == set_id) \
         .delete()

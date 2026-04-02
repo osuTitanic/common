@@ -1,6 +1,6 @@
 
 from ..objects import DBNotification
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 from datetime import datetime
 from sqlalchemy.orm import Session
@@ -15,7 +15,7 @@ def create(
     content: str,
     read: bool = False,
     link: str | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBNotification:
     session.add(
         n := DBNotification(
@@ -33,7 +33,7 @@ def create(
     return n
 
 @session_wrapper
-def fetch_one(id: int, session: Session = ...) -> int:
+def fetch_one(id: int, session: Session = SessionProvider) -> int:
     return session.query(DBNotification) \
         .filter(DBNotification.id == id) \
         .first()
@@ -42,7 +42,7 @@ def fetch_one(id: int, session: Session = ...) -> int:
 def fetch_count(
     user_id: int,
     read: bool | None = False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     if read is None:
         count = session.query(func.count(DBNotification.id)) \
@@ -62,7 +62,7 @@ def fetch_all(
     user_id: int,
     read: bool | None = False,
     until: datetime | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBNotification]:
     query = session.query(DBNotification) \
         .filter(DBNotification.user_id == user_id)
@@ -81,7 +81,7 @@ def fetch_all(
 def update(
     id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBNotification) \
         .filter(DBNotification.id == id) \
@@ -93,7 +93,7 @@ def update(
 def update_by_user_id(
     user_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBNotification) \
         .filter(DBNotification.user_id == user_id) \
@@ -104,7 +104,7 @@ def update_by_user_id(
 @session_wrapper
 def delete(
     id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBNotification) \
         .filter(DBNotification.id == id) \
@@ -116,7 +116,7 @@ def delete(
 def delete_by_type(
     user_id: int,
     type: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBNotification) \
         .filter(DBNotification.user_id == user_id) \

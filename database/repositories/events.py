@@ -5,14 +5,14 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
     match_id: int,
     type: EventType,
     data: dict = {},
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBMatchEvent:
     session.add(
         m := DBMatchEvent(
@@ -26,14 +26,14 @@ def create(
     return m
 
 @session_wrapper
-def fetch_last(match_id: int, session: Session = ...) -> DBMatchEvent | None:
+def fetch_last(match_id: int, session: Session = SessionProvider) -> DBMatchEvent | None:
     return session.query(DBMatchEvent) \
         .filter(DBMatchEvent.match_id == match_id) \
         .order_by(DBMatchEvent.time.desc()) \
         .first()
 
 @session_wrapper
-def fetch_last_by_type(match_id: int, type: int, session: Session = ...) -> DBMatchEvent | None:
+def fetch_last_by_type(match_id: int, type: int, session: Session = SessionProvider) -> DBMatchEvent | None:
     return session.query(DBMatchEvent) \
         .filter(DBMatchEvent.match_id == match_id) \
         .filter(DBMatchEvent.type == type) \
@@ -41,7 +41,7 @@ def fetch_last_by_type(match_id: int, type: int, session: Session = ...) -> DBMa
         .first()
 
 @session_wrapper
-def fetch_all(match_id: int, session: Session = ...) -> List[DBMatchEvent]:
+def fetch_all(match_id: int, session: Session = SessionProvider) -> List[DBMatchEvent]:
     return session.query(DBMatchEvent) \
         .filter(DBMatchEvent.match_id == match_id) \
         .all()
@@ -50,7 +50,7 @@ def fetch_all(match_id: int, session: Session = ...) -> List[DBMatchEvent]:
 def fetch_all_after_time(
     match_id: int,
     after: datetime,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBMatchEvent]:
     return session.query(DBMatchEvent) \
         .filter(DBMatchEvent.match_id == match_id) \
@@ -59,7 +59,7 @@ def fetch_all_after_time(
         .all()
 
 @session_wrapper
-def delete_all(match_id: int, session: Session = ...) -> None:
+def delete_all(match_id: int, session: Session = SessionProvider) -> None:
     session.query(DBMatchEvent) \
         .filter(DBMatchEvent.match_id == match_id) \
         .delete()

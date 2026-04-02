@@ -3,13 +3,13 @@ from app.common.database.objects import DBFavourite
 from sqlalchemy.orm import Session
 from typing import List
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
 def create(
     user_id: int,
     set_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBFavourite | None:
     # Check if favourite was already set
     if session.query(DBFavourite.user_id) \
@@ -32,7 +32,7 @@ def create(
 def fetch_one(
     user_id: int,
     set_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBFavourite | None:
     return session.query(DBFavourite) \
         .filter(DBFavourite.user_id == user_id) \
@@ -40,26 +40,26 @@ def fetch_one(
         .first()
 
 @session_wrapper
-def fetch_many(user_id: int, session: Session = ...) -> List[DBFavourite]:
+def fetch_many(user_id: int, session: Session = SessionProvider) -> List[DBFavourite]:
     return session.query(DBFavourite) \
         .filter(DBFavourite.user_id == user_id) \
         .all()
 
 @session_wrapper
-def fetch_many_by_set(set_id: int, limit: int = 5, session: Session = ...) -> List[DBFavourite]:
+def fetch_many_by_set(set_id: int, limit: int = 5, session: Session = SessionProvider) -> List[DBFavourite]:
     return session.query(DBFavourite) \
         .filter(DBFavourite.set_id == set_id) \
         .limit(limit) \
         .all()
 
 @session_wrapper
-def fetch_count(user_id: int, session: Session = ...) -> int:
+def fetch_count(user_id: int, session: Session = SessionProvider) -> int:
     return session.query(DBFavourite) \
         .filter(DBFavourite.user_id == user_id) \
         .count()
 
 @session_wrapper
-def fetch_count_by_set(set_id: int, session: Session = ...) -> int:
+def fetch_count_by_set(set_id: int, session: Session = SessionProvider) -> int:
     return session.query(DBFavourite) \
         .filter(DBFavourite.set_id == set_id) \
         .count()
@@ -68,7 +68,7 @@ def fetch_count_by_set(set_id: int, session: Session = ...) -> int:
 def delete(
     user_id: int,
     set_id: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBFavourite) \
         .filter(DBFavourite.user_id == user_id) \
@@ -78,7 +78,7 @@ def delete(
     return rows
 
 @session_wrapper
-def delete_all(set_id: int, session: Session = ...) -> int:
+def delete_all(set_id: int, session: Session = SessionProvider) -> int:
     rows = session.query(DBFavourite) \
         .filter(DBFavourite.set_id == set_id) \
         .delete()

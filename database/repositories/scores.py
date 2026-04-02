@@ -11,10 +11,10 @@ from sqlalchemy import or_, and_, func
 from datetime import datetime
 from typing import List, Dict
 
-from .wrapper import session_wrapper
+from .wrapper import session_wrapper, SessionProvider
 
 @session_wrapper
-def create(score: DBScore, session: Session = ...) -> DBScore:
+def create(score: DBScore, session: Session = SessionProvider) -> DBScore:
     session.add(score)
     session.flush()
     session.refresh(score)
@@ -24,7 +24,7 @@ def create(score: DBScore, session: Session = ...) -> DBScore:
 def update(
     score_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBScore) \
         .filter(DBScore.id == score_id) \
@@ -36,7 +36,7 @@ def update(
 def update_by_beatmap_id(
     beatmap_id: int,
     updates: dict,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     rows = session.query(DBScore) \
         .filter(DBScore.beatmap_id == beatmap_id) \
@@ -45,7 +45,7 @@ def update_by_beatmap_id(
     return rows
 
 @session_wrapper
-def hide_all(user_id: int, session: Session = ...) -> int:
+def hide_all(user_id: int, session: Session = SessionProvider) -> int:
     rows = session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
         .update({'hidden': True})
@@ -53,7 +53,7 @@ def hide_all(user_id: int, session: Session = ...) -> int:
     return rows
 
 @session_wrapper
-def fetch_by_id(id: int, session: Session = ...) -> DBScore | None:
+def fetch_by_id(id: int, session: Session = SessionProvider) -> DBScore | None:
     return session.query(DBScore) \
         .options(
             selectinload(DBScore.beatmap),
@@ -63,13 +63,13 @@ def fetch_by_id(id: int, session: Session = ...) -> DBScore | None:
         .first()
 
 @session_wrapper
-def fetch_by_replay_checksum(checksum: str, session: Session = ...) -> DBScore | None:
+def fetch_by_replay_checksum(checksum: str, session: Session = SessionProvider) -> DBScore | None:
     return session.query(DBScore) \
         .filter(DBScore.replay_md5 == checksum) \
         .first()
 
 @session_wrapper
-def fetch_count(user_id: int, mode: int, session: Session = ...) -> int:
+def fetch_count(user_id: int, mode: int, session: Session = SessionProvider) -> int:
     return session.query(func.count(DBScore.id)) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
@@ -78,7 +78,7 @@ def fetch_count(user_id: int, mode: int, session: Session = ...) -> int:
         .scalar()
 
 @session_wrapper
-def fetch_total_count(session: Session = ...) -> int:
+def fetch_total_count(session: Session = SessionProvider) -> int:
     return session.query(func.count(DBScore.id)) \
         .filter(DBScore.hidden == False) \
         .scalar()
@@ -90,7 +90,7 @@ def fetch_count_beatmap(
     mods: int | None = None,
     country: str | None = None,
     friends: List[int] | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     query = session.query(func.count(DBScore.id)) \
         .filter(DBScore.beatmap_id == beatmap_id) \
@@ -120,7 +120,7 @@ def fetch_top_scores(
     exclude_approved: bool = False,
     limit: int = 100,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     allowed_status = [
         1, # Ranked
@@ -150,7 +150,7 @@ def fetch_top_scores_count(
     user_id: int,
     mode: int,
     exclude_approved: bool = False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     allowed_status = [
         1, # Ranked
@@ -178,7 +178,7 @@ def fetch_leader_scores(
     mode: int,
     limit: int = 50,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     # Find the maximum total score for each beatmap
     subquery = session.query(
@@ -214,7 +214,7 @@ def fetch_leader_scores(
 def fetch_leader_count(
     user_id: int,
     mode: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     # Find the maximum total score for each beatmap
     subquery = session.query(
@@ -247,7 +247,7 @@ def fetch_best(
     mode: int,
     exclude_approved: bool = False,
     preload_beatmap: bool = False,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     allowed_status = [
         1, # Ranked
@@ -275,7 +275,7 @@ def fetch_best(
 def fetch_best_by_score(
     user_id: int,
     mode: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
@@ -291,7 +291,7 @@ def fetch_best_by_beatmap(
     beatmap_id: int,
     mode: int,
     statuses: tuple = (3, 4),
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
@@ -308,7 +308,7 @@ def fetch_pinned(
     mode: int,
     limit: int = 50,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
@@ -325,7 +325,7 @@ def fetch_pinned(
 def fetch_pinned_count(
     user_id: int,
     mode: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     return session.query(func.count(DBScore.id)) \
         .filter(DBScore.user_id == user_id) \
@@ -341,7 +341,7 @@ def fetch_personal_best(
     user_id: int,
     mode: int,
     mods: int | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBScore | None:
     if mods is None:
         return session.query(DBScore) \
@@ -369,7 +369,7 @@ def fetch_personal_best_score(
     user_id: int,
     mode: int,
     mods: int | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     if mods is None:
         return session.query(DBScore) \
@@ -393,7 +393,7 @@ def fetch_personal_best_score(
 def fetch_grades(
     user_id: int,
     mode: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> Dict[str, int]:
     grades = {
         name: 0
@@ -422,7 +422,7 @@ def fetch_range_scores(
     mode: int,
     limit: int = 5,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .options(selectinload(DBScore.user)) \
@@ -442,7 +442,7 @@ def fetch_range_scores_country(
     country: str,
     limit: int = 5,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .options(selectinload(DBScore.user)) \
@@ -464,7 +464,7 @@ def fetch_range_scores_friends(
     friends: List[int],
     limit: int = 5,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .options(selectinload(DBScore.user)) \
@@ -485,7 +485,7 @@ def fetch_range_scores_mods(
     mods: int,
     limit: int = 5,
     offset: int = 0,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .options(selectinload(DBScore.user)) \
@@ -507,7 +507,7 @@ def fetch_score_index(
     mods: int | None = None,
     friends: List[int] | None = None,
     country: str | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     query = session.query(
                 DBScore.user_id,
@@ -551,7 +551,7 @@ def fetch_score_index_by_id(
     beatmap_id: int,
     mode: int,
     mods: int | None = None,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     query = session.query(
                 DBScore.id,
@@ -590,7 +590,7 @@ def fetch_score_index_by_tscore(
     total_score: int,
     beatmap_id: int,
     mode: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     closest_score = session.query(DBScore) \
         .filter(DBScore.total_score > total_score) \
@@ -616,7 +616,7 @@ def fetch_score_above(
     beatmap_id: int,
     mode: int,
     total_score: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBScore | None:
     return session.query(DBScore) \
         .options(selectinload(DBScore.user)) \
@@ -633,7 +633,7 @@ def fetch_recent(
     user_id: int,
     mode: int,
     limit: int = 3,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
@@ -649,7 +649,7 @@ def fetch_recent_until(
     mode: int,
     until: datetime,
     min_status: int = 2,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .filter(DBScore.submitted_at > until) \
@@ -665,7 +665,7 @@ def fetch_recent_by_status(
     user_id: int,
     limit: int = 3,
     min_status: int = 2,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
@@ -681,7 +681,7 @@ def fetch_recent_by_status_and_mode(
     mode: int,
     limit: int = 3,
     min_status: int = 2,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
@@ -696,7 +696,7 @@ def fetch_recent_by_status_and_mode(
 def fetch_recent_all(
     user_id: int,
     limit: int = 3,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
@@ -709,7 +709,7 @@ def fetch_recent_all(
 def fetch_recent_top_scores(
     user_id: int,
     limit: int = 3,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
@@ -724,7 +724,7 @@ def fetch_pp_record(
     mode: int,
     mods: int | None = None,
     exclude_loved: bool = True,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> DBScore:
     # Ranked & Approved
     allowed_statuses: tuple[int, ...] = (1, 2)
@@ -750,7 +750,7 @@ def fetch_pp_record(
 def fetch_clears(
     user_id: int,
     mode: int,
-    session: Session = ...
+    session: Session = SessionProvider
 ) -> int:
     return session.query(func.count(DBScore.id)) \
         .filter(DBScore.status_score == 3) \
@@ -760,21 +760,21 @@ def fetch_clears(
         .scalar()
 
 @session_wrapper
-def delete(score_id: int, session: Session = ...):
+def delete(score_id: int, session: Session = SessionProvider):
     session.query(DBScore) \
         .filter(DBScore.id == score_id) \
         .delete()
     session.flush()
 
 @session_wrapper
-def delete_by_beatmap_id(beatmap_id: int, session: Session = ...):
+def delete_by_beatmap_id(beatmap_id: int, session: Session = SessionProvider):
     session.query(DBScore) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .delete()
     session.flush()
 
 @session_wrapper
-def restore_hidden_scores(user_id: int, session: Session = ...):
+def restore_hidden_scores(user_id: int, session: Session = SessionProvider):
     session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
         .update({'hidden': False})
