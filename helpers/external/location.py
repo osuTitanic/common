@@ -6,6 +6,7 @@ from geoip2.errors import AddressNotFoundError
 from geoip2.database import Reader
 
 from dataclasses import dataclass
+from contextlib import suppress
 from functools import cache
 
 import app
@@ -59,24 +60,22 @@ def fetch_geolocation(ip: str) -> Geolocation:
     return Geolocation()
 
 def fetch_db(ip: str) -> Geolocation | None:
-    try:
+    with suppress(AddressNotFoundError):
         with Reader(f'./app/common/geolite.mmdb') as reader:
             response = reader.city(ip)
 
             return Geolocation(
                 ip,
-                response.location.latitude,
-                response.location.longitude,
-                response.country.iso_code,
-                response.country.name,
+                response.location.latitude or 0.0,
+                response.location.longitude or 0.0,
+                response.country.iso_code or 'XX',
+                response.country.name or 'Unknown',
                 list(COUNTRIES.keys()).index(
-                    response.country.iso_code
+                    response.country.iso_code or 'XX'
                 ),
-                response.location.time_zone,
-                response.city.name
+                response.location.time_zone or 'UTC',
+                response.city.name or 'Unknown'
             )
-    except AddressNotFoundError:
-        return
 
 def fetch_web(ip: str = "") -> Geolocation | None:
     try:
