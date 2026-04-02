@@ -1,5 +1,5 @@
 
-from __future__ import annotations
+
 
 from app.common.constants import COUNTRIES as countries
 from app.common.database.repositories import users, modding, scores
@@ -595,7 +595,7 @@ def top_players(
     type: str = 'performance',
     country: str | None = None
 ) -> List[Tuple[int, float]]:
-    """Get a list of top players  
+    """Get a list of top players
     `returns`: List[Tuple[player_id, score/pp]]
     """
     country_suffix = f":{country.lower()}" if country else ""
@@ -757,7 +757,7 @@ def player_above(
     type: str = 'rscore',
 ) -> Tuple[int, str]:
     """
-    Get a player above your ranked score, used in score submission response.  
+    Get a player above your ranked score, used in score submission response.
     `returns`: Tuple[score, username]
     """
     position = app.session.redis.zrevrank(

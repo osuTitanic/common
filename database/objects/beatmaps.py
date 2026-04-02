@@ -1,9 +1,10 @@
 
-from typing import List, TYPE_CHECKING
 from app.common.config import config_instance as config
+from typing import Any, List, TYPE_CHECKING
+from datetime import datetime
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
-from sqlalchemy.orm import Mapped, relationship, deferred
+from sqlalchemy.orm import mapped_column, Mapped, relationship, deferred
 from sqlalchemy.sql import func
 from sqlalchemy import (
     SmallInteger,
@@ -28,49 +29,49 @@ if TYPE_CHECKING:
 class DBBeatmapset(Base):
     __tablename__ = "beatmapsets"
 
-    id                   = Column('id', Integer, primary_key=True, autoincrement=True)
-    title                = Column('title', String, nullable=True)
-    title_unicode        = Column('title_unicode', String, nullable=True)
-    artist               = Column('artist', String, nullable=True)
-    artist_unicode       = Column('artist_unicode', String, nullable=True)
-    source               = Column('source', String, nullable=True)
-    source_unicode       = Column('source_unicode', String, nullable=True)
-    creator              = Column('creator', String, nullable=True)
-    display_title        = Column('display_title', String, nullable=True)
-    description          = Column('description', String, nullable=True)
-    tags                 = Column('tags', String, nullable=True, default='')
-    status               = Column('submission_status', Integer, default=3)
-    has_video            = Column('has_video', Boolean, default=False)
-    has_storyboard       = Column('has_storyboard', Boolean, default=False)
-    server               = Column('server', SmallInteger, default=0)
-    download_server      = Column('download_server', SmallInteger, default=0)
-    topic_id             = Column('topic_id', Integer, nullable=True)
-    creator_id           = Column('creator_id', Integer, ForeignKey('users.id'), nullable=True)
-    available            = Column('available', Boolean, default=True)
-    enhanced             = Column('enhanced', Boolean, default=False)
-    explicit             = Column('explicit', Boolean, default=False)
-    created_at           = Column('submission_date', DateTime, server_default=func.now())
-    approved_at          = Column('approved_date', DateTime, nullable=True)
-    approved_by          = Column('approved_by', Integer, ForeignKey('users.id'), nullable=True)
-    last_update          = Column('last_updated', DateTime, server_default=func.now())
-    added_at             = Column('added_at', DateTime, nullable=True, server_default=func.now())
-    total_playcount      = Column('total_playcount', BigInteger, default=0)
-    max_diff             = Column('max_diff', Float, default=0.0)
-    rating_average       = Column('rating_average', Float, default=0.0)
-    rating_count         = Column('rating_count', Integer, default=0)
-    favourite_count      = Column('favourite_count', Integer, default=0)
-    osz_filesize         = Column('osz_filesize', Integer, default=0)
-    osz_filesize_novideo = Column('osz_filesize_novideo', Integer, default=0)
-    language_id          = Column('language_id', SmallInteger, default=1)
-    genre_id             = Column('genre_id', SmallInteger, default=1)
-    star_priority        = Column('star_priority', Integer, default=0)
-    offset               = Column('offset', Integer, default=0)
-    meta_hash            = Column('meta_hash', String, nullable=True)
-    info_hash            = Column('info_hash', String, nullable=True)
-    body_hash            = Column('body_hash', String, nullable=True)
+    id: Mapped[int] = mapped_column('id', Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str | None] = mapped_column('title', String, nullable=True)
+    title_unicode: Mapped[str | None] = mapped_column('title_unicode', String, nullable=True)
+    artist: Mapped[str | None] = mapped_column('artist', String, nullable=True)
+    artist_unicode: Mapped[str | None] = mapped_column('artist_unicode', String, nullable=True)
+    source: Mapped[str | None] = mapped_column('source', String, nullable=True)
+    source_unicode: Mapped[str | None] = mapped_column('source_unicode', String, nullable=True)
+    creator: Mapped[str | None] = mapped_column('creator', String, nullable=True)
+    display_title: Mapped[str | None] = mapped_column('display_title', String, nullable=True)
+    description: Mapped[str | None] = mapped_column('description', String, nullable=True)
+    tags: Mapped[str | None] = mapped_column('tags', String, nullable=True, default='')
+    status: Mapped[int] = mapped_column('submission_status', Integer, default=3)
+    has_video: Mapped[bool] = mapped_column('has_video', Boolean, default=False)
+    has_storyboard: Mapped[bool] = mapped_column('has_storyboard', Boolean, default=False)
+    server: Mapped[int] = mapped_column('server', SmallInteger, default=0)
+    download_server: Mapped[int] = mapped_column('download_server', SmallInteger, default=0)
+    topic_id: Mapped[int | None] = mapped_column('topic_id', Integer, nullable=True)
+    creator_id: Mapped[int] = mapped_column('creator_id', Integer, ForeignKey('users.id'), nullable=True)
+    available: Mapped[bool] = mapped_column('available', Boolean, default=True)
+    enhanced: Mapped[bool] = mapped_column('enhanced', Boolean, default=False)
+    explicit: Mapped[bool] = mapped_column('explicit', Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column('submission_date', DateTime, server_default=func.now())
+    approved_at: Mapped[datetime | None] = mapped_column('approved_date', DateTime, nullable=True)
+    approved_by: Mapped[int] = mapped_column('approved_by', Integer, ForeignKey('users.id'), nullable=True)
+    last_update: Mapped[datetime] = mapped_column('last_updated', DateTime, server_default=func.now())
+    added_at: Mapped[datetime | None] = mapped_column('added_at', DateTime, nullable=True, server_default=func.now())
+    total_playcount: Mapped[int] = mapped_column('total_playcount', BigInteger, default=0)
+    max_diff: Mapped[float] = mapped_column('max_diff', Float, default=0.0)
+    rating_average: Mapped[float] = mapped_column('rating_average', Float, default=0.0)
+    rating_count: Mapped[int] = mapped_column('rating_count', Integer, default=0)
+    favourite_count: Mapped[int] = mapped_column('favourite_count', Integer, default=0)
+    osz_filesize: Mapped[int] = mapped_column('osz_filesize', Integer, default=0)
+    osz_filesize_novideo: Mapped[int] = mapped_column('osz_filesize_novideo', Integer, default=0)
+    language_id: Mapped[int] = mapped_column('language_id', SmallInteger, default=1)
+    genre_id: Mapped[int] = mapped_column('genre_id', SmallInteger, default=1)
+    star_priority: Mapped[int] = mapped_column('star_priority', Integer, default=0)
+    offset: Mapped[int] = mapped_column('offset', Integer, default=0)
+    meta_hash: Mapped[str | None] = mapped_column('meta_hash', String, nullable=True)
+    info_hash: Mapped[str | None] = mapped_column('info_hash', String, nullable=True)
+    body_hash: Mapped[str | None] = mapped_column('body_hash', String, nullable=True)
 
     # Full-text search
-    search = deferred(Column('search', TSVECTOR, Computed(
+    search: Mapped[Any] = deferred(mapped_column('search', TSVECTOR, Computed(
         "setweight(to_tsvector('simple', coalesce(title, '')), 'B') || "
         "setweight(to_tsvector('simple', coalesce(title_unicode, '')), 'A') || "
         "setweight(to_tsvector('simple', coalesce(artist, '')), 'B') || "
@@ -82,7 +83,7 @@ class DBBeatmapset(Base):
     )))
 
     # Trigram / fuzzy search
-    search_text = deferred(Column('search_text', String, Computed(
+    search_text: Mapped[str] = deferred(mapped_column('search_text', String, Computed(
         "coalesce(title, '') || ' ' || "
         "coalesce(title_unicode, '') || ' ' || "
         "coalesce(artist, '') || ' ' || "
@@ -104,7 +105,7 @@ class DBBeatmapset(Base):
     @property
     def full_name(self):
         return f'{self.artist} - {self.title} ({self.creator})'
-    
+
     @property
     def osz2_hashes(self) -> str:
         return f"{self.body_hash}{self.meta_hash}".upper()
@@ -119,34 +120,34 @@ class DBBeatmapset(Base):
 class DBBeatmap(Base):
     __tablename__ = "beatmaps"
 
-    id            = Column('id', Integer, primary_key=True, autoincrement=True)
-    set_id        = Column('set_id', Integer, ForeignKey('beatmapsets.id'))
-    mode          = Column('mode', SmallInteger, default=0)
-    md5           = Column('md5', String)
-    status        = Column('status', SmallInteger, default=2)
-    version       = Column('version', String)
-    filename      = Column('filename', String)
-    created_at    = Column('submission_date', DateTime, server_default=func.now())
-    last_update   = Column('last_updated', DateTime, server_default=func.now())
-    playcount     = Column('playcount', BigInteger, default=0)
-    passcount     = Column('passcount', BigInteger, default=0)
-    total_length  = Column('total_length', Integer)
-    drain_length  = Column('drain_length', Integer, default=0)
-    count_normal  = Column('count_normal', Integer, default=0)
-    count_slider  = Column('count_slider', Integer, default=0)
-    count_spinner = Column('count_spinner', Integer, default=0)
+    id: Mapped[int] = mapped_column('id', Integer, primary_key=True, autoincrement=True)
+    set_id: Mapped[int] = mapped_column('set_id', Integer, ForeignKey('beatmapsets.id'))
+    mode: Mapped[int] = mapped_column('mode', SmallInteger, default=0)
+    md5: Mapped[str] = mapped_column('md5', String)
+    status: Mapped[int] = mapped_column('status', SmallInteger, default=2)
+    version: Mapped[str] = mapped_column('version', String)
+    filename: Mapped[str] = mapped_column('filename', String)
+    created_at: Mapped[datetime] = mapped_column('submission_date', DateTime, server_default=func.now())
+    last_update: Mapped[datetime] = mapped_column('last_updated', DateTime, server_default=func.now())
+    playcount: Mapped[int] = mapped_column('playcount', BigInteger, default=0)
+    passcount: Mapped[int] = mapped_column('passcount', BigInteger, default=0)
+    total_length: Mapped[int] = mapped_column('total_length', Integer)
+    drain_length: Mapped[int] = mapped_column('drain_length', Integer, default=0)
+    count_normal: Mapped[int] = mapped_column('count_normal', Integer, default=0)
+    count_slider: Mapped[int] = mapped_column('count_slider', Integer, default=0)
+    count_spinner: Mapped[int] = mapped_column('count_spinner', Integer, default=0)
 
-    max_combo         = Column('max_combo', Integer)
-    bpm               = Column('bpm',Float, default=0.0)
-    cs                = Column('cs', Float, default=0.0)
-    ar                = Column('ar', Float, default=0.0)
-    od                = Column('od', Float, default=0.0)
-    hp                = Column('hp', Float, default=0.0)
-    diff              = Column('diff', Float, default=0.0)
-    diff_eyup         = Column('diff_eyup', Float, default=0.0)
-    slider_multiplier = Column('slider_multiplier', Float, default=0.0)
+    max_combo: Mapped[int] = mapped_column('max_combo', Integer)
+    bpm: Mapped[float] = mapped_column('bpm',Float, default=0.0)
+    cs: Mapped[float] = mapped_column('cs', Float, default=0.0)
+    ar: Mapped[float] = mapped_column('ar', Float, default=0.0)
+    od: Mapped[float] = mapped_column('od', Float, default=0.0)
+    hp: Mapped[float] = mapped_column('hp', Float, default=0.0)
+    diff: Mapped[float] = mapped_column('diff', Float, default=0.0)
+    diff_eyup: Mapped[float] = mapped_column('diff_eyup', Float, default=0.0)
+    slider_multiplier: Mapped[float] = mapped_column('slider_multiplier', Float, default=0.0)
 
-    search = deferred(Column('search', TSVECTOR, Computed(
+    search: Mapped[Any] = deferred(mapped_column('search', TSVECTOR, Computed(
         "to_tsvector('simple', coalesce(version, ''))",
         persisted=True
     )))
@@ -190,11 +191,11 @@ class DBBeatmap(Base):
 class DBBeatmapCollaboration(Base):
     __tablename__ = "beatmap_collaboration"
 
-    user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
-    beatmap_id = Column('beatmap_id', Integer, ForeignKey('beatmaps.id'), primary_key=True)
-    is_beatmap_author = Column('is_beatmap_author', Boolean, default=False)
-    allow_resource_updates = Column('allow_resource_updates', Boolean, default=False)
-    created_at = Column('created_at', DateTime, server_default=func.now())
+    user_id: Mapped[int] = mapped_column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    beatmap_id: Mapped[int] = mapped_column('beatmap_id', Integer, ForeignKey('beatmaps.id'), primary_key=True)
+    is_beatmap_author: Mapped[bool] = mapped_column('is_beatmap_author', Boolean, default=False)
+    allow_resource_updates: Mapped[bool] = mapped_column('allow_resource_updates', Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column('created_at', DateTime, server_default=func.now())
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='collaborations')
     beatmap: Mapped["DBBeatmap"] = relationship('DBBeatmap', back_populates='collaborations')
@@ -202,12 +203,12 @@ class DBBeatmapCollaboration(Base):
 class DBBeatmapCollaborationRequest(Base):
     __tablename__ = "beatmap_collaboration_requests"
 
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    user_id = Column('user_id', Integer, ForeignKey('users.id'))
-    target_id = Column('target_id', Integer, ForeignKey('users.id'))
-    beatmap_id = Column('beatmap_id', Integer, ForeignKey('beatmaps.id'))
-    allow_resource_updates = Column('allow_resource_updates', Boolean, default=False)
-    created_at = Column('created_at', DateTime, server_default=func.now())
+    id: Mapped[int] = mapped_column('id', Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column('user_id', Integer, ForeignKey('users.id'))
+    target_id: Mapped[int] = mapped_column('target_id', Integer, ForeignKey('users.id'))
+    beatmap_id: Mapped[int] = mapped_column('beatmap_id', Integer, ForeignKey('beatmaps.id'))
+    allow_resource_updates: Mapped[bool] = mapped_column('allow_resource_updates', Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column('created_at', DateTime, server_default=func.now())
 
     user: Mapped["DBUser"] = relationship('DBUser', foreign_keys=[user_id])
     target: Mapped["DBUser"] = relationship('DBUser', foreign_keys=[target_id])
@@ -216,9 +217,9 @@ class DBBeatmapCollaborationRequest(Base):
 class DBBeatmapCollaborationBlacklist(Base):
     __tablename__ = "beatmap_collaboration_blacklist"
 
-    user_id = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
-    target_id = Column('target_id', Integer, ForeignKey('users.id'), primary_key=True)
-    created_at = Column('created_at', DateTime, server_default=func.now())
+    user_id: Mapped[int] = mapped_column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    target_id: Mapped[int] = mapped_column('target_id', Integer, ForeignKey('users.id'), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column('created_at', DateTime, server_default=func.now())
 
     user: Mapped["DBUser"] = relationship('DBUser', foreign_keys=[user_id])
     target: Mapped["DBUser"] = relationship('DBUser', foreign_keys=[target_id])
@@ -226,9 +227,9 @@ class DBBeatmapCollaborationBlacklist(Base):
 class DBBeatmapNomination(Base):
     __tablename__ = "beatmap_nominations"
 
-    user_id   = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
-    set_id    = Column('set_id', Integer, ForeignKey('beatmapsets.id'), primary_key=True)
-    time      = Column('time', DateTime, server_default=func.now())
+    user_id: Mapped[int] = mapped_column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    set_id: Mapped[int] = mapped_column('set_id', Integer, ForeignKey('beatmapsets.id'), primary_key=True)
+    time: Mapped[datetime] = mapped_column('time', DateTime, server_default=func.now())
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='nominations')
     beatmapset: Mapped["DBBeatmapset"] = relationship('DBBeatmapset', back_populates='nominations')
@@ -236,13 +237,13 @@ class DBBeatmapNomination(Base):
 class DBBeatmapModding(Base):
     __tablename__ = "beatmap_modding"
 
-    id        = Column('id', Integer, primary_key=True, autoincrement=True)
-    target_id = Column('target_id', Integer, ForeignKey('users.id'))
-    sender_id = Column('sender_id', Integer, ForeignKey('users.id'))
-    set_id    = Column('set_id', Integer, ForeignKey('beatmapsets.id'))
-    post_id   = Column('post_id', Integer, ForeignKey('forum_posts.id'))
-    amount    = Column('amount', Integer, default=0)
-    time      = Column('time', DateTime, server_default=func.now())
+    id: Mapped[int] = mapped_column('id', Integer, primary_key=True, autoincrement=True)
+    target_id: Mapped[int] = mapped_column('target_id', Integer, ForeignKey('users.id'))
+    sender_id: Mapped[int] = mapped_column('sender_id', Integer, ForeignKey('users.id'))
+    set_id: Mapped[int] = mapped_column('set_id', Integer, ForeignKey('beatmapsets.id'))
+    post_id: Mapped[int] = mapped_column('post_id', Integer, ForeignKey('forum_posts.id'))
+    amount: Mapped[int] = mapped_column('amount', Integer, default=0)
+    time: Mapped[datetime] = mapped_column('time', DateTime, server_default=func.now())
 
     beatmapset: Mapped["DBBeatmapset"] = relationship('DBBeatmapset', back_populates='modding')
     post: Mapped["DBForumPost"] = relationship('DBForumPost', back_populates='modding')
@@ -252,14 +253,14 @@ class DBBeatmapModding(Base):
 class DBBeatmapPack(Base):
     __tablename__ = "beatmap_packs"
 
-    id            = Column('id', Integer, primary_key=True, autoincrement=True)
-    name          = Column('name', String)
-    category      = Column('category', String)
-    download_link = Column('download_link', String)
-    description   = Column('description', String, default='')
-    creator_id    = Column('creator_id', Integer, ForeignKey('users.id'))
-    created_at    = Column('created_at', DateTime, server_default=func.now())
-    updated_at    = Column('updated_at', DateTime, server_default=func.now())
+    id: Mapped[int] = mapped_column('id', Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column('name', String)
+    category: Mapped[str] = mapped_column('category', String)
+    download_link: Mapped[str] = mapped_column('download_link', String)
+    description: Mapped[str] = mapped_column('description', String, default='')
+    creator_id: Mapped[int] = mapped_column('creator_id', Integer, ForeignKey('users.id'))
+    created_at: Mapped[datetime] = mapped_column('created_at', DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column('updated_at', DateTime, server_default=func.now())
 
     entries: Mapped[List['DBBeatmapPackEntry']] = relationship('DBBeatmapPackEntry', back_populates='pack')
     creator: Mapped['DBUser'] = relationship('DBUser')
@@ -267,9 +268,9 @@ class DBBeatmapPack(Base):
 class DBBeatmapPackEntry(Base):
     __tablename__ = "beatmap_pack_entries"
 
-    pack_id = Column('pack_id', Integer, ForeignKey('beatmap_packs.id'), primary_key=True)
-    beatmapset_id = Column('beatmapset_id', Integer, ForeignKey('beatmapsets.id'), primary_key=True)
-    created_at = Column('created_at', DateTime, server_default=func.now())
+    pack_id: Mapped[int] = mapped_column('pack_id', Integer, ForeignKey('beatmap_packs.id'), primary_key=True)
+    beatmapset_id: Mapped[int] = mapped_column('beatmapset_id', Integer, ForeignKey('beatmapsets.id'), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column('created_at', DateTime, server_default=func.now())
 
     pack: Mapped['DBBeatmapPack'] = relationship('DBBeatmapPack', back_populates='entries')
     beatmapset: Mapped['DBBeatmapset'] = relationship('DBBeatmapset')
@@ -277,11 +278,11 @@ class DBBeatmapPackEntry(Base):
 class DBPlay(Base):
     __tablename__ = "plays"
 
-    user_id      = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
-    beatmap_id   = Column('beatmap_id', Integer, ForeignKey('beatmaps.id'), primary_key=True)
-    set_id       = Column('set_id', Integer, ForeignKey('beatmapsets.id'))
-    count        = Column('count', Integer)
-    beatmap_file = Column('beatmap_file', String)
+    user_id: Mapped[int] = mapped_column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    beatmap_id: Mapped[int] = mapped_column('beatmap_id', Integer, ForeignKey('beatmaps.id'), primary_key=True)
+    set_id: Mapped[int] = mapped_column('set_id', Integer, ForeignKey('beatmapsets.id'))
+    count: Mapped[int] = mapped_column('count', Integer)
+    beatmap_file: Mapped[str] = mapped_column('beatmap_file', String)
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='plays')
     beatmap: Mapped["DBBeatmap"] = relationship('DBBeatmap', back_populates='plays')
@@ -290,9 +291,9 @@ class DBPlay(Base):
 class DBFavourite(Base):
     __tablename__ = "favourites"
 
-    user_id    = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
-    set_id     = Column('set_id', Integer, ForeignKey('beatmapsets.id'), primary_key=True)
-    created_at = Column('created_at', DateTime, server_default=func.now())
+    user_id: Mapped[int] = mapped_column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    set_id: Mapped[int] = mapped_column('set_id', Integer, ForeignKey('beatmapsets.id'), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column('created_at', DateTime, server_default=func.now())
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='favourites')
     beatmapset: Mapped["DBBeatmapset"] = relationship('DBBeatmapset', back_populates='favourites')
@@ -300,10 +301,10 @@ class DBFavourite(Base):
 class DBRating(Base):
     __tablename__ = "ratings"
 
-    user_id      = Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
-    set_id       = Column('set_id', Integer, ForeignKey('beatmapsets.id'))
-    map_checksum = Column('map_checksum', String, ForeignKey('beatmaps.md5'), primary_key=True)
-    rating       = Column('rating', SmallInteger)
+    user_id: Mapped[int] = mapped_column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    set_id: Mapped[int] = mapped_column('set_id', Integer, ForeignKey('beatmapsets.id'))
+    map_checksum: Mapped[str] = mapped_column('map_checksum', String, ForeignKey('beatmaps.md5'), primary_key=True)
+    rating: Mapped[int] = mapped_column('rating', SmallInteger)
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='ratings')
     beatmap: Mapped["DBBeatmap"] = relationship('DBBeatmap', back_populates='ratings')
@@ -312,15 +313,15 @@ class DBRating(Base):
 class DBComment(Base):
     __tablename__ = "comments"
 
-    id          = Column('id', Integer, primary_key=True, autoincrement=True)
-    target_id   = Column('target_id', Integer)
-    target_type = Column('target_type', String)
-    user_id     = Column('user_id', Integer, ForeignKey('users.id'))
-    time        = Column('time', DateTime, server_default=func.now())
-    comment     = Column('comment', String)
-    format      = Column('format', String, nullable=True)
-    mode        = Column('mode', SmallInteger, default=0)
-    color       = Column('color', String, nullable=True)
+    id: Mapped[int] = mapped_column('id', Integer, primary_key=True, autoincrement=True)
+    target_id: Mapped[int] = mapped_column('target_id', Integer)
+    target_type: Mapped[str] = mapped_column('target_type', String)
+    user_id: Mapped[int] = mapped_column('user_id', Integer, ForeignKey('users.id'))
+    time: Mapped[datetime] = mapped_column('time', DateTime, server_default=func.now())
+    comment: Mapped[str] = mapped_column('comment', String)
+    format: Mapped[str | None] = mapped_column('format', String, nullable=True)
+    mode: Mapped[int] = mapped_column('mode', SmallInteger, default=0)
+    color: Mapped[str | None] = mapped_column('color', String, nullable=True)
 
     def __init__(self, target_id, target_type, user_id, time, comment, format = None, mode = 0, color = None) -> None:
         self.target_id   = target_id
@@ -335,7 +336,7 @@ class DBComment(Base):
 class DBResourceMirror(Base):
     __tablename__ = "resource_mirrors"
 
-    url      = Column('url', String, primary_key=True)
-    type     = Column('type', Integer)
-    server   = Column('server', Integer)
-    priority = Column('priority', Integer, default=0)
+    url: Mapped[str] = mapped_column('url', String, primary_key=True)
+    type: Mapped[int] = mapped_column('type', Integer)
+    server: Mapped[int] = mapped_column('server', Integer)
+    priority: Mapped[int] = mapped_column('priority', Integer, default=0)
