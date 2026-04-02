@@ -163,13 +163,6 @@ class Config(BaseSettings):
     # Maximum allowed slots in multiplayer matches
     MULTIPLAYER_MAX_SLOTS: int = 8
 
-    # Oooh, I wonder what this is going to be used for :eyes:
-    MISTRAL_API_KEY: str | None = None
-    MISTRAL_AGENT_ID: str | None = None
-    MISTRAL_MAX_TOKENS: int = 250
-    MISTRAL_TIMEOUT_MS: int = 10000
-    MISTRAL_SERVER_URL: str = "https://api.mistral.ai"
-
     ## Website configuration
     FRONTEND_HOST: str = "localhost"
     FRONTEND_PORT: int = 8080
