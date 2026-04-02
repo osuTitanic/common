@@ -86,10 +86,10 @@ def get(player_id: int) -> UserStats | None:
 def get_keys() -> List[str]:
     return [
         key.decode()
-        for key in app.session.redis.keys('bancho:status:*')
+        for key in app.session.redis.keys('bancho:status:*') # type: ignore
     ] + [
         key.decode()
-        for key in app.session.redis.keys('bancho:stats:*')
+        for key in app.session.redis.keys('bancho:stats:*') # type: ignore
     ]
 
 def delete(player_id: int) -> None:
@@ -105,9 +105,7 @@ def delete(player_id: int) -> None:
     )
 
 def exists(player_id: int) -> bool:
-    return app.session.redis.exists(
-        f'bancho:status:{player_id}'
-    )
+    return bool(app.session.redis.exists(f'bancho:status:{player_id}'))
 
 def version(player_id: int) -> int | None:
     version = app.session.redis.hget(
@@ -118,7 +116,7 @@ def version(player_id: int) -> int | None:
     if not version:
         return None
 
-    return int(version)
+    return int(version) # type: ignore
 
 def client_hash(player_id: int) -> str | None:
     hash = app.session.redis.hget(
@@ -129,7 +127,7 @@ def client_hash(player_id: int) -> str | None:
     if not hash:
         return None
 
-    return hash.decode()
+    return hash.decode() # type: ignore
 
 def device_id(player_id: int) -> str | None:
     if not (hash := client_hash(player_id)):

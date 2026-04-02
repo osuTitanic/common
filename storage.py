@@ -1,5 +1,5 @@
 
-from typing import BinaryIO, Generator, Iterator, List
+from typing import BinaryIO, Generator, Iterator, List, Any
 from botocore.exceptions import ClientError
 from botocore.client import BaseClient
 from functools import cached_property
@@ -399,15 +399,15 @@ class Storage:
         else:
             return self.remove_file(f'{bucket}/{key}')
 
-    def save_to_cache(self, name: str, content: bytes, expiry=timedelta(days=1), override=True) -> bool:
-        if len(content) > 40_000_000: return True
-        return self.cache.set(f'{name}', content, expiry, nx=(not override))
-
-    def get_from_cache(self, name: str) -> bytes | None:
+    def get_from_cache(self, name: str) -> Any | None:
         return self.cache.get(f'{name}')
 
+    def save_to_cache(self, name: str, content: bytes, expiry=timedelta(days=1), override=True) -> bool:
+        if len(content) > 40_000_000: return True
+        return bool(self.cache.set(f'{name}', content, expiry, nx=(not override)))
+
     def remove_from_cache(self, name: str) -> bool:
-        return self.cache.delete(f'{name}')
+        return bool(self.cache.delete(f'{name}'))
 
     def save_to_file(self, filepath: str, content: bytes) -> bool:
         try:

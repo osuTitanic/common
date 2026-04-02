@@ -36,7 +36,7 @@ class Beatmaps:
         session.mount('https://', HTTPAdapter(max_retries=retries))
         return session
 
-    def perform_mirror_request(self, url: str, mirror: DBResourceMirror) -> Response:
+    def perform_mirror_request(self, url: str, mirror: DBResourceMirror) -> Response | None:
         if self.check_ratelimit(mirror.url):
             return None
 
@@ -71,7 +71,10 @@ class Beatmaps:
 
         return response
 
-    def log_error(self, url: str, status_code: int) -> None:
+    def log_error(self, url: str | None, status_code: int | None) -> None:
+        if not url or not status_code:
+            return
+
         if status_code == 404:
             self.logger.debug(f'Failed to find resource "{url}" ({status_code})')
             return
@@ -106,7 +109,7 @@ class Beatmaps:
 
     def check_ratelimit(self, url: str) -> bool:
         domain = urlparse(self.format_mirror_url(url, 0)).netloc
-        return self.cache.exists(f'ratelimit:{domain}')
+        return bool(self.cache.exists(f'ratelimit:{domain}'))
 
     def set_ratelimit(self, url: str, ex: int = 120) -> None:
         domain = urlparse(self.format_mirror_url(url, 0)).netloc
@@ -129,7 +132,7 @@ class Beatmaps:
         if not mirrors:
             return []
 
-        mirror_index = int(mirror_index)
+        mirror_index = int(mirror_index) # type: ignore
         next_index = (mirror_index + 1) % len(mirrors)
 
         self.cache.set(

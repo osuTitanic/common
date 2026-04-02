@@ -1,6 +1,4 @@
 
-
-
 from app.common.constants import COUNTRIES as countries
 from app.common.database.repositories import users, modding, scores
 from app.common.database.objects import DBStats

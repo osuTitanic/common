@@ -81,12 +81,12 @@ class RosuPerformanceCalculator(PerformanceCalculator):
 
     def calculate_difficulty(
         self,
-        beatmap_file: bytes,
+        beatmap_data: bytes,
         mode: GameMode,
         mods: int
     ) -> DifficultyAttributes | None:
         adjusted_mods = self.adjust_mods(mods, mode)
-        result = self.calculate_rosu_difficulty(beatmap_file, mode, adjusted_mods)
+        result = self.calculate_rosu_difficulty(beatmap_data, mode, adjusted_mods)
 
         if not result:
             return

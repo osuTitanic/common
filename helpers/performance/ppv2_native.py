@@ -90,14 +90,14 @@ class NativePerformanceCalculator(PerformanceCalculator):
 
     def calculate_difficulty(
         self,
-        beatmap_file: bytes,
+        beatmap_data: bytes,
         mode: GameMode,
         mods: Mods,
     ) -> DifficultyAttributes | None:
         adjusted_mods = self.adjust_mods(mods, mode)
         ruleset = self.convert_to_native_ruleset(mode)
         native_mods = self.convert_to_native_mods(adjusted_mods)
-        native_beatmap = self.load_native_beatmap(beatmap_file)
+        native_beatmap = self.load_native_beatmap(beatmap_data)
 
         if not native_beatmap:
             self.logger.error(
