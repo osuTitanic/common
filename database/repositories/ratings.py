@@ -1,5 +1,4 @@
 
-from __future__ import annotations
 from typing import List, Dict, Tuple
 
 from app.common.database.objects import DBRating

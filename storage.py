@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from typing import BinaryIO, Generator, Iterator, List
 from botocore.exceptions import ClientError
 from botocore.client import BaseClient
@@ -161,7 +159,7 @@ class Storage:
     def cache_beatmap(self, id: int) -> None:
         if self.cache.exists(f'osu:{id}'):
             return
-        
+
         if not (osu := self.api.osu(id)):
             return
 
@@ -260,10 +258,10 @@ class Storage:
 
     def get_release_file(self, filename: str) -> bytes | None:
         return self.get(filename, 'release')
-    
+
     def get_release_file_iterator(self, filename: str, chunk_size: int = 1024 * 64) -> Generator:
         return self.get_iterator(filename, 'release', chunk_size)
-    
+
     def get_release_file_size(self, filename: str) -> int | None:
         return self.get_size(filename, 'release')
 
@@ -289,7 +287,7 @@ class Storage:
             content=content,
             expiry=timedelta(hours=2)
         )
-    
+
     def upload_replay(self, id: int, content: bytes):
         self.save(f'{id}', content, 'replays')
         self.save_to_cache(
@@ -387,7 +385,7 @@ class Storage:
             return self.get_s3_iterator(str(key), bucket, chunk_size)
         else:
             return self.get_file_iterator(f'{bucket}/{key}', chunk_size)
-        
+
     def get_size(self, key: str, bucket: str) -> int | None:
         if self.config.S3_ENABLED:
             return self.get_s3_size(str(key), bucket)
@@ -560,7 +558,7 @@ class Storage:
     def list_directory_s3(self, folder: str) -> List[str]:
         keys = []
         continuation_token = None
-        
+
         while True:
             kwargs = {
                 'Bucket': self.config.S3_BUCKET,
@@ -568,19 +566,19 @@ class Storage:
             }
             if continuation_token:
                 kwargs['ContinuationToken'] = continuation_token
-            
+
             response = self.s3.list_objects_v2(**kwargs)
-            
+
             if 'Contents' not in response:
                 break
-                
+
             keys.extend(obj['Key'] for obj in response['Contents'])
-            
+
             if not response.get('IsTruncated'):
                 break
-                
+
             continuation_token = response['NextContinuationToken']
-        
+
         return keys
 
     def get_presigned_url(self, folder: str, key: str, expiration: int = 900) -> str | None:

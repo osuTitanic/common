@@ -1,5 +1,4 @@
 
-from __future__ import annotations
 from contextlib import suppress
 from typing import List
 
@@ -68,7 +67,7 @@ def fetch_count_for_beatmap(beatmap_id: int, session: Session = ...) -> int:
             .first()
 
     return count[0] if count else 0
-    
+
 @session_wrapper
 def fetch_most_played_by_user(
     user_id: int,

@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from app.common.database.objects import DBClient, DBVerifiedClient
 from app.common.helpers.caching import ttl_cache
 

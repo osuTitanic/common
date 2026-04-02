@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from ..objects import DBNotification
 from .wrapper import session_wrapper
 

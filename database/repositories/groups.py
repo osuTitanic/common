@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from app.common.database.objects import DBGroup, DBGroupEntry, DBUser
 from sqlalchemy.orm import Session
 from sqlalchemy import func

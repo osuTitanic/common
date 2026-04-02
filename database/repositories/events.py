@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from app.common.database.objects import DBMatchEvent
 from app.common.constants import EventType
 from sqlalchemy.orm import Session

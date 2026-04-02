@@ -1,7 +1,5 @@
 
-from __future__ import annotations
 from typing import Dict, Iterable, List
-
 from datetime import datetime, timedelta
 from app.common.database.objects import (
     DBForumSubscriber,

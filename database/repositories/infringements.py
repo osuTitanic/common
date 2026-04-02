@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from app.common.database.objects import DBInfringement
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session

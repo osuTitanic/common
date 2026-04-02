@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from app.common.database.objects import DBChatFilter
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -35,7 +33,7 @@ def fetch_by_name(name: str, session: Session = ...) -> DBChatFilter | None:
     return session.query(DBChatFilter) \
         .filter(DBChatFilter.name == name) \
         .first()
-        
+
 @session_wrapper
 def fetch_all(session: Session = ...) -> List[DBChatFilter]:
     return session.query(DBChatFilter) \

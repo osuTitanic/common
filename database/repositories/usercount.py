@@ -1,8 +1,5 @@
 
-from __future__ import annotations
-
 from app.common.database.objects import DBUserActivity
-
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, and_

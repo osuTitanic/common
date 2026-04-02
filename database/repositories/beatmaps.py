@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from app.common.database.objects import DBBeatmap, DBScore
 from sqlalchemy.orm import selectinload
 from sqlalchemy import func

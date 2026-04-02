@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from .wrapper import session_wrapper
 from ..objects import (
     DBForumSubscriber,

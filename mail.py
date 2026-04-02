@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from .database.objects import DBVerification, DBUser
 from .config import config_instance as config
 from .constants import email

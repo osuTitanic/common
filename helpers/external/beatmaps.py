@@ -1,7 +1,4 @@
 
-from __future__ import annotations
-from typing import List, Any
-
 from app.common.database.repositories import resources, beatmapsets
 from app.common.database.objects import DBResourceMirror
 from app.common.config import config_instance as config
@@ -11,6 +8,7 @@ from requests.adapters import HTTPAdapter
 from requests import Session, Response
 from urllib3.util.retry import Retry
 from urllib.parse import urlparse
+from typing import List, Any
 from redis import Redis
 
 import logging
@@ -162,9 +160,9 @@ class Beatmaps:
                 continue
 
             return response
-        
+
         return None
-    
+
     def osu(self, beatmap_id: int) -> bytes | None:
         self.logger.debug(f'Downloading beatmap... ({beatmap_id})')
 
@@ -183,7 +181,7 @@ class Beatmaps:
                 continue
 
             return response.content
-        
+
         return None
 
     def preview(self, set_id: int) -> bytes | None:
@@ -204,7 +202,7 @@ class Beatmaps:
                 continue
 
             return response.content
-        
+
         return None
 
     def background(self, set_id: int, large=False) -> bytes | None:
@@ -225,7 +223,7 @@ class Beatmaps:
                 continue
 
             return response.content
-        
+
     @staticmethod
     def resolve_header(
         response: Response,

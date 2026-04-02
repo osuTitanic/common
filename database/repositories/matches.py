@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from app.common.database.repositories import events
 from app.common.database.objects import DBMatch
 
@@ -39,7 +37,7 @@ def fetch_by_bancho_id(id: int, session: Session = ...) -> DBMatch | None:
     return session.query(DBMatch) \
         .filter(DBMatch.bancho_id == id) \
         .first()
-        
+
 @session_wrapper
 def exists(id: int, session: Session = ...) -> bool:
     return session.query(DBMatch) \

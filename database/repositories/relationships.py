@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from app.common.database.objects import DBRelationship, DBUser
 from sqlalchemy.orm import Session
 from typing import List
@@ -74,7 +72,7 @@ def fetch_many_blocked_by_target(
     return session.query(DBRelationship) \
         .filter(DBRelationship.target_id == target_id) \
         .filter(DBRelationship.status == 1) \
-        .all()        
+        .all()
 
 @session_wrapper
 def fetch_count_by_id(user_id: int, session: Session = ...) -> int:

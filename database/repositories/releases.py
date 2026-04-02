@@ -1,8 +1,4 @@
 
-
-
-from __future__ import annotations
-
 from app.common.database.objects.releases import *
 from sqlalchemy import select, func, extract
 from typing import List, Dict, Tuple
@@ -228,7 +224,7 @@ def fetch_official_range(
     session: Session = ...
 ) -> List[DBReleasesOfficial]:
     query = session.query(DBReleasesOfficial)
-    
+
     if stream is not None:
         query = query.filter(DBReleasesOfficial.stream == stream)
 

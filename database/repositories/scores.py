@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from app.common.constants import Grade
 from app.common.database.objects import (
     DBBeatmap,
@@ -381,7 +379,7 @@ def fetch_personal_best_score(
             .filter(DBScore.status_score == 3) \
             .filter(DBScore.hidden == False) \
             .first()
-    
+
     return session.query(DBScore) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.user_id == user_id) \

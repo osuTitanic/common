@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 from app.common.database.objects import DBBenchmark
 from sqlalchemy.orm import Session

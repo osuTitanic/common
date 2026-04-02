@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from app.common.database.objects import DBUser, DBMessage, DBDirectMessage
 from sqlalchemy import or_, case, func
 from sqlalchemy.orm import Session
@@ -76,7 +74,7 @@ def fetch_by_sender(
         .offset(offset) \
         .limit(limit) \
         .all()
-        
+
 @session_wrapper
 def fetch_all_by_sender(
     sender: str,

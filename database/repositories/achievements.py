@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from app.common.database.objects import DBAchievement
 from .wrapper import session_wrapper
 

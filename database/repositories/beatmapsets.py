@@ -1,7 +1,4 @@
 
-from __future__ import annotations
-from operator import and_
-
 from app.common.helpers import caching
 from app.common.constants import (
     FILTER_PATTERN,
@@ -27,6 +24,7 @@ from .wrapper import session_wrapper
 from typing import List, Tuple, Dict, Any
 from collections import defaultdict
 from datetime import datetime
+from operator import and_
 
 import app
 import re
@@ -698,7 +696,7 @@ def apply_bpm_filter(query: Query, condition: Dict[str, Any]) -> Query:
 def apply_ar_filter(query: Query, condition: Dict[str, Any]) -> Query:
     if not is_float(condition['value']):
         return query
-    
+
     op = condition['operator']
     val = float(condition['value'])
 
@@ -742,7 +740,7 @@ def apply_od_filter(query: Query, condition: Dict[str, Any]) -> Query:
         val, op,
         DBBeatmap.od
     )
-    
+
     if condition['mode'] is None:
         return query.filter(od_filter)
 

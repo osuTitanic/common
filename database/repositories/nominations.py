@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from app.common.database.objects import DBBeatmapNomination, DBBeatmapset
 from sqlalchemy.orm import Session, selectinload
 

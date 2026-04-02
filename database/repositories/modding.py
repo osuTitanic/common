@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from typing import Dict, Iterable, List
 from app.common.database.objects import DBBeatmapModding, DBForumPost, DBForumTopic, DBUser
 from sqlalchemy.orm import joinedload, selectinload, Session

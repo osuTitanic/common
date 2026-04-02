@@ -1,6 +1,4 @@
 
-from __future__ import annotations
-
 from app.common.database.objects import DBFavourite
 from sqlalchemy.orm import Session
 from typing import List

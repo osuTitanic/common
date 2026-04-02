@@ -1,5 +1,4 @@
 
-from __future__ import annotations
 from .wrapper import session_wrapper
 
 from app.common.database.objects import DBWikiPage, DBWikiContent, DBWikiOutlink, DBWikiCategory
