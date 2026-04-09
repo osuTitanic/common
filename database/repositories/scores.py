@@ -330,7 +330,7 @@ def fetch_pinned_count(
     return session.query(func.count(DBScore.id)) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.status_pp > 1) \
         .filter(DBScore.hidden == False) \
         .filter(DBScore.pinned == True) \
         .scalar()
