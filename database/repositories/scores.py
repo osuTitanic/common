@@ -313,7 +313,7 @@ def fetch_pinned(
     return session.query(DBScore) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_pp == 3) \
+        .filter(DBScore.status_pp > 1) \
         .filter(DBScore.hidden == False) \
         .filter(DBScore.pinned == True) \
         .order_by(DBScore.pp.desc()) \
