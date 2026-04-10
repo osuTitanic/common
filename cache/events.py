@@ -114,11 +114,8 @@ class EventQueue:
         try:
             payload = json.loads(data)
         except (TypeError, json.JSONDecodeError) as e:
-            # self.logger.warning(f'Failed to decode task payload: {e}')
-            # return None
-
-            # NOTE: Using unsafe decoder until all apps are migrated to the new event format
-            return self.decode_event_unsafe(data)
+            self.logger.warning(f'Failed to decode task payload: {e}')
+            return None
 
         if not isinstance(payload, dict):
             self.logger.warning('Invalid task payload type')
@@ -140,12 +137,4 @@ class EventQueue:
             self.logger.warning('Invalid task payload: kwargs must be a dict')
             return None
 
-        return name, tuple(args), kwargs
-
-    def decode_event_unsafe(self, data: Any) -> Tuple[str, Tuple, Dict]:
-        """
-        Decode an event payload from pubsub the old way.
-        This will be removed after all applications have migrated to the new json format.
-        """
-        name, args, kwargs = eval(data)
         return name, tuple(args), kwargs
