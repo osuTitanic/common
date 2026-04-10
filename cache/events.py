@@ -1,9 +1,10 @@
 
-from typing import Tuple, Dict, Generator, Callable
+from typing import Tuple, Dict, Generator, Callable, Any
 from threading import Thread
 from redis import Redis
 
 import logging
+import json
 
 class EventQueue:
     def __init__(self, name: str, connection: Redis) -> None:
@@ -23,7 +24,12 @@ class EventQueue:
 
     def submit(self, event: str, *args, **kwargs):
         """Push an event to the queue"""
-        self.redis.publish(self.name, str((event, args, kwargs)))
+        payload = json.dumps({
+            'event': event,
+            'args': args,
+            'kwargs': kwargs,
+        })
+        self.redis.publish(self.name, payload)
         self.logger.debug(f'Submitted event "{event}" to pubsub channel')
 
     def poll(self, timeout: int = 0) -> Tuple[Callable, Tuple, Dict] | None:
@@ -42,14 +48,19 @@ class EventQueue:
             return None
 
         try:
-            name, args, kwargs = eval(message['data'])
+            decoded = self.decode_event(message['data'])
+
+            if decoded is None:
+                return None
+
+            name, args, kwargs = decoded
             self.logger.debug(f'Got event for "{name}" with {args} and {kwargs}')
             return self.events[name], args, kwargs
         except KeyError:
             self.logger.warning(f'No callback found for "{name}"')
             return None
         except Exception as e:
-            self.logger.warning(f'Failed to evaluate task: {e}')
+            self.logger.warning(f'Failed to process task: {e}')
 
     def listen(self) -> Generator:
         """Listen for events from the queue"""
@@ -58,14 +69,21 @@ class EventQueue:
 
         for message in self.channel.listen():
             try:
-                if message['data'] == 1: continue
-                name, args, kwargs = eval(message['data'])
+                if message['data'] == 1:
+                    # Subscription confirmation message, ignoring that
+                    continue
+
+                decoded = self.decode_event(message['data'])
+                if decoded is None:
+                    continue
+
+                name, args, kwargs = decoded
                 self.logger.debug(f'Got event for "{name}" with {args} and {kwargs}')
                 yield self.events[name], args, kwargs
             except KeyError:
                 self.logger.warning(f'No callback found for "{name}"')
             except Exception as e:
-                self.logger.warning(f'Failed to evaluate task: {e}')
+                self.logger.warning(f'Failed to process task: {e}')
 
     def run(self, on_failure: Callable | None = None) -> None:
         """Run the event loop"""
@@ -90,3 +108,44 @@ class EventQueue:
         thread = Thread(target=self.run, args=(on_failure,), daemon=True)
         thread.start()
         return thread
+
+    def decode_event(self, data: Any) -> Tuple[str, Tuple, Dict] | None:
+        """Decode an event payload from pubsub safely."""
+        try:
+            payload = json.loads(data)
+        except (TypeError, json.JSONDecodeError) as e:
+            # self.logger.warning(f'Failed to decode task payload: {e}')
+            # return None
+
+            # NOTE: Using unsafe decoder until all apps are migrated to the new event format
+            return self.decode_event_unsafe(data)
+
+        if not isinstance(payload, dict):
+            self.logger.warning('Invalid task payload type')
+            return None
+
+        name = payload.get('event')
+        args = payload.get('args', [])
+        kwargs = payload.get('kwargs', {})
+
+        if not isinstance(name, str):
+            self.logger.warning('Invalid task payload: event name must be a string')
+            return None
+
+        if not isinstance(args, (list, tuple)):
+            self.logger.warning('Invalid task payload: args must be a list or tuple')
+            return None
+
+        if not isinstance(kwargs, dict):
+            self.logger.warning('Invalid task payload: kwargs must be a dict')
+            return None
+
+        return name, tuple(args), kwargs
+
+    def decode_event_unsafe(self, data: Any) -> Tuple[str, Tuple, Dict]:
+        """
+        Decode an event payload from pubsub the old way.
+        This will be removed after all applications have migrated to the new json format.
+        """
+        name, args, kwargs = eval(data)
+        return name, tuple(args), kwargs
