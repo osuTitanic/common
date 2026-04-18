@@ -54,9 +54,11 @@ class RosuPerformanceCalculator(PerformanceCalculator):
             n100=score.n100,
             n50=score.n50,
             misses=score.nMiss,
-            combo=score.max_combo,
-            passed_objects=total_hits
+            combo=score.max_combo
         )
+
+        if not score.passed:
+            perf.set_passed_objects(total_hits)
 
         if not (result := perf.calculate(beatmap)):
             self.logger.error(
