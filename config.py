@@ -368,6 +368,11 @@ class Config(BaseSettings):
         now = datetime.now()
         return now.month == 12 and now.day >= 15
 
+    @computed_field
+    @property
+    def FRONTEND_SESSION_REFRESH_THRESHOLD(self) -> int:
+        return self.FRONTEND_REFRESH_EXPIRY // 2
+
     @field_validator(
         "SMTP_PORT", "BANCHO_CLIENT_CUTOFF", "CHAT_CHANNEL_ID",
         "DISCORD_STAFF_ROLE_ID", "DISCORD_BAT_ROLE_ID", "REDIS_PASS",
