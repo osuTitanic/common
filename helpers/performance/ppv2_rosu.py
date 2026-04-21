@@ -54,7 +54,8 @@ class RosuPerformanceCalculator(PerformanceCalculator):
             n100=score.n100,
             n50=score.n50,
             misses=score.nMiss,
-            combo=score.max_combo
+            combo=score.max_combo,
+            legacy_total_score=score.total_score
         )
 
         if not score.passed:
