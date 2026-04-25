@@ -217,6 +217,7 @@ class DBUser(Base):
     location: Mapped[str | None] = mapped_column('userpage_location', String, nullable=True)
     interests: Mapped[str | None] = mapped_column('userpage_interests', String, nullable=True)
 
+    created_beatmapsets: Mapped[List['DBBeatmapset']] = relationship('DBBeatmapset', back_populates='creator_user', foreign_keys='DBBeatmapset.creator_id')
     target_relationships: Mapped[List['DBRelationship']] = relationship('DBRelationship', back_populates='target', foreign_keys='DBRelationship.target_id')
     relationships: Mapped[List['DBRelationship']] = relationship('DBRelationship', back_populates='user', foreign_keys='DBRelationship.user_id')
     collaborations: Mapped[List['DBBeatmapCollaboration']] = relationship('DBBeatmapCollaboration', back_populates='user')
