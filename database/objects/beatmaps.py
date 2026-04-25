@@ -317,7 +317,7 @@ class DBComment(Base):
     target_id: Mapped[int] = mapped_column('target_id', Integer)
     target_type: Mapped[str] = mapped_column('target_type', String)
     user_id: Mapped[int] = mapped_column('user_id', Integer, ForeignKey('users.id'))
-    time: Mapped[datetime] = mapped_column('time', DateTime, server_default=func.now())
+    time: Mapped[int] = mapped_column('time', Integer)
     comment: Mapped[str] = mapped_column('comment', String)
     format: Mapped[str | None] = mapped_column('format', String, nullable=True)
     mode: Mapped[int] = mapped_column('mode', SmallInteger, default=0)
