@@ -38,7 +38,6 @@ class DBScore(Base):
     beatmap_id: Mapped[int] = mapped_column('beatmap_id', Integer, ForeignKey('beatmaps.id'))
     client_version: Mapped[int] = mapped_column('client_version', Integer)
     client_string: Mapped[str] = mapped_column('client_version_string', String, default='')
-    client_hash: Mapped[str | None] = mapped_column('client_hash', String, nullable=True)
     checksum: Mapped[str] = mapped_column('score_checksum', String)
     mode: Mapped[int] = mapped_column('mode', SmallInteger)
     pp: Mapped[float] = mapped_column('pp', Float)
