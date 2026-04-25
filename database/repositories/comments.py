@@ -44,3 +44,10 @@ def fetch_many(
         .filter(DBComment.target_type == type) \
         .order_by(DBComment.time.asc()) \
         .all()
+
+@session_wrapper
+def fetch_all_by_user(user_id: int, session: Session = SessionProvider) -> List[DBComment]:
+    return session.query(DBComment) \
+        .filter(DBComment.user_id == user_id) \
+        .order_by(DBComment.time.asc()) \
+        .all()

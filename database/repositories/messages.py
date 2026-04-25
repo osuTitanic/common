@@ -170,6 +170,13 @@ def fetch_last_dm(
         .first()
 
 @session_wrapper
+def fetch_dms_all(sender_id: int, session: Session = SessionProvider) -> List[DBDirectMessage]:
+    return session.query(DBDirectMessage) \
+        .filter(DBDirectMessage.sender_id == sender_id) \
+        .order_by(DBDirectMessage.id.desc()) \
+        .all()
+
+@session_wrapper
 def update(
     message_id: int,
     updates: dict,

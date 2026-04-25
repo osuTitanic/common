@@ -51,6 +51,13 @@ def fetch_many_until(
         .all()
 
 @session_wrapper
+def fetch_all(user_id: int, session: Session = SessionProvider) -> List[DBLogin]:
+    return session.query(DBLogin) \
+        .filter(DBLogin.user_id == user_id) \
+        .order_by(DBLogin.time.desc()) \
+        .all()
+
+@session_wrapper
 def fetch_many_by_ip(
     ip: str,
     limit: int = 50,
