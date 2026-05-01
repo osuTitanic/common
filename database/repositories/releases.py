@@ -204,7 +204,7 @@ def fetch_modded_entries_between(
         .filter(DBModdedReleaseEntries.stream == stream) \
         .filter(DBModdedReleaseEntries.id > source_id) \
         .filter(DBModdedReleaseEntries.id <= target_id) \
-        .order_by(DBModdedReleaseEntries.created_at.desc()) \
+        .order_by(DBModdedReleaseEntries.created_at.asc()) \
         .all()
 
 @session_wrapper
