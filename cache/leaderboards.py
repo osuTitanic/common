@@ -587,7 +587,7 @@ def rank(
     return (rank + 1 if rank is not None else 0)
 
 def top_players(
-    mode: int,
+    mode: int | None,
     offset: int = 0,
     range: int = 50,
     type: str = 'performance',
@@ -609,6 +609,32 @@ def top_players(
     )
 
     return [(int(id), score) for id, score in players]
+
+def top_players_with_count(
+    mode: int | None,
+    offset: int = 0,
+    range: int = 50,
+    type: str = 'performance',
+    country: str | None = None
+) -> Tuple[List[Tuple[int, float]], int]:
+    """Get top players & total player count for a leaderboard."""
+    country_suffix = f":{country.lower()}" if country else ""
+    mode_suffix = f":{mode}" if mode is not None else ""
+    leaderboard_key = f'bancho:{type}{mode_suffix}{country_suffix}'
+
+    with app.session.redis.pipeline() as pipe:
+        pipe.zrevrangebyscore(
+            leaderboard_key,
+            '+inf',
+            '1',
+            offset,
+            range,
+            withscores=True
+        )
+        pipe.zcount(leaderboard_key, '1', '+inf')
+        players, count = pipe.execute()
+
+    return [(int(id), score) for id, score in players], count
 
 def top_countries(mode: int) -> List[dict]:
     """Get a list of the top countries"""
