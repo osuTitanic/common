@@ -1,7 +1,7 @@
 
 from app.common.database.objects import DBRelationship, DBUser
 from sqlalchemy.orm import Session
-from typing import List
+from typing import Iterable, List
 
 from .wrapper import session_wrapper, SessionProvider
 
@@ -90,6 +90,24 @@ def fetch_count_by_target(target_id: int, session: Session = SessionProvider) ->
 def fetch_target_ids(user_id: int, session: Session = SessionProvider) -> List[int]:
     result = session.query(DBRelationship.target_id) \
         .filter(DBRelationship.user_id == user_id) \
+        .all()
+
+    return [id[0] for id in result]
+
+@session_wrapper
+def fetch_target_ids_in(
+    user_id: int,
+    target_ids: Iterable[int],
+    session: Session = SessionProvider
+) -> List[int]:
+    target_ids = tuple(target_ids)
+
+    if not target_ids:
+        return []
+
+    result = session.query(DBRelationship.target_id) \
+        .filter(DBRelationship.user_id == user_id) \
+        .filter(DBRelationship.target_id.in_(target_ids)) \
         .all()
 
     return [id[0] for id in result]
