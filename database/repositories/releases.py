@@ -157,6 +157,27 @@ def fetch_modded_entry_by_checksum(mod_name: str, checksum: str, session: Sessio
         .first()
 
 @session_wrapper
+def fetch_modded_entry_latest(mod_name: str, stream: str, session: Session = SessionProvider) -> DBModdedReleaseEntries | None:
+    return session.query(DBModdedReleaseEntries) \
+        .filter(DBModdedReleaseEntries.mod_name == mod_name) \
+        .filter(DBModdedReleaseEntries.stream == stream) \
+        .order_by(DBModdedReleaseEntries.created_at.desc()) \
+        .first()
+
+@session_wrapper
+def fetch_modded_entry_by_version(
+    mod_name: str,
+    version: str,
+    stream: str,
+    session: Session = SessionProvider
+) -> DBModdedReleaseEntries | None:
+    return session.query(DBModdedReleaseEntries) \
+        .filter(DBModdedReleaseEntries.mod_name == mod_name) \
+        .filter(DBModdedReleaseEntries.version == version) \
+        .filter(DBModdedReleaseEntries.stream == stream) \
+        .first()
+
+@session_wrapper
 def fetch_modded_entries(
     mod_name: str,
     limit: int = 50,
@@ -168,6 +189,22 @@ def fetch_modded_entries(
         .order_by(DBModdedReleaseEntries.created_at.desc()) \
         .limit(limit) \
         .offset(offset) \
+        .all()
+
+@session_wrapper
+def fetch_modded_entries_between(
+    mod_name: str,
+    source_id: int,
+    target_id: int,
+    stream: str,
+    session: Session = SessionProvider
+) -> List[DBModdedReleaseEntries]:
+    return session.query(DBModdedReleaseEntries) \
+        .filter(DBModdedReleaseEntries.mod_name == mod_name) \
+        .filter(DBModdedReleaseEntries.stream == stream) \
+        .filter(DBModdedReleaseEntries.id > source_id) \
+        .filter(DBModdedReleaseEntries.id <= target_id) \
+        .order_by(DBModdedReleaseEntries.created_at.desc()) \
         .all()
 
 @session_wrapper
