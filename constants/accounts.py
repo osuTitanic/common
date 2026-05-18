@@ -106,6 +106,10 @@ ScopeDefinitions: dict[str, tuple[str, ScopeSensitivity]] = {
         'Award kudosu to a post',
         ScopeSensitivity.Medium,
     ),
+    'forum.kudosu.force_reward': (
+        'Award kudosu regardless of beatmapset status',
+        ScopeSensitivity.Staff,
+    ),
     'forum.kudosu.revoke': (
         'Revoke kudosu from a post',
         ScopeSensitivity.Medium,
