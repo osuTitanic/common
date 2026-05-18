@@ -150,9 +150,21 @@ ScopeDefinitions: dict[str, tuple[str, ScopeSensitivity]] = {
         'Create new forum topics',
         ScopeSensitivity.High,
     ),
+    'forum.topics.create_beatmap': (
+        'Create topics in beatmap forums',
+        ScopeSensitivity.Staff,
+    ),
     'forum.topics.edit': (
         'Edit forum topics',
         ScopeSensitivity.High,
+    ),
+    'forum.topics.edit_icon': (
+        'Edit topic icons where allowed by the forum',
+        ScopeSensitivity.Staff,
+    ),
+    'forum.topics.link_beatmapset': (
+        'Link and unlink beatmapsets from forum topics',
+        ScopeSensitivity.Staff,
     ),
     'forum.posts.create': (
         'Create new forum posts',
@@ -165,6 +177,46 @@ ScopeDefinitions: dict[str, tuple[str, ScopeSensitivity]] = {
     'forum.posts.edit': (
         'Edit your forum posts',
         ScopeSensitivity.High,
+    ),
+    'forum.moderation.topics.edit_icon': (
+        'Edit topic icons regardless of forum settings',
+        ScopeSensitivity.Staff,
+    ),
+    'forum.moderation.topics.lock': (
+        'Lock and unlock forum topics',
+        ScopeSensitivity.Staff,
+    ),
+    'forum.moderation.topics.set_options': (
+        'Set forum topic visibility options',
+        ScopeSensitivity.Staff,
+    ),
+    'forum.moderation.topics.set_status': (
+        'Set forum topic status text',
+        ScopeSensitivity.Staff,
+    ),
+    'forum.moderation.topics.bypass_lock': (
+        'Post or edit through locked topics',
+        ScopeSensitivity.Staff,
+    ),
+    'forum.moderation.posts.edit': (
+        "Edit other users' forum posts",
+        ScopeSensitivity.Staff,
+    ),
+    'forum.moderation.posts.delete': (
+        "Delete other users' forum posts",
+        ScopeSensitivity.Staff,
+    ),
+    'forum.moderation.posts.lock': (
+        'Lock and unlock forum posts',
+        ScopeSensitivity.Staff,
+    ),
+    'forum.moderation.posts.bypass_lock': (
+        'Edit locked forum posts',
+        ScopeSensitivity.Staff,
+    ),
+    'forum.moderation.posts.bypass_length': (
+        'Bypass forum post length limits',
+        ScopeSensitivity.Staff,
     ),
     'chat.messages.view': (
         'Read public chat messages',
