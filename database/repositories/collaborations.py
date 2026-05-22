@@ -8,7 +8,7 @@ from app.common.database.objects import (
     DBUser
 )
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from datetime import datetime
 from typing import List
 
@@ -78,6 +78,7 @@ def fetch_one(
 @session_wrapper
 def fetch_by_beatmap(beatmap_id: int, session: Session = SessionProvider) -> List[DBBeatmapCollaboration]:
     return session.query(DBBeatmapCollaboration) \
+        .options(selectinload(DBBeatmapCollaboration.user)) \
         .filter(DBBeatmapCollaboration.beatmap_id == beatmap_id) \
         .all()
 
@@ -118,6 +119,7 @@ def fetch_request(id: int, session: Session = SessionProvider) -> DBBeatmapColla
 @session_wrapper
 def fetch_requests_outgoing(beatmap_id: int, session: Session = SessionProvider) -> List[DBBeatmapCollaborationRequest]:
     return session.query(DBBeatmapCollaborationRequest) \
+        .options(selectinload(DBBeatmapCollaborationRequest.user)) \
         .filter(DBBeatmapCollaborationRequest.beatmap_id == beatmap_id) \
         .order_by(DBBeatmapCollaborationRequest.created_at.desc()) \
         .all()

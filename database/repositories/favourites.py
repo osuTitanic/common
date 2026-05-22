@@ -1,6 +1,6 @@
 
 from app.common.database.objects import DBFavourite
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from typing import List
 
 from .wrapper import session_wrapper, SessionProvider
@@ -48,6 +48,7 @@ def fetch_many(user_id: int, session: Session = SessionProvider) -> List[DBFavou
 @session_wrapper
 def fetch_many_by_set(set_id: int, limit: int = 5, session: Session = SessionProvider) -> List[DBFavourite]:
     return session.query(DBFavourite) \
+        .options(selectinload(DBFavourite.user)) \
         .filter(DBFavourite.set_id == set_id) \
         .limit(limit) \
         .all()

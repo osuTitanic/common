@@ -68,6 +68,7 @@ def fetch_by_beatmapset(
     session: Session = SessionProvider
 ) -> list[DBBeatmapNomination]:
     return session.query(DBBeatmapNomination) \
+        .options(selectinload(DBBeatmapNomination.user)) \
         .filter(DBBeatmapNomination.set_id == beatmapset_id) \
         .all()
 

@@ -167,6 +167,9 @@ def fetch_username(user_id: int, session: Session = SessionProvider) -> str | No
 
 @session_wrapper
 def fetch_usernames(user_ids: list, session: Session = SessionProvider) -> Dict[int, str]:
+    if not user_ids:
+        return {}
+
     rows = session.query(DBUser.id, DBUser.name) \
             .filter(DBUser.id.in_(user_ids)) \
             .all()
