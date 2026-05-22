@@ -6,8 +6,8 @@ from app.common.database.objects import (
     DBUser
 )
 
-from sqlalchemy.orm import selectinload, Session
-from sqlalchemy import or_, and_, func
+from sqlalchemy.orm import aliased, selectinload, Session
+from sqlalchemy import or_, func
 from datetime import datetime
 from typing import List, Dict
 
@@ -134,6 +134,7 @@ def fetch_top_scores(
         ])
 
     return session.query(DBScore) \
+        .options(selectinload(DBScore.beatmap).selectinload(DBBeatmap.beatmapset)) \
         .join(DBScore.beatmap) \
         .filter(DBBeatmap.status.in_(allowed_status)) \
         .filter(DBScore.user_id == user_id) \
@@ -180,31 +181,24 @@ def fetch_leader_scores(
     offset: int = 0,
     session: Session = SessionProvider
 ) -> List[DBScore]:
-    # Find the maximum total score for each beatmap
-    subquery = session.query(
-            DBScore.beatmap_id,
-            DBScore.mode,
-            func.max(DBScore.total_score).label('max_total_score')
-        ) \
+    other_score = aliased(DBScore)
+
+    return session.query(DBScore) \
+        .options(selectinload(DBScore.beatmap).selectinload(DBBeatmap.beatmapset)) \
         .join(DBScore.beatmap) \
         .filter(DBBeatmap.status > 0) \
-        .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_score == 3) \
-        .filter(DBScore.hidden == False) \
-        .group_by(DBScore.beatmap_id, DBScore.mode) \
-        .subquery()
-
-    # Get scores where the user has the highest total score
-    return session.query(DBScore) \
-        .join(subquery, and_(
-            DBScore.beatmap_id == subquery.c.beatmap_id,
-            DBScore.mode == subquery.c.mode,
-            DBScore.total_score == subquery.c.max_total_score
-        )) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
+        .filter(~session.query(other_score.id)
+            .filter(other_score.beatmap_id == DBScore.beatmap_id)
+            .filter(other_score.mode == DBScore.mode)
+            .filter(other_score.status_score == 3)
+            .filter(other_score.hidden == False)
+            .filter(other_score.total_score > DBScore.total_score)
+            .exists()
+        ) \
         .order_by(DBScore.id.desc()) \
         .limit(limit) \
         .offset(offset) \
@@ -216,29 +210,23 @@ def fetch_leader_count(
     mode: int,
     session: Session = SessionProvider
 ) -> int:
-    # Find the maximum total score for each beatmap
-    subquery = session.query(
-            DBScore.beatmap_id,
-            DBScore.mode,
-            func.max(DBScore.total_score).label('max_total_score')
-        ) \
-        .filter(DBScore.mode == mode) \
-        .filter(DBScore.status_score == 3) \
-        .filter(DBScore.hidden == False) \
-        .group_by(DBScore.beatmap_id, DBScore.mode) \
-        .subquery()
+    other_score = aliased(DBScore)
 
-    # Get scores where the user has the highest total score
     return session.query(func.count(DBScore.id)) \
-        .join(subquery, and_(
-            DBScore.beatmap_id == subquery.c.beatmap_id,
-            DBScore.mode == subquery.c.mode,
-            DBScore.total_score == subquery.c.max_total_score
-        )) \
+        .join(DBScore.beatmap) \
+        .filter(DBBeatmap.status > 0) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
+        .filter(~session.query(other_score.id)
+            .filter(other_score.beatmap_id == DBScore.beatmap_id)
+            .filter(other_score.mode == DBScore.mode)
+            .filter(other_score.status_score == 3)
+            .filter(other_score.hidden == False)
+            .filter(other_score.total_score > DBScore.total_score)
+            .exists()
+        ) \
         .scalar()
 
 @session_wrapper
@@ -311,6 +299,7 @@ def fetch_pinned(
     session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
+        .options(selectinload(DBScore.beatmap).selectinload(DBBeatmap.beatmapset)) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp > 1) \
@@ -668,6 +657,7 @@ def fetch_recent_by_status(
     session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
+        .options(selectinload(DBScore.beatmap).selectinload(DBBeatmap.beatmapset)) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.status_pp >= min_status) \
         .filter(DBScore.hidden == False) \
@@ -684,6 +674,7 @@ def fetch_recent_by_status_and_mode(
     session: Session = SessionProvider
 ) -> List[DBScore]:
     return session.query(DBScore) \
+        .options(selectinload(DBScore.beatmap).selectinload(DBBeatmap.beatmapset)) \
         .filter(DBScore.user_id == user_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp >= min_status) \
