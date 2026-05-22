@@ -129,6 +129,28 @@ def fetch_initial_post_id(topic_id: int, session: Session = SessionProvider) -> 
     return result.id if result else None
 
 @session_wrapper
+def fetch_initial_post_ids(
+    topic_ids: Iterable[int],
+    session: Session = SessionProvider
+) -> Dict[int, int]:
+    if not topic_ids:
+        return {}
+
+    rows = session.query(
+        DBForumPost.topic_id,
+        func.min(DBForumPost.id)
+    ) \
+        .filter(DBForumPost.hidden == False) \
+        .filter(DBForumPost.topic_id.in_(topic_ids)) \
+        .group_by(DBForumPost.topic_id) \
+        .all()
+
+    return {
+        topic_id: post_id
+        for topic_id, post_id in rows
+    }
+
+@session_wrapper
 def fetch_topic_id(post_id: int, session: Session = SessionProvider) -> int | None:
     result = session.query(DBForumPost.topic_id) \
         .filter(DBForumPost.hidden == False) \
