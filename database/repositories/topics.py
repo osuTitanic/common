@@ -7,6 +7,7 @@ from ..objects import (
     DBGroupEntry,
     DBForumIcon,
     DBForum,
+    DBGroup,
     DBUser
 )
 
@@ -116,9 +117,17 @@ def fetch_pinned_by_forum_id(
 ) -> List[DBForumTopic]:
     return session.query(DBForumTopic) \
         .options(
+            selectinload(DBForumTopic.icon).load_only(
+                DBForumIcon.id,
+                DBForumIcon.name,
+                DBForumIcon.location
+            ),
             selectinload(DBForumTopic.creator)
+            .load_only(DBUser.id, DBUser.name)
             .selectinload(DBUser.groups)
-            .selectinload(DBGroupEntry.group)
+            .load_only(DBGroupEntry.group_id)
+            .joinedload(DBGroupEntry.group)
+            .load_only(DBGroup.id, DBGroup.color)
         ) \
         .filter(DBForumTopic.forum_id == forum_id) \
         .filter(DBForumTopic.pinned == True) \
@@ -135,9 +144,17 @@ def fetch_announcements_by_forum_id(
 ) -> List[DBForumTopic]:
     return session.query(DBForumTopic) \
         .options(
+            selectinload(DBForumTopic.icon).load_only(
+                DBForumIcon.id,
+                DBForumIcon.name,
+                DBForumIcon.location
+            ),
             selectinload(DBForumTopic.creator)
+            .load_only(DBUser.id, DBUser.name)
             .selectinload(DBUser.groups)
-            .selectinload(DBGroupEntry.group)
+            .load_only(DBGroupEntry.group_id)
+            .joinedload(DBGroupEntry.group)
+            .load_only(DBGroup.id, DBGroup.color)
         ) \
         .filter(DBForumTopic.forum_id == forum_id) \
         .filter(DBForumTopic.announcement == True) \
@@ -182,9 +199,17 @@ def fetch_recent_by_last_post(
 ) -> List[DBForumTopic]:
     return session.query(DBForumTopic) \
         .options(
+            selectinload(DBForumTopic.icon).load_only(
+                DBForumIcon.id,
+                DBForumIcon.name,
+                DBForumIcon.location
+            ),
             selectinload(DBForumTopic.creator)
+            .load_only(DBUser.id, DBUser.name)
             .selectinload(DBUser.groups)
-            .selectinload(DBGroupEntry.group)
+            .load_only(DBGroupEntry.group_id)
+            .joinedload(DBGroupEntry.group)
+            .load_only(DBGroup.id, DBGroup.color)
         ) \
         .filter(DBForumTopic.forum_id == forum_id) \
         .filter(DBForumTopic.hidden == False) \
@@ -348,6 +373,6 @@ def update(
 ) -> int:
     rows = session.query(DBForumTopic) \
         .filter(DBForumTopic.id == id) \
-        .update(updates)
+        .update(updates, synchronize_session=False)
     session.flush()
     return rows

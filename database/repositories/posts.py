@@ -274,9 +274,18 @@ def fetch_last_for_topics(
 
     rows = session.query(DBForumPost) \
         .options(
+            load_only(
+                DBForumPost.id,
+                DBForumPost.topic_id,
+                DBForumPost.user_id,
+                DBForumPost.edit_time
+            ),
             selectinload(DBForumPost.user)
+            .load_only(DBUser.id, DBUser.name)
             .selectinload(DBUser.groups)
-            .selectinload(DBGroupEntry.group)
+            .load_only(DBGroupEntry.group_id)
+            .joinedload(DBGroupEntry.group)
+            .load_only(DBGroup.id, DBGroup.color)
         ) \
         .join(
             subquery,
