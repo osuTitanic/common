@@ -639,39 +639,43 @@ def top_players_with_count(
 def top_countries(mode: int) -> List[dict]:
     """Get a list of the top countries"""
     country_rankings = []
+    country_codes = [
+        country
+        for country in countries.keys()
+        if country != 'XX'
+    ]
+    results_by_country = {
+        country: {}
+        for country in country_codes
+    }
+    score_types = ('performance', 'rscore', 'tscore')
 
-    for country in countries.keys():
-        if country == 'XX':
-            continue
+    with app.session.redis.pipeline() as pipe:
+        requests = []
 
-        country_performance = app.session.redis.zrevrangebyscore(
-            f'bancho:performance:{mode}:{country.lower()}',
-            '+inf',
-            '1',
-            withscores=True
-        )
+        for country in country_codes:
+            country_code = country.lower()
 
-        if not country_performance:
-            continue
+            for score_type in score_types:
+                pipe.zrevrangebyscore(
+                    f'bancho:{score_type}:{mode}:{country_code}',
+                    '+inf',
+                    '1',
+                    withscores=True
+                )
+                requests.append((country, score_type))
 
-        country_rscore = app.session.redis.zrevrangebyscore(
-            f'bancho:rscore:{mode}:{country.lower()}',
-            '+inf',
-            '1',
-            withscores=True
-        )
+        results = pipe.execute()
 
-        if not country_rscore:
-            continue
+    for (country, score_type), result in zip(requests, results):
+        results_by_country[country][score_type] = result
 
-        country_tscore = app.session.redis.zrevrangebyscore(
-            f'bancho:tscore:{mode}:{country.lower()}',
-            '+inf',
-            '1',
-            withscores=True
-        )
+    for country, country_results in results_by_country.items():
+        country_performance = country_results['performance']
+        country_rscore = country_results['rscore']
+        country_tscore = country_results['tscore']
 
-        if not country_tscore:
+        if not country_performance or not country_rscore or not country_tscore:
             continue
 
         total_performance = sum(score for member, score in country_performance)
