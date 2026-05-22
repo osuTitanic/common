@@ -111,9 +111,13 @@ class DBBeatmapset(Base):
         return f"{self.body_hash}{self.meta_hash}".upper()
 
     @property
+    def url(self):
+        return f'{config.OSU_BASEURL}/s/{self.id}'
+
+    @property
     def link(self):
         return (
-            f'[http://osu.{config.DOMAIN_NAME}/s/{self.id} '
+            f'[{self.url}] '
             f'{self.full_name.replace("[", "(").replace("]", ")")}]'
         )
 
@@ -167,12 +171,15 @@ class DBBeatmap(Base):
         return f'{self.beatmapset.artist} - {self.beatmapset.title} [{self.version}]'
 
     @property
-    def link(self):
-        name = self.full_name \
-                   .replace('[', '(') \
-                   .replace(']', ')')
+    def url(self):
+        return f'{config.OSU_BASEURL}/b/{self.id}'
 
-        return f'[http://osu.{config.DOMAIN_NAME}/b/{self.id} {name}]'
+    @property
+    def link(self):
+        return (
+            f'[{self.url}] '
+            f'{self.full_name.replace("[", "(").replace("]", ")")}]'
+        )
 
     @property
     def is_ranked(self) -> bool:
