@@ -182,11 +182,16 @@ def fetch_modded_entries(
     mod_name: str,
     limit: int = 50,
     offset: int = 0,
+    version: str | None = None,
     session: Session = SessionProvider
 ) -> List[DBModdedReleaseEntries]:
-    return session.query(DBModdedReleaseEntries) \
-        .filter(DBModdedReleaseEntries.mod_name == mod_name) \
-        .order_by(DBModdedReleaseEntries.created_at.desc()) \
+    query = session.query(DBModdedReleaseEntries) \
+        .filter(DBModdedReleaseEntries.mod_name == mod_name)
+
+    if version is not None:
+        query = query.filter(DBModdedReleaseEntries.version == version)
+
+    return query.order_by(DBModdedReleaseEntries.created_at.desc()) \
         .limit(limit) \
         .offset(offset) \
         .all()
