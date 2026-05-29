@@ -84,13 +84,17 @@ def get(player_id: int) -> UserStats | None:
     )
 
 def get_keys() -> List[str]:
-    return [
-        key.decode()
-        for key in app.session.redis.keys('bancho:status:*') # type: ignore
-    ] + [
-        key.decode()
-        for key in app.session.redis.keys('bancho:stats:*') # type: ignore
-    ]
+    keys = []
+    patterns = ("bancho:status:*", "bancho:stats:*")
+
+    with app.session.redis.pipeline() as pipe:
+        for pattern in patterns:
+            pipe.scan_iter(match=pattern, count=1000)
+
+        for result in pipe.execute():
+            keys.extend(key.decode() for key in result)
+
+    return keys
 
 def delete(player_id: int) -> None:
     app.session.redis.hdel(
