@@ -108,6 +108,7 @@ def fetch_for_profile(id: int, session: Session = SessionProvider) -> DBUser | N
             selectinload(DBUser.achievements),
             selectinload(DBUser.names),
             selectinload(DBUser.badges),
+            selectinload(DBUser.stamps),
             selectinload(DBUser.groups)
                 .selectinload(DBGroupEntry.group)
                 .load_only(DBGroup.id, DBGroup.short_name, DBGroup.color)
