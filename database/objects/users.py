@@ -80,6 +80,18 @@ class DBBadge(Base):
 
     user: Mapped["DBUser"] = relationship('DBUser', back_populates='badges')
 
+class DBStamp(Base):
+    __tablename__ = "profile_stamps"
+
+    id: Mapped[int] = mapped_column('id', Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column('user_id', Integer, ForeignKey('users.id'))
+    created: Mapped[datetime] = mapped_column('created', DateTime, server_default=func.now())
+    icon: Mapped[str] = mapped_column('icon', String)
+    url: Mapped[str | None] = mapped_column('url', String, nullable=True)
+    description: Mapped[str | None] = mapped_column('description', String, nullable=True)
+
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='badges')
+
 class DBName(Base):
     __tablename__ = "name_history"
 
@@ -243,6 +255,7 @@ class DBUser(Base):
     ratings: Mapped[List['DBRating']] = relationship('DBRating', back_populates='user')
     scores: Mapped[List['DBScore']] = relationship('DBScore', back_populates='user')
     badges: Mapped[List['DBBadge']] = relationship('DBBadge', back_populates='user')
+    stamps: Mapped[List['DBStamp']] = relationship('DBStamp', back_populates='user')
     stats: Mapped[List['DBStats']] = relationship('DBStats', back_populates='user')
     names: Mapped[List['DBName']] = relationship('DBName', back_populates='user')
     plays: Mapped[List['DBPlay']] = relationship('DBPlay', back_populates='user')
