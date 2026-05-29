@@ -35,6 +35,7 @@ from . import (
     groups,
     scores,
     logins,
+    stamps,
     posts,
     packs,
     names,

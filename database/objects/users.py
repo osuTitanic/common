@@ -90,7 +90,7 @@ class DBStamp(Base):
     url: Mapped[str | None] = mapped_column('url', String, nullable=True)
     description: Mapped[str | None] = mapped_column('description', String, nullable=True)
 
-    user: Mapped["DBUser"] = relationship('DBUser', back_populates='badges')
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='stamps')
 
 class DBName(Base):
     __tablename__ = "name_history"
