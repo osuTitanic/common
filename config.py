@@ -216,11 +216,6 @@ class Config(BaseSettings):
     # Ko-Fi token for donation callbacks
     KOFI_VERIFICATION_TOKEN: str | None = None
 
-    # Bitview configuration (optional)
-    BITVIEW_API_ENDPOINT: str | None = None
-    BITVIEW_USERNAME: str | None = None
-    BITVIEW_CLOUDFLARE_SOLVER: str | None = None
-
     ## Discord bot configuration (optional)
     ENABLE_DISCORD_BOT: bool = False
     DISCORD_BOT_PREFIX: str = "!"
@@ -356,11 +351,6 @@ class Config(BaseSettings):
     @property
     def SITEMAP_ENABLED(self) -> bool:
         return self.DOMAIN_NAME in ("titanic.sh", "localhost")
-
-    @computed_field
-    @property
-    def BITVIEW_ENABLED(self) -> bool:
-        return bool(self.BITVIEW_API_ENDPOINT and self.BITVIEW_USERNAME)
 
     @computed_field
     @property
