@@ -5,7 +5,9 @@ from .wrapper import session_wrapper, SessionProvider
 from sqlalchemy.orm import Session, joinedload, selectinload, load_only
 from typing import Dict, Iterable, List
 from datetime import datetime
-from sqlalchemy import func
+from sqlalchemy import func, or_
+
+import re
 
 @session_wrapper
 def create(
@@ -361,6 +363,52 @@ def fetch_last_for_forums(
         .all()
 
     return {row.forum_id: row for row in rows}
+
+@session_wrapper
+def search(query: str, offset: int = 0, limit: int = 15, session: Session = SessionProvider) -> List[DBForumPost]:
+    sanitized_query = re.sub(
+        r'[^\w\s]', '',
+        query
+    )
+    words = [
+        word.strip()
+        for word in sanitized_query.split()
+        if word.strip()
+    ]
+
+    if not words:
+        return []
+
+    main_tsquery = func.plainto_tsquery(
+        'english',
+        query
+    )
+    fuzzy_tsquery = func.to_tsquery(
+        'english',
+        ' & '.join(f'{word}:*' for word in words)
+    )
+    rank = func.ts_rank(
+        DBForumPost.search_vector,
+        main_tsquery
+    )
+
+    return session.query(DBForumPost) \
+        .options(
+            joinedload(DBForumPost.topic),
+            selectinload(DBForumPost.icon),
+            selectinload(DBForumPost.user)
+        ) \
+        .filter(DBForumPost.hidden == False) \
+        .filter(DBForumPost.draft == False) \
+        .filter(DBForumPost.deleted == False) \
+        .filter(or_(
+            DBForumPost.search_vector.op('@@')(main_tsquery),
+            DBForumPost.search_vector.op('@@')(fuzzy_tsquery)
+        )) \
+        .order_by(rank.desc(), DBForumPost.id.desc()) \
+        .limit(limit) \
+        .offset(offset) \
+        .all()
 
 @session_wrapper
 def update_by_topic(

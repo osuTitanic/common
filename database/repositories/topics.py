@@ -12,8 +12,10 @@ from ..objects import (
 )
 
 from sqlalchemy.orm import Session, joinedload, selectinload
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from typing import List
+
+import re
 
 @session_wrapper
 def create(
@@ -214,6 +216,49 @@ def fetch_recent_by_last_post(
         .filter(DBForumTopic.forum_id == forum_id) \
         .filter(DBForumTopic.hidden == False) \
         .order_by(DBForumTopic.last_post_at.desc()) \
+        .limit(limit) \
+        .offset(offset) \
+        .all()
+
+@session_wrapper
+def search(query: str, offset: int = 0, limit: int = 15, session: Session = SessionProvider) -> List[DBForumTopic]:
+    sanitized_query = re.sub(
+        r'[^\w\s]', '',
+        query
+    )
+    words = [
+        word.strip()
+        for word in sanitized_query.split()
+        if word.strip()
+    ]
+
+    if not words:
+        return []
+
+    main_tsquery = func.plainto_tsquery(
+        'english',
+        query
+    )
+    fuzzy_tsquery = func.to_tsquery(
+        'english',
+        ' & '.join(f'{word}:*' for word in words)
+    )
+    rank = func.ts_rank(
+        DBForumTopic.search_vector,
+        main_tsquery
+    )
+
+    return session.query(DBForumTopic) \
+        .options(
+            selectinload(DBForumTopic.icon),
+            selectinload(DBForumTopic.creator)
+        ) \
+        .filter(DBForumTopic.hidden == False) \
+        .filter(or_(
+            DBForumTopic.search_vector.op('@@')(main_tsquery),
+            DBForumTopic.search_vector.op('@@')(fuzzy_tsquery)
+        )) \
+        .order_by(rank.desc(), DBForumTopic.id.desc()) \
         .limit(limit) \
         .offset(offset) \
         .all()
