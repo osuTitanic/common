@@ -1,18 +1,21 @@
 
-from sqlalchemy.orm import mapped_column, Mapped, relationship
+from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.orm import mapped_column, Mapped, relationship, deferred
 from sqlalchemy.sql import func
 from sqlalchemy import (
     ForeignKey,
     BigInteger,
     DateTime,
     Boolean,
+    Computed,
     Integer,
     Column,
-    String
+    String,
+    Text,
 )
 
+from typing import List, Any
 from datetime import datetime
-from typing import List
 from .beatmaps import DBBeatmapModding
 from .users import DBUser
 from .base import Base
@@ -66,6 +69,13 @@ class DBForumTopic(Base):
     hidden: Mapped[bool] = mapped_column('hidden', Boolean, default=False)
     pinned: Mapped[bool] = mapped_column('pinned', Boolean, default=False)
 
+    search_vector: Mapped[Any] = deferred(
+        mapped_column(
+            'search_vector', TSVECTOR,
+            Computed("to_tsvector('english', coalesce(title, ''))", persisted=True)
+        )
+    )
+
     forum: Mapped["DBForum"] = relationship('DBForum', back_populates='topics')
     icon: Mapped["DBForumIcon"] = relationship('DBForumIcon', back_populates='topics')
     posts: Mapped[List["DBForumPost"]] = relationship('DBForumPost', back_populates='topic')
@@ -100,6 +110,13 @@ class DBForumPost(Base):
     hidden: Mapped[bool] = mapped_column('hidden', Boolean, default=False)
     draft: Mapped[bool] = mapped_column('draft', Boolean, default=False)
     deleted: Mapped[bool] = mapped_column('deleted', Boolean, default=False)
+
+    search_vector: Mapped[Any] = deferred(
+        mapped_column(
+            'search_vector', TSVECTOR,
+            Computed("to_tsvector('english', coalesce(content, ''))", persisted=True)
+        )
+    )
 
     modding: Mapped['DBBeatmapModding'] = relationship('DBBeatmapModding', back_populates='post')
     user: Mapped['DBUser'] = relationship('DBUser', back_populates='created_posts')
