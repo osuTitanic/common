@@ -115,16 +115,15 @@ def render_link(tag_name, value, options, parent, context):
     url = sanitize_url(unquote(options.get('url', '')))
     return '<a href="%s" target="_blank">%s</a>' % (url, value)
 
-@parser.formatter('quote')
+@parser.formatter('quote', render_embedded=False, strip_embedded_tags=True)
 def render_quote(tag_name, value, options, parent, context):
     if 'quote' not in options:
-        return '<blockquote>%s</blockquote>' % value
+        return '<div class="quotecontent">%s</div>' % value
 
     return (
-        '<blockquote>'
-        '<h4>%s wrote:</h4><i>'
-        '%s'
-        '</i></blockquote>' % (sanitize_input(options["quote"]), value)
+        '<div class="quotetitle">%s wrote:</div>'
+        '<div class="quotecontent">%s</div>'
+        % (sanitize_input(options["quote"]), value)
     )
 
 @parser.formatter('size')

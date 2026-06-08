@@ -479,8 +479,12 @@ class Parser:
                         inner = self._format_tokens(subtokens, tag, depth=depth + 1, **context)
                     else:
                         # Otherwise, just concatenate all the token text.
+                        text = "".join([t[3] for t in subtokens])
+                        if tag.strip_embedded_tags:
+                            text = self.strip(text)
+
                         inner = self._transform(
-                            "".join([t[3] for t in subtokens]),
+                            text,
                             tag.escape_html,
                             tag.replace_links,
                             tag.replace_cosmetic,

@@ -62,6 +62,9 @@ class TagOptions:
     # True if tags should be rendered inside this tag.
     render_embedded = True
 
+    # True if embedded tags should be removed before rendering this tag.
+    strip_embedded_tags = False
+
     # True if newlines should be converted to markup.
     transform_newlines = True
 
