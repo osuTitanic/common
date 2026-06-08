@@ -17,6 +17,7 @@ parser.add_simple_formatter('heading', '<h2>%(value)s</h2>')
 parser.add_simple_formatter('strike', '<strike>%(value)s</strike>')
 parser.add_simple_formatter('centre', '<center>%(value)s</center>')
 parser.add_simple_formatter('spoiler', '<span style="background-color: black;">%(value)s</span>')
+parser.add_simple_formatter('notice', '<div style="background: none repeat scroll 0%% 0%% rgb(249, 247, 254); border: 1px solid rgb(225, 223, 231); margin: 6px; padding: 5px;">%(value)s</div>')
 
 code_block_template = (
     '<b>Code:</b><br>'
