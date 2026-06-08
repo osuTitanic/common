@@ -16,6 +16,7 @@ parser.add_simple_formatter('u', '<u>%(value)s</u>')
 parser.add_simple_formatter('heading', '<h2>%(value)s</h2>')
 parser.add_simple_formatter('strike', '<strike>%(value)s</strike>')
 parser.add_simple_formatter('centre', '<center>%(value)s</center>')
+parser.add_simple_formatter('spoiler', '<span style="background-color: black;">%(value)s</span>')
 
 parser.add_simple_formatter(
     'code',
