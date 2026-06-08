@@ -18,9 +18,16 @@ parser.add_simple_formatter('strike', '<strike>%(value)s</strike>')
 parser.add_simple_formatter('centre', '<center>%(value)s</center>')
 parser.add_simple_formatter('spoiler', '<span style="background-color: black;">%(value)s</span>')
 
+code_block_template = (
+    '<b>Code:</b><br>'
+    '<div style="direction: ltr; margin: 5px; padding: 3px; border: 1px solid black; '
+    "font-weight: normal; font-family: Monaco,'Courier New',monospace; "
+    'background-color: rgb(242, 242, 242); overflow: scroll;">%(value)s</div>'
+)
+
 parser.add_simple_formatter(
     'code',
-    '%(value)s',
+    code_block_template,
     same_tag_closes=True,
     render_embedded=False,
     transform_newlines=True,
@@ -31,7 +38,7 @@ parser.add_simple_formatter(
 
 parser.add_simple_formatter(
     'c',
-    '%(value)s',
+    code_block_template,
     same_tag_closes=True,
     render_embedded=False,
     transform_newlines=True,
