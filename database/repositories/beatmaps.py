@@ -122,6 +122,13 @@ def fetch_id_by_filename(filename: str, session: Session = SessionProvider) -> i
         .scalar()
 
 @session_wrapper
+def fetch_id_by_set_and_filename(set_id: int, filename: str, session: Session = SessionProvider) -> int | None:
+    return session.query(DBBeatmap.id) \
+        .filter(DBBeatmap.set_id == set_id) \
+        .filter(DBBeatmap.filename == filename) \
+        .scalar()
+
+@session_wrapper
 def fetch_filename_by_id(beatmap_id: int, session: Session = SessionProvider) -> str | None:
     return session.query(DBBeatmap.filename) \
         .filter(DBBeatmap.id == beatmap_id) \
