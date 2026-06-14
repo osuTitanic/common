@@ -259,6 +259,27 @@ def fetch_official_by_version(version: int, session: Session = SessionProvider) 
         .first()
 
 @session_wrapper
+def fetch_official_by_lookup(
+    version: int,
+    subversion: int | None = None,
+    stream: str | None = None,
+    session: Session = SessionProvider
+) -> List[DBReleasesOfficial]:
+    query = session.query(DBReleasesOfficial) \
+        .filter(DBReleasesOfficial.version == version)
+
+    if subversion is not None:
+        query = query.filter(DBReleasesOfficial.subversion == subversion)
+
+    if stream is not None:
+        query = query.filter(DBReleasesOfficial.stream == stream)
+
+    return query.order_by(
+        DBReleasesOfficial.version.desc(),
+        DBReleasesOfficial.subversion.desc()
+    ).all()
+
+@session_wrapper
 def fetch_official_range(
     limit: int = 50,
     offset: int = 0,
