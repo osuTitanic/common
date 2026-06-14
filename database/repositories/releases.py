@@ -263,12 +263,20 @@ def fetch_official_range(
     limit: int = 50,
     offset: int = 0,
     stream: str | None = None,
+    before: datetime | None = None,
+    after: datetime | None = None,
     session: Session = SessionProvider
 ) -> List[DBReleasesOfficial]:
     query = session.query(DBReleasesOfficial)
 
     if stream is not None:
         query = query.filter(DBReleasesOfficial.stream == stream)
+
+    if before is not None:
+        query = query.filter(DBReleasesOfficial.created_at < before)
+
+    if after is not None:
+        query = query.filter(DBReleasesOfficial.created_at > after)
 
     return query.order_by(DBReleasesOfficial.version.desc(), DBReleasesOfficial.subversion.desc()) \
                 .limit(limit) \
