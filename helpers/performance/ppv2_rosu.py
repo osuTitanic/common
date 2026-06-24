@@ -18,7 +18,7 @@ from rosu_pp_py import (
 
 class RosuPerformanceCalculator(PerformanceCalculator):
     def calculate_ppv2(self, score: DBScore) -> float | None:
-        beatmap_file = self.storage.get_beatmap(score.beatmap_id)
+        beatmap_file = self.beatmaps.osu(score.beatmap_id)
 
         if not beatmap_file:
             self.logger.error(

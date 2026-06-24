@@ -1,7 +1,7 @@
 
+from app.common.helpers.beatmaps import BeatmapResources
 from app.common.database.objects import DBScore
 from app.common.constants import GameMode, Mods
-from app.common.storage import Storage
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
@@ -18,8 +18,8 @@ class DifficultyAttributes:
     difficulty_attributes: dict[str, Any]
 
 class PerformanceCalculator(ABC):
-    def __init__(self, storage: Storage) -> None:
-        self.storage = storage
+    def __init__(self, beatmaps: BeatmapResources) -> None:
+        self.beatmaps = beatmaps
         self.logger = logging.getLogger('performance')
 
     @abstractmethod
@@ -31,7 +31,7 @@ class PerformanceCalculator(ABC):
         ...
 
     def calculate_difficulty_from_id(self, beatmap_id: int, mode: GameMode, mods: Mods) -> DifficultyAttributes | None:
-        beatmap_file = self.storage.get_beatmap(beatmap_id)
+        beatmap_file = self.beatmaps.osu(beatmap_id)
 
         if not beatmap_file:
             self.logger.error(f"Difficulty calculation failed: Beatmap file was not found! ({beatmap_id})")
@@ -53,7 +53,7 @@ class PerformanceCalculator(ABC):
             # NC somehow only appears with DT enabled at the same time
             # https://github.com/ppy/osu-api/wiki#mods
             mods |= Mods.DoubleTime
-        
+
         if Mods.Perfect in mods and not Mods.SuddenDeath in mods:
             # The same seems to be the case for PF & SD
             mods |= Mods.SuddenDeath

@@ -2,22 +2,23 @@
 from app.common.database.repositories import resources, beatmapsets
 from app.common.database.objects import DBResourceMirror
 from app.common.config import config_instance as config
+from .resolver import BeatmapResourceProvider
 
 from requests.exceptions import ConnectionError
 from requests.adapters import HTTPAdapter
 from requests import Session, Response
 from urllib3.util.retry import Retry
 from urllib.parse import urlparse
-from typing import List, Any
+from typing import Iterator, List, Any
 from redis import Redis
 
 import logging
 
-class Beatmaps:
-    """Wrapper for different beatmap resources, using different API's"""
+class MirrorResolver(BeatmapResourceProvider):
+    """Resolves beatmap resources from external mirrors over HTTP"""
 
     def __init__(self, cache: Redis) -> None:
-        self.logger = logging.getLogger('beatmap-api')
+        self.logger = logging.getLogger('beatmap-mirror')
         self.id_offset = 1000000000
 
         self.session = self.create_session()
@@ -25,7 +26,7 @@ class Beatmaps:
 
     def create_session(self) -> Session:
         session = Session()
-        session.headers = {'User-Agent': f'osuTitanic ({config.DOMAIN_NAME})'}
+        session.headers.update({'User-Agent': f'osuTitanic ({config.DOMAIN_NAME})'})
 
         retries = Retry(
             total=4,
@@ -132,7 +133,7 @@ class Beatmaps:
         if not mirrors:
             return []
 
-        mirror_index = int(mirror_index) # type: ignore
+        mirror_index = int(mirror_index)
         next_index = (mirror_index + 1) % len(mirrors)
 
         self.cache.set(
@@ -142,7 +143,7 @@ class Beatmaps:
 
         return mirrors[mirror_index:] + mirrors[:mirror_index]
 
-    def osz(self, set_id: int, no_video: bool = False) -> Response | None:
+    def osz_response(self, set_id: int, no_video: bool = False) -> Response | None:
         self.logger.debug(f'Downloading osz... ({set_id})')
 
         mirrors = self.resolve_mirrors(
@@ -165,6 +166,11 @@ class Beatmaps:
             return response
 
         return None
+
+    def osz(self, set_id: int, no_video: bool = False) -> Iterator | None:
+        if not (response := self.osz_response(set_id, no_video)):
+            return None
+        return response.iter_content(chunk_size=1024 * 64)
 
     def osu(self, beatmap_id: int) -> bytes | None:
         self.logger.debug(f'Downloading beatmap... ({beatmap_id})')
@@ -208,7 +214,7 @@ class Beatmaps:
 
         return None
 
-    def background(self, set_id: int, large=False) -> bytes | None:
+    def background(self, set_id: int, large: bool = False) -> bytes | None:
         self.logger.debug(f'Downloading background... ({set_id})')
 
         mirrors = self.resolve_mirrors(
@@ -226,6 +232,8 @@ class Beatmaps:
                 continue
 
             return response.content
+
+        return None
 
     @staticmethod
     def resolve_header(
