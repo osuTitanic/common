@@ -28,7 +28,8 @@ class StorageResolver(BeatmapResourceProvider):
         if not (osz := self.storage.get_osz_internal(set_id)):
             return None, 0
 
-        return NoVideoZipIterator(io.BytesIO(osz)), len(osz)
+        iterator = NoVideoZipIterator(io.BytesIO(osz))
+        return iterator, len(iterator)
 
     def osu(self, beatmap_id: int) -> bytes | None:
         self.logger.debug(f'Reading beatmap from storage... ({beatmap_id})')
