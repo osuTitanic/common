@@ -1,8 +1,9 @@
 
 from typing import Iterator
+from PIL import Image
 
-from .resolver import BeatmapResourceProvider
 from ...storage.base import BaseStorage
+from .resolver import BeatmapResourceProvider
 
 import logging
 import io
@@ -44,12 +45,6 @@ class StorageResolver(BeatmapResourceProvider):
         return self.resize_thumbnail(image)
 
     def resize_thumbnail(self, image: bytes) -> bytes:
-        # this is hacky and i don't like it
-        try:
-            from PIL import Image
-        except ImportError:
-            return image
-
         try:
             buffer = io.BytesIO()
             resized = Image.open(io.BytesIO(image)).resize(
