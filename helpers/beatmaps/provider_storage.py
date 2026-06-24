@@ -2,8 +2,9 @@
 from typing import Iterator
 from PIL import Image
 
-from ...storage.base import BaseStorage
 from .resolver import BeatmapResourceProvider
+from ..streaming import NoVideoZipIterator
+from ...storage.base import BaseStorage
 
 import logging
 import io
@@ -17,12 +18,17 @@ class StorageResolver(BeatmapResourceProvider):
 
     def osz(self, set_id: int, no_video: bool = False) -> Iterator | None:
         self.logger.debug(f'Reading osz from storage... ({set_id})')
-        # TODO: Filter out video dynamically when no_video is set
 
         if not self.storage.file_exists(f'{set_id}', 'osz'):
             return None
 
-        return self.storage.get_osz_iterable(set_id)
+        if not no_video:
+            return self.storage.get_osz_iterable(set_id)
+
+        if not (osz := self.storage.get_osz_internal(set_id)):
+            return None
+
+        return NoVideoZipIterator(io.BytesIO(osz))
 
     def osu(self, beatmap_id: int) -> bytes | None:
         self.logger.debug(f'Reading beatmap from storage... ({beatmap_id})')
