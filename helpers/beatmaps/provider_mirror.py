@@ -4,12 +4,12 @@ from app.common.database.objects import DBResourceMirror
 from app.common.config import config_instance as config
 from .resolver import BeatmapResourceProvider
 
+from typing import Iterator, List, Any, Tuple
 from requests.exceptions import ConnectionError
 from requests.adapters import HTTPAdapter
 from requests import Session, Response
 from urllib3.util.retry import Retry
 from urllib.parse import urlparse
-from typing import Iterator, List, Any
 from redis import Redis
 
 import logging
@@ -167,10 +167,14 @@ class MirrorResolver(BeatmapResourceProvider):
 
         return None
 
-    def osz(self, set_id: int, no_video: bool = False) -> Iterator | None:
+    def osz(self, set_id: int, no_video: bool = False) -> Tuple[Iterator | None, int]:
         if not (response := self.osz_response(set_id, no_video)):
-            return None
-        return response.iter_content(chunk_size=1024 * 64)
+            return None, 0
+
+        return (
+            response.iter_content(chunk_size=1024 * 64),
+            self.resolve_header(response, 'Content-Length', 0, cast=int)
+        )
 
     def osu(self, beatmap_id: int) -> bytes | None:
         self.logger.debug(f'Downloading beatmap... ({beatmap_id})')

@@ -1,12 +1,12 @@
 
-from typing import Iterator
 from abc import ABC, abstractmethod
+from typing import Iterator, Tuple
 
 class BeatmapResourceProvider(ABC):
     """Resolves beatmap resources from a single source"""
 
     @abstractmethod
-    def osz(self, set_id: int, no_video: bool = False) -> Iterator | None:
+    def osz(self, set_id: int, no_video: bool = False) -> Tuple[Iterator | None, int]:
         """Stream an .osz archive for the given beatmapset"""
         ...
 

@@ -5,8 +5,8 @@ from .resolver import BeatmapResourceProvider
 from .provider_mirror import MirrorResolver
 from .provider_storage import StorageResolver
 
+from typing import Iterator, Tuple
 from datetime import timedelta
-from typing import Iterator
 from redis import Redis
 
 import logging
@@ -31,7 +31,7 @@ class BeatmapResources:
         }
         self.fallback = self.mirror_resolver
 
-    def osz(self, set_id: int, no_video: bool = False) -> Iterator | None:
+    def osz(self, set_id: int, no_video: bool = False) -> Tuple[Iterator | None, int]:
         """Stream an .osz archive for the given set"""
         return self.resolver_for_set(set_id).osz(set_id, no_video)
 

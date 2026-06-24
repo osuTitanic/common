@@ -1,5 +1,5 @@
 
-from typing import Iterator
+from typing import Iterator, Tuple
 from PIL import Image
 
 from .resolver import BeatmapResourceProvider
@@ -16,19 +16,19 @@ class StorageResolver(BeatmapResourceProvider):
         self.logger = logging.getLogger('beatmap-storage')
         self.storage = storage
 
-    def osz(self, set_id: int, no_video: bool = False) -> Iterator | None:
+    def osz(self, set_id: int, no_video: bool = False) -> Tuple[Iterator | None, int]:
         self.logger.debug(f'Reading osz from storage... ({set_id})')
 
         if not self.storage.file_exists(f'{set_id}', 'osz'):
-            return None
+            return None, 0
 
         if not no_video:
-            return self.storage.get_osz_iterable(set_id)
+            return self.storage.get_osz_iterable(set_id), self.storage.get_osz_size(set_id) or 0
 
         if not (osz := self.storage.get_osz_internal(set_id)):
-            return None
+            return None, 0
 
-        return NoVideoZipIterator(io.BytesIO(osz))
+        return NoVideoZipIterator(io.BytesIO(osz)), len(osz)
 
     def osu(self, beatmap_id: int) -> bytes | None:
         self.logger.debug(f'Reading beatmap from storage... ({beatmap_id})')
