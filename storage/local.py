@@ -1,5 +1,5 @@
 
-from typing import Generator, List
+from typing import Generator, List, IO
 
 from ..config import Config
 from .base import BaseStorage
@@ -44,6 +44,15 @@ class LocalStorage(BaseStorage):
             return None
         except Exception as e:
             self.logger.error(f'Failed to read file "{bucket}/{key}": {e}')
+            return None
+
+    def get_io(self, key: str, bucket: str) -> IO[bytes] | None:
+        try:
+            return open(f'{self.config.DATA_PATH}/{bucket}/{key}', 'rb')
+        except FileNotFoundError:
+            return None
+        except Exception as e:
+            self.logger.error(f'Failed to open file "{bucket}/{key}": {e}')
             return None
 
     def get_size(self, key: str, bucket: str) -> int | None:
