@@ -1,5 +1,5 @@
 
-from typing import Generator, List, Any
+from typing import Generator, List, Any, IO
 from abc import ABC, abstractmethod
 from sqlalchemy.orm import Session
 from datetime import timedelta
@@ -32,6 +32,9 @@ class BaseStorage(ABC):
 
     @abstractmethod
     def get_iterator(self, key: str, bucket: str, chunk_size: int = 1024 * 64) -> Generator: ...
+
+    @abstractmethod
+    def get_io(self, key: str, bucket: str) -> IO[bytes] | None: ...
 
     @abstractmethod
     def get_size(self, key: str, bucket: str) -> int | None: ...
