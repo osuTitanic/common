@@ -7,6 +7,11 @@ from typing import BinaryIO
 class S3FileReader(RawIOBase, BinaryIO):
     """A read-only, file-like object that actually reads S3 files"""
 
+    # Amount of data to fetch per range request.
+    # Consumers like zipfile read in tiny chunks, so without buffering,
+    # every chunk would result in a ton of unnecessary requests.
+    block_size = 6 * 1024 * 1024
+
     def __init__(
         self,
         s3: BaseClient,
@@ -19,6 +24,8 @@ class S3FileReader(RawIOBase, BinaryIO):
         self.key = key
         self.size = size
         self.position = 0
+        self.buffer = b''
+        self.buffer_start = 0
 
     def __repr__(self) -> str:
         return f'<S3FileReader "{self.bucket}/{self.key}" ({self.size} bytes)>'
@@ -51,23 +58,46 @@ class S3FileReader(RawIOBase, BinaryIO):
             return b''
 
         if size is None or size < 0:
-            # Read until the end of the object
-            end = self.size - 1
-        else:
-            end = min(self.position + size, self.size) - 1
+            # Size specified to read everything
+            data = self.fetch(self.position, self.size - 1)
+            self.position += len(data)
+            return data
 
-        if end < self.position:
-            return b''
+        # Read a specific number of bytes, buffering as necessary
+        result = bytearray()
+        remaining = size
 
+        while remaining > 0 and self.position < self.size:
+            is_buffered = (
+                self.buffer_start <= self.position < self.buffer_start + len(self.buffer)
+            )
+
+            if not is_buffered:
+                # Requested position isn't buffered -> prefetch a new block
+                end = min(self.position + self.block_size, self.size) - 1
+                self.buffer = self.fetch(self.position, end)
+                self.buffer_start = self.position
+
+                if not self.buffer:
+                    break
+
+            # Use the buffered data to complete the read request
+            offset = self.position - self.buffer_start
+            chunk = self.buffer[offset:offset + remaining]
+            result += chunk
+
+            self.position += len(chunk)
+            remaining -= len(chunk)
+
+        return bytes(result)
+
+    def fetch(self, start: int, end: int) -> bytes:
         response = self.s3.get_object(
             Bucket=self.bucket,
             Key=self.key,
-            Range=f'bytes={self.position}-{end}'
+            Range=f'bytes={start}-{end}'
         )
-
-        data = response['Body'].read()
-        self.position += len(data)
-        return data
+        return response['Body'].read()
 
     def seek(self, offset: int, whence: int = SEEK_SET) -> int:
         if whence == SEEK_SET:
