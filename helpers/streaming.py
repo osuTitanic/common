@@ -1,6 +1,6 @@
 
+from typing import IO, Generator
 from zipstream import ZipStream
-from typing import BinaryIO, Generator
 from pathlib import PurePath
 from zipfile import ZipFile
 
@@ -14,9 +14,9 @@ video_file_extensions = frozenset((
 class NoVideoZipIterator:
     """An iterator that streams a zip file while excluding video files"""
 
-    def __init__(self, source: BinaryIO) -> None:
+    def __init__(self, source: IO[bytes]) -> None:
         self.closed: bool = False
-        self.source: BinaryIO | None = source
+        self.source: IO[bytes] | None = source
         self.source_zip = ZipFile(source, 'r')
         self.zip_stream = ZipStream(sized=True)
         self.iterator: Generator | None = None

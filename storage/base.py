@@ -138,6 +138,9 @@ class BaseStorage(ABC):
     def get_osz_iterable(self, set_id: int, chunk_size: int = 1024 * 64) -> Generator:
         return self.get_iterator(f'{set_id}', 'osz', chunk_size)
 
+    def get_osz_io(self, set_id: int) -> IO[bytes] | None:
+        return self.get_io(f'{set_id}', 'osz')
+
     def get_osz_size(self, set_id: int) -> int | None:
         return self.get_size(f'{set_id}', 'osz')
 
