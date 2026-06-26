@@ -23,10 +23,11 @@ class NoVideoZipIterator:
         self.prepare_stream()
 
     def __len__(self) -> int:
+        assert self.zip_stream is not None
         return len(self.zip_stream)
 
-    def __iter__(self) -> Generator:
-        return self
+    def __iter__(self) -> Generator[bytes, None, None]:
+        return self # type: ignore
 
     def __del__(self) -> None:
         self.close()
@@ -36,6 +37,7 @@ class NoVideoZipIterator:
             raise StopIteration
 
         if self.iterator is None:
+            assert self.zip_stream is not None
             self.iterator = iter(self.zip_stream)
 
         try:
@@ -45,6 +47,9 @@ class NoVideoZipIterator:
             raise
 
     def prepare_stream(self):
+        assert self.zip_stream is not None
+        assert self.source_zip is not None
+
         for item in self.source_zip.infolist():
             extension = PurePath(item.filename).suffix.lower()
 
