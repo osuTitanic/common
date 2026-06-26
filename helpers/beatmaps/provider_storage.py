@@ -34,16 +34,16 @@ class StorageResolver(BeatmapResourceProvider):
 
     def osu(self, beatmap_id: int) -> bytes | None:
         self.logger.debug(f'Reading beatmap from storage... ({beatmap_id})')
-        return self.storage.get_beatmap_internal(beatmap_id)
+        return self.storage.get_beatmap(beatmap_id)
 
     def preview(self, set_id: int) -> bytes | None:
         self.logger.debug(f'Reading preview from storage... ({set_id})')
-        return self.storage.get_mp3_internal(set_id)
+        return self.storage.get_mp3(set_id)
 
     def background(self, set_id: int, large: bool = False) -> bytes | None:
         self.logger.debug(f'Reading background from storage... ({set_id}, large={large})')
 
-        if not (image := self.storage.get_background_internal(set_id)):
+        if not (image := self.storage.get_background(set_id)):
             return None
 
         # We only keep a single (large) thumbnail per set in storage

@@ -132,7 +132,7 @@ class BaseStorage(ABC):
 
         return replays.serialize_replay(score, replay)
 
-    def get_osz_internal(self, set_id: int) -> bytes | None:
+    def get_osz(self, set_id: int) -> bytes | None:
         return self.get(f'{set_id}', 'osz')
 
     def get_osz_iterable(self, set_id: int, chunk_size: int = 1024 * 64) -> Generator:
@@ -144,7 +144,7 @@ class BaseStorage(ABC):
     def get_osz_size(self, set_id: int) -> int | None:
         return self.get_size(f'{set_id}', 'osz')
 
-    def get_osz2_internal(self, set_id: int) -> bytes | None:
+    def get_osz2(self, set_id: int) -> bytes | None:
         return self.get(f'{set_id}', 'osz2')
 
     def get_osz2_iterable(self, set_id: int, chunk_size: int = 1024 * 64) -> Generator:
@@ -156,7 +156,7 @@ class BaseStorage(ABC):
     def get_osz2_size(self, set_id: int) -> int | None:
         return self.get_size(f'{set_id}', 'osz2')
 
-    def get_beatmap_internal(self, id: int) -> bytes | None:
+    def get_beatmap(self, id: int) -> bytes | None:
         if (osu := self.get_from_cache(f'osu:{id}')):
             return osu
 
@@ -173,7 +173,7 @@ class BaseStorage(ABC):
 
         return osu
 
-    def get_background_internal(self, set_id: int) -> bytes | None:
+    def get_background(self, set_id: int) -> bytes | None:
         if (image := self.get_from_cache(f'mt:{set_id}l')):
             return image
 
@@ -190,7 +190,7 @@ class BaseStorage(ABC):
 
         return image
 
-    def get_mp3_internal(self, set_id: int) -> bytes | None:
+    def get_mp3(self, set_id: int) -> bytes | None:
         if (mp3 := self.get_from_cache(f'mp3:{set_id}')):
             return mp3
 
