@@ -41,7 +41,7 @@ class Config(BaseSettings):
 
     # If disabled, the data gets stored locally
     # Buckets will be created automatically when enabled
-    S3_ENABLED: bool = Field(default=False, validation_alias="ENABLE_S3")
+    S3_ENABLED: bool = False
 
     # Path to store application data locally, if S3 is disabled
     DATA_PATH: str = Field(default_factory=lambda: os.path.abspath(".data"))
