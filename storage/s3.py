@@ -1,11 +1,12 @@
 
-from typing import BinaryIO, Generator, List
+from typing import BinaryIO, Generator, List, IO
 from botocore.exceptions import ClientError
 from botocore.client import BaseClient
 from functools import cached_property
 
-from ..config import Config
+from .s3_file import S3FileReader
 from .base import BaseStorage
+from ..config import Config
 
 import boto3
 import io
@@ -85,6 +86,20 @@ class S3Storage(BaseStorage):
         except Exception as e:
             self.logger.error(f'Failed to download "{key}" from s3: "{e}"')
             return
+
+    def get_io(self, key: str, bucket: str) -> IO[bytes] | None:
+        size = self.get_size(key, bucket)
+
+        if size is None:
+            # Object most likely doesn't exist
+            return None
+
+        return S3FileReader(
+            self.s3,
+            self.config.S3_BUCKET,
+            f"{bucket}/{key}",
+            size
+        )
 
     def get_size(self, key: str, bucket: str) -> int | None:
         try:
