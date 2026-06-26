@@ -46,7 +46,7 @@ class NoVideoZipIterator:
             self.close()
             raise
 
-    def prepare_stream(self):
+    def prepare_stream(self) -> None:
         assert self.zip_stream is not None
         assert self.source_zip is not None
 
@@ -56,12 +56,23 @@ class NoVideoZipIterator:
             if extension in video_file_extensions:
                 continue
 
+            # Add each file as a chunked iterator instead
+            # of reading its full contents into memory
             self.zip_stream.add(
-                self.source_zip.read(item.filename),
+                self.stream_file(item.filename),
                 arcname=item.filename,
+                size=item.file_size,
             )
 
-    def close(self):
+    def stream_file(self, filename: str, chunk_size: int = 1024 * 64) -> Generator[bytes, None, None]:
+        if not self.source_zip:
+            return
+
+        with self.source_zip.open(filename, 'r') as entry:
+            while chunk := entry.read(chunk_size):
+                yield chunk
+
+    def close(self) -> None:
         if self.closed:
             return
 
