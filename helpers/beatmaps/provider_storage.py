@@ -29,7 +29,7 @@ class StorageResolver(BeatmapResourceProvider):
         if not (osz := self.storage.get_osz_io(set_id)):
             return None, 0
 
-        iterator = NoVideoZipIterator(osz)
+        iterator = NoVideoZipIterator(osz, chunk_size=1024 * 128)
         return iterator, len(iterator)
 
     def osu(self, beatmap_id: int) -> bytes | None:

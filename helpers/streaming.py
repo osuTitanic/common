@@ -14,12 +14,13 @@ video_file_extensions = frozenset((
 class NoVideoZipIterator:
     """An iterator that streams a zip file while excluding video files"""
 
-    def __init__(self, source: IO[bytes]) -> None:
+    def __init__(self, source: IO[bytes], chunk_size: int = 1024 * 64) -> None:
         self.closed: bool = False
         self.source: IO[bytes] | None = source
         self.source_zip = ZipFile(source, 'r')
         self.zip_stream = ZipStream(sized=True)
         self.iterator: Generator | None = None
+        self.chunk_size = chunk_size
         self.prepare_stream()
 
     def __len__(self) -> int:
@@ -59,7 +60,7 @@ class NoVideoZipIterator:
             # Add each file as a chunked iterator instead
             # of reading its full contents into memory
             self.zip_stream.add(
-                self.stream_file(item.filename),
+                self.stream_file(item.filename, self.chunk_size),
                 arcname=item.filename,
                 size=item.file_size,
             )
