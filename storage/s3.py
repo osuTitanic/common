@@ -1,7 +1,9 @@
 
 from typing import BinaryIO, Generator, List, IO
 from botocore.exceptions import ClientError
+from botocore.config import Config as BotoConfig
 from botocore.client import BaseClient
+from boto3.s3.transfer import TransferConfig
 from functools import cached_property
 
 from .s3_file import S3FileReader
@@ -22,7 +24,23 @@ class S3Storage(BaseStorage):
             endpoint_url=self.config.S3_BASEURL,
             region_name=self.config.S3_REGION,
             aws_access_key_id=self.config.S3_ACCESS_KEY,
-            aws_secret_access_key=self.config.S3_SECRET_KEY
+            aws_secret_access_key=self.config.S3_SECRET_KEY,
+            config=BotoConfig(
+                max_pool_connections=self.config.S3_MAX_POOL_CONNECTIONS,
+                connect_timeout=self.config.S3_CONNECT_TIMEOUT,
+                read_timeout=self.config.S3_READ_TIMEOUT,
+                retries={
+                    'max_attempts': self.config.S3_MAX_ATTEMPTS,
+                    'mode': self.config.S3_RETRY_MODE
+                }
+            )
+        )
+        self.transfer_config = TransferConfig(
+            multipart_threshold=self.config.S3_MULTIPART_THRESHOLD,
+            multipart_chunksize=self.config.S3_MULTIPART_CHUNKSIZE,
+            max_concurrency=self.config.S3_MAX_CONCURRENCY,
+            max_io_queue=self.config.S3_MAX_IO_QUEUE,
+            use_threads=self.config.S3_USE_THREADS
         )
 
     @cached_property
@@ -44,7 +62,8 @@ class S3Storage(BaseStorage):
             self.s3.upload_fileobj(
                 content,
                 self.config.S3_BUCKET,
-                f"{bucket}/{key}"
+                f"{bucket}/{key}",
+                Config=self.transfer_config
             )
         except Exception as e:
             self.logger.error(f'Failed to upload "{key}" to s3: "{e}"')
@@ -59,7 +78,8 @@ class S3Storage(BaseStorage):
             self.s3.download_fileobj(
                 self.config.S3_BUCKET,
                 f"{bucket}/{key}",
-                buffer
+                buffer,
+                Config=self.transfer_config
             )
         except ClientError:
             # Most likely not found

@@ -43,6 +43,20 @@ class Config(BaseSettings):
     # Buckets will be created automatically when enabled
     S3_ENABLED: bool = False
 
+    # S3 client config (optional)
+    S3_MAX_ATTEMPTS: int = 3
+    S3_RETRY_MODE: str = "standard"
+    S3_MAX_POOL_CONNECTIONS: int = 10
+    S3_CONNECT_TIMEOUT: int = 60
+    S3_READ_TIMEOUT: int = 60
+
+    # S3 transfer config (optional)
+    S3_MULTIPART_THRESHOLD: int = 10 * 1024 * 1024  # 10 MB
+    S3_MULTIPART_CHUNKSIZE: int = 10 * 1024 * 1024  # 10 MB
+    S3_MAX_CONCURRENCY: int = 10
+    S3_MAX_IO_QUEUE: int = 100
+    S3_USE_THREADS: bool = True
+
     # Path to store application data locally, if S3 is disabled
     DATA_PATH: str = Field(default_factory=lambda: os.path.abspath(".data"))
 
