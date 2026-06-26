@@ -23,13 +23,16 @@ class StorageResolver(BeatmapResourceProvider):
             return None, 0
 
         if not no_video:
-            return self.storage.get_osz_iterable(set_id), self.storage.get_osz_size(set_id) or 0
+            return (
+                self.storage.get_osz_iterable(set_id, chunk_size=1024*256),
+                self.storage.get_osz_size(set_id) or 0
+            )
 
         # Stream directly from storage instead of loading the whole osz into memory
         if not (osz := self.storage.get_osz_io(set_id)):
             return None, 0
 
-        iterator = NoVideoZipIterator(osz, chunk_size=1024 * 128)
+        iterator = NoVideoZipIterator(osz, chunk_size=1024*256)
         return iterator, len(iterator)
 
     def osu(self, beatmap_id: int) -> bytes | None:
