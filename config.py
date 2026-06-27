@@ -60,6 +60,17 @@ class Config(BaseSettings):
     # Path to store application data locally, if S3 is disabled
     DATA_PATH: str = Field(default_factory=lambda: os.path.abspath(".data"))
 
+    ## Cloudflare cache purge (optional)
+    # Used to invalidate cached osz files when a beatmap changes,
+    # so clients never download a stale archive after an update.
+    CLOUDFLARE_PURGE_ENABLED: bool = False
+    CLOUDFLARE_ZONE_ID: str | None = None
+    CLOUDFLARE_API_TOKEN: str | None = None
+
+    # Url templates to purge whenever an osz changes
+    # "{id}" is replaced with the beatmapset id, so e.g. "https://osu.titanic.sh/d/{id}"
+    CLOUDFLARE_PURGE_OSZ_URLS: list[str] = []
+
     # This icon will be visible inside the menu (optional)
     MENUICON_IMAGE: str | None = None
     MENUICON_URL: str | None = None
