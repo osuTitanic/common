@@ -69,9 +69,7 @@ def osz_urls(set_id: int) -> List[str]:
 
     return [
         f'{base}/d/{set_id}',
-        f'{base}/d/{set_id}n',
-        f'{base}/beatmapsets/download/{set_id}',
-        f'{base}/beatmapsets/download/{set_id}?novideo=True',
+        f'{base}/d/{set_id}n'
     ]
 
 def chunks(items: List[str], size: int) -> Iterable[List[str]]:
