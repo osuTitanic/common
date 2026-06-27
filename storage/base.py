@@ -7,7 +7,7 @@ from redis import Redis
 
 from ..database.repositories import scores, wrapper
 from ..database.objects import DBScore
-from ..helpers import replays
+from ..helpers import replays, cloudflare
 from ..config import Config
 
 import logging
@@ -216,8 +216,15 @@ class BaseStorage(ABC):
     def get_release_file_size(self, filename: str) -> int | None:
         return self.get_size(filename, 'release')
 
+    def purge_osz_cache(self, set_id: int) -> None:
+        try:
+            cloudflare.purge_beatmapset(set_id)
+        except Exception as error:
+            self.logger.warning(f'Failed to purge osz cache for "{set_id}": {error}')
+
     def upload_osz(self, set_id: int, content: bytes):
         self.save(f'{set_id}', content, 'osz')
+        self.purge_osz_cache(set_id)
 
     def upload_osz2(self, set_id: int, content: bytes):
         self.save(f'{set_id}', content, 'osz2')
@@ -293,6 +300,7 @@ class BaseStorage(ABC):
     def remove_osz(self, set_id: int):
         self.logger.debug(f'Removing osz with id "{set_id}"...')
         self.remove(f'{set_id}', 'osz')
+        self.purge_osz_cache(set_id)
 
     def remove_osz2(self, set_id: int):
         self.logger.debug(f'Removing osz2 with id "{set_id}"...')

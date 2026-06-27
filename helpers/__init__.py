@@ -2,6 +2,7 @@
 from .external import location
 
 from . import performance
+from . import cloudflare
 from . import browsers
 from . import external
 from . import activity
