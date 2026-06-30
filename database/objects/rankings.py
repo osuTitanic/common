@@ -46,6 +46,7 @@ class DBScore(Base):
     total_score: Mapped[int] = mapped_column('total_score', BigInteger)
     max_combo: Mapped[int] = mapped_column('max_combo', Integer)
     mods: Mapped[int] = mapped_column('mods', Integer)
+    touchscreen: Mapped[bool] = mapped_column('touchscreen', Boolean)
     perfect: Mapped[bool] = mapped_column('perfect', Boolean)
     n300: Mapped[int] = mapped_column('n300', Integer)
     n100: Mapped[int] = mapped_column('n100', Integer)
