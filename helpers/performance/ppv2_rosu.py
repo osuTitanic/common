@@ -29,6 +29,11 @@ class RosuPerformanceCalculator(PerformanceCalculator):
         mods = self.adjust_mods(score.mods, score.mode, score.client_version)
         mode = self.convert_to_rosu_mode(score.mode)
 
+        if score.touchscreen:
+            # NV was later repurposed to be TD, so
+            # pp systems will treat it as such
+            mods |= Mods.NoVideo
+
         total_hits = score_helper.calculate_total_hits(score)
         relaxing = Mods.Relax in mods or Mods.Autopilot in mods
 

@@ -43,6 +43,11 @@ class NativePerformanceCalculator(PerformanceCalculator):
             score.client_version
         )
 
+        if score.touchscreen:
+            # NV was later repurposed to be TD, so
+            # pp systems will treat it as such
+            mods |= Mods.NoVideo
+
         if Mods.Relax in mods or Mods.Autopilot in mods:
             return 0.0
 
