@@ -1,4 +1,5 @@
 
+from concurrent.futures import ThreadPoolExecutor
 from typing import Generator, List, Any, IO
 from abc import ABC, abstractmethod
 from sqlalchemy.orm import Session
@@ -12,7 +13,6 @@ from ..config import Config
 
 import logging
 
-
 class BaseStorage(ABC):
     """Base class for storage backends"""
 
@@ -22,6 +22,10 @@ class BaseStorage(ABC):
         self.cache = Redis(
             self.config.REDIS_HOST,
             self.config.REDIS_PORT
+        )
+        self.cache_purge_executor = ThreadPoolExecutor(
+            max_workers=1,
+            thread_name_prefix='cache-purge'
         )
 
     @abstractmethod
@@ -217,10 +221,13 @@ class BaseStorage(ABC):
         return self.get_size(filename, 'release')
 
     def purge_osz_cache(self, set_id: int) -> None:
-        try:
-            cloudflare.purge_beatmapset(set_id)
-        except Exception as error:
-            self.logger.warning(f'Failed to purge osz cache for "{set_id}": {error}')
+        if not cloudflare.purge_enabled():
+            return
+
+        self.cache_purge_executor.submit(
+            cloudflare.purge_beatmapset,
+            set_id
+        )
 
     def upload_osz(self, set_id: int, content: bytes):
         self.save(f'{set_id}', content, 'osz')
