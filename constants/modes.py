@@ -9,13 +9,14 @@ class GameMode(IntEnum):
 
     @classmethod
     def from_alias(cls, input: str):
-        if input not in ('osu', 'taiko', 'fruits', 'mania'):
+        if input not in ('osu', 'taiko', 'fruits', 'catch', 'mania'):
             return
 
         return {
             'osu': GameMode.Osu,
             'taiko': GameMode.Taiko,
             'fruits': GameMode.CatchTheBeat,
+            'catch': GameMode.CatchTheBeat,
             'mania': GameMode.OsuMania
         }[input]
 
@@ -36,7 +37,7 @@ class GameMode(IntEnum):
             GameMode.CatchTheBeat: 'fruits',
             GameMode.OsuMania: 'mania'
         }[self]
-        
+
     @property
     def short(self) -> str:
         return {
