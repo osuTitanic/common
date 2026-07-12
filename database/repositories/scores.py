@@ -7,7 +7,7 @@ from app.common.database.objects import (
 )
 
 from sqlalchemy.orm import aliased, selectinload, Session
-from sqlalchemy import or_, func
+from sqlalchemy import and_, or_, func, select
 from datetime import datetime
 from typing import List, Dict
 
@@ -498,35 +498,53 @@ def fetch_score_index(
     country: str | None = None,
     session: Session = SessionProvider
 ) -> int:
-    query = session.query(
-                DBScore.user_id,
-                DBScore.mods,
-                func.rank().over(
-                    order_by=DBScore.total_score.desc()
-                ).label('rank')
-            ) \
-            .filter(DBScore.beatmap_id == beatmap_id) \
-            .filter(DBScore.mode == mode) \
-            .filter(DBScore.hidden == False) \
-            .order_by(DBScore.total_score.desc(), DBScore.id.asc())
+    target_score = aliased(DBScore)
+    better_score = aliased(DBScore)
+
+    target_filters = [
+        target_score.user_id == user_id,
+        target_score.beatmap_id == beatmap_id,
+        target_score.mode == mode,
+        target_score.hidden.is_(False)
+    ]
+    better_conditions = [
+        better_score.beatmap_id == target_score.beatmap_id,
+        better_score.mode == target_score.mode,
+        better_score.hidden.is_(False),
+        better_score.total_score > target_score.total_score
+    ]
 
     if mods is not None:
-        query = query.filter(DBScore.mods == mods) \
-                     .filter(or_(DBScore.status_score == 3, DBScore.status_score == 4))
+        target_filters.extend([
+            target_score.mods == mods,
+            or_(target_score.status_score == 3, target_score.status_score == 4)
+        ])
+        better_conditions.extend([
+            better_score.mods == mods,
+            or_(better_score.status_score == 3, better_score.status_score == 4)
+        ])
+
+    else:
+        target_filters.append(target_score.status_score == 3)
+        better_conditions.append(better_score.status_score == 3)
 
     if country is not None:
-        query = query.join(DBScore.user) \
-                     .filter(DBUser.country == country)
+        country_users = select(DBUser.id).where(DBUser.country == country)
+        target_filters.append(target_score.user_id.in_(country_users))
+        better_conditions.append(better_score.user_id.in_(country_users))
 
     if friends is not None:
-        query = query.filter(or_(DBScore.user_id.in_(friends), DBScore.user_id == user_id))
+        better_conditions.append(or_(
+            better_score.user_id.in_(friends),
+            better_score.user_id == user_id
+        ))
 
-    if mods is None:
-        query = query.filter(DBScore.status_score == 3)
-
-    subquery = query.subquery()
-    result = session.query(subquery.c.rank) \
-        .filter(subquery.c.user_id == user_id) \
+    result = session.query((func.count(better_score.id) + 1).label('rank')) \
+        .select_from(target_score) \
+        .outerjoin(better_score, and_(*better_conditions)) \
+        .filter(*target_filters) \
+        .group_by(target_score.id, target_score.total_score) \
+        .order_by(target_score.total_score.desc(), target_score.id.asc()) \
         .first()
 
     if not result:
@@ -542,31 +560,41 @@ def fetch_score_index_by_id(
     mods: int | None = None,
     session: Session = SessionProvider
 ) -> int:
-    query = session.query(
-                DBScore.id,
-                DBScore.mods,
-                func.rank().over(
-                    order_by=DBScore.total_score.desc()
-                ).label('rank')
-            ) \
-            .filter(DBScore.beatmap_id == beatmap_id) \
-            .filter(DBScore.mode == mode) \
-            .filter(DBScore.hidden == False) \
-            .order_by(DBScore.total_score.desc(), DBScore.id.asc())
+    target_score = aliased(DBScore)
+    better_score = aliased(DBScore)
+
+    target_filters = [
+        target_score.id == score_id,
+        target_score.beatmap_id == beatmap_id,
+        target_score.mode == mode,
+        target_score.hidden.is_(False)
+    ]
+    better_conditions = [
+        better_score.beatmap_id == target_score.beatmap_id,
+        better_score.mode == target_score.mode,
+        better_score.hidden.is_(False),
+        better_score.total_score > target_score.total_score
+    ]
 
     if mods is None:
-        query = query.filter(DBScore.status_score == 3)
+        target_filters.append(target_score.status_score == 3)
+        better_conditions.append(better_score.status_score == 3)
 
     else:
-        query = query.filter(DBScore.mods == mods) \
-                     .filter(or_(
-                        DBScore.status_score == 3,
-                        DBScore.status_score == 4
-                     ))
+        target_filters.extend([
+            target_score.mods == mods,
+            or_(target_score.status_score == 3, target_score.status_score == 4)
+        ])
+        better_conditions.extend([
+            better_score.mods == mods,
+            or_(better_score.status_score == 3, better_score.status_score == 4)
+        ])
 
-    subquery = query.subquery()
-    result = session.query(subquery.c.rank) \
-        .filter(subquery.c.id == score_id) \
+    result = session.query((func.count(better_score.id) + 1).label('rank')) \
+        .select_from(target_score) \
+        .outerjoin(better_score, and_(*better_conditions)) \
+        .filter(*target_filters) \
+        .group_by(target_score.id) \
         .first()
 
     if not result:
@@ -581,24 +609,14 @@ def fetch_score_index_by_tscore(
     mode: int,
     session: Session = SessionProvider
 ) -> int:
-    closest_score = session.query(DBScore) \
-        .filter(DBScore.total_score > total_score) \
+    higher_scores = session.query(func.count(DBScore.id)) \
         .filter(DBScore.beatmap_id == beatmap_id) \
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_score == 3) \
         .filter(DBScore.hidden == False) \
-        .order_by(func.abs(DBScore.total_score - total_score), DBScore.id.asc()) \
-        .first()
-
-    if not closest_score:
-        return 1
-
-    # Fetch score rank for closest score
-    return fetch_score_index_by_id(
-        closest_score.id,
-        beatmap_id, mode,
-        session=session
-    ) + 1
+        .filter(DBScore.total_score > total_score) \
+        .scalar()
+    return higher_scores + 1
 
 @session_wrapper
 def fetch_score_above(
