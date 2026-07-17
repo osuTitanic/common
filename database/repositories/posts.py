@@ -19,6 +19,7 @@ def create(
     edit_locked: bool = False,
     icon_id: int | None = None,
     hidden: bool = False,
+    smilies_disabled: bool = False,
     session: Session = SessionProvider
 ) -> DBForumPost:
     post = DBForumPost(
@@ -30,6 +31,7 @@ def create(
         edit_locked=edit_locked,
         icon_id=icon_id,
         hidden=hidden,
+        smilies_disabled=smilies_disabled,
         created_at=datetime.now(),
         edit_time=datetime.now()
     )

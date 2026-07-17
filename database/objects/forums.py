@@ -107,6 +107,7 @@ class DBForumPost(Base):
     edit_time: Mapped[datetime] = mapped_column('edit_time', DateTime, server_default=func.now())
     edit_count: Mapped[int] = mapped_column('edit_count', Integer, default=0)
     edit_locked: Mapped[bool] = mapped_column('edit_locked', Boolean, default=False)
+    smilies_disabled: Mapped[bool] = mapped_column('smilies_disabled', Boolean, default=False, server_default='false')
     hidden: Mapped[bool] = mapped_column('hidden', Boolean, default=False)
     draft: Mapped[bool] = mapped_column('draft', Boolean, default=False)
     deleted: Mapped[bool] = mapped_column('deleted', Boolean, default=False)
@@ -123,6 +124,10 @@ class DBForumPost(Base):
     icon: Mapped['DBForumIcon'] = relationship('DBForumIcon', back_populates='posts')
     topic: Mapped['DBForumTopic'] = relationship('DBForumTopic', back_populates='posts')
     forum: Mapped['DBForum'] = relationship('DBForum', back_populates='posts')
+
+    @property
+    def enable_smilies(self) -> bool:
+        return not self.smilies_disabled
 
 class DBForumReport(Base):
     __tablename__ = "forum_reports"
