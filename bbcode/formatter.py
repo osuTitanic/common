@@ -8,6 +8,7 @@ from .parser import Parser
 import binascii
 import hashlib
 import hmac
+import ipaddress
 
 parser = Parser()
 parser.add_simple_formatter('b', '<b>%(value)s</b>')
@@ -198,12 +199,18 @@ def resolve_proxied_url(value) -> str:
 
     if not parsed_url.scheme or not parsed_url.netloc:
         return ''
-    
+
+    if parsed_url.scheme.lower() not in ('http', 'https'):
+        return ''
+
+    if is_blocked_media_host(parsed_url.hostname):
+        return ''
+
     if not config.IMAGE_PROXY_BASEURL:
         # No image proxy configured, return original URL
         return value
 
-    domain = parsed_url.netloc.lower().split(':')[0]
+    domain = parsed_url.hostname.lower().rstrip('.')
 
     if domain not in config.VALID_IMAGE_SERVICES:
         # Use image proxy for non-trusted domains
@@ -211,6 +218,23 @@ def resolve_proxied_url(value) -> str:
         value = config.IMAGE_PROXY_BASEURL + signed_url
 
     return value
+
+def is_blocked_media_host(hostname: str | None) -> bool:
+    if not hostname:
+        return True
+
+    hostname = hostname.lower().rstrip('.')
+    if hostname == 'localhost' or hostname.endswith('.localhost'):
+        return True
+
+    try:
+        address = ipaddress.ip_address(hostname.split('%', 1)[0])
+    except ValueError:
+        # Probably a regular domain, not an IP
+        return False
+
+    # Block private and reserved IP addresses
+    return not address.is_global
 
 def sign_url(url: str, key: bytes) -> str:
     # Compute HMAC‑SHA1 for URL
