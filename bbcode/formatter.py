@@ -20,16 +20,20 @@ parser.add_simple_formatter('centre', '<center>%(value)s</center>')
 parser.add_simple_formatter('spoiler', '<span style="background-color: black;">%(value)s</span>')
 parser.add_simple_formatter('notice', '<div style="background: none repeat scroll 0%% 0%% rgb(249, 247, 254); border: 1px solid rgb(225, 223, 231); margin: 6px; padding: 5px;">%(value)s</div>')
 
-code_block_template = (
-    '<b>Code:</b><br>'
-    '<div style="direction: ltr; margin: 5px; padding: 3px; border: 1px solid black; '
-    "font-weight: normal; font-family: Monaco,'Courier New',monospace; "
-    'background-color: rgb(242, 242, 242); overflow: scroll;">%(value)s</div>'
-)
+def render_code(tag_name, value, options, parent, context):
+    header = ''
+    if heading := options.get(tag_name, ''):
+        header = '<b>%s</b><br>' % sanitize_input(heading)
 
-parser.add_simple_formatter(
+    return (
+        '%s<div style="direction: ltr; margin: 5px; padding: 3px; border: 1px solid black; '
+        "font-weight: normal; font-family: Monaco,'Courier New',monospace; "
+        'background-color: rgb(242, 242, 242); overflow: scroll;">%s</div>'
+    ) % (header, value)
+
+parser.add_formatter(
     'code',
-    code_block_template,
+    render_code,
     same_tag_closes=True,
     render_embedded=False,
     transform_newlines=True,
@@ -38,9 +42,9 @@ parser.add_simple_formatter(
     replace_cosmetic=False,
 )
 
-parser.add_simple_formatter(
+parser.add_formatter(
     'c',
-    code_block_template,
+    render_code,
     same_tag_closes=True,
     render_embedded=False,
     transform_newlines=True,
