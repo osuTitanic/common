@@ -1,8 +1,6 @@
-
 from urllib.parse import unquote, urlparse
-from app.common.constants import regexes
-
 from ..config import config_instance as config
+from ..constants import regexes
 from .parser import Parser
 
 import binascii
@@ -79,6 +77,13 @@ def render_image(tag_name, value, options, parent, context):
 
     return '<img src="%s" loading="lazy">' % sanitize_input(url)
 
+@parser.formatter('smiley', replace_links=False, render_embedded=False)
+def render_smiley(tag_name, value, options, parent, context):
+    if not regexes.re.fullmatch(r'[A-Za-z0-9_-]+', value):
+        return ''
+
+    return '<img src="/images/icons/smilies/%s.gif">' % value
+
 @parser.formatter('video', replace_links=False, render_embedded=False)
 def render_video(tag_name, value, options, parent, context):
     if not (url := resolve_proxied_url(value)):
@@ -130,8 +135,16 @@ def render_link(tag_name, value, options, parent, context):
     url = sanitize_url(unquote(options.get('url', '')))
     return '<a href="%s" target="_blank">%s</a>' % (url, value)
 
-@parser.formatter('quote', render_embedded=False, strip_embedded_tags=True)
+@parser.formatter('quote', render_embedded=False)
 def render_quote(tag_name, value, options, parent, context):
+    # Replace [smiley] tags with <img> tags & strip any remaining bbcode
+    value = regexes.re.sub(
+        r'\[smiley\]([A-Za-z0-9_-]+)\[/smiley\]',
+        r'<img src="/images/icons/smilies/\1.gif">',
+        value, flags=regexes.re.IGNORECASE,
+    )
+    value = parser.strip(value)
+
     if 'quote' not in options:
         return '<div class="quotecontent">%s</div>' % value
 
