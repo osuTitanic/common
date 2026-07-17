@@ -29,7 +29,7 @@ def render_code(tag_name, value, options, parent, context):
         '%s<div style="direction: ltr; margin: 5px; padding: 3px; border: 1px solid black; '
         "font-weight: normal; font-family: Monaco,'Courier New',monospace; "
         'background-color: rgb(242, 242, 242); overflow: scroll;">%s</div>'
-    ) % (header, value)
+    ) % (header, value.strip('\r\n'))
 
 parser.add_formatter(
     'code',
@@ -59,13 +59,14 @@ parser.add_simple_formatter(
     same_tag_closes=True
 )
 
-parser.add_simple_formatter(
-    'spoilerbox',
-    '<div class="spoiler">'
-    '<div class="spoiler-head" onclick="return toggleSpoiler(this);">SPOILER</div>'
-    '<div class="spoiler-body">%(value)s</div>'
-    '</div>'
-)
+@parser.formatter('spoilerbox')
+def render_spoilerbox(tag_name, value, options, parent, context):
+    return (
+        '<div class="spoiler">'
+        '<div class="spoiler-head" onclick="return toggleSpoiler(this);">SPOILER</div>'
+        '<div class="spoiler-body">%s</div>'
+        '</div>'
+    ) % value.strip('\r\n')
 
 @parser.formatter('beatmap_header', standalone=True)
 def render_beatmap_haeder(tag_name, value, options, parent, context):
