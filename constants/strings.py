@@ -43,13 +43,13 @@ keel: <a href="https://github.com/osuTitanic/keel">https://github.com/osuTitanic
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <marquee style="white-space:pre; margin: 0;" scrollamount="5">
 hooooonk!!
-          o.. 
+          o..
             o. o
                o.o
                  .o
-                __/___        
-          _____/______|       
-  _______/_____\_______\_____ 
+                __/___
+          _____/______|
+  _______/_____\_______\_____
   \              < < <       |
 </marquee><p style="word-wrap: break-word; overflow: hidden; margin: 0;">^~^~^~^~^~^~^~^~^^~^~rr^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^^~^~^~^~^~^~^~^~^</p>
 </pre>
@@ -70,10 +70,10 @@ CLIENT_TOO_NEW = '\n'.join([
     'Please download an older version of osu! from the website!'
 ])
 
-UNVERIFIED_CLIENT = '\n'.join([
-    'The version of osu! you are using is made for testers only.',
+UNVERIFIED_CLIENT = (
+    'The version of osu! you are using has not been whitelisted. '
     'Please download a different version of osu! from the website!'
-])
+)
 
 MULTIACCOUNTING_WARNING = (
     'We have found that you are using multiple accounts on this server. '
