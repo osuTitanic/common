@@ -353,6 +353,34 @@ def fetch_personal_best(
         .first()
 
 @session_wrapper
+def fetch_personal_bests(
+    beatmap_id: int,
+    user_id: int,
+    mode: int,
+    session: Session = SessionProvider
+) -> tuple[DBScore | None, DBScore | None]:
+    candidates = session.query(DBScore) \
+        .filter(DBScore.beatmap_id == beatmap_id) \
+        .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.mode == mode) \
+        .filter(or_(
+            DBScore.status_pp == 3,
+            DBScore.status_score == 3
+        )) \
+        .filter(DBScore.hidden == False) \
+        .all()
+
+    performance_best = next(
+        (score for score in candidates if score.status_pp == 3),
+        None
+    )
+    score_best = next(
+        (score for score in candidates if score.status_score == 3),
+        None
+    )
+    return performance_best, score_best
+
+@session_wrapper
 def fetch_personal_best_score(
     beatmap_id: int,
     user_id: int,
