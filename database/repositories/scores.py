@@ -359,7 +359,7 @@ def fetch_personal_best_score(
     mode: int,
     mods: int | None = None,
     session: Session = SessionProvider
-) -> int:
+) -> DBScore | None:
     if mods is None:
         return session.query(DBScore) \
             .filter(DBScore.beatmap_id == beatmap_id) \
