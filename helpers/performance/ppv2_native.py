@@ -201,6 +201,12 @@ class NativePerformanceCalculator(PerformanceCalculator):
             short_name = ModMapping.get(mod)
             if not short_name or short_name == "NM":
                 continue
+            if mod == Mods.DoubleTime and Mods.Nightcore in mods:
+                # NC already includes DT in osu-native
+                continue
+            if mod == Mods.SuddenDeath and Mods.Perfect in mods:
+                # PF already includes SD in osu-native
+                continue
 
             collection.add(NativeMod.create(short_name))
 
