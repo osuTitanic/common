@@ -195,6 +195,7 @@ class NativePerformanceCalculator(PerformanceCalculator):
     @staticmethod
     def convert_to_native_mods(mods: Mods) -> ModsCollection:
         collection = ModsCollection.create()
+        collection.add(NativeMod.create("CL"))
 
         for mod in mods.members:
             short_name = ModMapping.get(mod)
