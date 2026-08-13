@@ -108,6 +108,20 @@ def render_profile(tag_name, value, options, parent, context):
     profile = sanitize_input(options.get('profile', value))
     return '<a href="%s/u/%s">%s</a>' % (config.OSU_BASEURL, profile, value)
 
+@parser.formatter('mention', render_embedded=False, replace_links=False)
+def render_mention(tag_name, value, options, parent, context):
+    username = value.strip().removeprefix('@')
+    resolve_user_id = context.get('resolve_user_id')
+
+    if not username or not callable(resolve_user_id):
+        return '<a href="#">@Unknown User</a>'
+
+    user_id = resolve_user_id(username)
+    if not user_id:
+        return '<a href="#">@Unknown User</a>'
+
+    return '<a href="/u/%s">@%s</a>' % (user_id, username)
+
 @parser.formatter('youtube', render_embedded=False, replace_links=False)
 def render_youtube_embed(tag_name, value, options, parent, context):
     # Filter out video ID
