@@ -757,6 +757,39 @@ def fetch_recent_top_scores(
         .all()
 
 @session_wrapper
+def fetch_most_viewed(
+    limit: int = 50,
+    offset: int = 0,
+    session: Session = SessionProvider
+) -> List[DBScore]:
+    return session.query(DBScore) \
+        .options(
+            selectinload(DBScore.beatmap).selectinload(DBBeatmap.beatmapset),
+            selectinload(DBScore.user)
+        ) \
+        .filter(DBScore.hidden == False) \
+        .order_by(DBScore.replay_views.desc()) \
+        .limit(limit) \
+        .offset(offset) \
+        .all()
+
+@session_wrapper
+def fetch_most_viewed_by_user(
+    user_id: int,
+    limit: int = 50,
+    offset: int = 0,
+    session: Session = SessionProvider
+) -> List[DBScore]:
+    return session.query(DBScore) \
+        .options(selectinload(DBScore.beatmap).selectinload(DBBeatmap.beatmapset)) \
+        .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.hidden == False) \
+        .order_by(DBScore.replay_views.desc()) \
+        .limit(limit) \
+        .offset(offset) \
+        .all()
+
+@session_wrapper
 def fetch_pp_record(
     mode: int,
     mods: int | None = None,
