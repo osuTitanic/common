@@ -776,6 +776,7 @@ def fetch_most_viewed(
 @session_wrapper
 def fetch_most_viewed_by_user(
     user_id: int,
+    mode: int,
     limit: int = 50,
     offset: int = 0,
     session: Session = SessionProvider
@@ -783,11 +784,24 @@ def fetch_most_viewed_by_user(
     return session.query(DBScore) \
         .options(selectinload(DBScore.beatmap).selectinload(DBBeatmap.beatmapset)) \
         .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.mode == mode) \
         .filter(DBScore.hidden == False) \
         .order_by(DBScore.replay_views.desc()) \
         .limit(limit) \
         .offset(offset) \
         .all()
+
+@session_wrapper
+def fetch_most_viewed_by_user_count(
+    user_id: int,
+    mode: int,
+    session: Session = SessionProvider
+) -> int:
+    return session.query(func.count(DBScore.id)) \
+        .filter(DBScore.user_id == user_id) \
+        .filter(DBScore.mode == mode) \
+        .filter(DBScore.hidden == False) \
+        .scalar()
 
 @session_wrapper
 def fetch_pp_record(
