@@ -9,6 +9,7 @@ class MatchScoringTypes(IntEnum):
     Score    = 0
     Accuracy = 1
     Combo    = 2
+    ScoreV2  = 3
 
 class MatchTeamTypes(IntEnum):
     HeadToHead = 0
