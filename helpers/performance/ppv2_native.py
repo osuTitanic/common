@@ -214,17 +214,30 @@ class NativePerformanceCalculator(PerformanceCalculator):
 
     @staticmethod
     def convert_to_score_info(score: DBScore) -> ScoreInfo:
-        return ScoreInfo(
+        score_info = ScoreInfo(
             accuracy=score.acc or score_helper.calculate_accuracy(score),
             legacy_total_score=score.total_score,
             max_combo=score.max_combo,
-            count_great=score.n300,
-            count_ok=score.n100,
-            count_meh=score.n50,
             count_miss=score.nMiss,
-            count_perfect=score.nGeki,
-            count_good=score.nKatu
         )
+
+        if score.mode == GameMode.CatchTheBeat:
+            score_info.count_great = score.n300
+            score_info.count_large_tick_hit = score.n100
+            score_info.count_small_tick_hit = score.n50
+            score_info.count_small_tick_miss = score.nKatu
+        elif score.mode == GameMode.OsuMania:
+            score_info.count_perfect = score.nGeki
+            score_info.count_great = score.n300
+            score_info.count_good = score.nKatu
+            score_info.count_ok = score.n100
+            score_info.count_meh = score.n50
+        else:
+            score_info.count_great = score.n300
+            score_info.count_ok = score.n100
+            score_info.count_meh = score.n50
+
+        return score_info
 
     @staticmethod
     def load_native_beatmap(beatmap_file: bytes) -> NativeBeatmap | None:
