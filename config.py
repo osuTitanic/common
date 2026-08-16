@@ -137,6 +137,9 @@ class Config(BaseSettings):
     # Enable or disable beatmap submission
     BEATMAP_SUBMISSION_ENABLED: bool = False
 
+    # If set to false, the client will always provide a full submission of the osz2 file instead of a patch
+    BEATMAP_SUBMISSION_STORE_OSZ2: bool = True
+
     # Used to freeze rank graph updates, useful for pp recalculations
     FROZEN_RANK_UPDATES: bool = False
 
