@@ -207,6 +207,9 @@ class NativePerformanceCalculator(PerformanceCalculator):
             if mod == Mods.SuddenDeath and Mods.Perfect in mods:
                 # PF already includes SD in osu-native
                 continue
+            if short_name == "NV":
+                # NV was later repurposed to be TD
+                short_name = "TD"
 
             collection.add(NativeMod.create(short_name))
 
