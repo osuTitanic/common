@@ -22,7 +22,6 @@ class ScoreSortBy(str, Enum):
     Score = 'score'
     Accuracy = 'accuracy'
     Combo = 'combo'
-    Date = 'date'
 
 class DirectDisplayMode(IntEnum):
     Ranked       = 0
