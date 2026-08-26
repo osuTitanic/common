@@ -1,5 +1,5 @@
 
-from app.common.constants import Grade
+from app.common.constants import Grade, ScoreSortBy
 from app.common.database.objects import (
     DBBeatmap,
     DBScore,
@@ -120,6 +120,7 @@ def fetch_top_scores(
     exclude_approved: bool = False,
     limit: int = 100,
     offset: int = 0,
+    sort: ScoreSortBy = ScoreSortBy.Performance,
     session: Session = SessionProvider
 ) -> List[DBScore]:
     allowed_status = [
@@ -133,6 +134,14 @@ def fetch_top_scores(
             4  # Loved
         ])
 
+    sort_expression = {
+        ScoreSortBy.Performance: DBScore.pp,
+        ScoreSortBy.PPv1: DBScore.ppv1,
+        ScoreSortBy.Score: DBScore.total_score,
+        ScoreSortBy.Accuracy: DBScore.acc,
+        ScoreSortBy.Combo: DBScore.max_combo
+    }[sort]
+
     return session.query(DBScore) \
         .options(selectinload(DBScore.beatmap).selectinload(DBBeatmap.beatmapset)) \
         .join(DBScore.beatmap) \
@@ -141,7 +150,7 @@ def fetch_top_scores(
         .filter(DBScore.mode == mode) \
         .filter(DBScore.status_pp == 3) \
         .filter(DBScore.hidden == False) \
-        .order_by(DBScore.pp.desc()) \
+        .order_by(sort_expression.desc()) \
         .limit(limit) \
         .offset(offset) \
         .all()

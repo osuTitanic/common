@@ -16,6 +16,14 @@ class ScoreStatus(IntEnum):
     Best      = 3
     Mods      = 4
 
+class ScoreSortBy(str, Enum):
+    Performance = 'performance'
+    PPv1 = 'ppv1'
+    Score = 'score'
+    Accuracy = 'accuracy'
+    Combo = 'combo'
+    Date = 'date'
+
 class DirectDisplayMode(IntEnum):
     Ranked       = 0
     RankedStrict = 1

@@ -18,6 +18,7 @@ from .beatmap import (
 
 from .web import (
     ScoreStatus,
+    ScoreSortBy,
     LeaderboardType,
     DirectDisplayMode
 )
