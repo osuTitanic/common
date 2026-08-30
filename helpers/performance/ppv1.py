@@ -137,6 +137,9 @@ def calculate_eyup_star_rating(beatmap: DBBeatmap) -> float:
     if beatmap.drain_length <= 0:
         return 0
 
+    if beatmap.bpm <= 0:
+        return 0
+
     if beatmap.mode == GameMode.OsuMania:
         notes = (
             beatmap.count_normal + beatmap.count_slider * 1.2
@@ -168,11 +171,11 @@ def calculate_eyup_star_rating(beatmap: DBBeatmap) -> float:
         stars = (min(difficulty, 30) / 3 * 4 + min(20 - 0.032 * math.pow(noteDensity - 5, 4), 20)) / 10
 
     # Songs with insane number of beats per second
-    if noteDensity >= 2.5:
+    elif noteDensity >= 2.5:
         stars = (min(difficulty, 18) / 18 * 10 + min(40 - 40 / math.pow(5, 3.5) * math.pow(min(noteDensity, 5) - 5, 4), 40)) / 10
 
     # Songs with glacial number of beats per second
-    if noteDensity < 1:
+    elif noteDensity < 1:
         stars = (min(difficulty, 18) / 18 * 10) / 10 + 0.25
 
     # All other songs of medium difficulty
