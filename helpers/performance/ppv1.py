@@ -1,7 +1,7 @@
 
 from app.common.database.repositories import scores, beatmaps, wrapper
 from app.common.database.objects import DBScore, DBBeatmap
-from app.common.constants import Mods, GameMode
+from app.common.constants import Mods, GameMode, ScoreStatus
 
 from sqlalchemy.orm.attributes import instance_dict
 from sqlalchemy.orm import Session
@@ -33,12 +33,28 @@ def calculate_ppv1(
     if beatmap.playcount <= 0:
         return 0
 
-    score_rank = scores.fetch_score_index_by_tscore(
-        score.total_score,
-        beatmap.id,
-        score.mode,
-        session=session
-    )
+    if (
+        score.id is not None
+        and score.id > 0
+        and score.status_score == ScoreStatus.Best
+        and not score.hidden
+    ):
+        # Score exists & is a pb -> fetch its rank on the leaderboard by ID 
+        score_rank = scores.fetch_score_index_by_id(
+            score.id,
+            beatmap.id,
+            score.mode,
+            session=session
+        )
+    else:
+        # Score is not a pb / does not exist yet -> fetch the potential rank
+        score_rank = scores.fetch_score_index_by_tscore(
+            score.total_score,
+            score.submitted_at,
+            beatmap.id,
+            score.mode,
+            session=session
+        )
 
     mods = Mods(score.mods)
 
