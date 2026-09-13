@@ -30,7 +30,8 @@ def update(
     stats: UserStats,
     status: StatusUpdate,
     hash: str,
-    version: int
+    version: int,
+    version_string: str
 ) -> None:
     status_update = {
         'beatmap_checksum': status.beatmap_checksum,
@@ -40,6 +41,7 @@ def update(
         'mode': status.mode.value,
         'text': status.text,
         'version': version,
+        'version_string': version_string,
         'hash': hash
     }
     stats_update = {
