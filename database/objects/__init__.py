@@ -30,6 +30,7 @@ __all__ = [
     "DBReleasesOfficial",
     "DBReleasesOfficialEntries",
     "DBBeatmapset",
+    "DBBeatmapsetStar",
     "DBBeatmap",
     "DBBeatmapCollaboration",
     "DBBeatmapCollaborationRequest",

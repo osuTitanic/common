@@ -101,6 +101,7 @@ class DBBeatmapset(Base):
     beatmaps: Mapped[List["DBBeatmap"]] = relationship('DBBeatmap', back_populates='beatmapset')
     ratings: Mapped[List["DBRating"]] = relationship('DBRating', back_populates='beatmapset')
     plays: Mapped[List["DBPlay"]] = relationship('DBPlay', back_populates='beatmapset')
+    stars: Mapped[List["DBBeatmapsetStar"]] = relationship('DBBeatmapsetStar', back_populates='beatmapset')
 
     @property
     def full_name(self):
@@ -347,3 +348,16 @@ class DBResourceMirror(Base):
     type: Mapped[int] = mapped_column('type', Integer)
     server: Mapped[int] = mapped_column('server', Integer)
     priority: Mapped[int] = mapped_column('priority', Integer, default=0)
+
+class DBBeatmapsetStar(Base):
+    __tablename__ = "beatmapset_stars"
+
+    id: Mapped[int] = mapped_column('id', BigInteger, primary_key=True, autoincrement=True)
+    set_id: Mapped[int] = mapped_column('set_id', Integer, ForeignKey('beatmapsets.id'))
+    user_id: Mapped[int] = mapped_column('user_id', Integer, ForeignKey('users.id'))
+    kudosu_cost: Mapped[int] = mapped_column('kudosu_cost', Integer, default=1)
+    star_priority: Mapped[int] = mapped_column('star_priority', Integer, default=1)
+    created_at: Mapped[datetime] = mapped_column('created_at', DateTime, server_default=func.now())
+
+    user: Mapped["DBUser"] = relationship('DBUser', back_populates='beatmapset_stars')
+    beatmapset: Mapped["DBBeatmapset"] = relationship('DBBeatmapset', back_populates='stars')

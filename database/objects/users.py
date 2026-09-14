@@ -219,6 +219,9 @@ class DBUser(Base):
     avatar_hash: Mapped[str | None] = mapped_column('avatar_hash', String, nullable=True)
     avatar_last_update: Mapped[datetime] = mapped_column('avatar_last_changed', DateTime, server_default=func.now())
     friendonly_dms: Mapped[bool] = mapped_column('friendonly_dms', Boolean, default=False)
+    kudosu: Mapped[int] = mapped_column('kudosu', Integer, default=0)
+    kudosu_earned: Mapped[int] = mapped_column('kudosu_earned', Integer, default=0)
+    kudosu_spent: Mapped[int] = mapped_column('kudosu_spent', Integer, default=0)
     userpage: Mapped[str | None] = mapped_column('userpage_about', String, nullable=True)
     signature: Mapped[str | None] = mapped_column('userpage_signature', String, nullable=True)
     title: Mapped[str | None] = mapped_column('userpage_title', String, nullable=True)
@@ -230,6 +233,7 @@ class DBUser(Base):
     interests: Mapped[str | None] = mapped_column('userpage_interests', String, nullable=True)
 
     created_beatmapsets: Mapped[List['DBBeatmapset']] = relationship('DBBeatmapset', back_populates='creator_user', foreign_keys='DBBeatmapset.creator_id')
+    beatmapset_stars: Mapped[List['DBBeatmapsetStar']] = relationship('DBBeatmapsetStar', back_populates='user')
     target_relationships: Mapped[List['DBRelationship']] = relationship('DBRelationship', back_populates='target', foreign_keys='DBRelationship.target_id')
     relationships: Mapped[List['DBRelationship']] = relationship('DBRelationship', back_populates='user', foreign_keys='DBRelationship.user_id')
     collaborations: Mapped[List['DBBeatmapCollaboration']] = relationship('DBBeatmapCollaboration', back_populates='user')

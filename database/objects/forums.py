@@ -65,6 +65,7 @@ class DBForumTopic(Base):
     icon_id: Mapped[int] = mapped_column('icon', Integer, ForeignKey('forum_icons.id'), nullable=True)
     can_change_icon: Mapped[bool] = mapped_column('can_change_icon', Boolean, default=True)
     can_star: Mapped[bool] = mapped_column('can_star', Boolean, default=False)
+    star_priority: Mapped[int] = mapped_column('star_priority', Integer, default=0)
     announcement: Mapped[bool] = mapped_column('announcement', Boolean, default=False)
     hidden: Mapped[bool] = mapped_column('hidden', Boolean, default=False)
     pinned: Mapped[bool] = mapped_column('pinned', Boolean, default=False)
