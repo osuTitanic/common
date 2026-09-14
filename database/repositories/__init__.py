@@ -8,6 +8,7 @@ from . import (
     achievements,
     nominations,
     permissions,
+    beatmapset_stars,
     beatmapsets,
     screenshots,
     activities,
