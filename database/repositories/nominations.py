@@ -36,11 +36,12 @@ def delete(
 def delete_all(
     beatmapset_id: int,
     session: Session = SessionProvider
-) -> None:
-    session.query(DBBeatmapNomination) \
+) -> int:
+    deleted = session.query(DBBeatmapNomination) \
         .filter(DBBeatmapNomination.set_id == beatmapset_id) \
         .delete()
     session.flush()
+    return deleted
 
 @session_wrapper
 def count(
