@@ -263,6 +263,18 @@ class Parser:
                 return i + ltc, True
         return len(data), False
 
+    def _is_free_text_heading(self, data, tag, start, end, closer):
+        if closer or not (start == 0 or data[start - 1] == "\n") or not (end >= len(data) or data[end] == "\n"):
+            return False
+
+        content = tag[len(self.tag_opener) : -len(self.tag_closer)].strip()
+        whitespace = min(
+            (position for position in (content.find(" "), content.find("\t")) if position >= 0),
+            default=-1,
+        )
+        equals = content.find("=")
+        return whitespace > 0 and (equals < 0 or whitespace < equals)
+
     def tokenize(self, data):
         """
         Tokenizes the given string. A token is a 4-tuple of the form:
@@ -298,8 +310,14 @@ class Parser:
                     valid, tag_name, closer, opts = self._parse_tag(tag)
                     tokenizable_tags = [x for x in self.recognized_tags if x != 'beatmap_header']
 
+                    # A bracketed phrase on its own line is a heading, even when
+                    # its first word happens to be a recognized BBCode tag
+                    if valid and self._is_free_text_heading(data, tag, start, end, closer):
+                        opts = CaseInsensitiveDict()
+                        opts['beatmap_header'] = tag[len(self.tag_opener) : -len(self.tag_closer)]
+                        tokens.append((self.TOKEN_TAG_START, 'beatmap_header', opts, tag))
                     # Make sure this is a well-formed, recognized tag, otherwise it's just data.
-                    if valid and tag_name in tokenizable_tags:
+                    elif valid and tag_name in tokenizable_tags:
                         if closer:
                             tokens.append((self.TOKEN_TAG_END, tag_name, None, tag))
                         else:
