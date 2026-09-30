@@ -189,7 +189,7 @@ class Config(BaseSettings):
     BANCHO_CLIENT_CUTOFF: int | None = None
 
     # Maximum allowed slots in multiplayer matches
-    MULTIPLAYER_MAX_SLOTS: int = 8
+    MULTIPLAYER_MAX_SLOTS: int = 16
 
     ## Website configuration
     FRONTEND_HOST: str = "localhost"
