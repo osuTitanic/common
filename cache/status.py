@@ -102,7 +102,7 @@ def delete(player_id: int) -> None:
     app.session.redis.hdel(
         f'bancho:status:{player_id}',
         'action', 'mode', 'mods', 'text', 'beatmap_id',
-        'beatmap_checksum', 'hash', 'version'
+        'beatmap_checksum', 'hash', 'version', 'version_string'
     )
     app.session.redis.hdel(
         f'bancho:stats:{player_id}',
