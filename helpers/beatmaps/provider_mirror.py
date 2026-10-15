@@ -5,12 +5,15 @@ from app.common.config import config_instance as config
 from .resolver import BeatmapResourceProvider
 
 from typing import Iterator, List, Any, Tuple
+from email.utils import parsedate_to_datetime # yeah
 from requests.exceptions import ConnectionError
 from requests.adapters import HTTPAdapter
 from requests import Session, Response
 from urllib3.util.retry import Retry
 from urllib.parse import urlparse
 from redis import Redis
+from math import ceil
+from time import time
 
 import logging
 
@@ -47,21 +50,21 @@ class MirrorResolver(BeatmapResourceProvider):
         )
 
         ratelimit_remaining = self.resolve_header(response, 'X-Ratelimit-Remaining', cast=int)
-        ratelimit_reset = self.resolve_header(response, 'X-Ratelimit-Reset', cast=int)
+        ratelimit_reset = self.resolve_ratelimit_seconds(response, 'X-Ratelimit-Reset')
 
         if ratelimit_remaining is not None and ratelimit_remaining <= 1:
             self.logger.warning(f'Remaining units on "{mirror.url}" low, blocking for {ratelimit_reset} seconds.')
             self.set_ratelimit(mirror.url, ratelimit_reset)
 
         daily_remaining = self.resolve_header(response, 'X-Daily-Remaining', cast=int)
-        daily_reset = self.resolve_header(response, 'X-Ratelimit-Daily-Reset', cast=int)
+        daily_reset = self.resolve_ratelimit_seconds(response, 'X-Ratelimit-Daily-Reset')
 
         if daily_remaining is not None and daily_remaining <= 1:
             self.logger.warning(f'Daily limit reached on "{mirror.url}", available again in {daily_reset} seconds.')
             self.set_ratelimit(mirror.url, daily_reset)
 
         if response.status_code == 429:
-            retry = self.resolve_header(response, 'Retry-After', 120, cast=int)
+            retry = self.resolve_ratelimit_seconds(response, 'Retry-After')
             self.logger.warning(f'Rate limited on "{mirror.url}", available again in {retry} seconds.')
             self.set_ratelimit(mirror.url, retry)
             return None
@@ -108,11 +111,25 @@ class MirrorResolver(BeatmapResourceProvider):
         finally:
             return response
 
-    def check_ratelimit(self, url: str) -> bool:
+    def check_ratelimit(self, url: str, default: int = 120) -> bool:
         domain = urlparse(self.format_mirror_url(url, 0)).netloc
-        return bool(self.cache.exists(f'ratelimit:{domain}'))
+        key = f'ratelimit:{domain}'
+        ttl = self.cache.ttl(key)
 
-    def set_ratelimit(self, url: str, ex: int = 120) -> None:
+        # Fix rate limits created without an expiry
+        if ttl == -1:
+            self.cache.expire(key, default)
+            return True
+
+        return ttl >= 0
+
+    def set_ratelimit(self, url: str, ex: int | None = 120) -> None:
+        if not isinstance(ex, int) or ex <= 0:
+            ex = 120
+
+        # 7 day expiry maximum
+        ex = min(ex, 7 * 24 * 60 * 60)
+
         domain = urlparse(self.format_mirror_url(url, 0)).netloc
         self.cache.set(f'ratelimit:{domain}', 1, ex=ex)
         self.logger.warning(f'Rate limited on "{domain}", will expire in {ex} seconds')
@@ -257,6 +274,32 @@ class MirrorResolver(BeatmapResourceProvider):
             return default
 
     @staticmethod
+    def resolve_ratelimit_seconds(
+        response: Response,
+        header: str,
+        default: int = 120,
+        max_seconds: int = 7 * 24 * 60 * 60
+    ) -> int:
+        value = response.headers.get(header)
+        if value is None:
+            return default
+
+        seconds = MirrorResolver.parse_ratelimit_value(
+            value,
+            max_seconds=max_seconds
+        )
+
+        if seconds is None:
+            return default
+
+        seconds = ceil(seconds)
+
+        if seconds <= 0:
+            return default
+
+        return min(seconds, max_seconds)
+
+    @staticmethod
     def format_mirror_url(url: str, id: int) -> str:
         if url.startswith('/'):
             # Fix for local domains (e.g. /beatmapsets/{}/download)
@@ -264,3 +307,14 @@ class MirrorResolver(BeatmapResourceProvider):
 
         # Insert the id into the url
         return url.format(id)
+
+    @staticmethod
+    def parse_ratelimit_value(value: str, max_seconds: int) -> float | None:
+        if value.isdecimal():
+            seconds = int(value)
+            return seconds - time() if seconds > max_seconds else seconds
+
+        try:
+            return parsedate_to_datetime(value).timestamp() - time()
+        except (ValueError, TypeError, OverflowError):
+            return None
