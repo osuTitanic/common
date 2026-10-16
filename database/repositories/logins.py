@@ -11,12 +11,14 @@ def create(
     user_id: int,
     ip: str,
     version: str,
+    country: str = 'XX',
     session: Session = SessionProvider
 ) -> DBLogin:
     session.add(
         login := DBLogin(
             user_id=user_id,
             ip=ip,
+            country=country.upper(),
             version=version,
             time=datetime.now()
         )

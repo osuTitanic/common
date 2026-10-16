@@ -23,7 +23,8 @@ class DBLogin(Base):
 
     user_id: Mapped[int] = mapped_column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
     time: Mapped[datetime] = mapped_column('time', DateTime, server_default=func.now(), primary_key=True)
-    ip: Mapped[str] = mapped_column('ip', String)
+    ip: Mapped[str | None] = mapped_column('ip', String, nullable=True)
+    country: Mapped[str] = mapped_column('country', String, nullable=False, default='XX', server_default='XX')
     version: Mapped[str] = mapped_column('osu_version', String)
 
 class DBChannel(Base):
