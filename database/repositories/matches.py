@@ -39,6 +39,13 @@ def fetch_by_bancho_id(id: int, session: Session = SessionProvider) -> DBMatch |
         .first()
 
 @session_wrapper
+def fetch_active(session: Session = SessionProvider) -> list[DBMatch]:
+    return session.query(DBMatch) \
+        .filter(DBMatch.ended_at.is_(None)) \
+        .order_by(DBMatch.created_at.desc()) \
+        .all()
+
+@session_wrapper
 def exists(id: int, session: Session = SessionProvider) -> bool:
     return session.query(DBMatch) \
         .filter(DBMatch.id == id) \
