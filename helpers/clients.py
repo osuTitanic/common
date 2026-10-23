@@ -2,14 +2,13 @@
 
 from ..database.repositories import releases
 from sqlalchemy.orm import Session
-from typing import List
 
 @releases.session_wrapper
 def is_valid_client_hash(version: int, hash: str, session: Session = releases.SessionProvider) -> bool:
     if is_official_release(version, hash, session):
         return True
 
-    if hash in fetch_hashes(version, session):
+    if hash in releases.fetch_checksums(version, session):
         return True
 
     return False
@@ -40,17 +39,3 @@ def is_valid_mod(identifier: str, hash: str, session: Session = releases.Session
         return False
 
     return True
-
-@releases.session_wrapper
-def fetch_hashes(version: int, session: Session = releases.SessionProvider) -> List[str]:
-    release_hashes = releases.fetch_hashes(version, session)
-
-    if not release_hashes:
-        return []
-
-    return [
-        hash
-        for release in release_hashes
-        for file in release[0]
-        for hash in file['md5']
-    ]

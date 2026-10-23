@@ -1,5 +1,4 @@
 
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy.sql import func
 from sqlalchemy import (
@@ -14,7 +13,6 @@ from sqlalchemy import (
     Text
 )
 
-from typing import Any
 from datetime import datetime
 from .forums import DBForumTopic
 from .users import DBUser
@@ -28,11 +26,10 @@ class DBRelease(Base):
     description: Mapped[str] = mapped_column('description', String, default='')
     category: Mapped[str] = mapped_column('category', String, default='Uncategorized')
     known_bugs: Mapped[str | None] = mapped_column('known_bugs', String, nullable=True)
-    supported: Mapped[bool] = mapped_column('supported', Boolean, default=True)
     preview: Mapped[bool] = mapped_column('preview', Boolean, default=False)
-    downloads: Mapped[str] = mapped_column('downloads', ARRAY(String), default=[])
-    screenshots: Mapped[str] = mapped_column('screenshots', ARRAY(String), default=[])
-    hashes: Mapped[Any] = mapped_column('hashes', JSONB, default=[])
+    download_url: Mapped[str | None] = mapped_column('download_url', String, nullable=True)
+    screenshot: Mapped[str | None] = mapped_column('screenshot', String, nullable=True)
+    checksums: Mapped[list[str]] = mapped_column('checksums', ARRAY(String), nullable=False, default=list)
     created_at: Mapped[datetime] = mapped_column('created_at', DateTime, server_default=func.now())
 
 class DBModdedRelease(Base):
@@ -44,6 +41,7 @@ class DBModdedRelease(Base):
     topic_id: Mapped[int] = mapped_column('topic_id', Integer, ForeignKey('forum_topics.id'))
     client_version: Mapped[int] = mapped_column('client_version', Integer)
     client_extension: Mapped[str] = mapped_column('client_extension', String)
+    screenshot: Mapped[str | None] = mapped_column('screenshot', String, nullable=True)
     created_at: Mapped[datetime] = mapped_column('created_at', DateTime, server_default=func.now())
 
     creator: Mapped['DBUser'] = relationship('DBUser')

@@ -11,16 +11,18 @@ from .wrapper import session_wrapper, SessionProvider
 def create(
     name: str,
     version: int,
-    downloads: list,
-    hashes: dict,
-    screenshots: dict,
+    checksums: List[str],
+    download_url: str | None = None,
+    screenshot: str | None = None,
     session: Session = SessionProvider
 ) -> DBRelease:
     session.add(
         release := DBRelease(
             name=name,
             version=version,
-            hashes=hashes
+            checksums=checksums,
+            download_url=download_url,
+            screenshot=screenshot
         )
     )
     session.flush()
@@ -125,10 +127,9 @@ def fetch_all(session: Session = SessionProvider) -> List[DBRelease]:
         .all()
 
 @session_wrapper
-def fetch_hashes(version: int, session: Session = SessionProvider) -> List[dict]:
-    return session.query(DBRelease.hashes) \
-        .filter(DBRelease.version == version) \
-        .all()
+def fetch_checksums(version: int, session: Session = SessionProvider) -> List[str]:
+    releases = session.scalars(select(DBRelease.checksums).where(DBRelease.version == version))
+    return [checksum for checksums in releases for checksum in checksums]
 
 @session_wrapper
 def fetch_modded(identifier: str, session: Session = SessionProvider) -> DBModdedRelease | None:
