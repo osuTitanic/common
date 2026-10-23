@@ -49,7 +49,7 @@ def fetch_range(
     session: Session = SessionProvider
 ) -> List[DBBenchmark]:
     return session.query(DBBenchmark) \
-        .order_by(DBBenchmark.score.desc()) \
+        .order_by(DBBenchmark.id.desc()) \
         .offset(offset) \
         .limit(limit) \
         .all()
