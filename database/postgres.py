@@ -10,7 +10,6 @@ from ..config import Config
 from .. import officer
 
 from .objects import Base
-from . import extensions
 
 import logging
 import time
