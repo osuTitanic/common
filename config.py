@@ -346,7 +346,7 @@ class Config(BaseSettings):
     @property
     def POSTGRES_DSN(self) -> str:
         return (
-            f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+            f"postgresql+psycopg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
             f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DATABASE or self.POSTGRES_USER}"
         )
 
