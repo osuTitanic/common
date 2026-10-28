@@ -39,7 +39,8 @@ class DBMessage(Base):
     __tablename__ = "messages"
 
     id: Mapped[int] = mapped_column('id', Integer, primary_key=True, autoincrement=True)
-    sender: Mapped[str] = mapped_column('sender', String, ForeignKey('users.name'))
+    sender: Mapped[str] = mapped_column('sender', String)
+    sender_id: Mapped[int | None] = mapped_column('sender_id', Integer, ForeignKey('users.id'), nullable=True)
     target: Mapped[str] = mapped_column('target', String)
     message: Mapped[str] = mapped_column('message', String)
     time: Mapped[datetime] = mapped_column('time', DateTime, server_default=func.now())
