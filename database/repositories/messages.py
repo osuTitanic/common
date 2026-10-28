@@ -1,7 +1,7 @@
 
 from app.common.database.objects import DBUser, DBMessage, DBDirectMessage
 from sqlalchemy import or_, case, func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from datetime import datetime
 from typing import List, Dict
 
@@ -57,6 +57,7 @@ def fetch_recent(
     session: Session = SessionProvider
 ) -> List[DBMessage]:
     return session.query(DBMessage) \
+        .options(selectinload(DBMessage.user)) \
         .filter(DBMessage.target == target) \
         .order_by(DBMessage.id.desc()) \
         .offset(offset) \
@@ -65,13 +66,14 @@ def fetch_recent(
 
 @session_wrapper
 def fetch_by_sender(
-    sender: str,
+    sender_id: int,
     limit: int = 10,
     offset: int = 0,
     session: Session = SessionProvider
 ) -> List[DBMessage]:
     return session.query(DBMessage) \
-        .filter(DBMessage.sender == sender) \
+        .options(selectinload(DBMessage.user)) \
+        .filter(DBMessage.sender_id == sender_id) \
         .order_by(DBMessage.id.desc()) \
         .offset(offset) \
         .limit(limit) \
@@ -79,11 +81,12 @@ def fetch_by_sender(
 
 @session_wrapper
 def fetch_all_by_sender(
-    sender: str,
+    sender_id: int,
     session: Session = SessionProvider
 ) -> List[DBMessage]:
     return session.query(DBMessage) \
-        .filter(DBMessage.sender == sender) \
+        .options(selectinload(DBMessage.user)) \
+        .filter(DBMessage.sender_id == sender_id) \
         .order_by(DBMessage.id.desc()) \
         .all()
 

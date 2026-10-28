@@ -49,11 +49,11 @@ def fetch_by_permissions(
 
 @session_wrapper
 def fetch_channel_entries(
-    username: str,
+    user_id: int,
     session: Session = SessionProvider
 ) -> List[DBChannel]:
     channel_names = session.query(DBMessage.target) \
-        .filter(DBMessage.sender == username) \
+        .filter(DBMessage.sender_id == user_id) \
         .filter(DBMessage.target.ilike('#%')) \
         .distinct() \
         .all()
