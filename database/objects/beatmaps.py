@@ -9,6 +9,7 @@ from sqlalchemy.sql import func
 from sqlalchemy import (
     SmallInteger,
     ForeignKey,
+    FetchedValue,
     BigInteger,
     Computed,
     DateTime,
@@ -46,6 +47,10 @@ class DBBeatmapset(Base):
     server: Mapped[int] = mapped_column('server', SmallInteger, default=0)
     download_server: Mapped[int] = mapped_column('download_server', SmallInteger, default=0)
     topic_id: Mapped[int | None] = mapped_column('topic_id', Integer, nullable=True)
+    post_id: Mapped[int | None] = mapped_column(
+        'post_id', BigInteger, ForeignKey('forum_posts.id', deferrable=True, initially='DEFERRED'),
+        nullable=True, server_default=FetchedValue(), server_onupdate=FetchedValue()
+    )
     creator_id: Mapped[int] = mapped_column('creator_id', Integer, ForeignKey('users.id'), nullable=True)
     available: Mapped[bool] = mapped_column('available', Boolean, default=True)
     enhanced: Mapped[bool] = mapped_column('enhanced', Boolean, default=False)
