@@ -10,7 +10,6 @@ from .wrapper import session_wrapper, SessionProvider
 @session_wrapper
 def create(
     sender_id: int,
-    sender: str,
     target: str,
     message: str,
     session: Session = SessionProvider
@@ -18,7 +17,6 @@ def create(
     session.add(
         msg := DBMessage(
             sender_id=sender_id,
-            sender=sender,
             target=target,
             message=message,
             time=datetime.now()
