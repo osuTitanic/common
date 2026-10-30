@@ -27,6 +27,7 @@ class DBRelease(Base):
     category: Mapped[str] = mapped_column('category', String, default='Uncategorized')
     known_bugs: Mapped[str | None] = mapped_column('known_bugs', String, nullable=True)
     preview: Mapped[bool] = mapped_column('preview', Boolean, default=False)
+    recommended: Mapped[bool] = mapped_column('recommended', Boolean, default=False)
     download_url: Mapped[str | None] = mapped_column('download_url', String, nullable=True)
     screenshot: Mapped[str | None] = mapped_column('screenshot', String, nullable=True)
     checksums: Mapped[list[str]] = mapped_column('checksums', ARRAY(String), nullable=False, default=list)
